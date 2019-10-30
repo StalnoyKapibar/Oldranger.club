@@ -1,4 +1,6 @@
-package ru.java.mentor.oldranger.club.model;
+package ru.java.mentor.oldranger.club.model.forum;
+
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.time.LocalDateTime;
 
