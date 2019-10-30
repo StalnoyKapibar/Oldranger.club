@@ -16,4 +16,12 @@ public class Comment {
 
     private String commentText;
 
+    public Comment(Long id, Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
+        this.id = id;
+        this.topic = topic;
+        this.user = user;
+        this.answerTo = answerTo;
+        this.dateTime = dateTime;
+        this.commentText = commentText;
+    }
 }
