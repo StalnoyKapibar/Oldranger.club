@@ -22,17 +22,14 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "topic_comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")
     private Topic topic;
 
-    @Column(name = "user_comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     private User user;
 
-    @Column(name = "comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_comment")
     private Comment answerTo;

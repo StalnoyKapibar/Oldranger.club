@@ -24,7 +24,6 @@ public class Message {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "chat")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_chat")
     private Chat chat;

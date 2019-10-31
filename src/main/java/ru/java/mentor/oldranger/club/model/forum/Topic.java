@@ -25,9 +25,8 @@ public class Topic {
     @Column(name = "name_topic", nullable = false)
     private String name;
 
-    @Column(name = "user_topic")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "user_id")
     private User topicStarter;
 
     @Column(columnDefinition = "DATE", name = "date_start")
@@ -36,7 +35,6 @@ public class Topic {
     @Column(columnDefinition = "DATE", name = "date_last_message")
     private LocalDateTime lastMessageTime;
 
-    @Column(name = "section_topic")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_section")
     private Section section;

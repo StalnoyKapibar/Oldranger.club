@@ -30,6 +30,6 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return String.valueOf(getRole());
+        return getRole();
     }
 }

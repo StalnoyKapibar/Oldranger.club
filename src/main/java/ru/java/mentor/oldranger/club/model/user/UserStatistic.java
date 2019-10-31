@@ -27,8 +27,7 @@ public class UserStatistic {
     @Column(name="last_vizit")
     private LocalDateTime lastVizit;
 
-    @Column(name="user")
     @OneToOne
-    @JoinColumn(name = "user_static")
+    @JoinColumn(name = "user_id")
     private User user;
 }
