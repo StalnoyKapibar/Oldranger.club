@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface ChatService {
 
-    public Chat getChat();
+    public Chat getChatByName(String name);
 
     public void createChat(Chat chat);
 
-    public void deleteChat();
+    public void deleteChatById(Long id);
 
     public List<Chat> getAllChats();
 }

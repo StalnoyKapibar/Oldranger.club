@@ -14,16 +14,16 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void createTopic(Topic topic) {
-
+        topicRepository.save(topic);
     }
 
     @Override
     public void editTopicByName(Topic topic) {
-
+        topicRepository.save(topic);
     }
 
     @Override
     public void deleteTopicById(Long id) {
-
+        topicRepository.deleteById(id);
     }
 }
