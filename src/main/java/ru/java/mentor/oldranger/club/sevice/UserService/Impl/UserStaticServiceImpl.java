@@ -14,11 +14,11 @@ public class UserStaticServiceImpl implements UserStaticService {
 
     @Override
     public UserStatistic getUserStaticById(Long id) {
-        return null;
+        return userStaticRepository.getOne(id);
     }
 
     @Override
     public void saveUserStatic(UserStatistic userStatistic) {
-
+        userStaticRepository.save(userStatistic);
     }
 }

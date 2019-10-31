@@ -14,21 +14,24 @@ public class ChatServiceImpl implements ChatService {
     @Autowired
     private ChatRepository chatRepository;
 
+
     @Override
-    public Chat getChat() {
-        return null;
+    public Chat getChatByName(String name) {
+        return chatRepository.findChatByName(name);
     }
 
     @Override
     public void createChat(Chat chat) {
+        chatRepository.save(chat);
     }
 
     @Override
-    public void deleteChat() {
+    public void deleteChatById(Long id) {
+
     }
 
     @Override
     public List<Chat> getAllChats() {
-        return null;
+        return chatRepository.findAll();
     }
 }

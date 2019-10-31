@@ -13,17 +13,17 @@ public class UserProfileServiceImpl implements UserProfileService {
     private UserProfileRepository userProfileRepository;
 
     @Override
-    public void createUserProfile(UserProfile userProfile) {
-
+    public UserProfile createUserProfile(UserProfile userProfile) {
+        return userProfileRepository.save(userProfile);
     }
 
     @Override
     public void deleteUserProfileById(Long id) {
-
+        userProfileRepository.deleteById(id);
     }
 
     @Override
-    public void editUserProfileById(Long id) {
-
+    public void editUserProfile(UserProfile userProfile) {
+        userProfileRepository.save(userProfile);
     }
 }

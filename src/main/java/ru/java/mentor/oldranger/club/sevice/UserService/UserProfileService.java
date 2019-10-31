@@ -4,9 +4,9 @@ import ru.java.mentor.oldranger.club.model.user.UserProfile;
 
 public interface UserProfileService {
 
-    public void createUserProfile(UserProfile userProfile);
+    public UserProfile createUserProfile(UserProfile userProfile);
 
     public void deleteUserProfileById(Long id);
 
-    public void editUserProfileById(Long id);
+    public void editUserProfile(UserProfile userProfile);
 }
