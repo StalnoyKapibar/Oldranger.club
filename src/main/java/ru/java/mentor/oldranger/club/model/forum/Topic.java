@@ -41,4 +41,13 @@ public class Topic {
 
     @Column(name = "is_hide")
     private boolean isHideToAnon;
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Section section, boolean isHideToAnon) {
+        this.name = name;
+        this.topicStarter = topicStarter;
+        this.startTime = startTime;
+        this.lastMessageTime = lastMessageTime;
+        this.section = section;
+        this.isHideToAnon = isHideToAnon;
+    }
 }

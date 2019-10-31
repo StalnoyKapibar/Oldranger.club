@@ -31,4 +31,16 @@ public class User {
 
     @Column(name = "nick_name", nullable = false)
     private String nickName;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+    public User(String firstName, String lastName, String email, String nickName, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.nickName = nickName;
+        this.role = role;
+    }
 }
