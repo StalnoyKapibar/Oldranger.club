@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ChatService {
 
-    public Chat getChatByName(String name);
+    public Chat getChatById(Long id);
 
     public void createChat(Chat chat);
 
