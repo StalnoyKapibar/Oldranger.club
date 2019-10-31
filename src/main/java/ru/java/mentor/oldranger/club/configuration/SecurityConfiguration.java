@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
@@ -17,7 +18,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private RoleHierarchy roleHierarchy;
 
-    public SecurityConfiguration(RoleHierarchy roleHierarchy) {
+    @Autowired
+    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
     }
 
@@ -38,7 +40,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .expressionHandler(webExpressionHandler());
+                .expressionHandler(webExpressionHandler())
+
+                .anyRequest()
+                .authenticated()
+
+                .and()
+                .formLogin()
+                .and()
+                .logout()
+                .permitAll();
     }
 
 }
