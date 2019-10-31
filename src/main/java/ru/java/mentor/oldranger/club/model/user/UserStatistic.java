@@ -18,13 +18,17 @@ public class UserStatistic {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="message_count")
     private Long messageCount;
 
+    @Column(name="last_vizit")
     private LocalDateTime lastVizit;
 
+    @Column(name="user")
     @OneToOne
-    @MapsId
+    @JoinColumn(name = "user_static")
     private User user;
 }

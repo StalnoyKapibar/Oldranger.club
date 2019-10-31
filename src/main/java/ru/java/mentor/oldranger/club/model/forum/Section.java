@@ -12,7 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "section")
+@Table(name = "sections")
 public class Section {
 
     @Id
@@ -20,10 +20,12 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name_section", nullable = false)
     private String name;
 
+    @Column(name = "position")
     private int position;
 
+    @Column(name = "is_hide")
     private boolean isHideToAnon;
 }

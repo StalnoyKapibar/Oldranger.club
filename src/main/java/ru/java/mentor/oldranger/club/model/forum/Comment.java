@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comment")
+@Table(name = "comments")
 public class Comment {
 
     @Id
@@ -22,25 +22,28 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "topic_comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")
     private Topic topic;
 
+    @Column(name = "user_comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     private User user;
 
+    @Column(name = "comment")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_comment")
     private Comment answerTo;
 
-    @Column(columnDefinition = "DATE")
+    @Column(columnDefinition = "DATE", name = "date_comment")
     private LocalDateTime dateTime;
 
+    @Column(name = "text_comment")
     private String commentText;
 
-    public Comment(Long id, Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
-        this.id = id;
+    public Comment( Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
         this.topic = topic;
         this.user = user;
         this.answerTo = answerTo;

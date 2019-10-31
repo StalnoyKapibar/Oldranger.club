@@ -17,10 +17,12 @@ public class UserProfile {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="user")
     @OneToOne
-    @MapsId
+    @JoinColumn(name = "user_profile")
     private User user;
 
     //image

@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "chat")
+@Table(name = "chats")
 public class Chat {
 
     @Id
@@ -22,6 +22,7 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "list_users")
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},
