@@ -2,11 +2,17 @@ package ru.java.mentor.oldranger.club.sevice.ForumService;
 
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
+import java.util.List;
+
 public interface TopicService {
 
-    public void createTopic(Topic topic);
+    void createTopic(Topic topic);
 
-    public void editTopicByName(Topic topic);
+    void editTopicByName(Topic topic);
 
-    public void deleteTopicById(Long id);
+    void deleteTopicById(Long id);
+
+    List<Topic> get10ActualTopics();
+
+    List<Topic> get10ActualTopicsForAnon();
 }
