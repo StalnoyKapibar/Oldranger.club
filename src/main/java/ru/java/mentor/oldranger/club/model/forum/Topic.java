@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "topic")
+@Table(name = "topics")
 public class Topic {
 
     @Id
@@ -22,23 +22,23 @@ public class Topic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name_topic", nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "user_id")
     private User topicStarter;
 
-    @Column(columnDefinition = "DATE")
+    @Column(columnDefinition = "DATE", name = "date_start")
     private LocalDateTime startTime;
 
-    @Column(columnDefinition = "DATE")
+    @Column(columnDefinition = "DATE", name = "date_last_message")
     private LocalDateTime lastMessageTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_section")
     private Section section;
 
+    @Column(name = "is_hide")
     private boolean isHideToAnon;
-
 }

@@ -12,7 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -20,15 +20,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "firstName", nullable = true)
+    @Column(name = "first_name", nullable = true)
     private String firstName;
 
-    @Column(name = "lastName", nullable = true)
+    @Column(name = "last_name", nullable = true)
     private String lastName;
 
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
 }

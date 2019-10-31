@@ -20,12 +20,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void createChat() {
+    public void createChat(Chat chat) {
     }
 
     @Override
     public void deleteChat() {
-
     }
 
     @Override

@@ -8,7 +8,7 @@ public interface ChatService {
 
     public Chat getChat();
 
-    public void createChat();
+    public void createChat(Chat chat);
 
     public void deleteChat();
 

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "message")
+@Table(name = "messages")
 public class Message {
 
     @Id
@@ -28,6 +28,6 @@ public class Message {
     @JoinColumn(name = "id_chat")
     private Chat chat;
 
-    @Column(columnDefinition = "DATE")
+    @Column(columnDefinition = "DATE", name = "date_message")
     private LocalDateTime localDateTime;
 }
