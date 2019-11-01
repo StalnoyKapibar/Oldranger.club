@@ -42,9 +42,9 @@ public class MainPageController {
         SectionsAndTopicsDto sectionsAndTopicsDto;
 
         if (reachableGrantedAuthorities.contains(new Role("ROLE_USER"))) {
-            sectionsAndTopicsDto = new SectionsAndTopicsDto(sectionService.getAllSections(), topicService.getTopicsLimit10BySection());
+            sectionsAndTopicsDto = new SectionsAndTopicsDto(sectionService.getAllSections(), topicService.getActualTopicsLimit10BySection());
         } else {
-            sectionsAndTopicsDto = new SectionsAndTopicsDto(sectionService.getAllSectionsForAnon(), topicService.getTopicsLimit10BySectionForAnon());
+            sectionsAndTopicsDto = new SectionsAndTopicsDto(sectionService.getAllSectionsForAnon(), topicService.getActualTopicsLimit10BySectionForAnon());
         }
 
         modelAndView.addObject("sectionsAndTopics", sectionsAndTopicsDto);

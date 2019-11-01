@@ -32,7 +32,7 @@ class ApplicationTests {
     void testFor_TopicService_getTopicsLimitAnyBySection() {
     	int expectingLimitLessOrEqual = 1;
 
-        List<Topic> topics = topicService.getTopicsLimitAnyBySection(expectingLimitLessOrEqual);
+        List<Topic> topics = topicService.getActualTopicsLimitAnyBySection(expectingLimitLessOrEqual);
         Map<Section, List<Topic>> sectionMap = topics.stream().collect(Collectors.groupingBy(Topic::getSection));
 
         for (Map.Entry<Section, List<Topic>> entry : sectionMap.entrySet()) {
@@ -50,7 +50,7 @@ class ApplicationTests {
 	void testFor_TopicService_getTopicsLimitAnyBySectionForAnon() {
 		int expectingLimitLessOrEqual = 1;
 
-		List<Topic> topics = topicService.getTopicsLimitAnyBySectionForAnon(expectingLimitLessOrEqual);
+		List<Topic> topics = topicService.getActualTopicsLimitAnyBySectionForAnon(expectingLimitLessOrEqual);
 		Map<Section, List<Topic>> sectionMap = topics.stream().collect(Collectors.groupingBy(Topic::getSection));
 
 		for (Map.Entry<Section, List<Topic>> entry : sectionMap.entrySet()) {
@@ -67,7 +67,7 @@ class ApplicationTests {
 
     @Test
 	void testFor_SectionsAndTopicsDto() {
-		SectionsAndTopicsDto dto = new SectionsAndTopicsDto(sectionService.getAllSections(), topicService.getTopicsLimit10BySection());
+		SectionsAndTopicsDto dto = new SectionsAndTopicsDto(sectionService.getAllSections(), topicService.getActualTopicsLimit10BySection());
 		Map<Section, List<Topic>> map = dto.getSectionListMap();
 		for (Map.Entry<Section, List<Topic>> entry : map.entrySet()) {
 			System.out.println("Section id: " + entry.getKey().getId());
