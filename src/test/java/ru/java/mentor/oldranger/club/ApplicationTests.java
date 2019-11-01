@@ -30,7 +30,7 @@ class ApplicationTests {
 
     @Test
     void testFor_TopicService_getTopicsLimitAnyBySection() {
-    	int expectingLimitLessOrEqual = 1;
+    	int expectingLimitLessOrEqual = 2;
 
         List<Topic> topics = topicService.getActualTopicsLimitAnyBySection(expectingLimitLessOrEqual);
         Map<Section, List<Topic>> sectionMap = topics.stream().collect(Collectors.groupingBy(Topic::getSection));
@@ -48,7 +48,7 @@ class ApplicationTests {
 
 	@Test
 	void testFor_TopicService_getTopicsLimitAnyBySectionForAnon() {
-		int expectingLimitLessOrEqual = 1;
+		int expectingLimitLessOrEqual = 2;
 
 		List<Topic> topics = topicService.getActualTopicsLimitAnyBySectionForAnon(expectingLimitLessOrEqual);
 		Map<Section, List<Topic>> sectionMap = topics.stream().collect(Collectors.groupingBy(Topic::getSection));

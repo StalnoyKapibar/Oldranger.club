@@ -21,6 +21,6 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      * */
     @Query(nativeQuery = true,
             value = "select * " +
-                    "from (select *, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics) t where i <= ?1 and is_hide = false")
+                    "from (select *, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics where is_hide = false) t where i <= ?1")
     List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
 }
