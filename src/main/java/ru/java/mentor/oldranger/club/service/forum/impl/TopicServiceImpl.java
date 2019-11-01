@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -35,12 +34,22 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<Topic> get10ActualTopics() {
-        return topicRepository.getFirst10ByOrderByLastMessageTimeDesc();
+    public List<Topic> getTopicsLimitAnyBySection(Integer limitTopicsBySection) {
+        return topicRepository.getTopicsLimitBySection(limitTopicsBySection);
     }
 
     @Override
-    public List<Topic> get10ActualTopicsForAnon() {
-        return topicRepository.getActualTopicsForAnon(PageRequest.of(0, 10));
+    public List<Topic> getTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection) {
+        return topicRepository.getTopicsLimitBySectionForAnon(limitTopicsBySection);
+    }
+
+    @Override
+    public List<Topic> getTopicsLimit10BySection() {
+        return topicRepository.getTopicsLimitBySection(10);
+    }
+
+    @Override
+    public List<Topic> getTopicsLimit10BySectionForAnon() {
+        return topicRepository.getTopicsLimitBySectionForAnon(10);
     }
 }

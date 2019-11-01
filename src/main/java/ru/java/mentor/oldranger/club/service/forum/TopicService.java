@@ -12,7 +12,12 @@ public interface TopicService {
 
     void deleteTopicById(Long id);
 
-    List<Topic> get10ActualTopics();
+    List<Topic> getTopicsLimitAnyBySection(Integer limitTopicsBySection);
 
-    List<Topic> get10ActualTopicsForAnon();
+    List<Topic> getTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
+
+    List<Topic> getTopicsLimit10BySection();
+
+    List<Topic> getTopicsLimit10BySectionForAnon();
+
 }
