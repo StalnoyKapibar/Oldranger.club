@@ -35,21 +35,21 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<Topic> getTopicsLimitAnyBySection(Integer limitTopicsBySection) {
-        return topicRepository.getTopicsLimitBySection(limitTopicsBySection);
+        return topicRepository.getTopicsLimitAnyBySection(limitTopicsBySection);
     }
 
     @Override
     public List<Topic> getTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection) {
-        return topicRepository.getTopicsLimitBySectionForAnon(limitTopicsBySection);
+        return topicRepository.getTopicsLimitAnyBySectionForAnon(limitTopicsBySection);
     }
 
     @Override
     public List<Topic> getTopicsLimit10BySection() {
-        return topicRepository.getTopicsLimitBySection(10);
+        return topicRepository.getTopicsLimitAnyBySection(10);
     }
 
     @Override
     public List<Topic> getTopicsLimit10BySectionForAnon() {
-        return topicRepository.getTopicsLimitBySectionForAnon(10);
+        return topicRepository.getTopicsLimitAnyBySectionForAnon(10);
     }
 }
