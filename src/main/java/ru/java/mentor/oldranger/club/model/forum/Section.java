@@ -28,4 +28,10 @@ public class Section {
 
     @Column(name = "is_hide")
     private boolean isHideToAnon;
+
+    public Section(String name, int position, boolean isHideToAnon) {
+        this.name = name;
+        this.position = position;
+        this.isHideToAnon = isHideToAnon;
+    }
 }
