@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+<h3>User Profile</h3>
+<div th:text="${user.id}"></div>
+<div th:text="${user.firstName}"></div>
+<div th:text="${user.lastName}"></div>
+<div th:text="${user.email}"></div>
+<div th:text="${user.nickName}"></div>
+
+
+<h4>Upload Avatar:</h4>
+<form method="POST" th:action="@{/test/uploadAvatar}" enctype="multipart/form-data">
+    <input type="file" name="file"/> <br/><br/>
+    <button type="submit">Submit</button>
+</form>
+<hr/>
+<div th:if="${message}">
+    <h2 th:text="${message}"/>
+</div>
+</body>
+</html>

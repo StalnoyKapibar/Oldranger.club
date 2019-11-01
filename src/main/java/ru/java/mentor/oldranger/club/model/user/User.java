@@ -36,6 +36,10 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @OneToOne
+    @JoinColumn(name = "avatar_id", referencedColumnName = "id")
+    private UserAvatar avatar;
+
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;

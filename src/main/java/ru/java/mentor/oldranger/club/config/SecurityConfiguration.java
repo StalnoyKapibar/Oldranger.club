@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/testmail").permitAll()
+                .antMatchers("/test/**").permitAll()
                 .expressionHandler(webExpressionHandler())
 
                 .anyRequest()
