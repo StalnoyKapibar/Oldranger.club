@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import ru.java.mentor.oldranger.club.controller.SectionsAndTopicsController;
+import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -30,7 +30,7 @@ class SectionsAndTopicsTests {
     @Autowired
     private TopicService topicService;
     @Autowired
-    private SectionsAndTopicsController sectionsAndTopicsController;
+    private SectionsAndTopicsService sectionsAndTopicsService;
     @Autowired
     private RoleHierarchy roleHierarchy;
 
@@ -76,7 +76,7 @@ class SectionsAndTopicsTests {
         System.out.println("authorities = " + authorities);
         System.out.println("reachableGrantedAuthorities = " + reachableGrantedAuthorities);
 
-        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
+        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         for (SectionsAndTopicsDto dto : dtos) {
             printSection(dto.getSection());
             for (Topic topic : dto.getTopics()) {
@@ -96,7 +96,7 @@ class SectionsAndTopicsTests {
         System.out.println("authorities = " + authorities);
         System.out.println("reachableGrantedAuthorities = " + reachableGrantedAuthorities);
 
-        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
+        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         for (SectionsAndTopicsDto dto : dtos) {
             Section section = dto.getSection();
             printSection(section);

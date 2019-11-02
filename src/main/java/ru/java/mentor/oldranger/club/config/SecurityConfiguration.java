@@ -1,33 +1,43 @@
 package ru.java.mentor.oldranger.club.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    @Autowired
     private RoleHierarchy roleHierarchy;
 
     @Autowired
-    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-        this.roleHierarchy = roleHierarchy;
+    @Qualifier("userDetailsServiceImpl")
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder);
     }
 
     @Bean
@@ -61,12 +71,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll();
     }
 
-    //Временный пользователь с ролью ROLE_USER, user:user
     @Bean
-    @Override
-    protected UserDetailsService userDetailsService() {
-        List<UserDetails> users = new ArrayList<>();
-        users.add(User.withDefaultPasswordEncoder().username("user").password("user").roles("USER").build());
-        return new InMemoryUserDetailsManager(users);
+    public PasswordEncoder passwordEncoder(@Value("${project.password.encoder.strength}") int strength) {
+        return new BCryptPasswordEncoder(strength);
     }
 }

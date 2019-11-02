@@ -1,4 +1,4 @@
-package ru.java.mentor.oldranger.club.controller;
+package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
+import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @AllArgsConstructor
-public class SectionsAndTopicsController {
+public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
 
     private RoleHierarchy roleHierarchy;
 
