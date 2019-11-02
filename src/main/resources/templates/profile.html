@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
 </head>
 <body>
-<h3>User Profile</h3>
-<div th:text="${user.id}"></div>
-<div th:text="${user.firstName}"></div>
-<div th:text="${user.lastName}"></div>
-<div th:text="${user.email}"></div>
-<div th:text="${user.nickName}"></div>
+<h1>User Profile</h1>
 
+<b>User ID: </b><span  th:text="${session.user.id}"></span><br>
+<b>First Name: </b><span  th:text="${session.user.firstName}"></span><br>
+<b>Last Name: </b><span  th:text="${session.user.lastName}"></span><br>
+<b>Email: </b><span  th:text="${session.user.email}"></span><br>
+<b>Nickname: </b><span  th:text="${session.user.nickName}"></span><br>
+
+<section th:if="${session.user.avatar}">
+    <br><br>
+    <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle">
+    <br><br>
+</section>
 
 <h4>Upload Avatar:</h4>
 <form method="POST" th:action="@{/test/uploadAvatar}" enctype="multipart/form-data">
     <input type="file" name="file"/> <br/><br/>
     <button type="submit">Submit</button>
 </form>
-<hr/>
-<div th:if="${message}">
-    <h2 th:text="${message}"/>
-</div>
 </body>
 </html>
