@@ -43,7 +43,6 @@ public class TestUserAvatarController {
                                @SessionAttribute User user) {
 
         try {
-            assert user != null;
             userAvatarService.setAvatarToUser(user,file);
         } catch (IOException e) {
             e.printStackTrace();
