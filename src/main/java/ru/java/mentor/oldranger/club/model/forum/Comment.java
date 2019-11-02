@@ -34,7 +34,7 @@ public class Comment {
     @JoinColumn(name = "id_comment")
     private Comment answerTo;
 
-    @Column(name = "date_comment")
+    @Column(columnDefinition = "DATE", name = "date_comment")
     private LocalDateTime dateTime;
 
     @Column(name = "text_comment")
