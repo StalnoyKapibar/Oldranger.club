@@ -9,4 +9,6 @@ public interface TopicService {
     public void editTopicByName(Topic topic);
 
     public void deleteTopicById(Long id);
+
+    public Topic findById(Long id);
 }
