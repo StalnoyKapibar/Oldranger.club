@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
+<div id="sectionsandtopicsplain">
+    <h4>Sections and topics example thymeleaf driven:</h4>
+    <th:block th:each="section : ${sectionsAndTopics}">
+        <h5 th:text="${section.getSection().getName()}"></h5>
+        <ul>
+            <li th:each="topic : ${section.getTopics()}" th:text="${topic.getName()}"></li>
+        </ul>
+    </th:block>
+</div>
+<hr>
+<div id="sectionsandtopicsrest">
+    <h4>Sections and topics example ajax driven:</h4>
+</div>
 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        getSectionsAndTopics();
+    });
+
+    function getSectionsAndTopics() {
+        $.ajax({
+            type: "POST",
+            url: "/api/sectionsandactualtopics",
+            contentType: "application/json; charset=utf-8",
+            success: function (e) {
+                console.log(e);
+                drawSectionsAndTopics(e);
+            },
+            error: function (e) {
+                console.log(e.responseText);
+            }
+        });
+    }
+
+    function drawSectionsAndTopics(e) {
+        let holder = $('#sectionsandtopicsrest');
+        for (let i = 0; i < e.length; i++) {
+            holder.append('<h5>' + e[i].section.name + '</h5>');
+            let list = $('<ul>');
+            holder.append(list);
+            for (let j = 0; j < e[i].topics.length; j++) {
+                list.append('<li>' + e[i].topics[j].name + '</li>');
+            }
+        }
+    }
+</script>
 </body>
 </html>

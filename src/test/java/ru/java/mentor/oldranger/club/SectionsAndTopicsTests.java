@@ -14,7 +14,6 @@ import ru.java.mentor.oldranger.club.controller.SectionsAndTopicsController;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 
 import java.util.Collection;
@@ -31,9 +30,9 @@ class SectionsAndTopicsTests {
     @Autowired
     private TopicService topicService;
     @Autowired
-    private SectionService sectionService;
-    @Autowired
     private SectionsAndTopicsController sectionsAndTopicsController;
+    @Autowired
+    private RoleHierarchy roleHierarchy;
 
     @Test
     void testFor_TopicService_getTopicsLimitAnyBySection() {
@@ -69,23 +68,6 @@ class SectionsAndTopicsTests {
     }
 
     @Test
-    void testFor_SectionsAndTopicsDto() {
-        SectionsAndTopicsDto dto = new SectionsAndTopicsDto(sectionService.getAllSections(), topicService.getActualTopicsLimit10BySection());
-        Map<Section, List<Topic>> map = dto.getSectionListMap();
-        for (Map.Entry<Section, List<Topic>> entry : map.entrySet()) {
-            printSection(entry.getKey());
-            for (Topic topic : entry.getValue()) {
-                printTopic(topic);
-            }
-            int size = entry.getValue().size();
-            printTopicsAbove(size);
-        }
-    }
-
-    @Autowired
-    private RoleHierarchy roleHierarchy;
-
-    @Test
     @WithMockUser(roles = "ADMIN")
     void testFor_SectionsAndTopicsController_ADMIN() {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
@@ -94,14 +76,13 @@ class SectionsAndTopicsTests {
         System.out.println("authorities = " + authorities);
         System.out.println("reachableGrantedAuthorities = " + reachableGrantedAuthorities);
 
-        SectionsAndTopicsDto dto = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
-        Map<Section, List<Topic>> map = dto.getSectionListMap();
-        for (Map.Entry<Section, List<Topic>> entry : map.entrySet()) {
-            printSection(entry.getKey());
-            for (Topic topic : entry.getValue()) {
+        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
+        for (SectionsAndTopicsDto dto : dtos) {
+            printSection(dto.getSection());
+            for (Topic topic : dto.getTopics()) {
                 printTopic(topic);
             }
-            int size = entry.getValue().size();
+            int size = dto.getTopics().size();
             printTopicsAbove(size);
         }
     }
@@ -115,17 +96,16 @@ class SectionsAndTopicsTests {
         System.out.println("authorities = " + authorities);
         System.out.println("reachableGrantedAuthorities = " + reachableGrantedAuthorities);
 
-        SectionsAndTopicsDto dto = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
-        Map<Section, List<Topic>> map = dto.getSectionListMap();
-        for (Map.Entry<Section, List<Topic>> entry : map.entrySet()) {
-            Section section = entry.getKey();
+        List<SectionsAndTopicsDto> dtos = sectionsAndTopicsController.getAllSectionsAndActualTopicsLimit10BySection();
+        for (SectionsAndTopicsDto dto : dtos) {
+            Section section = dto.getSection();
             printSection(section);
             Assertions.assertFalse(section.isHideToAnon());
-            for (Topic topic : entry.getValue()) {
+            for (Topic topic : dto.getTopics()) {
                 printTopic(topic);
                 Assertions.assertFalse(topic.isHideToAnon());
             }
-            int size = entry.getValue().size();
+            int size = dto.getTopics().size();
             printTopicsAbove(size);
         }
     }
