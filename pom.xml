@@ -95,6 +95,13 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 			<version>2.2.0.RELEASE</version>
 		</dependency>
+		<!-- Либа для создания тамбнейлов и вотермарков-->
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.8</version>
+		</dependency>
+
 
 	</dependencies>
 
