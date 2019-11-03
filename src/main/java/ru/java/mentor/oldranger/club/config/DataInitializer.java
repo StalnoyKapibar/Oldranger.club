@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Section;
@@ -27,6 +29,10 @@ public class DataInitializer implements CommandLineRunner {
     private SectionService sectionService;
     private TopicService topicService;
     private CommentService commentService;
+
+    @Autowired
+    @Lazy
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public DataInitializer(RoleService roleService,
@@ -60,8 +66,10 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
+        admin.setPassword(passwordEncoder.encode("admin"));
         User moderator = new User("Moderator", "Moderator", "moderator@javamentor.com", "Moderator", roleModerator);
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
+        user.setPassword(passwordEncoder.encode("user"));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
         userService.save(admin);
         userService.save(moderator);
