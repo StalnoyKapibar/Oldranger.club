@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,7 @@ public class User implements UserDetails{
     @Column(name = "nick_name", nullable = false)
     private String nickName;
 
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
