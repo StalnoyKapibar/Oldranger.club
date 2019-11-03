@@ -11,12 +11,8 @@ import java.util.List;
 @Service
 public class TopicServiceImpl implements TopicService {
 
-    private TopicRepository topicRepository;
-
     @Autowired
-    public void setTopicRepository(TopicRepository topicRepository) {
-        this.topicRepository = topicRepository;
-    }
+    private TopicRepository topicRepository;
 
     @Override
     public void createTopic(Topic topic) {

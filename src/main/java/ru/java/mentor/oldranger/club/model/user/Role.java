@@ -14,10 +14,6 @@ import java.util.Objects;
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
 
-    public Role(String role) {
-        this.role = role;
-    }
-
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +21,10 @@ public class Role implements GrantedAuthority {
 
     @Column(name = "role")
     private String role;
+
+    public Role(String role) {
+        this.role = role;
+    }
 
     public String getRole() {
         return role;

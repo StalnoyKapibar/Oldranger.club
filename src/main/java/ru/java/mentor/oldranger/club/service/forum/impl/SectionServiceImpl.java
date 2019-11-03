@@ -11,12 +11,8 @@ import java.util.List;
 @Service
 public class SectionServiceImpl implements SectionService {
 
-    private SectionRepository sectionRepository;
-
     @Autowired
-    public void setSectionRepository(SectionRepository sectionRepository) {
-        this.sectionRepository = sectionRepository;
-    }
+    private SectionRepository sectionRepository;
 
     @Override
     public void addSection(Section section) {
