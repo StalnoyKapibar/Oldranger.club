@@ -1,9 +1,7 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.Type;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -14,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "topics")
 public class Topic {
 
@@ -39,7 +38,7 @@ public class Topic {
     @JoinColumn(name = "id_section")
     private Section section;
 
-    @Column(name = "is_hide")
+    @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
     public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Section section, boolean isHideToAnon) {
