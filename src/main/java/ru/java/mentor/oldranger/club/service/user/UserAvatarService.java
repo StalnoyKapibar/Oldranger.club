@@ -11,4 +11,6 @@ public interface UserAvatarService {
     String uploadImage(MultipartFile file) throws IOException;
     String thumbnailImage(String imageLocation, int size, MultipartFile file) throws IOException;
     void setAvatarToUser(User user, MultipartFile file) throws IOException;
+    void deleteUserAvatar(User user) throws IOException;
+    void updateUserAvatar(User user, MultipartFile file) throws IOException;
 }

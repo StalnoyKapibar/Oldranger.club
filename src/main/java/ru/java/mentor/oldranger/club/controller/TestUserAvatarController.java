@@ -21,7 +21,7 @@ import java.io.IOException;
 @RequestMapping("/test*")
 public class TestUserAvatarController {
 
-    // Тестирование добавления аватарки в профиле
+    // Тестирование добавления, обновления и удаления аватарки в профиле
 
     @Autowired
     UserAvatarService userAvatarService;
@@ -30,9 +30,12 @@ public class TestUserAvatarController {
 
 
     @GetMapping("/profile")
-    public String getTestProfile(HttpSession session) {
+    public String getTestProfile(HttpSession session,
+                                 @ModelAttribute("message") String message,
+                                 Model model) {
         User user = userService.getUserByNickName("User");
         session.setAttribute("user", user);
+        model.addAttribute("message", message + "");
         return "profile";
     }
 
@@ -43,16 +46,33 @@ public class TestUserAvatarController {
                                @SessionAttribute User user) {
 
         try {
-            userAvatarService.setAvatarToUser(user,file);
+            if (user.getAvatar() == null) {
+                userAvatarService.setAvatarToUser(user, file);
+            } else {
+                userAvatarService.updateUserAvatar(user, file);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         redirectAttributes.addFlashAttribute("message", "Аватар " + file.getOriginalFilename() + " успешно загружен!");
 
         return "redirect:/test/profile";
     }
 
+    @GetMapping("/deleteAvatar")
+    public String deleteAvatar(@SessionAttribute User user,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            userAvatarService.deleteUserAvatar(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        redirectAttributes.addFlashAttribute("message", "Аватар удален!");
+
+        return "redirect:/test/profile";
+    }
 
 
 }

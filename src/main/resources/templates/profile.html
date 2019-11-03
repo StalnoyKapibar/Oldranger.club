@@ -17,6 +17,10 @@
     <br><br>
     <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle">
     <br><br>
+    <a href="#" th:href="@{/test/deleteAvatar}"><button>Delete</button></a>
+</section>
+<section th:if="${message}">
+    <h4  th:text="${message}"></h4>
 </section>
 
 <h4>Upload Avatar:</h4>

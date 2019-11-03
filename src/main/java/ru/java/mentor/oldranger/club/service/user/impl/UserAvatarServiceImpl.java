@@ -49,7 +49,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     @Override
     public String uploadImage(MultipartFile file) throws IOException {
         File uploadPath = new File(uploadDir);
-        if (!uploadPath.exists()){
+        if (!uploadPath.exists()) {
             uploadPath.mkdir();
         }
         String resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
@@ -70,14 +70,34 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         return resultFileName;
     }
 
-    public void setAvatarToUser(User user, MultipartFile file) throws IOException {
+    private UserAvatar createNewAvatar(MultipartFile file) throws IOException {
         UserAvatar userAvatar = new UserAvatar();
         userAvatar.setOriginal(uploadImage(file));
         userAvatar.setMedium(thumbnailImage(userAvatar.getOriginal(), medium, file));
         userAvatar.setSmall(thumbnailImage(userAvatar.getOriginal(), small, file));
+        return userAvatar;
+    }
+
+    public void setAvatarToUser(User user, MultipartFile file) throws IOException {
+        UserAvatar userAvatar = createNewAvatar(file);
         save(userAvatar);
         user.setAvatar(userAvatar);
         userService.save(user);
+    }
+
+    public void deleteUserAvatar(User user) throws IOException {
+        UserAvatar userAvatar = user.getAvatar();
+        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
+        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
+        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
+        user.setAvatar(null);
+        userService.save(user);
+        userAvatarRepository.delete(userAvatar);
+    }
+
+    public void updateUserAvatar(User user, MultipartFile file) throws IOException {
+        deleteUserAvatar(user);
+        setAvatarToUser(user, file);
     }
 
 }
