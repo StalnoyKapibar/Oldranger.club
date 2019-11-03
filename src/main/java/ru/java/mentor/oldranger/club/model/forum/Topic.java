@@ -31,7 +31,7 @@ public class Topic {
     @Column(name = "date_start")
     private LocalDateTime startTime;
 
-    @Column(name = "date_last_message")
+    @Column(name = "last_message_date")
     private LocalDateTime lastMessageTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
