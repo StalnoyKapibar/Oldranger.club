@@ -1,17 +1,17 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode
 @Table(name = "sections")
 public class Section {
 
@@ -26,7 +26,7 @@ public class Section {
     @Column(name = "position")
     private int position;
 
-    @Column(name = "is_hide")
+    @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
     public Section(String name, int position, boolean isHideToAnon) {
