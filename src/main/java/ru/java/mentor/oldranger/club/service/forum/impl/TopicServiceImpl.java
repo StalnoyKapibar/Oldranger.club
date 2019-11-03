@@ -30,6 +30,11 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    public Topic findById(Long id) {
+        return topicRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection) {
         return topicRepository.getActualTopicsLimitAnyBySection(limitTopicsBySection);
     }
