@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @ToString
+@EqualsAndHashCode
 @Table(name = "topics")
 public class Topic {
 
@@ -28,10 +29,10 @@ public class Topic {
     @JoinColumn(name = "user_id")
     private User topicStarter;
 
-    @Column(columnDefinition = "DATE", name = "date_start")
+    @Column(name = "date_start")
     private LocalDateTime startTime;
 
-    @Column(columnDefinition = "DATE", name = "date_last_message")
+    @Column(name = "date_last_message")
     private LocalDateTime lastMessageTime;
 
     @ManyToOne(fetch = FetchType.LAZY)

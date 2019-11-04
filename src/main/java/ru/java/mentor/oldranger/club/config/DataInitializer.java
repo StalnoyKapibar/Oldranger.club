@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
+import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
@@ -29,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private SectionService sectionService;
     private TopicService topicService;
     private CommentService commentService;
+    private SubscriptionService subscriptionService;
 
     @Autowired
     @Lazy
@@ -41,7 +43,8 @@ public class DataInitializer implements CommandLineRunner {
                            UserStatisticService userStatisticService,
                            SectionService sectionService,
                            TopicService topicService,
-                           CommentService commentService) {
+                           CommentService commentService,
+                           SubscriptionService subscriptionService) {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
@@ -49,6 +52,7 @@ public class DataInitializer implements CommandLineRunner {
         this.sectionService = sectionService;
         this.topicService = topicService;
         this.commentService = commentService;
+        this.subscriptionService = subscriptionService;
     }
 
     @Override
@@ -93,6 +97,12 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
+
+        for (int i = 0; i < 10; i++) {
+            Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, lastMessage, sectionForUnverified, false);
+            topicService.createTopic(topicX);
+            subscriptionService.subscribeUserOnTopic(admin, topicX);
+        }
 
         Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");
         Comment comment2 = new Comment(topic, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
