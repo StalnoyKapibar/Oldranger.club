@@ -12,6 +12,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findAll();
 
-    // Pageable
     Page<Comment> findByTopic(Topic topic, Pageable pageable);
 }

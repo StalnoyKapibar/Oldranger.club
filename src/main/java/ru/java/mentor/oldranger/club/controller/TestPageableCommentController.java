@@ -36,7 +36,7 @@ public class TestPageableCommentController {
                                       Model model) {
         Topic topic = topicService.findById(topicId);
         if (page != null) {
-            pageable = PageRequest.of(page,10, Sort.by("dateTime"));
+            pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
         Page<Comment> commentList = commentService.getPageableCommentByTopic(topic, pageable);
         model.addAttribute("topic", topic);
