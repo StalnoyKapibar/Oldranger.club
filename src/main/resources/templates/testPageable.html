@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pageable</title>
+</head>
+<body>
+    <div>
+        <h2 th:text="${topic.name}" >Topic</h2>
+    </div>
+    <div style="display: flex">
+        <a th:each="i : ${#numbers.sequence(1, pageCount)}" th:href="@{'/test/topic/' + ${topic.id}(page=${i - 1})}"
+           th:text="'page ' + ${i}" style="margin: 5px">page</a>
+    </div>
+    <div th:each="comment : ${commentList}" style="border: 1px solid black; border-radius: 5px" >
+        <p th:text="${comment.user.nickName}"></p>
+        <p th:text="${comment.dateTime}" style="color: blue"></p>
+        <p th:text="${comment.commentText}"></p>
+    </div>
+</body>
+</html>
