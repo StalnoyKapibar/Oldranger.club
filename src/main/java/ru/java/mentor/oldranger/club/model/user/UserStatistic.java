@@ -22,7 +22,7 @@ public class UserStatistic {
     private Long id;
 
     @Column(name="message_count")
-    private Long messageCount;
+    private long messageCount;
 
     @Column(name="last_vizit")
     private LocalDateTime lastVizit;
@@ -30,4 +30,8 @@ public class UserStatistic {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public UserStatistic(User user) {
+        this.user = user;
+    }
 }

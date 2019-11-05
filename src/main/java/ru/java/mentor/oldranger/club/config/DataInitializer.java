@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
@@ -71,14 +72,24 @@ public class DataInitializer implements CommandLineRunner {
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
         admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
         User moderator = new User("Moderator", "Moderator", "moderator@javamentor.com", "Moderator", roleModerator);
+        moderator.setRegDate(LocalDateTime.of(2019, 10, 1, 21, 33, 35));
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
         user.setPassword(passwordEncoder.encode("user"));
+        user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
+        admin.setRegDate(LocalDateTime.now());
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+
+        // Создаем статистику пользователей
+        userStatisticService.saveUserStatic(new UserStatistic(admin));
+        userStatisticService.saveUserStatic(new UserStatistic(user));
+        userStatisticService.saveUserStatic(new UserStatistic(moderator));
+        userStatisticService.saveUserStatic(new UserStatistic(unverified));
 
         // Создаем разделы, топики и сообщения форума;
         Section sectionForUnverified = new Section("Для всех обо всем", 1, false);
