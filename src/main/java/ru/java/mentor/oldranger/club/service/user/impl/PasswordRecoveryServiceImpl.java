@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryInvalidToken;
-import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryNoSuchUser;
 import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryTokenExpired;
 import ru.java.mentor.oldranger.club.model.user.PasswordRecoveryToken;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -19,11 +18,9 @@ import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryService;
 import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryTokenService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Service
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
@@ -55,9 +52,6 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     @Value("${project.password-recovery-token-expiration}")
     private String PASSWORD_RECOVERY_TOKEN_EXPIRATION_PATTERN;
 
-    @Value("${project.recovery-password-length}")
-    private int RECOVERY_PASSWORD_LENGTH;
-
     private final String TOKEN_CLAIM = "userid";
 
     @Override
@@ -72,39 +66,24 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     @Override
-    public void updatePasswordForUserWithToken(String recoveryToken) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired, PasswordRecoveryNoSuchUser {
+    public PasswordRecoveryToken validateToken(String recoveryToken) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired {
         verifyToken(recoveryToken);
         Long userId = getUserIdFromToken(recoveryToken);
-        PasswordRecoveryToken tokenPersist = verifyTokenPersistCompare(recoveryToken, userId);
+        return verifyTokenPersistCompare(recoveryToken, userId);
+    }
 
-        User user = userService.findById(userId);
-        if (user == null) {
-            throw new PasswordRecoveryNoSuchUser();
-        }
-        String newPassword = generateRandomPassword(RECOVERY_PASSWORD_LENGTH);
-        user.setPassword(passwordEncoder.encode(newPassword));
-
-        passwordRecoveryTokenService.delete(tokenPersist);
-
-        composeAndSendNewPasswordEmail(user, newPassword);
+    @Override
+    public void updatePassword(PasswordRecoveryToken recoveryToken, String password) {
+        User user = recoveryToken.getUser();
+        user.setPassword(passwordEncoder.encode(password));
+        userService.save(user);
+        passwordRecoveryTokenService.delete(recoveryToken);
     }
 
     private void composeAndSendTokenEmail(User user, String token) {
         String msgSubject = "Восстановление пароля";
-        String recoverURL = getFullHostName() + "/api/recoverpassword/" + token;
+        String recoverURL = getFullHostName() + "/passwordrecovery/token/" + token;
         mailService.send(user.getEmail(), msgSubject, recoverURL);
-    }
-
-    private void composeAndSendNewPasswordEmail(User user, String newPassword) {
-        String msgSubject = "Новый пароль";
-        mailService.send(user.getEmail(), msgSubject, newPassword);
-    }
-
-    private String generateRandomPassword(int length) {
-        return new SecureRandom()
-                .ints(length, 33, 122)
-                .mapToObj(i -> String.valueOf((char)i))
-                .collect(Collectors.joining());
     }
 
     private PasswordRecoveryToken verifyTokenPersistCompare(String token, long userId) throws PasswordRecoveryInvalidToken {
