@@ -28,6 +28,6 @@ public class Message {
     @JoinColumn(name = "id_chat")
     private Chat chat;
 
-    @Column(columnDefinition = "DATE", name = "date_message")
+    @Column(name = "message_date")
     private LocalDateTime localDateTime;
 }

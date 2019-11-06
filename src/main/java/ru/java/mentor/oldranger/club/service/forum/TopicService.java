@@ -12,6 +12,8 @@ public interface TopicService {
 
     void deleteTopicById(Long id);
 
+    Topic findById(Long id);
+
     List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection);
 
     List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
