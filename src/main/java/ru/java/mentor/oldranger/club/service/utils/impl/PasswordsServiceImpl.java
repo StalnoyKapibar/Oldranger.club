@@ -2,7 +2,7 @@ package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.java.mentor.oldranger.club.exceptions.PasswordIllegal;
+import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordIllegal;
 import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordTooLong;
 import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordTooShort;
 import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
