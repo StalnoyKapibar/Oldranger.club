@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+</head>
+<body>
+<div th:fragment="comment-field">
+<!--    <div class="pozition">-->
+        <div id="field-comments">
+        <!--        поле для сообщений-->
+        <!--/*@thymesVar id="comments" type=""*/-->
+                <div th:each="tempComment : ${comments}" >
+                    <div class="pozition" >
+                        <!--/*@thymesVar id="pozition" type=""*/-->
+                        <div class="app-custom-ava small"  th:style="${tempComment.pozition} ? 'float: right' : 'float:left' ">
+                            <div class="ava-p">
+                                <!--/*@thymesVar id="urlAva" type=""*/-->
+                                <img class="ava-img"
+                                     th:src="${urlAva}">
+                                <!--/*картинка или текст*/-->
+                                </img>
+                                <span class="ava-online">
+					            </span>
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <div class="desc-r">
+                                <div class="desc-p">
+                                    <div class="datetime">
+                                        <!--/*@thymesVar id="tempComment" type=""*/-->
+                                        <span th:text="${tempComment.dateTime}">
+							                <!--/*время сообщения */-->
+							            </span>
+                                    </div>
+                                    <!--/*@thymesVar id="tempComment" type=""*/-->
+                                    <div class="author" th:text="${tempComment.user.nickName}">
+                                        <!--/*имя пользователя */-->
+                                    </div>
+                                    <!--/*@thymesVar id="commentText" type=""*/-->
+                                    <div class="text-author">
+                                                <!--/*@thymesVar id="pozition" type=""*/-->
+                                                <div class="desc-p" th:if="${tempComment.pozition}">
+                                                    <div class="datetime">
+                                                        <!--/*@thymesVar id="dateTime" type=""*/-->
+                                                        <span th:text="${tempComment.answerTo != null} ? ${tempComment.answerTo.dateTime} : ''">
+                                                            <!--/*время сообщения */-->
+                                                        </span>
+                                                    </div>
+                                                    <!--/*@thymesVar id="Comment" type=""*/-->
+                                                    <div class="author" th:text="${tempComment.answerTo != null} ? ${tempComment.answerTo.user.nickName} : ''">
+                                                        <!--/*имя пользователя */-->
+                                                    </div>
+                                                    
+                                                    <!--/*@thymesVar id="answerTo" type=""*/-->
+                                                    <div class="text-author" th:text="${tempComment.answerTo != null} ? ${tempComment.answerTo.commentText} : ''">
+                                                    </div>
+                                                </div>
+                                        <p th:text="${tempComment.commentText}"></p>
+                                        <!--//здесь сообщение от пользователя-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action">
+                                <div class="answer">
+                                    <span class="icon-answer">
+                                    </span>
+                                    <span class="a" th:onclick="setAnswerName()">
+                                        <p style="display: none" th:text="${tempComment.user.nickName}"></p>
+                                        <p style="display: none" th:text="${tempComment.dateTime}"></p>
+							                Ответить
+                                    </span>
+                                </div>
+                                <div class="raiting-view">
+                                    <div class="app-comment-rating">
+							            <span>
+							            </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div class="comment-footer">
+                            <!--/*@thymesVar id="nameUser" type=""*/-->
+                            <div style="display: none" id="nameUserPrincipal" th:text="${#session.getAttribute('nameUser')}"></div>
+                            <!--/*@thymesVar id="idTopic" type=""*/-->
+                            <div style="display: none" id="idTopic" th:text="${idTopic}"></div>
+                            <!--/*@thymesVar id="urlAva" type=""*/-->
+                            <div style="display: none" id="urlAva" th:text="${#session.getAttribute('urlAva')}"></div>
+            <div class="app-editor">
+                <div class="editor-border">
+                    <div class="block-top" id="block-answer" style="display: none;">
+                        <div class="answer">
+                            <div class="answer-desc" th:onclick="closeAnswer()">
+								<span class="icon-close">
+								<!--//картинка крестика-->
+								x
+								</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="center-editor">
+                        <div class="text">
+                            <div class="text-bg">
+                                <textarea type="text" class="textarea" placeholder="сообщение" id="body-comments" ></textarea>
+                            </div>
+                            <!--/*@thymesVar id="urlAva" type=""*/-->
+                            <div class="button-send" th:onclick="sendMessage()">
+                                <div class="circle">
+                                </div>
+                                <div class="icon-send">
+                                    ^
+                                </div>
+                            </div>
+                        </div>
+                        <div class="append">
+                            <div class="app-upload-component">
+                                <div clas="icon-append">
+                                    &
+                                </div>
+                                <input id="file-select" type="file" multiple accept=".jpg, .jpeg,.png,.gif">
+                                <label for="file-select"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -86,7 +86,7 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
 
-        Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");
+        Comment comment1 = new Comment(topic, admin, null, startTime, "Всем привет!");
         Comment comment2 = new Comment(topic, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
         Comment comment3 = new Comment(topic2, user, null, LocalDateTime.now(), "Как жизнь?");
         Comment comment4 = new Comment(topic2, admin, comment3, LocalDateTime.now(), "Все гуд!");

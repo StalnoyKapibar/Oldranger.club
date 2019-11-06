@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.java.mentor.oldranger.club.model.user.User;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -22,23 +22,26 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_topic")
     private Topic topic;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_comment")
     private Comment answerTo;
 
-    @Column(columnDefinition = "DATE", name = "date_comment")
+    @Column(columnDefinition = "DATETIME", name = "date_comment")
     private LocalDateTime dateTime;
 
     @Column(name = "text_comment")
     private String commentText;
+
+    @Transient
+    private boolean pozition;
 
     public Comment( Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
         this.topic = topic;
@@ -46,5 +49,47 @@ public class Comment {
         this.answerTo = answerTo;
         this.dateTime = dateTime;
         this.commentText = commentText;
+    }
+
+    public Comment getAnswerTo() {
+        return answerTo;
+    }
+
+    public void setAnswerTo(Comment answerTo) {
+        this.answerTo = answerTo;
+    }
+
+    public boolean isPozition() {
+        return pozition;
+    }
+
+    public void setPozition(boolean pozition) {
+        this.pozition = pozition;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Comment comment = (Comment) o;
+        return Objects.equals(id, comment.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", topic=" + topic +
+                ", user=" + user +
+                ", answerTo=" + answerTo +
+                ", dateTime=" + dateTime +
+                ", commentText='" + commentText + '\'' +
+                ", pozition=" + pozition +
+                '}';
     }
 }
