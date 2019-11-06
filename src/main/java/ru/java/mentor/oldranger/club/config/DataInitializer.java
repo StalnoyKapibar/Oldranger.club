@@ -91,6 +91,10 @@ public class DataInitializer implements CommandLineRunner {
         userStatisticService.saveUserStatic(new UserStatistic(moderator));
         userStatisticService.saveUserStatic(new UserStatistic(unverified));
 
+        User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
+        andrew.setPassword(passwordEncoder.encode("developer"));
+        userService.save(andrew);
+
         // Создаем разделы, топики и сообщения форума;
         Section sectionForUnverified = new Section("Для всех обо всем", 1, false);
         Section sectionForUsers = new Section("Только для пользователей", 2, true);
