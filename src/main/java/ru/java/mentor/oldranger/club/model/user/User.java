@@ -47,6 +47,10 @@ public class User implements UserDetails{
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private UserAvatar avatar;
 
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private PasswordRecoveryToken passwordRecoveryToken;
+
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;

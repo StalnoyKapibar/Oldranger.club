@@ -40,4 +40,9 @@ public class UserServiceImpl implements UserService {
     public User getUserByNickName(String name) {
         return userRepository.findUserByNickName(name);
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
 }
