@@ -10,7 +10,7 @@
     <th:block th:each="section : ${sectionsAndTopics}">
         <h5 th:text="${section.getSection().getName()}"></h5>
         <ul>
-            <li th:each="topic : ${section.getTopics()}" th:text="${topic.getName()}"></li>
+            <li th:each="topic : ${section.getTopics()}" th:text="${topic.getName()} + ' Theme: ' + ${topic.theme.name} + ' last message: ' + ${topic.lastMessageTime} "></li>
         </ul>
     </th:block>
 </div>

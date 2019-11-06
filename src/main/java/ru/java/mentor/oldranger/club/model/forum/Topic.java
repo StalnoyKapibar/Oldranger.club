@@ -36,18 +36,32 @@ public class Topic {
     private LocalDateTime lastMessageTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_section")
-    private Section section;
+    @JoinColumn(name = "theme_id")
+    private Theme theme;
 
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Section section, boolean isHideToAnon) {
+//    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Section section, boolean isHideToAnon) {
+//        this.name = name;
+//        this.topicStarter = topicStarter;
+//        this.startTime = startTime;
+//        this.lastMessageTime = lastMessageTime;
+//        this.section = section;
+//        this.isHideToAnon = isHideToAnon;
+//    }
+
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Theme theme, boolean isHideToAnon) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
         this.lastMessageTime = lastMessageTime;
-        this.section = section;
+        this.theme = theme;
         this.isHideToAnon = isHideToAnon;
+    }
+
+    public Section getSection() {
+        return getTheme().getSection();
     }
 }
