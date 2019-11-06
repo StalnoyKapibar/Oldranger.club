@@ -38,8 +38,7 @@ public class TestCommentDtoController {
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
-        Page<Comment> comments = commentService.getPageableCommentByTopic(topic, pageable);
-        Page<CommentDto> dtos = comments.map(comment -> commentService.assembleCommentDto(comment));
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
 
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", dtos.getTotalPages());

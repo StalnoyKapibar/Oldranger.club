@@ -48,6 +48,11 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findByTopic(topic, pageable);
     }
 
+    public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable) {
+        return commentRepository.findByTopic(topic, pageable).map(this::assembleCommentDto);
+    }
+
+
     public CommentDto assembleCommentDto(Comment comment) {
 
         CommentDto commentDto = new CommentDto();
