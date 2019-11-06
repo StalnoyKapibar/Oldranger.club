@@ -15,7 +15,7 @@ public interface PasswordRecoveryTokenRepository extends JpaRepository<PasswordR
 
     @Modifying
     @Query(nativeQuery = true,
-            value = "INSERT INTO recovery_token (user_id, token, issue_date) VALUES(?1, ?2, ?3) ON DUPLICATE KEY UPDATE token=?2, issue_date=?3")
+            value = "INSERT INTO password_recovery_tokens (user_id, token, issue_date) VALUES(?1, ?2, ?3) ON DUPLICATE KEY UPDATE token=?2, issue_date=?3")
     void saveOrUpdateIfExist(Long userId, String token, LocalDateTime issueDate);
 
     @Modifying
