@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -39,13 +40,20 @@ public class User implements UserDetails{
     @Column(name = "password")
     private String password;
 
+    @Column(name = "registered")
+    private LocalDateTime regDate;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private UserAvatar avatar;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private PasswordRecoveryToken passwordRecoveryToken;
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;

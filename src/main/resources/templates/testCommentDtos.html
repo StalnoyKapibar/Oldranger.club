@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comment Dtos</title>
+</head>
+<body>
+<div>
+    <h2 th:text="${topic.name}" >Topic</h2>
+</div>
+<div style="display: flex">
+    <a th:each="i : ${#numbers.sequence(1, pageCount)}" th:href="@{'/test/comments/' + ${topic.id}(page=${i - 1})}"
+       th:text="'page ' + ${i}" style="margin: 5px">page</a>
+</div>
+<div th:each="comment : ${commentList}" style="border: 1px solid black; border-radius: 5px; padding-left: 10px" >
+    <div style="display: inline-block;border-right: 1px solid black;padding-right: 20px;">
+        <p th:text="${comment.nickName}"></p>
+        <section th:if="${comment.smallAvatar}">
+            <img src="#" th:src="${'/img/' + comment.smallAvatar}" alt="avatar">
+        </section>
+        <p th:text="${comment.timeSinceRegistration}"></p>
+        <p><b>Всего сообщений: </b> <span th:text="${comment.messageCount}" ></span></p>
+        <p th:text="${comment.roleName}"></p>
+    </div>
+    <div style="display: inline-block; vertical-align: top;padding-left: 25px">
+        <blockquote th:if="${comment.replyDateTime}">
+            <p th:text="${comment.replyDateTime}"></p>
+            <p th:text="${comment.replyNick}"></p>
+            <p th:text="${comment.replyText}"></p>
+        </blockquote>
+        <br>
+        <p th:text="${comment.commentDateTime}"></p>
+        <p th:text="${comment.commentText}"></p>
+    </div>
+
+
+</div>
+</body>
+</html>
