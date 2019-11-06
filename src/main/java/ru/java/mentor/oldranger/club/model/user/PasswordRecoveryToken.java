@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "recovery_token")
+@Table(name = "password_recovery_tokens")
 public class PasswordRecoveryToken {
     @Id
     @Column(name = "id")
