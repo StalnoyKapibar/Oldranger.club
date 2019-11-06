@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(User user) {
+        if (user.getAvatar() == null) {
+            user.setAvatar(setDefaultAvatar());
+        }
         userRepository.save(user);
     }
 
@@ -40,4 +44,13 @@ public class UserServiceImpl implements UserService {
     public User getUserByNickName(String name) {
         return userRepository.findUserByNickName(name);
     }
+
+    private UserAvatar setDefaultAvatar() {
+        UserAvatar def= new UserAvatar();
+        def.setOriginal("default.png");
+        def.setMedium("default.png");
+        def.setSmall("default-sm.png");
+        return def;
+    }
+
 }

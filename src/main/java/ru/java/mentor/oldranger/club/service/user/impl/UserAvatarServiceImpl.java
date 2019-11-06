@@ -87,12 +87,14 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     public void deleteUserAvatar(User user) throws IOException {
         UserAvatar userAvatar = user.getAvatar();
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
-        user.setAvatar(null);
-        userService.save(user);
-        userAvatarRepository.delete(userAvatar);
+        if (!userAvatar.getOriginal().equals("default.png")){
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
+            user.setAvatar(null);
+            userService.save(user);
+            userAvatarRepository.delete(userAvatar);
+        }
     }
 
     public void updateUserAvatar(User user, MultipartFile file) throws IOException {

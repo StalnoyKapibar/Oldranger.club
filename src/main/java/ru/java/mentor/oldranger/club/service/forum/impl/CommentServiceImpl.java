@@ -56,35 +56,30 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto assembleCommentDto(Comment comment) {
 
         CommentDto commentDto = new CommentDto();
-        String avatar = null;
+
         LocalDateTime replyTime = null;
         String replyNick = null;
         String replyText = null;
 
         try {
-            avatar = comment.getUser().getAvatar().getSmall();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-        try {
             replyTime = comment.getAnswerTo().getDateTime();
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            //
         }
         try {
             replyNick = comment.getAnswerTo().getUser().getNickName();
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            //
         }
         try {
             replyText = comment.getAnswerTo().getCommentText();
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            //
         }
 
         commentDto.setNickName(comment.getUser().getNickName());
         commentDto.setRoleName(comment.getUser().getRole().getRole());
-        commentDto.setSmallAvatar(avatar);
+        commentDto.setSmallAvatar(comment.getUser().getAvatar().getSmall());
         commentDto.setCommentDateTime(comment.getDateTime());
         commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
         commentDto.setTimeSinceRegistration(timeSinceRegistration(comment.getUser().getRegDate()));

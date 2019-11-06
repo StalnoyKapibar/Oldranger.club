@@ -47,7 +47,7 @@ public class User implements UserDetails{
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private UserAvatar avatar;
 
