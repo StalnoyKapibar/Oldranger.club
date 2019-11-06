@@ -11,7 +11,7 @@ import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 public class PasswordsServiceImpl implements PasswordsService {
 
     @Value("${project.password.min-length}")
-    private int MIN_LENGTH = 8;
+    private int MIN_LENGTH;
 
     private final int MAX_LENGTH = 255;
 

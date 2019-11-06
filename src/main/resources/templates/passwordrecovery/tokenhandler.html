@@ -6,20 +6,20 @@
 </head>
 <body>
 <th:block th:switch="${tokenstatus}">
-    <p th:case="'invalid'">Invalid token</p>
-    <p th:case="'expired'">Token expired</p>
-    <th:block th:case="'ok'">
-        <th:block th:unless="${passwordstatus} eq 'changed'">
+    <p th:case="'fail_invalid'">Invalid token</p>
+    <p th:case="'fail_expired'">Token expired</p>
+    <th:block th:case="'ok_valid'">
+        <th:block th:unless="${passwordstatus} eq 'ok_changed'">
             <form action="/passwordrecovery/setnewpassword" method="post" th:switch="${passwordstatus}">
                 <input name="token" th:value="${token}" hidden>
-                <label for="password">Enter new password <span th:case="'wrongtype'" style="color: crimson">(Length 8-20)</span></label>
+                <label for="password">Enter new password <span th:case="'fail_wrong_type'" style="color: crimson">(Length 8-20)</span></label>
                 <input id="password" name="password" type="text" width="20">
-                <label for="password_confirm">Confirm password <span th:case="'mismatch'" style="color: crimson">(Passwords should be equal)</span></label>
+                <label for="password_confirm">Confirm password <span th:case="'fail_mismatch'" style="color: crimson">(Passwords should be equal)</span></label>
                 <input id="password_confirm" name="password_confirm" type="text" width="20">
                 <button type="submit">Set password</button>
             </form>
         </th:block>
-        <p th:if="${passwordstatus} eq 'changed'">Password changed, <a th:href="@{/login}">login</a> to continue.</p>
+        <p th:if="${passwordstatus} eq 'ok_changed'">Password changed, <a th:href="@{/login}">login</a> to continue.</p>
     </th:block>
 </th:block>
 </body>

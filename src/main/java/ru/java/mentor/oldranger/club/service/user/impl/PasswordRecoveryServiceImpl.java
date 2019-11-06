@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryIntervalViolation;
 import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryInvalidToken;
 import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryTokenExpired;
 import ru.java.mentor.oldranger.club.model.user.PasswordRecoveryToken;
@@ -46,23 +47,37 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     @Value("${server.port}")
     private String SERVER_PORT;
 
-    @Value("${project.secret-word-jwt}")
+    @Value("${project.jwt.secret-word}")
     private String JWT_SECRET;
 
-    @Value("${project.password-recovery-token-expiration}")
+    @Value("${project.password-recovery.token-expiration}")
     private String PASSWORD_RECOVERY_TOKEN_EXPIRATION_PATTERN;
+
+    @Value("${project.password-recovery.interval}")
+    private String PASSWORD_RECOVERY_INTERVAL;
 
     private final String TOKEN_CLAIM = "userid";
 
     @Override
-    public void sendRecoveryTokenToEmail(User user) {
-        LocalDateTime issueTime = LocalDateTime.now();
-        LocalDateTime expirationTime = calculateExpirationTime(issueTime);
+    public void sendRecoveryTokenToEmail(User user) throws PasswordRecoveryIntervalViolation {
+        PasswordRecoveryToken token;
+        PasswordRecoveryToken tokenPersist = passwordRecoveryTokenService.getByUserId(user.getId());
 
-        String token = createTokenForUser(user, localDateTimeToDate(expirationTime));
-        saveTokenToDB(user, token, issueTime);
-
-        composeAndSendTokenEmail(user, token);
+        if (tokenPersist == null) {
+            token = createTokenForUser(user);
+            passwordRecoveryTokenService.save(token);
+        } else {
+            LocalDateTime nextPossibleRecoveryTime = calculateNextPossibleRecoveryTime(tokenPersist.getIssueDate());
+            LocalDateTime now = LocalDateTime.now();
+            if (nextPossibleRecoveryTime.isBefore(now)) {
+                updateToken(tokenPersist);
+                passwordRecoveryTokenService.save(tokenPersist);
+                token = tokenPersist;
+            } else {
+                throw new PasswordRecoveryIntervalViolation(nextPossibleRecoveryTime);
+            }
+        }
+        composeAndSendTokenEmail(token);
     }
 
     @Override
@@ -80,16 +95,25 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         passwordRecoveryTokenService.delete(recoveryToken);
     }
 
-    private void composeAndSendTokenEmail(User user, String token) {
+
+
+    private void composeAndSendTokenEmail(PasswordRecoveryToken token) {
         String msgSubject = "Восстановление пароля";
-        String recoverURL = getFullHostName() + "/passwordrecovery/token/" + token;
-        mailService.send(user.getEmail(), msgSubject, recoverURL);
+        String recoverURL = getFullHostName() + "/passwordrecovery/token/" + token.getToken();
+        mailService.send(token.getUser().getEmail(), msgSubject, recoverURL);
     }
 
-    private PasswordRecoveryToken verifyTokenPersistCompare(String token, long userId) throws PasswordRecoveryInvalidToken {
+    private PasswordRecoveryToken verifyTokenPersistCompare(String token, long userId) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired {
         PasswordRecoveryToken dbToken = passwordRecoveryTokenService.getByUserId(userId);
-        if (!(dbToken != null && dbToken.getToken().equals(token))) {
+        LocalDateTime now = LocalDateTime.now();
+        if (dbToken == null) {
             throw new PasswordRecoveryInvalidToken();
+        }
+        if (!(dbToken.getToken().equals(token))) {
+            throw new PasswordRecoveryInvalidToken();
+        }
+        if (dbToken.getExpirationDate().isBefore(now)) {
+            throw new PasswordRecoveryTokenExpired();
         }
         return dbToken;
     }
@@ -125,25 +149,47 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         return SERVER_PROTOCOL + "://" + SERVER_HOST + ":" + SERVER_PORT;
     }
 
-    private void saveTokenToDB(User user, String token, LocalDateTime issueTime) {
-        PasswordRecoveryToken recoveryToken = new PasswordRecoveryToken(user, issueTime, token);
-        passwordRecoveryTokenService.saveOrUpdateIfExist(recoveryToken);
+    private PasswordRecoveryToken createTokenForUser(User user) {
+        LocalDateTime issueTime = LocalDateTime.now();
+        LocalDateTime expirationTime = calculateExpirationTime(issueTime);
+        String jwtToken = createJwtToken(user.getId(), localDateTimeToDate(expirationTime));
+
+        return new PasswordRecoveryToken(user, issueTime, expirationTime, jwtToken);
     }
 
-    private String createTokenForUser(User user, Date expirationTime) {
+    private void updateToken(PasswordRecoveryToken token) {
+        LocalDateTime issueTime = LocalDateTime.now();
+        LocalDateTime expirationTime = calculateExpirationTime(issueTime);
+        String jwtToken = createJwtToken(token.getUser().getId(), localDateTimeToDate(expirationTime));
+
+        token.setIssueDate(issueTime);
+        token.setExpirationDate(expirationTime);
+        token.setToken(jwtToken);
+    }
+
+    private String createJwtToken(long userId, Date expirationTime) {
         return JWT
                 .create()
-                .withClaim(TOKEN_CLAIM, user.getId())
+                .withClaim(TOKEN_CLAIM, userId)
                 .withExpiresAt(expirationTime)
                 .sign(Algorithm.HMAC512(JWT_SECRET));
     }
 
     private LocalDateTime calculateExpirationTime(LocalDateTime startTime) {
         String[] DHM = PASSWORD_RECOVERY_TOKEN_EXPIRATION_PATTERN.split("-");
+        return calculateOffsetPatternDHM(startTime, DHM);
+    }
+
+    private LocalDateTime calculateNextPossibleRecoveryTime(LocalDateTime lastIssueTime) {
+        String[] DHM = PASSWORD_RECOVERY_INTERVAL.split("-");
+        return calculateOffsetPatternDHM(lastIssueTime, DHM);
+    }
+
+    private LocalDateTime calculateOffsetPatternDHM(LocalDateTime localDateTime, String[] DHM) {
         long daysOffset = Long.parseLong(DHM[0]);
         long hoursOffset = Long.parseLong(DHM[1]);
         long minutesOffset = Long.parseLong(DHM[2]);
-        return startTime
+        return localDateTime
                 .plusDays(daysOffset)
                 .plusHours(hoursOffset)
                 .plusMinutes(minutesOffset);
