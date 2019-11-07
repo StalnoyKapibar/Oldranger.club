@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 
 @Controller
-@RequestMapping("/test*")
+@RequestMapping("/test")
 public class TestMailController {
     @Autowired
     MailService mailService;

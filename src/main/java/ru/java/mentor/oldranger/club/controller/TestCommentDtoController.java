@@ -5,12 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -18,7 +17,7 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 
 @Controller
-@RequestMapping("/test*")
+@RequestMapping("/test")
 public class TestCommentDtoController {
 
     private CommentService commentService;
@@ -35,6 +34,10 @@ public class TestCommentDtoController {
                                       @PageableDefault(size = 10, sort = "dateTime") Pageable pageable,
                                       Model model) {
         Topic topic = topicService.findById(topicId);
+        if (topic == null) {
+            model.addAttribute("message","Такой темы еще не существует");
+            return "404";
+        }
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
