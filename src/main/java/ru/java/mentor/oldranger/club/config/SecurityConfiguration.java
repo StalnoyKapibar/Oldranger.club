@@ -62,6 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/test/**","/img/**").permitAll()
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**", "/passwordrecovery/**").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

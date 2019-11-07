@@ -87,8 +87,8 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем статистику пользователей
         userStatisticService.saveUserStatic(new UserStatistic(admin));
-        userStatisticService.saveUserStatic(new UserStatistic(user));
         userStatisticService.saveUserStatic(new UserStatistic(moderator));
+        userStatisticService.saveUserStatic(new UserStatistic(user));
         userStatisticService.saveUserStatic(new UserStatistic(unverified));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
