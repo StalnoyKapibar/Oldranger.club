@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Section;
-import ru.java.mentor.oldranger.club.model.forum.Theme;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -31,7 +31,7 @@ public class DataInitializer implements CommandLineRunner {
     private UserProfileService userProfileService;
     private UserStatisticService userStatisticService;
     private SectionService sectionService;
-    private ThemeService themeService;
+    private SubsectionService subsectionService;
     private TopicService topicService;
     private CommentService commentService;
     private SubscriptionService subscriptionService;
@@ -46,7 +46,7 @@ public class DataInitializer implements CommandLineRunner {
                            UserProfileService userProfileService,
                            UserStatisticService userStatisticService,
                            SectionService sectionService,
-                           ThemeService themeService,
+                           SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
                            SubscriptionService subscriptionService) {
@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         this.userProfileService = userProfileService;
         this.userStatisticService = userStatisticService;
         this.sectionService = sectionService;
-        this.themeService = themeService;
+        this.subsectionService = subsectionService;
         this.topicService = topicService;
         this.commentService = commentService;
         this.subscriptionService = subscriptionService;
@@ -102,47 +102,43 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем разделы, топики и сообщения форума;
         Section sectionForUnverified = new Section("Для всех обо всем", 1, false);
-        Section sectionForUsers = new Section("Только для пользователей", 2, false);
+        Section sectionForUsers = new Section("Только для пользователей", 2, true);
         sectionService.addSection(sectionForUnverified);
         sectionService.addSection(sectionForUsers);
 
         LocalDateTime startTime = LocalDateTime.of(2019, 10, 31, 21, 33, 35);
         LocalDateTime lastMessage = LocalDateTime.now();
 
-        // Создание темы
-        Theme themeForUnverified = new Theme("Общая тема в секции для всех", sectionForUnverified, false);
-        Theme theme2 = new Theme("Тема для пользователей в секции для всех", sectionForUnverified, false);
-        Theme themeForUsers = new Theme("Общая тема в секции для пользователей", sectionForUsers, false);
-        Theme theme4 = new Theme("Тема для пользователей в секции для пользователей",sectionForUsers, false);
-        themeService.createTheme(themeForUnverified);
-        themeService.createTheme(theme2);
-        themeService.createTheme(themeForUsers);
-        themeService.createTheme(theme4);
+        // Создание подсекций
+        Subsection subsection = new Subsection("Общая подсекция в секции для всех", sectionForUnverified, false);
+        Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", sectionForUnverified, true);
+        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", sectionForUsers, false);
+        Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей",sectionForUsers, true);
+        subsectionService.createSubsection(subsection);
+        subsectionService.createSubsection(subsection2);
+        subsectionService.createSubsection(subsection3);
+        subsectionService.createSubsection(subsection4);
 
-        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, themeForUnverified, false);
-        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, themeForUnverified, false);
-        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, themeForUsers, false);
-        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, themeForUsers, false);
+
+        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false);
+        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true);
+        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false);
+        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true);
+        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false);
+        Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true);
+        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false);
+        Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true);
         topicService.createTopic(topic);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
-
-        LocalDateTime[] localDateTimes = new LocalDateTime[] {
-                LocalDateTime.of(2019, 12, 2, 21, 50, 35),
-                LocalDateTime.of(2019, 12, 3, 21, 50, 35),
-                LocalDateTime.of(2019, 12, 4, 21, 50, 35),
-                LocalDateTime.of(2019, 12, 5, 21, 50, 35),
-                LocalDateTime.of(2019, 12, 6, 21, 50, 35),
-                LocalDateTime.of(2019, 12, 1, 21, 30, 35),
-                LocalDateTime.of(2019, 12, 1, 21, 35, 35),
-                LocalDateTime.of(2019, 12, 1, 21, 40, 35),
-                LocalDateTime.of(2019, 12, 1, 21, 45, 35),
-                LocalDateTime.of(2019, 12, 1, 21, 50, 35)
-        };
+        topicService.createTopic(topic5);
+        topicService.createTopic(topic6);
+        topicService.createTopic(topic7);
+        topicService.createTopic(topic8);
 
         for (int i = 0; i < 10; i++) {
-            Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, /*lastMessage,*/ localDateTimes[i], themeForUnverified, false);
+            Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, lastMessage, subsection, false);
             topicService.createTopic(topicX);
             subscriptionService.subscribeUserOnTopic(admin, topicX);
         }
