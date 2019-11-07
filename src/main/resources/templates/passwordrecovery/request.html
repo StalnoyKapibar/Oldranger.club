@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Password recovery</title>
+</head>
+<body>
+<th:block th:switch="${recoverystatus}">
+    <form th:case="null" action="/passwordrecovery" method="post">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="text" width="20">
+        <button type="submit">Recover</button>
+    </form>
+    <p th:case="'fail_bad_credentials'">Bad credentials</p>
+    <p th:case="'fail_invalid_interval'">Invalid interval, next recovery request possible at <span th:text="${next_recovery_possible}"></span></p>
+    <p th:case="'ok_mail_sent'">Recovery mail was sent</p>
+</th:block>
+</body>
+</html>
