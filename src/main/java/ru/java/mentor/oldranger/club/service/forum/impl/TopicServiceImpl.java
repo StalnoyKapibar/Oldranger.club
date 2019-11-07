@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -27,6 +27,31 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void deleteTopicById(Long id) {
         topicRepository.deleteById(id);
+    }
+
+    @Override
+    public Topic findById(Long id) {
+        return topicRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection) {
+        return topicRepository.getActualTopicsLimitAnyBySection(limitTopicsBySection);
+    }
+
+    @Override
+    public List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection) {
+        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(limitTopicsBySection);
+    }
+
+    @Override
+    public List<Topic> getActualTopicsLimit10BySection() {
+        return topicRepository.getActualTopicsLimitAnyBySection(10);
+    }
+
+    @Override
+    public List<Topic> getActualTopicsLimit10BySectionForAnon() {
+        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(10);
     }
 
     @Override

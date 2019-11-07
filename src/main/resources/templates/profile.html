@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+<h1>User Profile</h1>
+
+<b>User ID: </b><span  th:text="${session.user.id}"></span><br>
+<b>First Name: </b><span  th:text="${session.user.firstName}"></span><br>
+<b>Last Name: </b><span  th:text="${session.user.lastName}"></span><br>
+<b>Email: </b><span  th:text="${session.user.email}"></span><br>
+<b>Nickname: </b><span  th:text="${session.user.nickName}"></span><br>
+
+<section th:if="${session.user.avatar}">
+    <br><br>
+    <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle" width="256">
+    <br><br>
+    <a href="#" th:href="@{/test/deleteAvatar}"><button>Delete</button></a>
+</section>
+<section th:if="${message}">
+    <h4  th:text="${message}"></h4>
+</section>
+
+<h4>Upload Avatar:</h4>
+<form method="POST" th:action="@{/test/uploadAvatar}" enctype="multipart/form-data">
+    <input type="file" name="file"/> <br/><br/>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

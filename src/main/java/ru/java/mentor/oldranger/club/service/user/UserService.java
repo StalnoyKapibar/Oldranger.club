@@ -15,4 +15,6 @@ public interface UserService {
     public void deleteById(Long theId);
 
     User getUserByNickName(String login);
+
+    User getUserByEmail(String email);
 }

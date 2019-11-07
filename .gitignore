@@ -29,3 +29,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Upload folder ###
+uploads/*
+!uploads/default.png
+!uploads/default-sm.png

@@ -27,7 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private RoleHierarchy roleHierarchy;
 
     @Autowired
-   // @Qualifier("userDetailsServiceImpl")
+    @Qualifier("userDetailsServiceImpl")
     private UserDetailsService userDetailsService;
 
     @Autowired
@@ -57,11 +57,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable() //наверное, временно?
+
                 .authorizeRequests()
                 .antMatchers("/test/**","/img/**").permitAll()
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/com/*", "/css/**","/js/*","/dist-smile/*").permitAll()
+                .antMatchers("/", "/api/**", "/passwordrecovery/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
