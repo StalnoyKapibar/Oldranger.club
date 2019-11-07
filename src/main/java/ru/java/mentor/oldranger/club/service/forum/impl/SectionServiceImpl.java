@@ -7,6 +7,7 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SectionServiceImpl implements SectionService {
@@ -17,6 +18,11 @@ public class SectionServiceImpl implements SectionService {
     @Override
     public void addSection(Section section) {
         sectionRepository.save(section);
+    }
+
+    @Override
+    public Optional<Section> getById(long id) {
+        return sectionRepository.findById(id);
     }
 
     @Override

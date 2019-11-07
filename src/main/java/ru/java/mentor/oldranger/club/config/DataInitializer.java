@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subscription;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -21,6 +22,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -119,6 +121,21 @@ public class DataInitializer implements CommandLineRunner {
             subscriptionService.subscribeUserOnTopic(admin, topicX);
         }
 
+        boolean b = false;
+        for (int i = 0; i < 100; i++) {
+            b = !b;
+            Random random = new Random();
+            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), sectionForUnverified, b);
+            topicService.createTopic(topicX);
+            if (i % 2 == 0) {
+                Subscription subscription1 = new Subscription(admin, topicX, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                subscriptionService.subscribe(subscription1);
+            } else {
+                Subscription subscription2 = new Subscription(andrew, topicX, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                subscriptionService.subscribe(subscription2);
+            }
+        }
+
         Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");
         Comment comment2 = new Comment(topic, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
         Comment comment3 = new Comment(topic2, user, null, LocalDateTime.now(), "Как жизнь?");
@@ -139,7 +156,7 @@ public class DataInitializer implements CommandLineRunner {
         /**
          * 20 messages for Pageable test (topic 3)
          */
-        for (int i = 1; i < 21; i ++) {
+        for (int i = 1; i < 21; i++) {
             commentService.createComment(new Comment(topic3, user, null,
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));

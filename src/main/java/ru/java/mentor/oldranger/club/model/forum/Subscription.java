@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Entity
+@NoArgsConstructor
 @Table(name = "subscriptions")
 public class Subscription {
 
@@ -36,4 +38,11 @@ public class Subscription {
 
     @Transient
     private boolean hasNewMessages;
+
+    public Subscription(User user, Topic topic, LocalDateTime subscriptionTime, LocalDateTime lastVisitTime) {
+        this.user = user;
+        this.topic = topic;
+        this.subscriptionTime = subscriptionTime;
+        this.lastVisitTime = lastVisitTime;
+    }
 }
