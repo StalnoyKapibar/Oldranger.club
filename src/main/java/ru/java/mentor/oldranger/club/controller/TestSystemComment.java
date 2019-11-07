@@ -10,14 +10,10 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-
 import javax.servlet.http.HttpSession;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +29,6 @@ public class TestSystemComment {
     @Autowired
     UserService userService;
 
-    @Autowired
-    SectionService sectionService;
-
     // Пример работы с системой комментирования
     @GetMapping("/com/{id}")
     public String sendComment(
@@ -44,6 +37,7 @@ public class TestSystemComment {
             HttpSession session
     ) {
         session.setAttribute("nameUser", "Admin");
+        session.setAttribute("idUser", 1);
         session.setAttribute("urlAva", "https://static.tolstoycomments.com/ui/38/73/c6/3873c649-85f1-492a-8f3a-c70de64aefbc.png");
         model.addAttribute("idTopic", id);
         List<Comment> commentsList = new ArrayList<>();
@@ -64,14 +58,11 @@ public class TestSystemComment {
     ) {
         Comment comment = null;
         Topic topic = topicService.findById(message.getIdTopic());
-        User user = userService.getUserByNickName(message.getName());
-        Instant instant = Instant.ofEpochMilli(message.getTime());
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        if (message.getAnswerName() != "") {
-            Instant instantAnswer = Instant.ofEpochMilli(message.getAnswerTime());
-            LocalDateTime localDateTimeAnswer = LocalDateTime.ofInstant(instantAnswer, ZoneId.systemDefault());
-            Comment answerComment = commentService.getCommentAnswer(message.getAnswerName(), localDateTimeAnswer);
-            comment = new Comment(topic, user, answerComment, localDateTime, String.valueOf(message.getText()));
+        User user = userService.findById(message.getIdUser());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (message.getAnswerID() != 0) {
+            Comment answerComment = commentService.getCommentById(message.getAnswerID());
+            comment = new Comment(topic, user, answerComment, localDateTime, message.getText());
         } else {
             comment = new Comment(topic, user, null, localDateTime, message.getText());
         }

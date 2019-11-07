@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -35,7 +36,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment getCommentAnswer(String answerName, LocalDateTime localDateTimeAnswer) {
-        return commentRepository.findByUserNickNameAndDateTime(answerName, localDateTimeAnswer);
+    public Comment getCommentById(Long id) {
+        Optional<Comment> comment = commentRepository.findById(id);
+        return comment.orElseThrow(()-> new RuntimeException("not found comment by id: " +id));
     }
 }

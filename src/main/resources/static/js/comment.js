@@ -1,30 +1,28 @@
-let pozition = true;
-let answerName = '';
-let answerTime = '';
-let targetAnswerTag = null;
+let answerID = 0;
+let idUser;
+let answerName ='';
 let targetText = '';
 
 function sendMessage() {
-    let commentBody = document.getElementById('body-comments');
-    let name = document.getElementById('nameUserPrincipal').textContent;
-    let time = Math.floor(Date.now()/1000);
-    let urlAva = document.getElementById('urlAva').textContent;
-    let text = commentBody.value;
-    let sendText = document.getElementById('body-comments').parentElement.children[1].children[0];
 
-    if(sendText.textContent != '' || sendText.children.length > 0) {
-        // if(answerName != '') {
-        //     text = answerName + ", "  + text;
-        // }
+    let text = $('#body-comments').val();
+    let time = Math.floor(Date.now()/1000);
+    let name = $('#nameUserPrincipal').text();
+    let urlAva = $('#urlAva').text();
+    let idTopic = $('#idTopic').text();
+    idUser = $('#idUser').text();
+
+    let sendText = $('.emojionearea-editor');
+
+    if(sendText.text() != '' || sendText.children().length > 0) {
+
         showComments(text, time, name, urlAva);
 
         let data = {};
-        data["idTopic"] = document.getElementById("idTopic").textContent;
-        data["name"] = name;
+        data["idTopic"] = idTopic;
+        data["idUser"] =  idUser;
         data["text"] = text;
-        data["time"] = time * 1000;
-        data["answerName"] = answerName;
-        data["answerTime"] = answerTime;
+        data["answerID"] = answerID;
 
         $.ajax({
             url : '/com/save',
@@ -39,29 +37,20 @@ function sendMessage() {
             }
         });
 
-        commentBody.value = '';
-        sendText.innerHTML = '';
+        text = '';
+        sendText.text("");
+        answerID = 0;
         answerName = '';
-        answerTime = '';
+        targetText = '';
     }
 }
 
-function showComments(text, dateTime, name, urlAva) {
-    let commenFieldTarget;
-    let float = 'left';
-    let pozitionMessage = 'beforeend';
-    if(pozition){
-        float = 'left';
-        commenFieldTarget = document.getElementById('field-comments');
-        pozitionMessage = 'beforeend';
-    }else {
-        float = 'right';
-        commenFieldTarget = targetAnswerTag;
-        pozitionMessage = 'afterend';
-    }
-    commenFieldTarget.insertAdjacentHTML(pozitionMessage,
+function showComments(text, time, name, urlAva) {
+    let pozitionComments = $('#field-comments');
+    let float = answerID ? 'right' : 'left';
+    pozitionComments.append(
         '<div>'+
-            '<div class="pozition" >'+
+            '<div class="pozition">'+
                 '<div class="app-custom-ava small" style="float: ' + float + '">'+
                     '<div class="ava-p">'+
                         '<img class="ava-img"'+
@@ -79,13 +68,13 @@ function showComments(text, dateTime, name, urlAva) {
                                 '<!--/*@thymesVar id="tempComment" type=""*/-->'+
                                     '<span>'+
                                     '<!--/*время сообщения */-->'+
-                                    timeConverter(dateTime)+
+                                    timeConverter(time)+
                                     ' </span>'+
                             '</div>'+
                             '<!--/*@thymesVar id="tempComment" type=""*/-->'+
                             '<div class="author">'+
                             '<!--/*имя пользователя */-->'+
-                            name +
+                                name +
                             '</div>'+
                             '<!--/*@thymesVar id="commentText" type=""*/-->'+
                             '<div class="text-author">'+
@@ -99,9 +88,7 @@ function showComments(text, dateTime, name, urlAva) {
                         '<div class="answer">'+
                             '<span class="icon-answer">'+
                             '</span>'+
-                            '<span class="a" onclick="setAnswerName()">'+
-                                '<p style="display: none">' + name + '</p>'+
-                                '<p style="display: none">' + (dateTime * 1000) + '</p>'+
+                            '<span class="answer-comment" id= '+ idUser +' onclick="setAnswerName()">'+
                             'Ответить'+
                             '</span>'+
                         '</div>'+
@@ -119,6 +106,29 @@ function showComments(text, dateTime, name, urlAva) {
     closeAnswer();
 }
 
+function closeAnswer() {
+    $('#body-comments').val('');
+    $('#block-answer').css('display', 'none');
+    deleteNameAnswer();
+}
+
+function deleteNameAnswer(){
+    let answer = $('.answer-desc');
+    if (answer.children('span.name-answer') != undefined) {
+        answer.children('span.name-answer').remove();
+    }
+}
+
+function setAnswerName(event) {
+    event = event || window.event;
+    answerID = $(event.currentTarget).attr('id');
+    answerName = $(event.currentTarget).closest('div.desc').find('div.author:first').text();
+    targetText = $(event.currentTarget).closest('div.desc').find('div.desc-r:first').html();
+    deleteNameAnswer();
+    $('.answer-desc').children('span').after('<span class="name-answer">'+ answerName +'</span>');
+    $('#block-answer').css('display', 'block');
+}
+
 function timeConverter(UNIX_timestamp) {
     let a = new Date(UNIX_timestamp * 1000);
     let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -130,32 +140,4 @@ function timeConverter(UNIX_timestamp) {
     let sec = a.getSeconds();
     let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
     return time;
-}
-
-function closeAnswer() {
-    let blockAnswer = document.getElementById('block-answer');
-    let block = blockAnswer.children[0].children[0].childNodes[2];
-    if (block != undefined) {
-        block.remove();
-    }
-    blockAnswer.style.display = 'none';
-    document.getElementById('body-comments').value = '';
-    pozition = true;
-    targetAnswerTag = null;
-}
-
-function setAnswerName(event) {
-    pozition = false;
-    event = event || window.event;
-    targetAnswerTag = event.currentTarget.parentElement.parentElement.parentElement.parentElement.parentElement;
-    targetText = targetAnswerTag.children[0].children[1].children[0].innerHTML;
-    let name = event.currentTarget.children[0].textContent;
-    answerName = name;
-    answerTime = event.currentTarget.children[1].textContent;
-    let blockAnswer = document.getElementById('block-answer');
-    if (blockAnswer.children[0].children[0].childNodes[2] != undefined) {
-        blockAnswer.children[0].children[0].childNodes[2].remove();
-    }
-    blockAnswer.children[0].children[0].insertAdjacentHTML('beforeend', '<span>' + name + '</span>');
-    blockAnswer.style.display = 'block';
 }

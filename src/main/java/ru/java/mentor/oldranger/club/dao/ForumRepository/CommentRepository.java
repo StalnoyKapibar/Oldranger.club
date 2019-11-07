@@ -10,6 +10,4 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAll();
 
     List<Comment> findByTopicId(Long id);
-
-    Comment findByUserNickNameAndDateTime(String name, LocalDateTime time);
 }

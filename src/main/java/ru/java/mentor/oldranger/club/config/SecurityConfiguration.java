@@ -57,7 +57,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable() //наверное, временно?
-
                 .authorizeRequests()
                 .antMatchers("/test/**","/img/**").permitAll()
                 .expressionHandler(webExpressionHandler())

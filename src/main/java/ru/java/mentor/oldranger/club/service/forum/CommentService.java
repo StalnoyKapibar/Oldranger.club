@@ -13,5 +13,5 @@ public interface CommentService {
 
     List<Comment> getAllCommentsByTopicId(Long id);
 
-    Comment getCommentAnswer(String answerName, LocalDateTime localDateTimeAnswer);
+    Comment getCommentById(Long id);
 }
