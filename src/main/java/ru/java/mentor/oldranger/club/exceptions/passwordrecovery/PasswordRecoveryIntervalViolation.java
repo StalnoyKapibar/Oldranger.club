@@ -11,4 +11,8 @@ public class PasswordRecoveryIntervalViolation extends Exception {
     public PasswordRecoveryIntervalViolation(LocalDateTime nextPossibleRecoveryTime) {
         this.nextPossibleRecoveryTime = nextPossibleRecoveryTime;
     }
+
+    public Object getNextPossibleRecoveryTime() {
+        return null;
+    }
 }

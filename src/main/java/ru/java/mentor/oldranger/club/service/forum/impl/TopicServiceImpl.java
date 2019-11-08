@@ -40,11 +40,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection) {
-        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(limitTopicsBySection);
-    }
-
-    @Override
     public List<Topic> getActualTopicsLimit10BySection() {
         return topicRepository.getActualTopicsLimitAnyBySection(10);
     }
@@ -55,8 +50,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic findById(Long id) {
-        Optional<Topic> topic = topicRepository.findById(id);
-        return topic.orElseThrow(()-> new RuntimeException("not found"));
+    public List<Topic> getActualTopicsLimitAnyBySectionForAnon(int expecting_topics_limit_less_or_equals) {
+        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(expecting_topics_limit_less_or_equals);
     }
 }

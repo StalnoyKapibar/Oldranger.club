@@ -11,12 +11,9 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

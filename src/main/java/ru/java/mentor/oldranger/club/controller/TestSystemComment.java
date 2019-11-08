@@ -20,30 +20,30 @@ import java.util.List;
 @Controller
 public class TestSystemComment {
 
-    @Autowired
-    CommentService commentService;
+    private CommentService commentService;
+    private TopicService topicService;
+    private UserService userService;
 
     @Autowired
-    TopicService topicService;
-
-    @Autowired
-    UserService userService;
+    public TestSystemComment(CommentService commentService, TopicService topicService, UserService userService) {
+        this.commentService = commentService;
+        this.topicService = topicService;
+        this.userService = userService;
+    }
 
     // Пример работы с системой комментирования
     @GetMapping("/com/{id}")
-    public String sendComment(
-            @PathVariable Long id,
-            Model model,
-            HttpSession session
-    ) {
+    public String sendComment(@PathVariable Long id,
+                              Model model,
+                              HttpSession session) {
         session.setAttribute("nameUser", "Admin");
         session.setAttribute("idUser", 1);
         session.setAttribute("urlAva", "https://static.tolstoycomments.com/ui/38/73/c6/3873c649-85f1-492a-8f3a-c70de64aefbc.png");
         model.addAttribute("idTopic", id);
         List<Comment> commentsList = new ArrayList<>();
         commentsList = commentService.getAllCommentsByTopicId(id);
-        for(Comment comment: commentsList){
-            if(comment.getAnswerTo() != null){
+        for (Comment comment : commentsList) {
+            if (comment.getAnswerTo() != null) {
                 comment.setPozition(true);
             }
         }
@@ -53,9 +53,7 @@ public class TestSystemComment {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "/com/save")
     public @ResponseBody
-    String messageSave(
-            @RequestBody JsonSavedMessageComentsEntity message
-    ) {
+    String messageSave(@RequestBody JsonSavedMessageComentsEntity message) {
         Comment comment = null;
         Topic topic = topicService.findById(message.getIdTopic());
         User user = userService.findById(message.getIdUser());
