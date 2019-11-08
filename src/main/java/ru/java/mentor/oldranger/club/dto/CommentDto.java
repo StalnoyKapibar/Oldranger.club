@@ -18,11 +18,9 @@ public class CommentDto {
     private String timeSinceRegistration;
     private LocalDateTime commentDateTime;
     private Long messageCount;
-
     private LocalDateTime replyDateTime;
     private String replyNick;
     private String replyText;
-
     private String commentText;
 
     public String getNickName() {

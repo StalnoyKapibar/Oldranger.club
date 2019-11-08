@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import java.util.Optional;
+
 import java.util.List;
 
 @Service

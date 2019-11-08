@@ -11,6 +11,7 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -112,6 +113,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment getCommentById(Long id) {
         Optional<Comment> comment = commentRepository.findById(id);
-        return comment.orElseThrow(()-> new RuntimeException("not found comment by id: " +id));
+        return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
     }
 }

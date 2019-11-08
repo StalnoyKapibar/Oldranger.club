@@ -27,7 +27,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void deleteChatById(Long id) {
-
     }
 
     @Override

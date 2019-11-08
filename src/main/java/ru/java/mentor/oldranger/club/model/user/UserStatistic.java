@@ -21,10 +21,10 @@ public class UserStatistic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="message_count")
+    @Column(name = "message_count")
     private long messageCount;
 
-    @Column(name="last_vizit")
+    @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 
     @OneToOne

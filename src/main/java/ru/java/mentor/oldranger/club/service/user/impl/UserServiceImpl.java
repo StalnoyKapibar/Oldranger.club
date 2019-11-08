@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long theId) {
         Optional<User> result = userRepository.findById(theId);
-        return result.orElseThrow(()-> new RuntimeException("Did not find user id - " + theId));
+        return result.orElseThrow(() -> new RuntimeException("Did not find user id - " + theId));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserAvatar setDefaultAvatar() {
-        UserAvatar def= new UserAvatar();
+        UserAvatar def = new UserAvatar();
         def.setOriginal("default.png");
         def.setMedium("default.png");
         def.setSmall("default-sm.png");

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -43,7 +44,7 @@ public class Comment {
     @Transient
     private boolean pozition;
 
-    public Comment( Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
+    public Comment(Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
         this.topic = topic;
         this.user = user;
         this.answerTo = answerTo;
