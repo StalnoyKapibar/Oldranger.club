@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
     public void createComment(Comment comment) {
 
         commentRepository.save(comment);
-        UserStatistic userStatistic = userStatisticService.getUserStaticById(comment.getUser().getId());
+        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
         if (userStatistic == null) {
             userStatistic = new UserStatistic(comment.getUser());
 
