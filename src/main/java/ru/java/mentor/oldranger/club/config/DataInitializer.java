@@ -139,7 +139,7 @@ public class DataInitializer implements CommandLineRunner {
         /**
          * 20 messages for Pageable test (topic 3)
          */
-        for (int i = 1; i < 21; i ++) {
+        for (int i = 1; i < 21; i++) {
             commentService.createComment(new Comment(topic3, user, null,
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));

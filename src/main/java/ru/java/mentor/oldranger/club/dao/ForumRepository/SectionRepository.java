@@ -7,5 +7,6 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import java.util.List;
 
 public interface SectionRepository extends JpaRepository<Section, Long> {
+
     List<Section> getAllByIsHideToAnonIsFalse();
 }

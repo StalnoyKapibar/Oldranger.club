@@ -35,7 +35,7 @@ public class TestCommentDtoController {
                                       Model model) {
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
-            model.addAttribute("message","Такой темы еще не существует");
+            model.addAttribute("message", "Такой темы еще не существует");
             return "404";
         }
         if (page != null) {
@@ -48,5 +48,4 @@ public class TestCommentDtoController {
         model.addAttribute("commentList", dtos.getContent());
         return "testCommentDtos";
     }
-
 }

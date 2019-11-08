@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.service.mail.MailService;
 public class TestMailController {
     @Autowired
     MailService mailService;
+
     // Пример работы с отправлением почты
     @GetMapping("/mail")
     @ResponseBody
