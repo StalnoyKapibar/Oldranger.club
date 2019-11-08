@@ -28,6 +28,12 @@ public interface TopicService {
     List<Topic> getActualTopicsLimit10BySectionForAnon();
 
     /**
+     * Пейджинг для подсекций самостоятельно определяющий
+     * использовать метод для анонима или для неанонима.
+     */
+    Page<Topic> getPageableBySubsection(Section subsection, Pageable pageable);
+
+    /**
      * Пейджинг для подсекций для анонимов.<br>
      * Сортировка: по дате последнего сообщения (новые сверху).
      */

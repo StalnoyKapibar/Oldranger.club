@@ -1,10 +1,16 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
-<span>part</span>
-<span th:text="${page}"></span>
+<p>
+    <span>Content for page number: </span>
+    <span class="_page_number_" th:text="${page_number}"></span>
+</p>
 <div th:each="topic : ${topics}">
-    <h2 th:text="${topic.getName()}"></h2>
+    <h4 th:text="${topic.getName()}"></h4>
     <p>id: <span th:text="${topic.getId()}"></span></p>
     <p>lastMessage: <span th:text="${topic.getLastMessageTime()}"></span></p>
     <p>topicStarter: <span th:text="${topic.getTopicStarter().getUsername()}"></span></p>
     <p>isHideToAnon: <span th:text="${topic.isHideToAnon()}"></span></p>
 </div>
+<p th:if="${next_page_link != null}" >
+    <span>Next page will be loaded: </span>
+    <span class="_next_page_" th:text="${#request.getRequestURL() + next_page_link}"></span>
+</p>
