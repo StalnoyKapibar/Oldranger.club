@@ -33,6 +33,7 @@ public class UserStatistic {
 
     public UserStatistic(User user) {
         this.user = user;
+        this.lastVizit = LocalDateTime.now();
     }
 
     public Long getId() {
