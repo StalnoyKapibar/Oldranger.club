@@ -24,10 +24,10 @@ public class TestAdminController {
     @GetMapping("/users")
     public String getAllUsers(Model model,
                               @RequestAttribute(value = "page", required = false) Integer page,
-                              @PageableDefault(size = 2, sort = "user_id") Pageable pageable) {
+                              @PageableDefault(size = 5, sort = "user_id") Pageable pageable) {
 
         if (page != null) {
-            pageable = PageRequest.of(page, 2, Sort.by("user_id"));
+            pageable = PageRequest.of(page, 5, Sort.by("user_id"));
         }
 
         Page<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable);
