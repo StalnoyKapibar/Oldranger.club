@@ -25,7 +25,7 @@
 
 <section th:if="${session.user.avatar}">
     <br><br>
-    <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle">
+    <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle" width="256">
     <br><br>
     <a href="#" th:href="@{/test/deleteAvatar}"><button>Delete</button></a>
 </section>

@@ -7,5 +7,4 @@ public interface MessageService {
     public void addMessage(Message message);
 
     public void removeMessageById(Long id);
-
 }

@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,7 +11,6 @@ import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.service.user.UserAvatarService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -87,12 +85,14 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     public void deleteUserAvatar(User user) throws IOException {
         UserAvatar userAvatar = user.getAvatar();
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
-        Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
-        user.setAvatar(null);
-        userService.save(user);
-        userAvatarRepository.delete(userAvatar);
+        if (!userAvatar.getOriginal().equals("default.png")) {
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
+            Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
+            user.setAvatar(null);
+            userService.save(user);
+            userAvatarRepository.delete(userAvatar);
+        }
     }
 
     public void updateUserAvatar(User user, MultipartFile file) throws IOException {

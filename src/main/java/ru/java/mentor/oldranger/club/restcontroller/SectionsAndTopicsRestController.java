@@ -21,5 +21,4 @@ public class SectionsAndTopicsRestController {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         return ResponseEntity.ok(dtos);
     }
-
 }
