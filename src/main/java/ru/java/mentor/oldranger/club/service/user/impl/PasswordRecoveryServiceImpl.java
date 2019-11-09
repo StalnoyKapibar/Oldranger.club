@@ -96,7 +96,6 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
 
-
     private void composeAndSendTokenEmail(PasswordRecoveryToken token) {
         String msgSubject = "Восстановление пароля";
         String recoverURL = getFullHostName() + "/passwordrecovery/token/" + token.getToken();

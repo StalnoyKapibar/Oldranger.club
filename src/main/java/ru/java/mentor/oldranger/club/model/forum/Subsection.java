@@ -19,6 +19,9 @@ public class Subsection {
     @Column(name = "subsection_name")
     private String name;
 
+    @Column(name = "position")
+    private int position;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_section")
     private Section section;
@@ -26,8 +29,9 @@ public class Subsection {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    public Subsection(String name, Section section, boolean isHideToAnon) {
+    public Subsection(String name, int position, Section section, boolean isHideToAnon) {
         this.name = name;
+        this.position = position;
         this.section = section;
         this.isHideToAnon = isHideToAnon;
     }

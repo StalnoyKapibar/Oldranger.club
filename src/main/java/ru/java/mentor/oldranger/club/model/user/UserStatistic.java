@@ -21,10 +21,10 @@ public class UserStatistic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="message_count")
+    @Column(name = "message_count")
     private long messageCount;
 
-    @Column(name="last_vizit")
+    @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 
     @OneToOne
@@ -32,6 +32,39 @@ public class UserStatistic {
     private User user;
 
     public UserStatistic(User user) {
+        this.user = user;
+        this.lastVizit = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public long getMessageCount() {
+        return messageCount;
+    }
+
+    public void setMessageCount(long messageCount) {
+        this.messageCount = messageCount;
+    }
+
+    public LocalDateTime getLastVizit() {
+        return lastVizit;
+    }
+
+    public void setLastVizit(LocalDateTime lastVizit) {
+        this.lastVizit = lastVizit;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
         this.user = user;
     }
 }

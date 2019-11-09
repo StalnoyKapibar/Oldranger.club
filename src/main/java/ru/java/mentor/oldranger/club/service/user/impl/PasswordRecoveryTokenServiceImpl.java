@@ -9,7 +9,6 @@ import ru.java.mentor.oldranger.club.model.user.PasswordRecoveryToken;
 import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryTokenService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class PasswordRecoveryTokenServiceImpl implements PasswordRecoveryTokenService {

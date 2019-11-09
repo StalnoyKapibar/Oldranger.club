@@ -24,5 +24,4 @@ public interface PasswordRecoveryTokenRepository extends JpaRepository<PasswordR
 
     @Query("select t from PasswordRecoveryToken t where t.expirationDate>:expirationDateTime")
     List<PasswordRecoveryToken> validTokens(LocalDateTime expirationDateTime);
-
 }

@@ -110,10 +110,10 @@ public class DataInitializer implements CommandLineRunner {
         LocalDateTime lastMessage = LocalDateTime.now();
 
         // Создание подсекций
-        Subsection subsection = new Subsection("Общая подсекция в секции для всех", sectionForUnverified, false);
-        Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", sectionForUnverified, true);
-        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", sectionForUsers, false);
-        Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей",sectionForUsers, true);
+        Subsection subsection = new Subsection("Общая подсекция в секции для всех", 1, sectionForUnverified, false);
+        Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", 2, sectionForUnverified, true);
+        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, false);
+        Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей", 2, sectionForUsers, true);
         subsectionService.createSubsection(subsection);
         subsectionService.createSubsection(subsection2);
         subsectionService.createSubsection(subsection3);
@@ -163,10 +163,18 @@ public class DataInitializer implements CommandLineRunner {
         /**
          * 20 messages for Pageable test (topic 3)
          */
-        for (int i = 1; i < 21; i ++) {
+        for (int i = 1; i < 21; i++) {
             commentService.createComment(new Comment(topic3, user, null,
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));
         }
+
+        for (int i =1; i< 12; i++) {
+            User newuser = new User("User", "User", "user@javamentor.com", "User" + i, roleUser);
+            newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
+            userService.save(newuser);
+            userStatisticService.saveUserStatic(new UserStatistic(newuser));
+        }
+
     }
 }

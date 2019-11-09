@@ -18,15 +18,12 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void send(String to, String subject, String message) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
 
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(username);
         mailMessage.setTo(to);
         mailMessage.setSubject(subject);
         mailMessage.setText(message);
-
         mailSender.send(mailMessage);
     }
 }
-
-
