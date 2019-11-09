@@ -70,11 +70,13 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
-        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setPassword(passwordEncoder.encode("1"));
         User moderator = new User("Moderator", "Moderator", "moderator@javamentor.com", "Moderator", roleModerator);
+        moderator.setPassword(passwordEncoder.encode("2"));
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
-        user.setPassword(passwordEncoder.encode("user"));
+        user.setPassword(passwordEncoder.encode("3"));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
+        unverified.setPassword(passwordEncoder.encode("4"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
