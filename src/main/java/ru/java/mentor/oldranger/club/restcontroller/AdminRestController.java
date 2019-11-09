@@ -3,7 +3,7 @@ package ru.java.mentor.oldranger.club.restcontroller;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
+import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.service.forum.ForumTreeAdminService;
 
 import java.util.List;
@@ -16,9 +16,9 @@ public class AdminRestController {
 
     private ForumTreeAdminService forumTreeAdminService;
 
-    @GetMapping("/allsectionsandtopics")
-    public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
-        List<SectionsAndTopicsDto> dtos = forumTreeAdminService.getAllSectionAndAllTopics();
+    @GetMapping("/allsectionsandsubsections")
+    public ResponseEntity<List<Section>> getSectionsAndTopicsDto() {
+        List<Section> dtos = forumTreeAdminService.getAllSections();
         return ResponseEntity.ok(dtos);
     }
 
