@@ -60,15 +60,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/test/**", "/img/**").permitAll()
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
-                .antMatchers("/com/*", "/css/**", "/js/*", "/dist-smile/*").permitAll()
+                .antMatchers("/com/*", "/css/**", "/js/**", "/dist-smile/*").permitAll()
                 .antMatchers("/", "/api/**", "/passwordrecovery/**").permitAll()
-                .anyRequest()
-                .authenticated()
+                .antMatchers("/admin", "/admin/*").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .and()
-                .logout()
-                .permitAll();
+                .logout().permitAll();
     }
 
     @Bean

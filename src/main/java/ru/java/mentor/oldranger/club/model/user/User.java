@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @Table(name = "users")
-public class User implements UserDetails{
+public class User implements UserDetails {
 
     @Id
     @Column(name = "id_user")
@@ -70,7 +71,7 @@ public class User implements UserDetails{
 
     @Override
     public String getPassword() {
-        return getPassword();
+        return password;
     }
 
     @Override
@@ -85,7 +86,7 @@ public class User implements UserDetails{
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return BlackListServiceImpl.getInstance().userSearchBlackListByUserId(getId());
     }
 
     @Override
@@ -172,5 +173,21 @@ public class User implements UserDetails{
 
     public void setPasswordRecoveryToken(PasswordRecoveryToken passwordRecoveryToken) {
         this.passwordRecoveryToken = passwordRecoveryToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(nickName, user.nickName) &&
+                Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, nickName, password);
     }
 }
