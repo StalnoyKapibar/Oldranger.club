@@ -139,10 +139,18 @@ public class DataInitializer implements CommandLineRunner {
         /**
          * 20 messages for Pageable test (topic 3)
          */
-        for (int i = 1; i < 21; i ++) {
+        for (int i = 1; i < 21; i++) {
             commentService.createComment(new Comment(topic3, user, null,
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));
         }
+
+        for (int i =1; i< 12; i++) {
+            User newuser = new User("User", "User", "user@javamentor.com", "User" + i, roleUser);
+            newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
+            userService.save(newuser);
+            userStatisticService.saveUserStatic(new UserStatistic(newuser));
+        }
+
     }
 }

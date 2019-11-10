@@ -23,5 +23,4 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Modifying
     @Query("update Subscription set lastVisitTime=:lastVisitTime where user=:user and topic=:topic")
     void setVisitTime(User user, Topic topic, LocalDateTime lastVisitTime);
-
 }
