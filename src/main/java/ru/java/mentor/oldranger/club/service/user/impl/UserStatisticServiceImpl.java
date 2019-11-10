@@ -33,4 +33,9 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     public Page<UserStatistic> getAllUserStatistic(Pageable pageable) {
         return  userStaticRepository.findAll(pageable);
     }
+
+    @Override
+    public Page<UserStatistic> getUserStatisticsByQuery(Pageable pageable, String query) {
+        return  userStaticRepository.findByQuery(pageable, query);
+    }
 }
