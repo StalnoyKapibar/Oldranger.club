@@ -18,7 +18,7 @@ import java.util.Objects;
 @ToString
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements UserDetails{
 
     @Id
     @Column(name = "id_user")
