@@ -5,17 +5,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.model.forum.Comment;
-import ru.java.mentor.oldranger.club.model.forum.Section;
-import ru.java.mentor.oldranger.club.model.forum.Subscription;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.forum.CommentService;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
-import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
-import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -33,7 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     private SectionService sectionService;
     private TopicService topicService;
     private CommentService commentService;
-    private SubscriptionService subscriptionService;
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Autowired
     @Lazy
@@ -47,7 +41,7 @@ public class DataInitializer implements CommandLineRunner {
                            SectionService sectionService,
                            TopicService topicService,
                            CommentService commentService,
-                           SubscriptionService subscriptionService) {
+                           TopicVisitAndSubscriptionService topicVisitAndSubscriptionService) {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
@@ -55,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         this.sectionService = sectionService;
         this.topicService = topicService;
         this.commentService = commentService;
-        this.subscriptionService = subscriptionService;
+        this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
     }
 
     @Override
@@ -118,7 +112,7 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 0; i < 10; i++) {
             Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, lastMessage, sectionForUnverified, false);
             topicService.createTopic(topicX);
-            subscriptionService.subscribeUserOnTopic(admin, topicX);
+            topicVisitAndSubscriptionService.subscribeUserOnTopic(admin, topicX);
         }
 
         boolean b = false;
@@ -127,12 +121,16 @@ public class DataInitializer implements CommandLineRunner {
             Random random = new Random();
             Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), sectionForUnverified, b);
             topicService.createTopic(topicX);
+            for (int j = 0; j < 10; j++) {
+                Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);
+                commentService.createComment(commentX);
+            }
             if (i % 2 == 0) {
-                Subscription subscription1 = new Subscription(admin, topicX, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
-                subscriptionService.subscribe(subscription1);
+                TopicVisitAndSubscription subscription1 = new TopicVisitAndSubscription(admin, topicX, true, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                topicVisitAndSubscriptionService.save(subscription1);
             } else {
-                Subscription subscription2 = new Subscription(andrew, topicX, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
-                subscriptionService.subscribe(subscription2);
+                TopicVisitAndSubscription subscription2 = new TopicVisitAndSubscription(andrew, topicX, true, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                topicVisitAndSubscriptionService.save(subscription2);
             }
         }
 

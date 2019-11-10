@@ -15,7 +15,6 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.util.Optional;
 
@@ -27,8 +26,6 @@ public class TestScrollableTopicsController {
     private TopicService topicService;
 
     private SectionService sectionService;
-
-    private UserService userService;
 
     @GetMapping("/subsection/{subsectionId}")
     public ModelAndView getContainer(@PathVariable long subsectionId) {
@@ -75,7 +72,8 @@ public class TestScrollableTopicsController {
 
         modelAndView.addObject("page_number", currentPageNumber);
         modelAndView.addObject("next_page_link", nextPageLink);
-        modelAndView.addObject("topics", pageableTopicsBySubsection.getContent());
+//        modelAndView.addObject("topics", pageableTopicsBySubsection.getContent());
+        modelAndView.addObject("topics_dto", topicService.getTopicsDto(pageableTopicsBySubsection.getContent()));
         return modelAndView;
     }
 }

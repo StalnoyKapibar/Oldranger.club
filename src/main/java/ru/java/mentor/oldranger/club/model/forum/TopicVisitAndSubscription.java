@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @NoArgsConstructor
-@Table(name = "subscriptions")
-public class Subscription {
+@Table(name = "topic_visit_and_subscriptions")
+public class TopicVisitAndSubscription {
 
     @Id
     @Column(name = "id")
@@ -30,7 +30,10 @@ public class Subscription {
     @JoinColumn(name = "id_topic", nullable = false)
     private Topic topic;
 
-    @Column(name = "date_subscribed", nullable = false)
+    @Column(name = "is_subscribed", columnDefinition = "TINYINT", nullable = false)
+    private boolean isSubscribed;
+
+    @Column(name = "date_subscribed")
     private LocalDateTime subscriptionTime;
 
     @Column(name = "date_lastvisit")
@@ -39,9 +42,23 @@ public class Subscription {
     @Transient
     private boolean hasNewMessages;
 
-    public Subscription(User user, Topic topic, LocalDateTime subscriptionTime, LocalDateTime lastVisitTime) {
+    public TopicVisitAndSubscription(User user, Topic topic, boolean isSubscribed) {
         this.user = user;
         this.topic = topic;
+        this.isSubscribed = isSubscribed;
+    }
+
+    public TopicVisitAndSubscription(User user, Topic topic, boolean isSubscribed, LocalDateTime subscriptionTime) {
+        this.user = user;
+        this.topic = topic;
+        this.isSubscribed = isSubscribed;
+        this.subscriptionTime = subscriptionTime;
+    }
+
+    public TopicVisitAndSubscription(User user, Topic topic, boolean isSubscribed, LocalDateTime subscriptionTime, LocalDateTime lastVisitTime) {
+        this.user = user;
+        this.topic = topic;
+        this.isSubscribed = isSubscribed;
         this.subscriptionTime = subscriptionTime;
         this.lastVisitTime = lastVisitTime;
     }

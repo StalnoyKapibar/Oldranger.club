@@ -4,10 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 
 import java.util.List;
 
@@ -48,7 +47,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      */
     @Query(nativeQuery = true,
             value = "select *, (comb.id_user is not null and (comb.date_last_message>=comb.date_lastvisit or comb.date_lastvisit is null)) as subscriber_has_new_msg from " +
-                    "(select * from topics t left join (select id_topic, id_user, date_lastvisit from subscriptions s where s.id_user=?1 group by s.id_topic) st on t.id=st.id_topic " +
+                    "(select * from topics t left join (select id_topic, id_user, date_lastvisit from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) st on t.id=st.id_topic " +
                     "where t.id_section=?2) as comb " +
                     "order by subscriber_has_new_msg desc, comb.date_last_message desc " +
                     "limit ?3,?4")
@@ -61,7 +60,31 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query(nativeQuery = true,
             value = "select count(*) from " +
                     "(select * from topics t left join " +
-                    "(select id_topic, id_user, date_lastvisit from subscriptions s where s.id_user=?1 group by s.id_topic) " +
+                    "(select id_topic, id_user, date_lastvisit from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) " +
                     "st on t.id=st.id_topic where t.id_section=?2) as comb")
     long countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long sectionId);
+
+    /**
+     * Подсчёт общего количества сообщений для списка идентификаторов класса Topic<br>
+     * Если сообщений в Топике нет, то пара с id Топика будет отсутствовать в выбоке!
+     * @param ids список id для Topic
+     * @return пара {@code IdAndNumberProjection} "id Топика" - "общее количество сообщений в Топике"
+     */
+    @Query(nativeQuery = true,
+            value = "select id_topic as id, count(*) as number from comments c where c.id_topic in :ids group by id_topic")
+    List<IdAndNumberProjection> getPairsTopicIdAndTotalMessagesCount(List<Long> ids);
+
+
+    /**
+     * Подсчёт новых сообщений для пользователя User для списка идентификаторов класса Topic<br>
+     * Если новых сообщений в Топике нет, то пара с id Топика будет отсутствовать в выбоке!
+     * @param ids список id для топика Topic
+     * @param userId id пользователя User
+     * @return пара {@code IdAndNumberProjection} "id Топика" - "количество новых сообщений для пользователя в Топике"
+     */
+    @Query(nativeQuery = true,
+    value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.id_topic " +
+            "where t.id_user=?2 and t.id_topic in ?1 and c.comment_date>t.date_lastvisit " +
+            "group by c.id_topic")
+    List<IdAndNumberProjection> getPairsTopicIdAndNewMessagesCountForUserId(List<Long> ids, Long userId);
 }

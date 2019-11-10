@@ -1,12 +1,17 @@
 package ru.java.mentor.oldranger.club.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
 @Getter
 @Setter
-public class TopicAndNewMessagesCountDto extends Topic {
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+public class TopicAndNewMessagesCountDto {
+    private Topic topic;
+    private long totalMessages;
+    private boolean isSubscribed;
     private boolean hasNewMessages;
     private long newMessagesCount;
 }

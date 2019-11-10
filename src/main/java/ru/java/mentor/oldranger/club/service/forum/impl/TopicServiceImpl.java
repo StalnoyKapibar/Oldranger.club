@@ -11,15 +11,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
+import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -28,11 +36,10 @@ public class TopicServiceImpl implements TopicService {
     private TopicRepository topicRepository;
 
     @Autowired
-    @Lazy
-    private RoleHierarchy roleHierarchy;
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Autowired
-    private UserService userService;
+    private SecurityUtilsService securityUtilsService;
 
     @Override
     public void createTopic(Topic topic) {
@@ -52,6 +59,11 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Topic findById(Long id) {
         return topicRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Topic> findAll() {
+        return topicRepository.findAll();
     }
 
     @Override
@@ -77,12 +89,8 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Page<Topic> getPageableBySubsection(Section subsection, Pageable pageable) {
         Page<Topic> page;
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        Collection<? extends GrantedAuthority> reachableGrantedAuthorities = roleHierarchy.getReachableGrantedAuthorities(authorities);
-        if (reachableGrantedAuthorities.contains(new Role("ROLE_USER"))) {
-            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            User user = userService.getUserByNickName(username);
-            page = getPageableBySubsectionForUser(user, subsection, pageable);
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            page = getPageableBySubsectionForUser(securityUtilsService.getLoggedUser(), subsection, pageable);
         } else {
             page = getPageableBySubsectionForAnon(subsection, pageable);
         }
@@ -104,5 +112,68 @@ public class TopicServiceImpl implements TopicService {
                 pageable,
                 topicRepository.countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(user.getId(), subsection.getId())
         );
+    }
+
+    @Override
+    public List<IdAndNumberProjection> getMessagesCountForTopics(List<Topic> topics) {
+        List<Long> list = topics.stream().map(Topic::getId).collect(Collectors.toList());
+        return topicRepository.getPairsTopicIdAndTotalMessagesCount(list);
+    }
+
+    @Override
+    public List<IdAndNumberProjection> getNewMessagesCountForTopicsAndUser(List<Topic> topics, User user) {
+        List<Long> list = topics.stream().map(Topic::getId).collect(Collectors.toList());
+        return topicRepository.getPairsTopicIdAndNewMessagesCountForUserId(list, user.getId());
+    }
+
+    @Override
+    public List<TopicAndNewMessagesCountDto> getTopicsDto(List<Topic> topics) {
+        boolean logged = false;
+        List<IdAndNumberProjection> newMessagesCountForTopicsAndUser = null;
+        List<TopicVisitAndSubscription> topicVisitAndSubscriptionForUser = null;
+
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            logged = true;
+            User loggedUser = securityUtilsService.getLoggedUser();
+            newMessagesCountForTopicsAndUser = getNewMessagesCountForTopicsAndUser(topics, loggedUser);
+            topicVisitAndSubscriptionForUser = topicVisitAndSubscriptionService.getTopicVisitAndSubscriptionForUser(loggedUser);
+        }
+
+        List<IdAndNumberProjection> messagesCountForTopics = getMessagesCountForTopics(topics);
+
+        List<TopicAndNewMessagesCountDto> dtos = new ArrayList<>();
+
+        for (Topic topic : topics) {
+            TopicAndNewMessagesCountDto dto = new TopicAndNewMessagesCountDto();
+            dto.setTopic(topic);
+
+            Optional<IdAndNumberProjection> messagesCountForTopic = messagesCountForTopics.stream().filter(t -> t.getId() == topic.getId()).findAny();
+            if (messagesCountForTopic.isPresent()) {
+                dto.setTotalMessages(messagesCountForTopic.get().getNumber());
+            } else {
+                dto.setTotalMessages(0);
+            }
+
+            if (logged) {
+                boolean isSubscribed = topicVisitAndSubscriptionForUser.stream().filter(t -> t.getTopic().getId().equals(topic.getId())).anyMatch(TopicVisitAndSubscription::isSubscribed);
+                dto.setSubscribed(isSubscribed);
+
+                Optional<IdAndNumberProjection> newMessages = newMessagesCountForTopicsAndUser.stream().filter(t -> t.getId() == topic.getId()).findAny();
+
+                if (newMessages.isPresent()) {
+                    dto.setHasNewMessages(true);
+                    dto.setNewMessagesCount(newMessages.get().getNumber());
+                }
+
+            } else {
+                dto.setSubscribed(false);
+                dto.setHasNewMessages(true);
+                dto.setNewMessagesCount(dto.getTotalMessages());
+            }
+
+            dtos.add(dto);
+        }
+
+        return dtos;
     }
 }

@@ -6,6 +6,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public interface TopicService {
     void deleteTopicById(Long id);
 
     Topic findById(Long id);
+
+    List<Topic> findAll();
 
     List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection);
 
@@ -46,4 +49,10 @@ public interface TopicService {
      * 2. По дате последнего сообщения (новые сверху).
      */
     Page<Topic> getPageableBySubsectionForUser(User user, Section subsection, Pageable pageable);
+
+    List<IdAndNumberProjection> getMessagesCountForTopics(List<Topic> topics);
+
+    List<IdAndNumberProjection> getNewMessagesCountForTopicsAndUser(List<Topic> topics, User user);
+
+    List<TopicAndNewMessagesCountDto> getTopicsDto(List<Topic> topics);
 }
