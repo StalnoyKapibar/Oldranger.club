@@ -34,3 +34,4 @@ build/
 uploads/*
 !uploads/default.png
 !uploads/default-sm.png
+/src/main/resources/static/css/mystyle.css.map

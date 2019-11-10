@@ -1,27 +1,56 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+>
+<head th:replace="fragments/commonfragment :: head (~{::title})">
+    <title>test</title>
 </head>
 <body>
-<div id="sectionsandtopicsplain">
-    <h4>Sections and topics example thymeleaf driven:</h4>
-    <th:block th:each="section : ${sectionsAndTopics}">
-        <h5 th:text="${section.getSection().getName()}"></h5>
-        <ul>
-            <li th:each="topic : ${section.getTopics()}" th:text="${topic.getName()}"></li>
-        </ul>
-    </th:block>
-</div>
-<hr>
-<div id="sectionsandtopicsrest">
-    <h4>Sections and topics example ajax driven:</h4>
+<div th:replace="fragments/main_menu :: main_menu"></div>
+
+<div class="whiteblock"></div>
+<div class="main_body">
+
+    <div class="wrap">
+        <a class="navicon" href="#menu-left"></a>
+        <div class="forum" id="sectionsandtopicsplain">
+            <h4>Sections and topics example thymeleaf driven:</h4>
+            <div class="forum_section">
+                <th:block th:each="section : ${sectionsAndTopics}">
+                    <h5 th:text="${section.getSection().getName()}"></h5>
+                    <ul>
+                        <li class="forum_topic" th:each="topic : ${section.getTopics()}"
+                            th:text="${topic.getName()}"></li>
+                    </ul>
+                </th:block>
+            </div>
+        </div>
+        <!--      <hr>
+              <div id="sectionsandtopicsrest">
+                  <h4>Sections and topics example ajax driven:</h4>
+              </div>-->
+    </div>
+
 </div>
 
+<div id="dialog-form" title="Ворота в сообщество">
+    <p class="validateTips">Все поля нужно заполнить.</p>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script>
+    <form action="/login" id="login_form" method="post">
+        <fieldset>
+            <label for="username">e-mail</label>
+            <input class="text ui-widget-content ui-corner-all" id="username" name="username" type="text"
+                   value=""><br>
+            <label for="password">пароль</label>
+            <input class="text ui-widget-content ui-corner-all" id="password" name="password" type="password"
+                   value="xxxxxxx">
+
+            <!-- Allow form submission with keyboard without duplicating the dialog button -->
+            <input style="position:absolute; top:-1000px" tabindex="-1" type="submit">
+        </fieldset>
+    </form>
+</div>
+
+<!--<script>
     $(document).ready(function () {
         getSectionsAndTopics();
     });
@@ -52,6 +81,6 @@
             }
         }
     }
-</script>
+</script>-->
 </body>
 </html>
