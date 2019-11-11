@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<div th:fragment="main_menu">
+    <div id="page">
+        <div id="header">
+            <a class="navicon" href="#menu-left"></a>
+        </div>
+
+        <nav class="menut" id="menu-left">
+            <ul class="">
+                <li><a href="/">Форум</a></li>
+
+            </ul>
+        </nav>
+    </div>
+    <!------start-768px-menu---->
+    <!----start-header---->
+    <div class="header menu_fixed" id="move-top">
+        <div class="wrap top_menu">
+            <div class="header-left">
+                <!----start-logo---->
+                <div class="logo">
+                    <a href="/"> </a>
+                </div>
+                <!----//End-logo---->
+            </div>
+            <div class="header-right">
+                <!----start-top-nav---->
+                <div class="top-nav menut">
+                    <ul class="">
+                        <li><a href="/">Форум</a></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/logout">Выход</a></li>
+                        <li sec:authorize="!isAuthenticated()"><a href="#" id="login_modal">Вход</a></li>
+                    </ul>
+                </div>
+                <!----//End-top-nav---->
+                <!----start-search-box--->
+                <!----//End-search-box--->
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
