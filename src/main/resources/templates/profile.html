@@ -38,12 +38,22 @@
     <input type="file" name="file"/> <br/><br/>
     <button type="submit">Submit</button>
 </form>
-<button type="button" onclick="test()" th:if="${session.user.role.role!='ROLE_UNVERIFIED'}" class="btn btn-success">
-    Invite
-</button>
-<fieldset id="fieldset" style="width:400px;height:40px">
-    <legend>Invitation link:</legend>
-    <p id="innerFieldText"></p>
-</fieldset>
+<div th:if="${session.user.role.role!='ROLE_UNVERIFIED'}">
+    <button type="button" onclick="test()">
+        Invite
+    </button>
+    <fieldset id="fieldset" style="width:400px;height:40px">
+        <legend>Invitation link:</legend>
+        <p id="innerFieldText">
+        <p th:if="${session.key!=null}" th:text="'http://localhost:8888/invite?key=' + ${session.key}"></p>
+        </p>
+    </fieldset>
+    <fieldset style="width:400px">
+        <input id="mail" type="email"> e-mail</input><br>
+        <button type="button" onclick="sendInviteOnMail()">Отправить приглашение</button>
+    </fieldset>
+</div>
+
 </body>
+
 </html>

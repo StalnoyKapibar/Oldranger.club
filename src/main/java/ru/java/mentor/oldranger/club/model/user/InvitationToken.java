@@ -22,9 +22,12 @@ public class InvitationToken {
     @Column(name = "date_invite")
     private Date date;
 
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "user")
     @ManyToOne
     private User user;
+
+    @Column(name = "mail")
+    private String mail;
 
     @Column(name = "used_invite")
     private Boolean used;
@@ -37,5 +40,13 @@ public class InvitationToken {
         this.user = user;
         this.date = new Date();
         used = false;
+    }
+
+    public InvitationToken(String key, User user, String mail) {
+        this.key = key;
+        this.user = user;
+        this.date = new Date();
+        used = false;
+        this.mail = mail;
     }
 }

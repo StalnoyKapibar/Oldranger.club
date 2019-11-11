@@ -22,7 +22,7 @@ public class TestInvitationController {
     public ModelAndView registrationPage(String key) {
         InvitationToken invitationToken = invitationService.getInvitationTokenByKey(key);
         ModelAndView modelAndView = new ModelAndView();
-        if (invitationToken == null || invitationToken.getUsed()) {
+        if (invitationToken == null || invitationService.checkShelfLife(invitationToken) || invitationToken.getUsed()) {
             modelAndView.setViewName("redirect:/");
         } else {
             modelAndView.setViewName("registration");
