@@ -6,9 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -70,7 +70,7 @@ public class User implements UserDetails{
 
     @Override
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     @Override
