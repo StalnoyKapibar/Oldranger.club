@@ -1,15 +1,17 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserProfileRepository;
+import ru.java.mentor.oldranger.club.dto.UserProfileDto;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 
 @Service
+@AllArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {
 
-    @Autowired
     private UserProfileRepository userProfileRepository;
 
     @Override
@@ -25,5 +27,15 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public void editUserProfile(UserProfile userProfile) {
         userProfileRepository.save(userProfile);
+    }
+
+    @Override
+    public UserProfile getUserProfileByUser(User user) {
+        return userProfileRepository.getOneByUser(user);
+    }
+
+    @Override
+    public UserProfileDto getUserProfileDtoByUser(User user) {
+        return userProfileRepository.getUserProfileDto(user.getId());
     }
 }

@@ -1,21 +1,29 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TopicServiceImpl implements TopicService {
 
-    @Autowired
+
     private TopicRepository topicRepository;
+    private UserStatisticService userStatisticService;
 
     @Override
     public void createTopic(Topic topic) {
+        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
+        long topicCount = userStatistic.getTopicStartCount();
+        userStatistic.setTopicStartCount(++topicCount);
+        userStatisticService.saveUserStatic(userStatistic);
         topicRepository.save(topic);
     }
 

@@ -34,14 +34,10 @@ public class CommentServiceImpl implements CommentService {
     public void createComment(Comment comment) {
         commentRepository.save(comment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
-        if (userStatistic == null) {
-            userStatistic = new UserStatistic(comment.getUser());
-
-        }
         long messages = userStatistic.getMessageCount();
         userStatistic.setMessageCount(++messages);
+        userStatistic.setLastComment(comment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
-
     }
 
     @Override
