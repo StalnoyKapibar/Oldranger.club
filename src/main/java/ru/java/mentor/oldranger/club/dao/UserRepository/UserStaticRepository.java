@@ -15,6 +15,6 @@ public interface UserStaticRepository extends JpaRepository<UserStatistic, Long>
     @Query(value = "SELECT * FROM user_statistic WHERE user_id IN (" +
             "SELECT id_user FROM users WHERE FIND_IN_SET(LOWER(first_name), :q)" +
             "OR FIND_IN_SET(LOWER(last_name), :q) OR FIND_IN_SET(LOWER(email), :q))", nativeQuery = true)
-    Page<UserStatistic> findByQuery(Pageable pageable, @Param("q") String q);
+    Page<UserStatistic> findByQuery(Pageable pageable, @Param("query") String q);
 }
 

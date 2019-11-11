@@ -26,7 +26,7 @@ public class TestAdminController {
     public String getAllUsers(Model model,
                               @RequestAttribute(value = "page", required = false) Integer page,
                               @PageableDefault(size = 5, sort = "user_id") Pageable pageable,
-                              @RequestParam(value = "q", required = false) String query) {
+                              @RequestParam(value = "query", required = false) String query) {
 
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("user_id"));
@@ -43,7 +43,7 @@ public class TestAdminController {
         model.addAttribute("users", users);
         model.addAttribute("pageCount", users.getTotalPages());
         model.addAttribute("usersList", users.getContent());
-        model.addAttribute("q", query);
+        model.addAttribute("query", query);
         return "users";
     }
 
