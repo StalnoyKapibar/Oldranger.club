@@ -18,7 +18,7 @@ public class InvitationServiceImpl implements InvitationService {
     private static final Long HOUR = 3600000L;
     private static final Long DAY_AND_NIGHT = 3600000L;
 
-    private Long shelfLife = MINUTE;
+    private Long shelfLife = DAY_AND_NIGHT;
 
     @Autowired
     public InvitationServiceImpl(InviteRepository inviteRepository) {
