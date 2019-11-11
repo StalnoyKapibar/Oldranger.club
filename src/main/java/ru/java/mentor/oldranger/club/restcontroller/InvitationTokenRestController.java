@@ -49,8 +49,8 @@ public class InvitationTokenRestController {
         return key;
     }
 
-    @RequestMapping(value = "/onmail", method = RequestMethod.POST)
-    public String sendInviteOnMail(@RequestBody String mail) {
+    @RequestMapping(value = "/bymail", method = RequestMethod.POST)
+    public String sendInviteByMail(@RequestBody String mail) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String name = auth.getName();
         User user = userService.getUserByNickName(name);
