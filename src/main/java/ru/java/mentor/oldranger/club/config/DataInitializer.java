@@ -98,14 +98,14 @@ public class DataInitializer implements CommandLineRunner {
         // Создаем разделы, топики и сообщения форума;
         Section sectionForUnverified = new Section("Для всех обо всем", 1, false);
         Section sectionForUsers = new Section("Только для пользователей", 2, true);
-        Section sectionTest01 = new Section("Тестовая секция 01", 3, true);
-        Section sectionTest02 = new Section("Тестовая секция 02", 4, true);
-        Section sectionTest03 = new Section("Тестовая секция 03", 5, true);
+        Section sectionTest03 = new Section("Тестовая секция 03", 3, true);
+        Section sectionTest04 = new Section("Тестовая секция 04", 4, true);
+        Section sectionTest05 = new Section("Тестовая секция 05", 5, true);
         sectionService.addSection(sectionForUnverified);
         sectionService.addSection(sectionForUsers);
-        sectionService.addSection(sectionTest01);
-        sectionService.addSection(sectionTest02);
         sectionService.addSection(sectionTest03);
+        sectionService.addSection(sectionTest04);
+        sectionService.addSection(sectionTest05);
 
         LocalDateTime startTime = LocalDateTime.of(2019, 10, 31, 21, 33, 35);
         LocalDateTime lastMessage = LocalDateTime.now();
