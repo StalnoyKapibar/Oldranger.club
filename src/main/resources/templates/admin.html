@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <title>Adminka</title>
     <style>
-        .sections {width: 600px;}
+        .sections {width: 450px;}
         .section {
             background-color: #e7e7e7e7;
-            border: solid 1px #ccc;
+            border: solid 1px gray;
             min-height: 50px;
             margin: 10px;
             padding: 10px;
-            width: 600px;
+            width: 450px;
             vertical-align: top;
+        }
+        .subsection {
+            background-color: #ccc;
+            width: 400px;
+            height: 20px;
+            margin: 5px;
+            padding: 5px;
+            cursor: move;
         }
     </style>
 </head>
@@ -23,8 +31,8 @@
 
 <div class="sections"></div>
 
-<script src="./jquery-3.4.1.min.js"></script>
-<script src="./jquery-ui.min.js"></script>
-<script src="./admin.js"></script>
+<script src="js/jquery-3.4.1.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>
