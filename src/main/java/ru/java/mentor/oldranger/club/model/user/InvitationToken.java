@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,7 +20,7 @@ public class InvitationToken {
     private String key;
 
     @Column(name = "date_invite")
-    private Date date;
+    private LocalDateTime date;
 
     @JoinColumn(name = "user")
     @ManyToOne
@@ -38,14 +38,14 @@ public class InvitationToken {
     public InvitationToken(String key, User user) {
         this.key = key;
         this.user = user;
-        this.date = new Date();
+        this.date = LocalDateTime.now();
         used = false;
     }
 
     public InvitationToken(String key, User user, String mail) {
         this.key = key;
         this.user = user;
-        this.date = new Date();
+        this.date = LocalDateTime.now();
         used = false;
         this.mail = mail;
     }

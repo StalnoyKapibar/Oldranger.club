@@ -7,7 +7,8 @@ import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -67,8 +68,8 @@ public class InvitationServiceImpl implements InvitationService {
     @Override
     public boolean checkShelfLife(InvitationToken token) {
         String key = token.getKey();
-        Date date = getDateCreate(key);
-        Long elapsedTime = new Date().getTime() - date.getTime();
+        LocalDateTime date = getDateCreate(key);
+        Long elapsedTime = ChronoUnit.MILLIS.between(date, LocalDateTime.now());
         if (elapsedTime >= shelfLife) {
             return true;
         }
@@ -86,7 +87,7 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public Date getDateCreate(String key) {
+    public LocalDateTime getDateCreate(String key) {
         return getInvitationTokenByKey(key).getDate();
     }
 
