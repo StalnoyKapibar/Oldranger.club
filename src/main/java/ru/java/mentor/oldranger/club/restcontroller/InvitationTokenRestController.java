@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,15 @@ public class InvitationTokenRestController {
     private UserService userService;
 
     private MailService mailService;
+
+    @Value("${server.protocol}")
+    private String protocol;
+
+    @Value("${server.name}")
+    private String name;
+
+    @Value("${server.port}")
+    private String port;
 
     @Autowired
     public void setMailService(MailService service) {
@@ -52,11 +62,12 @@ public class InvitationTokenRestController {
     @RequestMapping(value = "/bymail", method = RequestMethod.POST)
     public String sendInviteByMail(@RequestBody String mail) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String name = auth.getName();
-        User user = userService.getUserByNickName(name);
+        String userName = auth.getName();
+        User user = userService.getUserByNickName(userName);
         String message = "Привет! Это приглашение на форум \"Фашисты, свастика и всё такое\". Для регистрации пройди по ссылке:\n";
         String key = invitationService.generateKey();
-        String link = "<a href=\"http://localhost:8888/invite?key=" + key + "\">http://localhost:8888/invite?key=" + key + "</a>";
+        String link = "<a href=\"" + protocol + "://" + name + ":" + port + "/invite?key=" + key + "\">" +
+                "" + protocol + "://" + name + ":" + port + "/invite?key=" + key + "</a>";
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, name, message + link);
         invitationService.markInviteOnMailAsUsed(mail);
