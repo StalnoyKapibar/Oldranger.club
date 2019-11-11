@@ -36,7 +36,7 @@ public class TestAdminController {
         Page<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable);
 
         if (query != null && !query.trim().isEmpty()) {
-            query = query.toLowerCase().trim().replaceAll("( )+", ",");
+            query = query.toLowerCase().trim().replaceAll("\\s++", ",");
             users = userStatisticService.getUserStatisticsByQuery(pageable, query);
         } else { query = null; }
 
