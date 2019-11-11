@@ -50,7 +50,7 @@ public class InvitationTokenRestController {
     }
 
     @RequestMapping(value = "/onmail", method = RequestMethod.POST)
-    public void sendInviteOnMail(@RequestBody String mail) {
+    public String sendInviteOnMail(@RequestBody String mail) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String name = auth.getName();
         User user = userService.getUserByNickName(name);
@@ -58,8 +58,9 @@ public class InvitationTokenRestController {
         String key = invitationService.generateKey();
         String link = "<a href=\"http://localhost:8888/invite?key=" + key + "\">http://localhost:8888/invite?key=" + key + "</a>";
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
-        mailService.sendHtmlEmail(mail, name, message + link);
+        String status = mailService.sendHtmlEmail(mail, name, message + link);
         invitationService.markInviteOnMailAsUsed(mail);
         invitationService.save(invitationToken);
+        return status;
     }
 }

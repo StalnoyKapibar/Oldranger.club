@@ -25,9 +25,17 @@ function sendInviteOnMail() {
     let field = document.getElementById("mail");
     let mail = field.value;
     if (mail != 0) {
-        fetch('http://localhost:8888/api/invite/onmail', {method: 'POST', body: mail});
+        fetch('http://localhost:8888/api/invite/onmail', {method: 'POST', body: mail})
+            .then(response => response.json())
+            .then(status => {
+                if (status == '1') {
+                    alert("Приглашение успешно отправлено на почту: " + mail);
+                } else {
+                    alert("Адрес отправки указан неверно!");
+                }
+            });
         field.value = "";
-        alert("Приглашение успешно отправлено на почту: " + mail);
+
     } else {
         alert("Адрес отправки не указан!");
     }
