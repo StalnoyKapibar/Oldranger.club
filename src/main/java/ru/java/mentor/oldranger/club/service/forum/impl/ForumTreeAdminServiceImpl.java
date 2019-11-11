@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.service.forum.ForumTreeAdminService;
-import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -23,24 +21,13 @@ public class ForumTreeAdminServiceImpl implements ForumTreeAdminService {
     }
 
     @Override
-    public void swapSectons(Map<String, Long> swapSections) {
-        try {
-            Long id = swapSections.get("id1");
-            Long newPosition = swapSections.get("newPosition1");
-            Section section = sectionRepository.getOne(id);
-            section.setPosition(newPosition.intValue());
+    public void swapSectons(List<Long> sectionsId) {
+        for (int i = 0; i < sectionsId.size(); i++) {
+            // (i + 1) - это новая позиция секции с id [i]
+            Section section = sectionRepository.getOne(sectionsId.get(i));
+            section.setPosition(i + 1);
             sectionRepository.save(section);
-
-            id = swapSections.get("id2");
-            newPosition = swapSections.get("newPosition2");
-            section = sectionRepository.getOne(id);
-            section.setPosition(newPosition.intValue());
-            sectionRepository.save(section);
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
         }
-
     }
 
 }

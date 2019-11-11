@@ -4,21 +4,27 @@
     <meta charset="UTF-8">
     <title>Adminka</title>
     <style>
-        ul { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px; }
-        li { margin: 5px; padding: 5px; width: 300px; border: 1px solid gray; background: #f6f6f6;}
+        .sections {width: 600px;}
+        .section {
+            background-color: #e7e7e7e7;
+            border: solid 1px #ccc;
+            min-height: 50px;
+            margin: 10px;
+            padding: 10px;
+            width: 600px;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
-<div id="sectionsandtopicsplain">
-    <h4>Sections and subsections:</h4>
-    <ul id="sections">
-    </ul>
-    <p>
-        Query string: <span></span>
-    </p>
-</div>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!--!!! resultJSON для разработки - убрать из продакшена-->
+<div id="resultJSON"></div>
+
+<div class="sections"></div>
+
+<script src="./jquery-3.4.1.min.js"></script>
+<script src="./jquery-ui.min.js"></script>
 <script src="./admin.js"></script>
 </body>
 </html>

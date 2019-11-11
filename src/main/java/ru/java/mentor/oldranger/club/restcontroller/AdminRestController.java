@@ -7,7 +7,6 @@ import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.service.forum.ForumTreeAdminService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -23,8 +22,8 @@ public class AdminRestController {
     }
 
     @PatchMapping("/swapsections")
-    public ResponseEntity updateUser(@RequestBody Map<String, Long> swapSections) {
-        forumTreeAdminService.swapSectons(swapSections);
+    public ResponseEntity updateUser(@RequestBody List<Long> sectionsId) {
+        forumTreeAdminService.swapSectons(sectionsId);
         return ResponseEntity.ok().build();
     }
 
