@@ -1,0 +1,22 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+<p>
+    <span>Content for page number: </span>
+    <span class="_page_number_" th:text="${page_number}"></span>
+</p>
+<div th:each="dto : ${topics_dto}">
+    <h4 th:text="${dto.topic.getName()}"></h4>
+    <p>id: <span th:text="${dto.topic.getId()}"></span></p>
+    <p>lastMessage: <span th:text="${dto.topic.getLastMessageTime()}"></span></p>
+    <p>topicStarter: <span th:text="${dto.topic.getTopicStarter().getUsername()}"></span></p>
+    <p>isHideToAnon: <span th:text="${dto.topic.isHideToAnon()}"></span></p>
+    <ul>
+        <li>Has new messages: <span th:text="${dto.getHasNewMessages()}"></span></li>
+        <li>You are subscribed: <span th:text="${dto.getIsSubscribed()}"></span></li>
+        <li>Total messages: <span th:text="${dto.getTotalMessages()}"></span></li>
+        <li>New messages from last visit: <span th:text="${dto.getNewMessagesCount()}"></span></li>
+    </ul>
+</div>
+<p th:if="${next_page_link != null}" >
+    <span>Next page will be loaded: </span>
+    <span class="_next_page_" th:text="${#request.getRequestURL() + next_page_link}"></span>
+</p>

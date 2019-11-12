@@ -5,17 +5,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.model.forum.Comment;
-import ru.java.mentor.oldranger.club.model.forum.Section;
-import ru.java.mentor.oldranger.club.model.forum.Subsection;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
-import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -25,6 +21,7 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -36,7 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private SubsectionService subsectionService;
     private TopicService topicService;
     private CommentService commentService;
-    private SubscriptionService subscriptionService;
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
 
     @Autowired
@@ -52,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
                            SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
-                           SubscriptionService subscriptionService,
+                           TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
                            BlackListService blackListService) {
         this.roleService = roleService;
         this.userService = userService;
@@ -62,7 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         this.subsectionService = subsectionService;
         this.topicService = topicService;
         this.commentService = commentService;
-        this.subscriptionService = subscriptionService;
+        this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
     }
 
@@ -148,10 +145,23 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic7);
         topicService.createTopic(topic8);
 
-        for (int i = 0; i < 10; i++) {
-            Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, lastMessage, subsection, false);
+        boolean b = false;
+        for (int i = 0; i < 100; i++) {
+            b = !b;
+            Random random = new Random();
+            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b);
             topicService.createTopic(topicX);
-            subscriptionService.subscribeUserOnTopic(admin, topicX);
+            for (int j = 0; j < 10; j++) {
+                Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);
+                commentService.createComment(commentX);
+            }
+            if (i % 2 == 0) {
+                TopicVisitAndSubscription subscription1 = new TopicVisitAndSubscription(admin, topicX, true, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                topicVisitAndSubscriptionService.save(subscription1);
+            } else {
+                TopicVisitAndSubscription subscription2 = new TopicVisitAndSubscription(andrew, topicX, true, lastMessage.minusDays(1), lastMessage.minusMinutes(random.nextInt(60)));
+                topicVisitAndSubscriptionService.save(subscription2);
+            }
         }
 
         Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");

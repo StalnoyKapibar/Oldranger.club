@@ -1,16 +1,19 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
 import lombok.*;
+import org.hibernate.annotations.Type;
 import ru.java.mentor.oldranger.club.model.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString
+//@ToString
 @EqualsAndHashCode
 @Table(name = "topics")
 public class Topic {
@@ -40,6 +43,9 @@ public class Topic {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
+
     public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
         this.name = name;
         this.topicStarter = topicStarter;
@@ -51,5 +57,17 @@ public class Topic {
 
     public Section getSection() {
         return getSubsection().getSection();
+    }
+
+    @Override
+    public String toString() {
+        return "Topic{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", topicStarter=" + topicStarter +
+                ", startTime=" + startTime +
+                ", lastMessageTime=" + lastMessageTime +
+                ", isHideToAnon=" + isHideToAnon +
+                '}';
     }
 }

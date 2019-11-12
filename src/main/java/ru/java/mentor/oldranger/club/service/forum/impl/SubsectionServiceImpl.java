@@ -6,6 +6,8 @@ import ru.java.mentor.oldranger.club.dao.ForumRepository.SubsectionRepository;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 
+import java.util.Optional;
+
 @Service
 public class SubsectionServiceImpl implements SubsectionService {
 
@@ -19,5 +21,10 @@ public class SubsectionServiceImpl implements SubsectionService {
     @Override
     public void createSubsection(Subsection subSection) {
         subsectionRepository.save(subSection);
+    }
+
+    @Override
+    public Optional<Subsection> getById(long id) {
+        return subsectionRepository.findById(id);
     }
 }
