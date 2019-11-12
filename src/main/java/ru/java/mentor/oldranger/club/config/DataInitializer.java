@@ -5,10 +5,17 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.SectionService;
+import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
@@ -16,7 +23,6 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -29,6 +35,7 @@ public class DataInitializer implements CommandLineRunner {
     private TopicService topicService;
     private CommentService commentService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private BlackListService blackListService;
 
     @Autowired
     @Lazy
@@ -43,7 +50,8 @@ public class DataInitializer implements CommandLineRunner {
                            SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
-                           TopicVisitAndSubscriptionService topicVisitAndSubscriptionService) {
+                           TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
+                           BlackListService blackListService) {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
@@ -53,6 +61,7 @@ public class DataInitializer implements CommandLineRunner {
         this.topicService = topicService;
         this.commentService = commentService;
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
+        this.blackListService = blackListService;
     }
 
     @Override
@@ -70,14 +79,14 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
-        admin.setPassword(passwordEncoder.encode("admin"));
         admin.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
+        admin.setPassword(passwordEncoder.encode("admin"));
         User moderator = new User("Moderator", "Moderator", "moderator@javamentor.com", "Moderator", roleModerator);
         moderator.setRegDate(LocalDateTime.of(2019, 10, 1, 21, 33, 35));
         moderator.setPassword(passwordEncoder.encode("moderator"));
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
-        user.setPassword(passwordEncoder.encode("user"));
         user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
+        user.setPassword(passwordEncoder.encode("user"));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
         admin.setRegDate(LocalDateTime.now());
         unverified.setPassword(passwordEncoder.encode("unverified"));
@@ -85,6 +94,10 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+
+        //Добавляем User в чёрный список
+        BlackList blackList = new BlackList(user, null);
+        blackListService.save(blackList);
 
         // Создаем статистику пользователей
         userStatisticService.saveUserStatic(new UserStatistic(admin));

@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css"/>
+
+    <title>test</title>
+
+</head>
+
+<body>
+
+<div id="myModalEdit" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit user Lorem ipsum</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body col-lg-8 text-center mx-auto">
+                <!--/*@thymesVar id="theUserEdit" type=""*/-->
+                <form class="form-horizontal" action="#" th:action="@{/admin/blocking}" method="POST">
+                    <div class="form-group">
+                        <label>ID</label>
+                        <input id="userId" type="number" name="id" placeholder="ID" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Блокировать на:</label>
+                        <select>
+                            <option selected value="0"> ----</option>
+                            <option value="1">1 день</option>
+                            <option value="7">7 дней</option>
+                            <option value="30">1 месяц</option>
+                            <option value="x">бессрочно</option>
+                        </select>
+                        <input type="text" class="form-control datetimepicker-input" name="datetimepicker"
+                               id="datetimepicker5" data-toggle="datetimepicker" data-target="#datetimepicker5"/>
+                    </div>
+                    <div class="form-group">
+                        <label>firstName</label>
+                        <!--/*@thymesVar id="firstName" type=""*/-->
+                        <input id="firstName" type="text" name="firstName" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>lastName</label>
+                        <!--/*@thymesVar id="lastName" type=""*/-->
+                        <input id="lastName" type="text" name="lastName" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>email</label>
+                        <!--/*@thymesVar id="email" type=""*/-->
+                        <input id="email" type="email" name="email" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>nickName</label>
+                        <!--/*@thymesVar id="nickname" type=""*/-->
+                        <input id="nickName" type="text" name="nickName" class="form-control" readonly>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Blocking</button>
+                    </div>
+                    <input type="hidden"
+                           name="${_csrf.parameterName}"
+                           value="${_csrf.token}"/>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:insert="fragment/header :: head"></div>
+
+<div class="row">
+    <div class="col-2">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+
+            <a class="nav-link active mt-3" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab"
+               aria-controls="v-pills-home" aria-selected="true">Admin</a>
+        </div>
+    </div>
+    <div class="col-10 bg-light">
+
+        <div class="tab-content" id="v-pills-tabContent">
+            <div class="tab-pane fade show active m-4" id="v-pills-home" role="tabpanel"
+                 aria-labelledby="v-pills-home-tab">
+                <nav>
+                    <h1 class="h2 my-3">Admin panel</h1>
+
+                    <div class="nav nav-tabs " id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home"
+                           role="tab" aria-controls="nav-home" aria-selected="true">Users table</a>
+                        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile"
+                           role="tab" aria-controls="nav-profile" aria-selected="false">Black List</a>
+                    </div>
+                </nav>
+                <div class="tab-content bg-white" id="nav-tabContent">
+                    <div class="tab-pane fade show active border bg-white" id="nav-home" role="tabpanel"
+                         aria-labelledby="nav-home-tab">
+                        <div th:insert="fragment/users-table :: table"></div>
+                    </div>
+                    <div class="tab-pane fade bg-white border" id="nav-profile" role="tabpanel"
+                         aria-labelledby="nav-profile-tab">
+                        <div th:insert="fragment/black-list :: list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script type="text/javascript">
+    function showFunctionModal(id, firstName, lastName, email, nickName) {
+        $('#userId').val(id);
+        $('#firstName').val(firstName);
+        $('#lastName').val(lastName);
+        $('#email').val(email);
+        $('#nickName').val(nickName);
+    }
+
+    let picker = $('#datetimepicker5');
+    $(function () {
+        picker.datetimepicker({
+            locale: 'RU',
+            format: 'DD/MM/YYYY HH:mm'
+        });
+        picker.datetimepicker('date', new Date());
+    });
+
+    $('select').change(function () {
+        let select = $(this).find("option:selected").val();
+        if (select == "0") {
+            picker.datetimepicker('date', new Date());
+        } else if (select == "1") {
+            picker.datetimepicker('date', new Date().addDays(1));
+        } else if (select == "7") {
+            picker.datetimepicker('date', new Date().addDays(7));
+        } else if (select == "30") {
+            picker.datetimepicker('date', new Date().addDays(30));
+        } else if (select == "x") {
+            picker.datetimepicker('date', null);
+        }
+    });
+
+    Date.prototype.addDays = function (days) {
+        let date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+</script>
+</body>
+</html>

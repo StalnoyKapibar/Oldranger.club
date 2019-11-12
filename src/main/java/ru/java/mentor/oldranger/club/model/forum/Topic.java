@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.model.forum;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import ru.java.mentor.oldranger.club.model.user.User;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
