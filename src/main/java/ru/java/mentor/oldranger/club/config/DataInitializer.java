@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
@@ -21,6 +22,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +37,7 @@ public class DataInitializer implements CommandLineRunner {
     private TopicService topicService;
     private CommentService commentService;
     private SubscriptionService subscriptionService;
+    private BlackListService blackListService;
 
     @Autowired
     @Lazy
@@ -49,7 +52,8 @@ public class DataInitializer implements CommandLineRunner {
                            SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
-                           SubscriptionService subscriptionService) {
+                           SubscriptionService subscriptionService,
+                           BlackListService blackListService) {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
@@ -59,6 +63,7 @@ public class DataInitializer implements CommandLineRunner {
         this.topicService = topicService;
         this.commentService = commentService;
         this.subscriptionService = subscriptionService;
+        this.blackListService = blackListService;
     }
 
     @Override
@@ -91,6 +96,10 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+
+        //Добавляем User в чёрный список
+        BlackList blackList = new BlackList(user, null);
+        blackListService.save(blackList);
 
         // Создаем статистику пользователей
         userStatisticService.saveUserStatic(new UserStatistic(admin));
