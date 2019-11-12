@@ -44,9 +44,9 @@
     </button>
     <fieldset id="fieldset" style="width:400px;height:40px">
         <legend>Invitation link:</legend>
-        <p id="innerFieldText">
-        <p th:if="${session.key!=null}" th:text="'http://localhost:8888/invite?key=' + ${session.key}"></p>
-        </p>
+        <div id="innerFieldText">
+            <div th:if="${session.key!=null}" th:text="'http://localhost:8888/invite?key=' + ${session.key}"></div>
+        </div>
     </fieldset>
     <fieldset style="width:400px">
         <input id="mail" type="email"> e-mail</input><br>
