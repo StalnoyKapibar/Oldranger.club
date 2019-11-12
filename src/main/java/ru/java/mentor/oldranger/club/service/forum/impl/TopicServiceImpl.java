@@ -1,18 +1,38 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
+import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
+import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private SecurityUtilsService securityUtilsService;
+
+    @Autowired
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Override
     public void createTopic(Topic topic) {
@@ -60,7 +80,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Page<Topic> getPageableBySubsection(Section subsection, Pageable pageable) {
+    public Page<Topic> getPageableBySubsection(Subsection subsection, Pageable pageable) {
         Page<Topic> page;
         if (securityUtilsService.isLoggedUserIsUser()) {
             page = getPageableBySubsectionForUser(securityUtilsService.getLoggedUser(), subsection, pageable);
@@ -71,12 +91,12 @@ public class TopicServiceImpl implements TopicService {
         return page;
     }
 
-    public Page<Topic> getPageableBySubsectionForAnon(Section section, Pageable pageable) {
-        return topicRepository.findBySectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(section, pageable);
+    public Page<Topic> getPageableBySubsectionForAnon(Subsection subsection, Pageable pageable) {
+        return topicRepository.findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(subsection, pageable);
     }
 
     @Override
-    public Page<Topic> getPageableBySubsectionForUser(User user, Section subsection, Pageable pageable) {
+    public Page<Topic> getPageableBySubsectionForUser(User user, Subsection subsection, Pageable pageable) {
         int pageNumber = pageable.getPageNumber();
         int pageSize = pageable.getPageSize();
         int offset = pageNumber * pageSize;

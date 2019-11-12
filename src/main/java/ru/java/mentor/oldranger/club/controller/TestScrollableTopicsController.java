@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
+import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 
 import java.util.Optional;
@@ -25,13 +25,13 @@ public class TestScrollableTopicsController {
 
     private TopicService topicService;
 
-    private SectionService sectionService;
+    private SubsectionService subsectionService;
 
     @GetMapping("/subsection/{subsectionId}")
     public ModelAndView getContainer(@PathVariable long subsectionId) {
         ModelAndView modelAndView = new ModelAndView("scrollabletopics/container");
 
-        Optional<Section> optionalSubsection = sectionService.getById(subsectionId);
+        Optional<Subsection> optionalSubsection = subsectionService.getById(subsectionId);
 
         if (!optionalSubsection.isPresent()) {
             modelAndView.setStatus(HttpStatus.NOT_FOUND);
@@ -47,16 +47,16 @@ public class TestScrollableTopicsController {
                                 @PageableDefault(size = 20) Pageable pageable) {
         ModelAndView modelAndView = new ModelAndView("scrollabletopics/part");
 
-        Optional<Section> optionalSubsection = sectionService.getById(subsectionId);
+        Optional<Subsection> optionalSubsection = subsectionService.getById(subsectionId);
 
         if (!optionalSubsection.isPresent()) {
             modelAndView.setStatus(HttpStatus.NOT_FOUND);
             return modelAndView;
         }
 
-        Section section = optionalSubsection.get();
+        Subsection subsection = optionalSubsection.get();
 
-        Page<Topic> pageableTopicsBySubsection = topicService.getPageableBySubsection(section, pageable);
+        Page<Topic> pageableTopicsBySubsection = topicService.getPageableBySubsection(subsection, pageable);
 
         if (pageableTopicsBySubsection.getNumberOfElements() == 0) {
             modelAndView.setStatus(HttpStatus.NOT_FOUND);
@@ -77,5 +77,3 @@ public class TestScrollableTopicsController {
         return modelAndView;
     }
 }
-
-//TODO Далее по ТЗ вместо класса Section будет класс Subsection (или иное название)

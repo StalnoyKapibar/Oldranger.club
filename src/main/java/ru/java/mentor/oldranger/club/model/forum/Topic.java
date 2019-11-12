@@ -6,6 +6,8 @@ import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter

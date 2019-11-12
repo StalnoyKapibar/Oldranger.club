@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 
@@ -33,7 +33,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      * Подмножество Topics для выбранной Subsection, которые помечены для анонимов.
      * Отсортированно по дате последнего сообщения в Topic.
      */
-    Page<Topic> findBySectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(Section section, Pageable pageable);
+    Page<Topic> findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(Subsection subsection, Pageable pageable);
 
     /**
      * Используется для неанонимов.<br>
@@ -47,12 +47,12 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      * чтобы получить общее количество элементов Topics для эмуляции пейджинга.
      */
     @Query(nativeQuery = true,
-            value = "select *, (comb.id_user is not null and (comb.date_last_message>=comb.date_lastvisit or comb.date_lastvisit is null)) as subscriber_has_new_msg from " +
-                    "(select * from topics t left join (select id_topic, id_user, date_lastvisit from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) st on t.id=st.id_topic " +
-                    "where t.id_section=?2) as comb " +
+            value = "select *, (comb.id_user is not null and comb.is_subscribed=true and (comb.date_last_message>=comb.date_lastvisit or comb.date_lastvisit is null)) as subscriber_has_new_msg from " +
+                    "(select * from topics t left join (select id_topic, id_user, date_lastvisit, is_subscribed from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) st on t.id=st.id_topic " +
+                    "where t.subsection_id=?2) as comb " +
                     "order by subscriber_has_new_msg desc, comb.date_last_message desc " +
                     "limit ?3,?4")
-    List<Topic> getSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long sectionId, int offset, int limit);
+    List<Topic> getSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long subsectionId, int offset, int limit);
 
     /**
      * Подсчёт общего количества элементов для выборок<br>
@@ -61,9 +61,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query(nativeQuery = true,
             value = "select count(*) from " +
                     "(select * from topics t left join " +
-                    "(select id_topic, id_user, date_lastvisit from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) " +
-                    "st on t.id=st.id_topic where t.id_section=?2) as comb")
-    long countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long sectionId);
+                    "(select id_topic from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) " +
+                    "st on t.id=st.id_topic where t.subsection_id=?2) as comb")
+    long countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long subsectionId);
 
     /**
      * Подсчёт общего количества сообщений для списка идентификаторов класса Topic<br>
@@ -85,7 +85,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      */
     @Query(nativeQuery = true,
     value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.id_topic " +
-            "where t.id_user=?2 and t.id_topic in ?1 and c.comment_date>t.date_lastvisit " +
+            "where t.id_user=?2 and t.id_topic in ?1 and c.date_comment>t.date_lastvisit " +
             "group by c.id_topic")
     List<IdAndNumberProjection> getPairsTopicIdAndNewMessagesCountForUserId(List<Long> ids, Long userId);
 }
