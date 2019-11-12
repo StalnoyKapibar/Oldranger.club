@@ -12,4 +12,6 @@ public interface InviteRepository extends JpaRepository<InvitationToken, Long> {
     List<InvitationToken> findAllByUserAndUsedAndMail(User user, Boolean used, String mail);
 
     List<InvitationToken> findAllByMailAndUsed(String mail, Boolean used);
+
+    boolean existsByKey(String key);
 }

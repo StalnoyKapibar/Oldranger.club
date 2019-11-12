@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.InviteRepository;
@@ -83,7 +84,11 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public String generateKey() {
-        return Math.round((Math.random() * 1000000000)) + "";
+        String key = Math.round((Math.random() * 100000000)) + "" + Math.round((Math.random() * 10000000));
+        while (repository.existsByKey(key)) {
+            key = Math.round((Math.random() * 10)) + "";
+        }
+        return key;
     }
 
     @Override
