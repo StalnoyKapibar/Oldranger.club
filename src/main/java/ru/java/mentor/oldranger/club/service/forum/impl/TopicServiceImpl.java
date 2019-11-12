@@ -156,19 +156,22 @@ public class TopicServiceImpl implements TopicService {
 
             if (logged) {
                 boolean isSubscribed = topicVisitAndSubscriptionForUser.stream().filter(t -> t.getTopic().getId().equals(topic.getId())).anyMatch(TopicVisitAndSubscription::isSubscribed);
-                dto.setSubscribed(isSubscribed);
+                dto.setIsSubscribed(isSubscribed);
 
                 Optional<IdAndNumberProjection> newMessages = newMessagesCountForTopicsAndUser.stream().filter(t -> t.getId() == topic.getId()).findAny();
 
                 if (newMessages.isPresent()) {
                     dto.setHasNewMessages(true);
                     dto.setNewMessagesCount(newMessages.get().getNumber());
+                } else {
+                    dto.setHasNewMessages(false);
+                    dto.setNewMessagesCount(0L);
                 }
 
             } else {
-                dto.setSubscribed(false);
-                dto.setHasNewMessages(true);
-                dto.setNewMessagesCount(dto.getTotalMessages());
+                dto.setIsSubscribed(null);
+                dto.setHasNewMessages(null);
+                dto.setNewMessagesCount(null);
             }
 
             dtos.add(dto);

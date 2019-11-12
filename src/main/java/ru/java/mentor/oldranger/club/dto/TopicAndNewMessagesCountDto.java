@@ -11,7 +11,7 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 public class TopicAndNewMessagesCountDto {
     private Topic topic;
     private long totalMessages;
-    private boolean isSubscribed;
-    private boolean hasNewMessages;
-    private long newMessagesCount;
+    private Boolean isSubscribed;
+    private Boolean hasNewMessages;
+    private Long newMessagesCount;
 }
