@@ -1,45 +1,18 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
-import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
-import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.user.Role;
-import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private TopicRepository topicRepository;
-
-    @Autowired
-    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
-
-    @Autowired
-    private SecurityUtilsService securityUtilsService;
 
     @Override
     public void createTopic(Topic topic) {
@@ -72,8 +45,8 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection) {
-        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(limitTopicsBySection);
+    public List<Topic> getActualTopicsLimitAnyBySectionForAnon(int expecting_topics_limit_less_or_equals) {
+        return topicRepository.getActualTopicsLimitAnyBySectionForAnon(expecting_topics_limit_less_or_equals);
     }
 
     @Override

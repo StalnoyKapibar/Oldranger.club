@@ -5,11 +5,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.forum.*;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.SectionService;
+import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -25,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private UserProfileService userProfileService;
     private UserStatisticService userStatisticService;
     private SectionService sectionService;
+    private SubsectionService subsectionService;
     private TopicService topicService;
     private CommentService commentService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
@@ -39,6 +45,7 @@ public class DataInitializer implements CommandLineRunner {
                            UserProfileService userProfileService,
                            UserStatisticService userStatisticService,
                            SectionService sectionService,
+                           SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService) {
@@ -47,6 +54,7 @@ public class DataInitializer implements CommandLineRunner {
         this.userProfileService = userProfileService;
         this.userStatisticService = userStatisticService;
         this.sectionService = sectionService;
+        this.subsectionService = subsectionService;
         this.topicService = topicService;
         this.commentService = commentService;
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
@@ -71,11 +79,13 @@ public class DataInitializer implements CommandLineRunner {
         admin.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
         User moderator = new User("Moderator", "Moderator", "moderator@javamentor.com", "Moderator", roleModerator);
         moderator.setRegDate(LocalDateTime.of(2019, 10, 1, 21, 33, 35));
+        moderator.setPassword(passwordEncoder.encode("moderator"));
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
         user.setPassword(passwordEncoder.encode("user"));
         user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
         admin.setRegDate(LocalDateTime.now());
+        unverified.setPassword(passwordEncoder.encode("unverified"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
@@ -100,14 +110,33 @@ public class DataInitializer implements CommandLineRunner {
         LocalDateTime startTime = LocalDateTime.of(2019, 10, 31, 21, 33, 35);
         LocalDateTime lastMessage = LocalDateTime.now();
 
-        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, sectionForUnverified, false);
-        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, sectionForUnverified, true);
-        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, sectionForUsers, false);
-        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, sectionForUsers, true);
+        // Создание подсекций
+        Subsection subsection = new Subsection("Общая подсекция в секции для всех", 1, sectionForUnverified, false);
+        Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", 2, sectionForUnverified, true);
+        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, false);
+        Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей", 2, sectionForUsers, true);
+        subsectionService.createSubsection(subsection);
+        subsectionService.createSubsection(subsection2);
+        subsectionService.createSubsection(subsection3);
+        subsectionService.createSubsection(subsection4);
+
+
+        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false);
+        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true);
+        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false);
+        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true);
+        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false);
+        Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true);
+        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false);
+        Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true);
         topicService.createTopic(topic);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
+        topicService.createTopic(topic5);
+        topicService.createTopic(topic6);
+        topicService.createTopic(topic7);
+        topicService.createTopic(topic8);
 
         for (int i = 0; i < 10; i++) {
             Topic topicX = new Topic("topic subscription and order " + i, admin, startTime, lastMessage, sectionForUnverified, false);
@@ -159,5 +188,13 @@ public class DataInitializer implements CommandLineRunner {
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));
         }
+
+        for (int i =1; i< 12; i++) {
+            User newuser = new User("User", "User", "user@javamentor.com", "User" + i, roleUser);
+            newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
+            userService.save(newuser);
+            userStatisticService.saveUserStatic(new UserStatistic(newuser));
+        }
+
     }
 }

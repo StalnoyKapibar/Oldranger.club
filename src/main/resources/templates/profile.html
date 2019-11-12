@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
+    <script type="application/javascript" src="/js/invite.js"></script>
 </head>
 <body>
+
+<div class="container-fluid">
+    <ul class="nav navbar-right">
+        <li><a th:href="@{/logout}">Logout</a></li>
+    </ul>
+</div>
+
+
 <h1>User Profile</h1>
 
 <b>User ID: </b><span  th:text="${session.user.id}"></span><br>
@@ -12,6 +21,7 @@
 <b>Last Name: </b><span  th:text="${session.user.lastName}"></span><br>
 <b>Email: </b><span  th:text="${session.user.email}"></span><br>
 <b>Nickname: </b><span  th:text="${session.user.nickName}"></span><br>
+<b>Role: </b><span th:text="${session.user.role.role}"></span><br>
 
 <section th:if="${session.user.avatar}">
     <br><br>
@@ -28,5 +38,22 @@
     <input type="file" name="file"/> <br/><br/>
     <button type="submit">Submit</button>
 </form>
+<div th:if="${session.user.role.role!='ROLE_UNVERIFIED'}">
+    <button type="button" onclick="test()">
+        Invite
+    </button>
+    <fieldset id="fieldset" style="width:400px;height:40px">
+        <legend>Invitation link:</legend>
+        <div id="innerFieldText">
+            <div th:if="${session.key!=null}" th:text="'http://localhost:8888/invite?key=' + ${session.key}"></div>
+        </div>
+    </fieldset>
+    <fieldset style="width:400px">
+        <input id="mail" type="email"> e-mail</input><br>
+        <button type="button" onclick="sendInviteOnMail()">Отправить приглашение</button>
+    </fieldset>
+</div>
+
 </body>
+
 </html>

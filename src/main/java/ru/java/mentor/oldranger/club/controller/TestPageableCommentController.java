@@ -44,5 +44,4 @@ public class TestPageableCommentController {
         model.addAttribute("commentList", commentList.getContent());
         return "testPageable";
     }
-
 }

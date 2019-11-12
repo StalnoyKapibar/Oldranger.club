@@ -19,10 +19,21 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-cache</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -95,19 +106,35 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 			<version>2.2.0.RELEASE</version>
 		</dependency>
-		<!-- Либа для создания тамбнейлов и вотермарков-->
-		<dependency>
-			<groupId>net.coobird</groupId>
-			<artifactId>thumbnailator</artifactId>
-			<version>0.4.8</version>
-		</dependency>
 		<!-- JWT Tokens-->
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
 			<version>3.8.2</version>
 		</dependency>
-
+		<!-- Либа для создания тамбнейлов и вотермарков-->
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.8</version>
+		</dependency>
+		<!-- JQuery -->
+		<!-- https://mvnrepository.com/artifact/org.webjars/jquery -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>1.12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity5</artifactId>
+			<version>3.0.4.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-java8time</artifactId>
+			<version>3.0.4.RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>

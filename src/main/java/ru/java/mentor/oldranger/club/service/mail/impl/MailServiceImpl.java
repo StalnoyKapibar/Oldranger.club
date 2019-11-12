@@ -2,10 +2,15 @@ package ru.java.mentor.oldranger.club.service.mail.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -19,14 +24,25 @@ public class MailServiceImpl implements MailService {
     @Override
     public void send(String to, String subject, String message) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-
         mailMessage.setFrom(username);
         mailMessage.setTo(to);
         mailMessage.setSubject(subject);
         mailMessage.setText(message);
-
         mailSender.send(mailMessage);
     }
+
+    @Override
+    public String sendHtmlEmail(String to, String subject, String message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            mimeMessage.setContent(message, "text/html; charset=UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            mailSender.send(mimeMessage);
+            return "1";
+        } catch (MailSendException | MessagingException e) {
+            return "0";
+        }
+    }
 }
-
-

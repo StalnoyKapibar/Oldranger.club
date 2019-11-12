@@ -1,10 +1,7 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
 import lombok.*;
-
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -33,5 +30,37 @@ public class Section {
         this.name = name;
         this.position = position;
         this.isHideToAnon = isHideToAnon;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public boolean isHideToAnon() {
+        return isHideToAnon;
+    }
+
+    public void setHideToAnon(boolean hideToAnon) {
+        isHideToAnon = hideToAnon;
     }
 }

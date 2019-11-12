@@ -24,7 +24,7 @@ public interface TopicService {
 
     List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection);
 
-    List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
+    List<Topic> getActualTopicsLimitAnyBySectionForAnon(int expecting_topics_limit_less_or_equals);
 
     List<Topic> getActualTopicsLimit10BySection();
 

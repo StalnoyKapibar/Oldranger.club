@@ -15,6 +15,8 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -30,9 +32,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void createComment(Comment comment) {
-
         commentRepository.save(comment);
-        UserStatistic userStatistic = userStatisticService.getUserStaticById(comment.getUser().getId());
+        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
         if (userStatistic == null) {
             userStatistic = new UserStatistic(comment.getUser());
 
@@ -90,6 +91,11 @@ public class CommentServiceImpl implements CommentService {
         return commentDto;
     }
 
+    @Override
+    public List<Comment> getAllComments() {
+        return commentRepository.findAll();
+    }
+
 
     private String timeSinceRegistration(LocalDateTime regDate) {
         Duration dur = Duration.between(regDate, LocalDateTime.now());
@@ -98,4 +104,15 @@ public class CommentServiceImpl implements CommentService {
                 "С нами больше " + ChronoUnit.YEARS.between(LocalDateTime.now(), LocalDateTime.now().plus(dur)) + " лет";
     }
 
+
+    @Override
+    public List<Comment> getAllCommentsByTopicId(Long id) {
+        return commentRepository.findByTopicId(id);
+    }
+
+    @Override
+    public Comment getCommentById(Long id) {
+        Optional<Comment> comment = commentRepository.findById(id);
+        return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
+    }
 }

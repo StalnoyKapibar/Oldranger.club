@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -57,11 +56,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable() //наверное, временно?
-
                 .authorizeRequests()
-                .antMatchers("/test/**","/img/**").permitAll()
+                .antMatchers("/test/**", "/img/**", "/css/**", "/js/**", "/image/**").permitAll()
                 .expressionHandler(webExpressionHandler())
-                .antMatchers("/", "/api/**", "/passwordrecovery/**").permitAll()
+                .antMatchers("/com/*", "/css/**", "/js/*", "/dist-smile/*").permitAll()
+                .antMatchers("/", "/api/**", "/invite", "/passwordrecovery/**").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

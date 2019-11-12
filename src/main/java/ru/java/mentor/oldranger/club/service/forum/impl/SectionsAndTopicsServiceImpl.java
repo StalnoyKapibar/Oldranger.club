@@ -76,6 +76,7 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         TopicsHasUserSubscriptionFirst(List<TopicVisitAndSubscription> subscriptionsForUser) {
             this.subscriptionsForUser = subscriptionsForUser;
         }
+
         @Override
         public int compare(Topic o1, Topic o2) {
             boolean o1HasSubscription = subscriptionsForUser.stream().anyMatch(subscription -> subscription.getTopic().equals(o1));
