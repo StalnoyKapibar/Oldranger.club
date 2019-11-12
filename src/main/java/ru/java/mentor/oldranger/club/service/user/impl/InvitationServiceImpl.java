@@ -84,9 +84,9 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public String generateKey() {
-        String key = Math.round((Math.random() * 100000000)) + "" + Math.round((Math.random() * 10000000));
+        String key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
         while (repository.existsByKey(key)) {
-            key = Math.round((Math.random() * 10)) + "";
+            key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
         }
         return key;
     }
