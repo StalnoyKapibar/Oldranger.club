@@ -11,6 +11,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
+import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,11 +22,13 @@ public class TestSystemBlockingUsers {
     // пример с блокировкой пользователя
     private UserService userService;
     private BlackListService blackListService;
+    private SessionService sessionService;
 
     @Autowired
-    public TestSystemBlockingUsers(BlackListService blackListService, UserService userService) {
+    public TestSystemBlockingUsers(BlackListService blackListService, UserService userService, SessionService sessionService) {
         this.blackListService = blackListService;
         this.userService = userService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/admin")
@@ -64,6 +67,7 @@ public class TestSystemBlockingUsers {
             }
         }
         blackListService.save(blackList);
+        sessionService.expireUserSessions(user.getUsername());
         return "redirect:/admin";
     }
 
