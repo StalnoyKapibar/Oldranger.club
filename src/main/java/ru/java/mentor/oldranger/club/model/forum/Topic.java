@@ -1,9 +1,7 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
 import lombok.*;
-import org.hibernate.annotations.Type;
 import ru.java.mentor.oldranger.club.model.user.User;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -36,18 +34,22 @@ public class Topic {
     private LocalDateTime lastMessageTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_section")
-    private Section section;
+    @JoinColumn(name = "subsection_id")
+    private Subsection subsection;
 
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Section section, boolean isHideToAnon) {
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
         this.lastMessageTime = lastMessageTime;
-        this.section = section;
+        this.subsection = subsection;
         this.isHideToAnon = isHideToAnon;
+    }
+
+    public Section getSection() {
+        return getSubsection().getSection();
     }
 }

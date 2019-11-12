@@ -12,6 +12,7 @@
         <a th:each="i : ${#numbers.sequence(1, pageCount)}" th:href="@{'/test/topic/' + ${topic.id}(page=${i - 1})}"
            th:text="'page ' + ${i}" style="margin: 5px">page</a>
     </div>
+
     <div th:each="comment : ${commentList}" style="border: 1px solid black; border-radius: 5px" >
         <p th:text="${comment.user.nickName}"></p>
         <p th:text="${comment.dateTime}" style="color: blue"></p>
