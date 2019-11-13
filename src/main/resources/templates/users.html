@@ -44,10 +44,17 @@
 
             <h1 class="h2">Пользователи</h1>
 
+            <form action="/admin/users" method="get" class="form-inline">
+                <div class="form-group mr-2 mb-2">
+                    <input type="text" name="query" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Поиск</button>
+            </form>
+
             <nav>
                 <ul class="pagination pagination-sm">
                     <li class="page-item" th:each="i : ${#numbers.sequence(0, pageCount -1)}" th:class="${users.getNumber() == i} ? 'page-item active' : 'page-item'">
-                        <a class="page-link" href="#" th:href="@{'/admin/users' + ''(page=${i})}" th:text="${i+1}"></a>
+                        <a class="page-link" href="#" th:href="@{'/admin/users' + ''( query=${q}, page=${i})}" th:text="${i+1}"></a>
                     </li>
                 </ul>
             </nav>
