@@ -1,0 +1,12 @@
+# для  нормальной работы проекта скопируйте данный файл с расширением properties полученный файл добавлять в GIT не нужно.
+# Если вы делаете изменения в конфигурации для проекта то добавляйте их в sample
+
+#JPA Properties
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+spring.jpa.properties.hibernate.show_sql=false
+spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true
+spring.jpa.properties.hibernate.format_sql=false
+spring.jpa.properties.hibernate.use_sql_comments=true
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.generate-ddl=true
