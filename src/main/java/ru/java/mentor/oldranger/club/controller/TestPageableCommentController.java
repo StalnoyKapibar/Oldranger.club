@@ -14,19 +14,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 @Controller
 public class TestPageableCommentController {
 
     private CommentService commentService;
     private TopicService topicService;
+    private SecurityUtilsService securityUtilsService;
 
     @Autowired
-    public TestPageableCommentController(CommentService commentService, TopicService topicService) {
+    public TestPageableCommentController(CommentService commentService,
+                                         TopicService topicService,
+                                         SecurityUtilsService securityUtilsService) {
         this.commentService = commentService;
         this.topicService = topicService;
+        this.securityUtilsService = securityUtilsService;
     }
 
     @RequestMapping(path = "/test/topic/{topicId}", method = RequestMethod.GET)
@@ -39,9 +45,13 @@ public class TestPageableCommentController {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
         Page<Comment> commentList = commentService.getPageableCommentByTopic(topic, pageable);
+
+        User user = securityUtilsService.getLoggedUser();
+
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", commentList.getTotalPages());
         model.addAttribute("commentList", commentList.getContent());
+        model.addAttribute("user", user);
         return "testPageable";
     }
 }

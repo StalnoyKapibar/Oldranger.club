@@ -1,0 +1,21 @@
+#mobile-menu {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    min-width: 50%;
+}
+
+.header .avatar {
+    max-width: 50px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.header .logout-link {
+    font-size: .8rem;
+}
+
+.header p {
+    margin: 0;
+}

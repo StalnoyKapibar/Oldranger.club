@@ -1,0 +1,88 @@
+<div class="row header navbar navbar-dark bg-dark" th:fragment="header">
+
+    <div class="col-6">
+        <button class="navbar-toggler d-md-none d-lg-none" data-toggle="collapse" data-target="#mobile-menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <ul class="navbar-nav d-none d-md-flex flex-row">
+            <li class="nav-item pr-2 pl-2">
+                <a class="nav-link" href="#">Настройки</a>
+            </li>
+            <li class="nav-item pr-2 pl-2">
+                <a class="nav-link" href="#">Чат</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-6">
+        <div sec:authorize="isAuthenticated()" class="row justify-content-end text-right">
+            <div class="col-8">
+                <p th:text="${user.firstName}" class="text-light"></p>
+                <p><a class="d-inline text-light logout-link" href="/logout">Выйти</a></p>
+            </div>
+            <div class="pr-2">
+                <img class="avatar" style="max-width: 50px;" th:src="${'/img/' + user.avatar.small}"/>
+            </div>
+
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <div  class="text-right">
+                <a class="d-inline text-light" data-toggle="modal" data-target="#login">Войти</a>
+            </div>
+
+            <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                        <div class="pt-2 pr-2">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <form action="/login" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="username">Имя пользователя</label>
+                                    <input type="text" name="username" class="form-control" id="username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Пароль</label>
+                                    <input type="password" name="password" class="form-control" id="password">
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary mt-1" >Войти</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapse bg-dark pl-4 pr-4" id="mobile-menu">
+        <div class="">
+
+            <button type="button" class="close m-2 text-light" data-toggle="collapse" data-target="#mobile-menu">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <ul class="navbar-nav mt-4">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Настройки</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Чат</a>
+                </li>
+                <li class="nav-item">
+                    ...
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+

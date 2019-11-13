@@ -38,7 +38,11 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
 
     @Override
     public User getLoggedUser() {
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        return userService.getUserByNickName(username);
+
+        Object userDetails = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userDetails instanceof UserDetails) {
+            return userService.getUserByNickName(((UserDetails) userDetails).getUsername());
+        }
+        return null;
     }
 }
