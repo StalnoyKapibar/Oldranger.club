@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.Duration;
@@ -23,11 +24,13 @@ public class CommentServiceImpl implements CommentService {
 
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
+    private TopicService topicService;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, UserStatisticService userStatisticService) {
+    public CommentServiceImpl(CommentRepository commentRepository, UserStatisticService userStatisticService, TopicService topicService) {
         this.commentRepository = commentRepository;
         this.userStatisticService = userStatisticService;
+        this.topicService = topicService;
     }
 
     @Override
@@ -38,6 +41,22 @@ public class CommentServiceImpl implements CommentService {
         userStatistic.setMessageCount(++messages);
         userStatistic.setLastComment(comment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
+    }
+
+    @Override
+    public void createComment(Comment comment, Topic topic) {
+        topic.setLastMessageTime(LocalDateTime.now());
+        topicService.createTopic(topic);
+        commentRepository.save(comment);
+        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
+        if (userStatistic == null) {
+            userStatistic = new UserStatistic(comment.getUser());
+
+        }
+        long messages = userStatistic.getMessageCount();
+        userStatistic.setMessageCount(++messages);
+        userStatisticService.saveUserStatic(userStatistic);
+
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -24,16 +25,26 @@ public class TestAdminController {
     @GetMapping("/users")
     public String getAllUsers(Model model,
                               @RequestAttribute(value = "page", required = false) Integer page,
-                              @PageableDefault(size = 5, sort = "user_id") Pageable pageable) {
+                              @PageableDefault(size = 5, sort = "user_id") Pageable pageable,
+                              @RequestParam(value = "query", required = false) String query) {
 
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("user_id"));
         }
 
+
         Page<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable);
+
+        if (query != null && !query.trim().isEmpty()) {
+            query = query.toLowerCase().trim().replaceAll("\\s++", ",");
+            users = userStatisticService.getUserStatisticsByQuery(pageable, query);
+        } else { query = null; }
+
         model.addAttribute("users", users);
         model.addAttribute("pageCount", users.getTotalPages());
         model.addAttribute("usersList", users.getContent());
+        model.addAttribute("query", query);
         return "users";
     }
+
 }

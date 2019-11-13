@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Collections;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+//@ToString
 @Entity
 @Table(name = "users")
 public class User implements UserDetails{
@@ -55,6 +56,9 @@ public class User implements UserDetails{
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordRecoveryToken passwordRecoveryToken;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
+
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -85,7 +89,7 @@ public class User implements UserDetails{
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return BlackListServiceImpl.getInstance().userSearchBlackListByUserId(getId());
     }
 
     @Override
@@ -172,5 +176,29 @@ public class User implements UserDetails{
 
     public void setPasswordRecoveryToken(PasswordRecoveryToken passwordRecoveryToken) {
         this.passwordRecoveryToken = passwordRecoveryToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(nickName, user.nickName) &&
+                Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, nickName, password);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", nickName='" + nickName + '\'' +
+                '}';
     }
 }

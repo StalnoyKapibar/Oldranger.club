@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="_scrollable_container_">
+    <p th:if="${next_page_link != null}">
+        <span>Next page will be loaded: </span>
+        <span class="_next_page_" th:text="${#request.getRequestURL() + next_page_link}"></span>
+    </p>
+</div>
+<script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<script>
+    let scrollContainer = $("#_scrollable_container_");
+    let nextPageClass = "._next_page_";
+    let nextPage;
+    let documentHeight;
+    let bottomLoad = 300;
+    let monitor = true;
+
+    $(document).ready(function () {
+        setNextPage();
+        loadNextPage();
+    });
+
+    $(window).scroll(function () {
+        let scroll = $(this).scrollTop();
+        let windowHeight = $(this).height();
+        // console.log("scroll: " + scroll);
+        // console.log("windowHeight: " + windowHeight);
+        // console.log("documentHeight: " + documentHeight);
+        if (scroll + windowHeight > documentHeight - bottomLoad) {
+            loadNextPage();
+        }
+    });
+
+    function loadNextPage() {
+        if (monitor) {
+            monitor = false;
+            console.log("try nextPage:" + nextPage);
+            if (nextPage != null) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/html; charset=utf-8",
+                    url: nextPage,
+                    success: function (e) {
+                        update(e);
+                        monitor = true;
+                    },
+                    error: function (e) {
+                        console.log(e.responseText);
+                        monitor = true;
+                    }
+                });
+            }
+        }
+    }
+
+    function update(data) {
+        appendToScrollable(data);
+        setDocHeight();
+        setNextPage();
+    }
+
+    function appendToScrollable(data) {
+        scrollContainer.append(data);
+    }
+
+    function setDocHeight() {
+        documentHeight = $(document).height();
+    }
+
+    function setNextPage() {
+        let newNextPage = $(nextPageClass).last().text();
+        console.log("newNextPage:" + newNextPage);
+        if (nextPage === newNextPage) {
+            nextPage = null;
+            scrollContainer.append("<div>No more content</div>");
+        } else {
+            nextPage = newNextPage;
+        }
+        console.log("setNextPage:" + nextPage);
+    }
+</script>
+</body>
+</html>

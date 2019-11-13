@@ -41,36 +41,4 @@ public class UserStatistic {
         this.user = user;
         this.lastVizit = LocalDateTime.now();
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public long getMessageCount() {
-        return messageCount;
-    }
-
-    public void setMessageCount(long messageCount) {
-        this.messageCount = messageCount;
-    }
-
-    public LocalDateTime getLastVizit() {
-        return lastVizit;
-    }
-
-    public void setLastVizit(LocalDateTime lastVizit) {
-        this.lastVizit = lastVizit;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

@@ -14,4 +14,6 @@ public interface UserStatisticService {
     void saveUserStatic(UserStatistic userStatistic);
 
     Page<UserStatistic> getAllUserStatistic(Pageable pageable);
+
+    Page<UserStatistic> getUserStatisticsByQuery(Pageable pageable, String query);
 }
