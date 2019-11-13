@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -26,7 +27,8 @@ public class UserProfile {
     private User user;
 
     @Column(name = "birthday")
-    private LocalDateTime birthday;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
 
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
@@ -55,6 +57,5 @@ public class UserProfile {
 
     public UserProfile(User user) {
         this.user = user;
-        this.gender = Gender.UNKNOWN;
     }
 }
