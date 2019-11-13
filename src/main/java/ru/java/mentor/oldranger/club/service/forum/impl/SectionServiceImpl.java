@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
 import ru.java.mentor.oldranger.club.model.forum.Section;
@@ -27,7 +28,7 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     public List<Section> getAllSections() {
-        return sectionRepository.findAll();
+        return sectionRepository.findAll(Sort.by("position").ascending());
     }
 
     @Override

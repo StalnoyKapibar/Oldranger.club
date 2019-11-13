@@ -47,4 +47,10 @@ public class TestAdminController {
         return "users";
     }
 
+    // в админке получить список сеций и подсекций с возможностью сортировки
+    @GetMapping("/sectionsandsubsections")
+    public String getPageSections() {
+        return "testSortableSectionsAndSubsections";
+    }
+
 }
