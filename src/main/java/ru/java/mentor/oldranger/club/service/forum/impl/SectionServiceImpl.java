@@ -28,7 +28,7 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     public List<Section> getAllSections() {
-        return sectionRepository.findAll(Sort.by("position").ascending());
+        return sectionRepository.findAll();
     }
 
     @Override

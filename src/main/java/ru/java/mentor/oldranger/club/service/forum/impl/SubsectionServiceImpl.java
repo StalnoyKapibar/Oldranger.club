@@ -32,6 +32,6 @@ public class SubsectionServiceImpl implements SubsectionService {
 
     @Override
     public List<Subsection> getAllSubsections() {
-        return subsectionRepository.findAll(Sort.by("section", "position").ascending());
+        return subsectionRepository.findAll();
     }
 }

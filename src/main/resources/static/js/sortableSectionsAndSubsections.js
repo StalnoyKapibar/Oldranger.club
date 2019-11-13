@@ -44,7 +44,7 @@ $(function(){
             // !!! для разработки - убрать из продакшена
             $("#resultJSON").html(`JSON:<pre>${JSON.stringify(data)}</pre>`);
             ////
-            fetch("/api/admin/swapsections", {
+            fetch("/api/swapsections", {
                 method: "PATCH",
                 body: JSON.stringify(data),
                 headers: {'Accept': 'application/json, text/plain',
@@ -112,7 +112,7 @@ $(function(){
                 $("#resultJSON").html(`JSON:<pre>${JSON.stringify(arrSectionAndSubsections)}</pre>`);
                 ////
 
-                fetch("/api/admin/swapsubsections", {
+                fetch("/api/swapsubsections", {
                     method: "PATCH",
                     body: JSON.stringify(arrSectionAndSubsections),
                     headers: {'Accept': 'application/json, text/plain',
