@@ -64,7 +64,7 @@ public class InvitationTokenRestController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
         User user = userService.getUserByNickName(userName);
-        String message = "Привет! Это приглашение на форум \"Фашисты, свастика и всё такое\". Для регистрации пройди по ссылке:\n";
+        String message = "Привет! Это приглашение на форум. Для регистрации пройди по ссылке:\n";
         String key = invitationService.generateKey();
         String link = "<a href=\"" + protocol + "://" + name + ":" + port + "/invite?key=" + key + "\">" +
                 "" + protocol + "://" + name + ":" + port + "/invite?key=" + key + "</a>";
