@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.restcontroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,9 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/invite")
@@ -73,5 +77,15 @@ public class InvitationTokenRestController {
         invitationService.markInviteOnMailAsUsed(mail);
         invitationService.save(invitationToken);
         return status;
+    }
+
+    @GetMapping("/tree")
+    public ResponseEntity<Map<String, Set<String>>> getSectionsAndSubsectionsDto() {
+        Map<String, Set<String>> dtos = invitationService.getFullInvitationTree();
+        if (dtos == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(dtos);
+
     }
 }

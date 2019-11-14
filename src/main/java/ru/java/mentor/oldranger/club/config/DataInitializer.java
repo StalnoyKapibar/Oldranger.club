@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -14,13 +15,11 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.*;
-import ru.java.mentor.oldranger.club.service.user.RoleService;
-import ru.java.mentor.oldranger.club.service.user.UserProfileService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+import ru.java.mentor.oldranger.club.service.user.*;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -35,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
     private CommentService commentService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
+    private InvitationService invitationService;
 
     @Autowired
     @Lazy
@@ -50,7 +50,8 @@ public class DataInitializer implements CommandLineRunner {
                            TopicService topicService,
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
-                           BlackListService blackListService) {
+                           BlackListService blackListService,
+                           InvitationService invitationService) {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
@@ -61,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
         this.commentService = commentService;
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -195,6 +197,13 @@ public class DataInitializer implements CommandLineRunner {
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
             userStatisticService.saveUserStatic(new UserStatistic(newuser));
+        }
+
+        List<User> users = userService.findAll();
+        for (int i = 0; i < 7; i++) {
+            invitationService.save(new InvitationToken("1" + i, users.get(i), "mail_" + i +"@google.com"));
+            invitationService.save(new InvitationToken("2" + i, users.get(i), "mail_" + i +"@mail.ru"));
+            invitationService.save(new InvitationToken("3" + i, users.get(i), "mail_" + i +"@yandex.ru"));
         }
 
     }

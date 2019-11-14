@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.InviteRepository;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
@@ -10,7 +11,7 @@ import ru.java.mentor.oldranger.club.service.user.InvitationService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class InvitationServiceImpl implements InvitationService {
@@ -63,7 +64,6 @@ public class InvitationServiceImpl implements InvitationService {
             }
             return key;
         }
-
     }
 
     @Override
@@ -102,5 +102,22 @@ public class InvitationServiceImpl implements InvitationService {
         if (tokens.size() != 0) {
             tokens.get(0).setUsed(true);
         }
+    }
+
+    @Override
+    public Map<String, Set<String>> getFullInvitationTree() {
+        Map<String, Set<String>> mapInvited = new HashMap<>();
+        List<InvitationToken> tokens = repository.findAll(Sort.by("user").ascending());
+        for (InvitationToken token : tokens) {
+            String userEmail = token.getUser().getEmail();
+            String guestEmail = token.getMail();
+            if (!mapInvited.containsKey(userEmail)) {
+                Set<String> emails = new HashSet<>();
+                emails.add(guestEmail);
+                mapInvited.put(userEmail, emails);
+            }
+            mapInvited.get(userEmail).add(guestEmail);
+        }
+        return mapInvited;
     }
 }
