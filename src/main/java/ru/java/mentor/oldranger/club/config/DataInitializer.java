@@ -79,7 +79,6 @@ public class DataInitializer implements CommandLineRunner {
         user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
         user.setPassword(passwordEncoder.encode("user"));
         User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
-        admin.setRegDate(LocalDateTime.now());
         unverified.setPassword(passwordEncoder.encode("unverified"));
         userService.save(admin);
         userService.save(moderator);

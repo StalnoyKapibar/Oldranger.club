@@ -8,16 +8,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.user.*;
@@ -39,6 +42,8 @@ public class UserProfileController {
     private InvitationService invitationService;
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private CommentService commentService;
+    private PasswordEncoder passwordEncoder;
 
 
     @InitBinder
@@ -62,11 +67,15 @@ public class UserProfileController {
     @PostMapping("/uploadAvatar")
     public String uploadAvatar(@RequestParam("file") MultipartFile file,
                                @SessionAttribute User currentUser) {
-        try {
-            userAvatarService.updateUserAvatar(currentUser, file);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())){
+            try {
+                userAvatarService.updateUserAvatar(currentUser, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
         return "redirect:/profile";
     }
 
@@ -101,10 +110,13 @@ public class UserProfileController {
     }
 
     @GetMapping("/comments")
-    public String getComments(@SessionAttribute User currentUser, Model model) {
-        String key = invitationService.getCurrentKey(currentUser);
-        model.addAttribute("key",key);
-        model.addAttribute("user", currentUser);
+    public String getComments(@SessionAttribute User currentUser,
+                              @RequestAttribute(value = "page", required = false) Integer page,
+                              @PageableDefault(size = 10, sort = "dateTime",direction = Sort.Direction.DESC) Pageable pageable,
+                              Model model) {
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable);
+        model.addAttribute("pageCount", dtos.getTotalPages());
+        model.addAttribute("commentList", dtos.getContent());
         return "profile/profileMyComments";
     }
 
@@ -128,7 +140,7 @@ public class UserProfileController {
     @GetMapping("/topics")
     public String getTopics(@SessionAttribute User currentUser,
                             @RequestAttribute(value = "page", required = false) Integer page,
-                            @PageableDefault(size = 10, sort = "lastMessageTime") Pageable pageable,
+                            @PageableDefault(size = 10, sort = "lastMessageTime", direction = Sort.Direction.DESC) Pageable pageable,
                             Model model) {
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
@@ -140,11 +152,35 @@ public class UserProfileController {
     }
 
     @GetMapping("/invite")
-    public String getIvitation(@AuthenticationPrincipal User user, Model model) {
-        String key = invitationService.getCurrentKey(user);
+    public String getIvitation(@SessionAttribute User currentUser, Model model) {
+        String key = invitationService.getCurrentKey(currentUser);
         model.addAttribute("key",key);
-        model.addAttribute("user", user);
+        model.addAttribute("user", currentUser);
         return "profile/profileMyInvitation";
+    }
+
+    @GetMapping("/changePassword")
+    public String getChangePasswordForm() {
+        return "profile/changePassword";
+    }
+
+    @PostMapping("/changePassword")
+    public String changePassword(@SessionAttribute User currentUser,
+                                 @RequestParam String oldPass,
+                                 @RequestParam String newPass,
+                                 @RequestParam String passConfirm,
+                                 Model model) {
+
+
+        if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
+            if (passConfirm.trim().equals(newPass.trim())){
+                currentUser.setPassword(passwordEncoder.encode(newPass));
+                userService.save(currentUser);
+                return "redirect:/profile";
+            }
+        }
+        model.addAttribute("err","Пароль указан неверно");
+        return "profile/changePassword";
     }
 
 

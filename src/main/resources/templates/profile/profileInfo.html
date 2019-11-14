@@ -31,6 +31,12 @@
             <br><br>
             <img src="#" th:src="${'/img/' + profile.user.avatar.medium}" alt="avatar-middle" width="256">
             <h2 th:text="${profile.user.firstName} + ' ' + ${profile.user.lastName}"></h2>
+            <th:block th:switch="${profile.user.role.role}">
+                <h3 th:case="'ROLE_ADMIN'" th:text="Администратор"></h3>
+                <h3 th:case="'ROLE_MODERATOR'" th:text="Модератор"></h3>
+                <h3 th:case="'ROLE_USER'" th:text="Пользователь"></h3>
+                <h3 th:case="'ROLE_UNVERIFIED'" th:text="Неподтвержденный пользователь"></h3>
+            </th:block>
             <div th:if="${profile.user.avatar.original != 'default.png'}">
                 <a href="#" th:href="@{/profile/deleteAvatar}"><button>Удалить аватар</button></a>
                 <br><br>
@@ -40,6 +46,8 @@
                 <button type="submit">Загрузить аватар</button><br/><br/>
             </form>
             <a href="#" th:href="@{/profile/updateProfile}"><button>Редактировать</button></a>
+            <br><br>
+            <a href="#" th:href="@{/profile/changePassword}"><button>Изменить пароль</button></a>
         </section>
         <section style="width: 60%">
             <fieldset id="generalInfo">

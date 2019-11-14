@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
@@ -37,10 +38,13 @@ public class CommentServiceImpl implements CommentService {
     public void createComment(Comment comment) {
         Topic topic = comment.getTopic();
         topic.setLastMessageTime(comment.getDateTime());
+        long messages = topic.getMessageCount();
+        comment.setPositionInTopic(++messages);
+        topic.setMessageCount(messages);
         topicService.editTopicByName(topic);
         commentRepository.save(comment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
-        long messages = userStatistic.getMessageCount();
+        messages = userStatistic.getMessageCount();
         userStatistic.setMessageCount(++messages);
         userStatistic.setLastComment(comment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
@@ -71,6 +75,11 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findByTopic(topic, pageable).map(this::assembleCommentDto);
     }
 
+    @Override
+    public Page<CommentDto> getPageableCommentDtoByUser(User user, Pageable pageable) {
+        return commentRepository.findByUser(user, pageable).map(this::assembleCommentDto);
+    }
+
 
     public CommentDto assembleCommentDto(Comment comment) {
 
@@ -95,7 +104,8 @@ public class CommentServiceImpl implements CommentService {
         } catch (NullPointerException e) {
             //
         }
-
+        commentDto.setPositionInTopic(comment.getPositionInTopic());
+        commentDto.setTopicId(comment.getTopic().getId());
         commentDto.setNickName(comment.getUser().getNickName());
         commentDto.setRoleName(comment.getUser().getRole().getRole());
         commentDto.setSmallAvatar(comment.getUser().getAvatar().getSmall());

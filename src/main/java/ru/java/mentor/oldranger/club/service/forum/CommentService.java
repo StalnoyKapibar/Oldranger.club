@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public interface CommentService {
     CommentDto assembleCommentDto(Comment comment);
 
     Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable);
+
+    Page<CommentDto> getPageableCommentDtoByUser(User user, Pageable pageable);
 
     List<Comment> getAllComments();
 

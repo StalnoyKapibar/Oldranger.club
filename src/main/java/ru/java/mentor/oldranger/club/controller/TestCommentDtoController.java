@@ -29,6 +29,7 @@ public class TestCommentDtoController {
     public String getPageableComments(@PathVariable(value = "topicId") Long topicId,
                                       @SessionAttribute User currentUser,
                                       @RequestAttribute(value = "page", required = false) Integer page,
+                                      @RequestParam(value = "pos",required = false) Integer position,
                                       @PageableDefault(size = 10, sort = "dateTime") Pageable pageable,
                                       Model model) {
         Topic topic = topicService.findById(topicId);
@@ -39,7 +40,13 @@ public class TestCommentDtoController {
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
+        if (position != null) {
+            page = (position % pageable.getPageSize() != 0) ? position / pageable.getPageSize() : position / pageable.getPageSize() - 1;
+            pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
+        }
+
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
+
         topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
 
         model.addAttribute("topic", topic);

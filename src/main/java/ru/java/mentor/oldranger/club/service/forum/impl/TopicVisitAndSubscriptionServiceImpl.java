@@ -65,7 +65,13 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
     @Override
     @Transactional
     public TopicVisitAndSubscription updateVisitTime(User user, Topic topic) {
-        return setHasNewMessages(topicVisitAndSubscriptionRepository.setVisitTime(user, topic, LocalDateTime.now()));
+        TopicVisitAndSubscription subscription = getByUserAndTopic(user, topic);
+        if (subscription != null) {
+            return updateVisitTime(subscription);
+        } else {
+            return null;
+        }
+
     }
 
     @Override

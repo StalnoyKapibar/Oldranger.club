@@ -26,13 +26,63 @@
         <a href="#" th:href="@{/profile/subscriptions}" style="margin-right: 10px">Подписки</a>
         <a href="#" th:href="@{/profile/invite}">Приглашения</a>
     </nav>
-    <main style="display: flex;flex-direction: row;height: 100%;">
-        еуые
+    <main>
+        <div th:if="${pageCount != 0}" style="display: flex;margin-bottom: 20px;width: 20%;overflow-x: auto;">
+            <a th:each="i : ${#numbers.sequence(0, pageCount - 1)}" th:href="@{'/profile/comments' + ''(page=${i})}"
+               th:text="${i+1}" style="margin: 5px"></a>
+        </div>
+        <div>
+            <a class="scroll" th:each="comment : ${commentList}" style="display: flex;border: 1px solid black; border-radius: 5px; padding-left: 10px;margin-bottom: 10px" href="#" th:href="@{'/topic/' + ${comment.topicId} +'?pos=' + ${comment.positionInTopic} +'#' + ${comment.positionInTopic}}">
+                <div style="display: inline-block;border-right: 1px solid black;padding-right: 20px;">
+                    <p th:text="${comment.nickName}"></p>
+                    <section th:if="${comment.smallAvatar}">
+                        <img src="#" th:src="${'/img/' + comment.smallAvatar}" alt="avatar">
+                    </section>
+                    <p th:text="${comment.timeSinceRegistration}"></p>
+                    <p><b>Всего сообщений: </b> <span th:text="${comment.messageCount}" ></span></p>
+                    <p th:text="${comment.roleName}"></p>
+                </div>
+                <div style="display: inline-block; vertical-align: top;padding-left: 25px">
+                    <blockquote th:if="${comment.replyDateTime}">
+                        <p th:text="${comment.replyDateTime}"></p>
+                        <p th:text="${comment.replyNick}"></p>
+                        <p th:text="${comment.replyText}"></p>
+                    </blockquote>
+                    <br>
+                    <p th:text="${comment.commentDateTime}"></p>
+                    <p th:text="${comment.commentText}"></p>
+                </div>
+            </a>
+        </div>
     </main>
 </div>
 
-
-
+<script src="/js/jquery-3.4.1.js"></script>
+<script>
+//     // direct browser to top right away
+//     if (window.location.hash)
+//         scroll(0,0);
+//     // takes care of some browsers issue
+//     setTimeout(function(){scroll(0,0);},1);
+//
+//     $(function(){
+// //your current click function
+//         $('.scroll').on('click',function(e){
+//             e.preventDefault();
+//             $('html,body').animate({
+//                 scrollTop:$($(this).attr('href')).offset().top + 'px'
+//             },1000,'swing');
+//         });
+//
+// // if we have anchor on the url (calling from other page)
+//         if(window.location.hash){
+//             // smooth scroll to the anchor id
+//             $('html,body').animate({
+//                 scrollTop:$(window.location.hash).offset().top + 'px'
+//             },1000,'swing');
+//         }
+//     });
+</script>
 </body>
 
 </html>
