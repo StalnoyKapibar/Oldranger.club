@@ -1,6 +1,9 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicVisitAndSubscriptionRepository;
@@ -68,6 +71,14 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
     @Override
     public TopicVisitAndSubscription getByUserAndTopic(User user, Topic topic) {
         return setHasNewMessages(topicVisitAndSubscriptionRepository.getFirstByUserAndTopic(user, topic));
+    }
+
+    @Override
+    public Page<TopicVisitAndSubscription> getPagebleTopicVisitAndSubscriptionForUser(User user, Pageable pageable) {
+        List<TopicVisitAndSubscription> sub = setHasNewMessages(topicVisitAndSubscriptionRepository.getAllByUser(user));
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), sub.size());
+        return new PageImpl<>(sub.subList(start, end), pageable, sub.size());
     }
 
     @Override

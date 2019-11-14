@@ -8,16 +8,11 @@ import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
-import ru.java.mentor.oldranger.club.service.forum.CommentService;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
-import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
@@ -28,7 +23,6 @@ public class DataInitializer implements CommandLineRunner {
     private RoleService roleService;
     private UserService userService;
     private UserProfileService userProfileService;
-    private UserStatisticService userStatisticService;
     private SectionService sectionService;
     private SubsectionService subsectionService;
     private TopicService topicService;
@@ -44,7 +38,6 @@ public class DataInitializer implements CommandLineRunner {
     public DataInitializer(RoleService roleService,
                            UserService userService,
                            UserProfileService userProfileService,
-                           UserStatisticService userStatisticService,
                            SectionService sectionService,
                            SubsectionService subsectionService,
                            TopicService topicService,
@@ -54,7 +47,6 @@ public class DataInitializer implements CommandLineRunner {
         this.roleService = roleService;
         this.userService = userService;
         this.userProfileService = userProfileService;
-        this.userStatisticService = userStatisticService;
         this.sectionService = sectionService;
         this.subsectionService = subsectionService;
         this.topicService = topicService;
@@ -97,12 +89,6 @@ public class DataInitializer implements CommandLineRunner {
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
-
-        // Создаем статистику пользователей
-        userStatisticService.saveUserStatic(new UserStatistic(admin));
-        userStatisticService.saveUserStatic(new UserStatistic(user));
-        userStatisticService.saveUserStatic(new UserStatistic(moderator));
-        userStatisticService.saveUserStatic(new UserStatistic(unverified));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));

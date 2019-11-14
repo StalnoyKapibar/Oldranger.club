@@ -30,6 +30,8 @@ public interface TopicService {
 
     List<Topic> getActualTopicsLimit10BySectionForAnon();
 
+    Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable);
+
     /**
      * Пейджинг для подсекций самостоятельно определяющий
      * использовать метод для анонима или для неанонима.

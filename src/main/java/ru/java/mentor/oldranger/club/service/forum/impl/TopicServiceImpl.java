@@ -8,16 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
-import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
@@ -102,6 +101,11 @@ public class TopicServiceImpl implements TopicService {
 
     public Page<Topic> getPageableBySubsectionForAnon(Subsection subsection, Pageable pageable) {
         return topicRepository.findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(subsection, pageable);
+    }
+
+    @Override
+    public Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable) {
+        return topicRepository.findAllBytopicStarter(user, pageable);
     }
 
     @Override

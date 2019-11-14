@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
-    <script type="application/javascript" src="/js/invite.js"></script>
+    <title>Профиль пользователя</title>
 </head>
 <style>
     .wrapper {
@@ -15,14 +14,17 @@
     }
 </style>
 <body>
+<div style="display: flex;flex-direction: row-reverse">
+   <a th:href="@{/logout}">Logout</a>
+</div>
 <div class="wrapper">
     <h1>Профиль пользователя</h1>
     <nav style="display: flex;margin-bottom: 20px">
-        <a href="#" style="margin-right: 10px">Профиль</a>
-        <a href="#" style="margin-right: 10px">Сообщения</a>
-        <a href="#" style="margin-right: 10px">Темы</a>
-        <a href="#" style="margin-right: 10px">Подписки</a>
-        <a href="#">Приглашения</a>
+        <a href="#" th:href="@{/profile}" style="margin-right: 10px">Профиль</a>
+        <a href="#" th:href="@{/profile/comments}" style="margin-right: 10px">Сообщения</a>
+        <a href="#" th:href="@{/profile/topics}" style="margin-right: 10px">Темы</a>
+        <a href="#" th:href="@{/profile/subscriptions}" style="margin-right: 10px">Подписки</a>
+        <a href="#" th:href="@{/profile/invite}">Приглашения</a>
     </nav>
     <main style="display: flex;flex-direction: row;height: 100%;">
         <section style="width: 40%">
@@ -30,14 +32,14 @@
             <img src="#" th:src="${'/img/' + profile.user.avatar.medium}" alt="avatar-middle" width="256">
             <h2 th:text="${profile.user.firstName} + ' ' + ${profile.user.lastName}"></h2>
             <div th:if="${profile.user.avatar.original != 'default.png'}">
-                <a href="#" th:href="@{/deleteAvatar}"><button>Удалить аватар</button></a>
+                <a href="#" th:href="@{/profile/deleteAvatar}"><button>Удалить аватар</button></a>
                 <br><br>
             </div>
-            <form method="POST" th:action="@{/uploadAvatar}" enctype="multipart/form-data">
+            <form method="POST" th:action="@{/profile/uploadAvatar}" enctype="multipart/form-data">
                 <input type="file" name="file"/><br/><br/>
                 <button type="submit">Загрузить аватар</button><br/><br/>
             </form>
-            <a href="#" th:href="@{/updateProfile}"><button>Редактировать</button></a>
+            <a href="#" th:href="@{/profile/updateProfile}"><button>Редактировать</button></a>
         </section>
         <section style="width: 60%">
             <fieldset id="generalInfo">
@@ -83,53 +85,6 @@
             </fieldset>
         </section>
     </main>
-</div>
-
-<div class="container-fluid">
-    <ul class="nav navbar-right">
-        <li><a th:href="@{/logout}">Logout</a></li>
-    </ul>
-</div>
-
-
-<h1>User Profile</h1>
-
-<b>User ID: </b><span  th:text="${session.user.id}"></span><br>
-<b>First Name: </b><span  th:text="${session.user.firstName}"></span><br>
-<b>Last Name: </b><span  th:text="${session.user.lastName}"></span><br>
-<b>Email: </b><span  th:text="${session.user.email}"></span><br>
-<b>Nickname: </b><span  th:text="${session.user.nickName}"></span><br>
-<b>Role: </b><span th:text="${session.user.role.role}"></span><br>
-
-<section th:if="${session.user.avatar}">
-    <br><br>
-    <img src="#" th:src="${'/img/' + session.user.getAvatar().medium}" alt="avatar-middle" width="256">
-    <br><br>
-    <a href="#" th:href="@{/test/deleteAvatar}"><button>Delete</button></a>
-</section>
-<section th:if="${message}">
-    <h4  th:text="${message}"></h4>
-</section>
-
-<h4>Upload Avatar:</h4>
-<form method="POST" th:action="@{/test/uploadAvatar}" enctype="multipart/form-data">
-    <input type="file" name="file"/> <br/><br/>
-    <button type="submit">Submit</button>
-</form>
-<div th:if="${session.user.role.role!='ROLE_UNVERIFIED'}">
-    <button type="button" onclick="test()">
-        Invite
-    </button>
-    <fieldset id="fieldset" style="width:400px;height:40px">
-        <legend>Invitation link:</legend>
-        <div id="innerFieldText">
-            <div th:if="${session.key!=null}" th:text="'http://localhost:8888/invite?key=' + ${session.key}"></div>
-        </div>
-    </fieldset>
-    <fieldset style="width:400px">
-        <input id="mail" type="email"> e-mail</input><br>
-        <button type="button" onclick="sendInviteOnMail()">Отправить приглашение</button>
-    </fieldset>
 </div>
 
 </body>

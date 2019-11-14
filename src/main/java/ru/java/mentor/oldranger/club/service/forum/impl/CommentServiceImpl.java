@@ -35,6 +35,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void createComment(Comment comment) {
+        Topic topic = comment.getTopic();
+        topic.setLastMessageTime(comment.getDateTime());
+        topicService.editTopicByName(topic);
         commentRepository.save(comment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
         long messages = userStatistic.getMessageCount();

@@ -24,7 +24,7 @@
 <body>
 <div class="wrapper">
     <h1>Обновление профиля пользователя</h1>
-    <form action="#" th:action="@{/updateProfile}" th:object="${profile}" method="post" >
+    <form action="#" th:action="@{/profile/updateProfile}" th:object="${profile}" method="post" >
         <input type="hidden" th:field="*{id}">
         <input type="hidden" th:field="*{user.id}">
         <fieldset>

@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -23,6 +25,8 @@ public interface TopicVisitAndSubscriptionService {
     TopicVisitAndSubscription getByUserAndTopic(User user, Topic topic);
 
     List<TopicVisitAndSubscription> getTopicVisitAndSubscriptionForUser(User user);
+
+    Page<TopicVisitAndSubscription> getPagebleTopicVisitAndSubscriptionForUser(User user, Pageable pageable);
 
     List<TopicVisitAndSubscription> getTopicVisitAndSubscriptionForTopic(Topic topic);
 
