@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,16 +61,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/test/**", "/img/**", "/css/**", "/js/**", "/image/**").permitAll()
                 .expressionHandler(webExpressionHandler())
-                .antMatchers("/com/*", "/css/**", "/js/*", "/dist-smile/*").permitAll()
+                .antMatchers("/", "/api/**").permitAll()
+                .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/com/*", "/dist-smile/*", "/markdown").permitAll()
                 .antMatchers("/", "/api/**", "/invite", "/passwordrecovery/**").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest()
-                .authenticated()
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .and()
-                .logout()
-                .permitAll();
+                .logout().permitAll()
+                .and()
+                .sessionManagement()
+                .invalidSessionUrl("/")
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true)
+                .sessionRegistry(sessionRegistry());
+    }
+
+    @Bean(name = "sessionRegistry")
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Bean

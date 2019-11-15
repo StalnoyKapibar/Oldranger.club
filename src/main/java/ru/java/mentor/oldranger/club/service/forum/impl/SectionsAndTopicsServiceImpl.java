@@ -7,14 +7,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
-import ru.java.mentor.oldranger.club.model.forum.Subscription;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
-import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
-import ru.java.mentor.oldranger.club.service.forum.SubscriptionService;
-import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.forum.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +29,7 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
 
     private TopicService topicService;
 
-    private SubscriptionService subscriptionService;
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     public List<SectionsAndTopicsDto> getAllSectionsAndActualTopicsLimit10BySection() {
         List<SectionsAndTopicsDto> sectionsAndTopicsDtos;
@@ -59,7 +56,7 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
 
     private List<SectionsAndTopicsDto> combineListOfSectionsAndTopicsSortSubscriptionsFirst(List<Section> sections, List<Topic> topics, User user) {
         List<SectionsAndTopicsDto> dtos = new ArrayList<>();
-        List<Subscription> subscriptionsForUser = subscriptionService.getSubscriptionsForUser(user);
+        List<TopicVisitAndSubscription> subscriptionsForUser = topicVisitAndSubscriptionService.getTopicVisitAndSubscriptionForUser(user);
         for (Section section : sections) {
             List<Topic> topicList = topics
                     .stream()
@@ -74,9 +71,9 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
 
     private static class TopicsHasUserSubscriptionFirst implements Comparator<Topic> {
 
-        private List<Subscription> subscriptionsForUser;
+        private List<TopicVisitAndSubscription> subscriptionsForUser;
 
-        TopicsHasUserSubscriptionFirst(List<Subscription> subscriptionsForUser) {
+        TopicsHasUserSubscriptionFirst(List<TopicVisitAndSubscription> subscriptionsForUser) {
             this.subscriptionsForUser = subscriptionsForUser;
         }
 
