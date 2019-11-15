@@ -65,7 +65,7 @@ public class TestSystemComment {
         } else {
             comment = new Comment(topic, user, null, localDateTime, message.getText());
         }
-        commentService.createComment(comment);
+        commentService.createComment(comment, topic);
         return "ok";
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 //        LocalDateTime joiningDate = LocalDateTime.parse("2014-04-01 00:00:00", formatter);

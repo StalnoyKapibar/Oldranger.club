@@ -1,7 +1,0 @@
-# для нормальной работы проекта скопируйте данный файл с расширением properties полученный файл добавлять в GIT не нужно.
-# Если вы делаете изменения в конфигурации для проекта то добавляйте их в sample
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.url=jdbc:mysql://localhost:3306/jm_oldc?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC
-#  ?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-spring.datasource.username=root
-spring.datasource.password=root
