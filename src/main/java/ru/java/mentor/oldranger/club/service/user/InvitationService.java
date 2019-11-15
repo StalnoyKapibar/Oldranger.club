@@ -5,6 +5,8 @@ import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface InvitationService {
     public void save(InvitationToken invitationToken);
@@ -26,4 +28,6 @@ public interface InvitationService {
     void setShelfLife(Long time);
 
     boolean checkShelfLife(InvitationToken token);
+
+    Map<String, Set<String>> getFullInvitationTree();
 }
