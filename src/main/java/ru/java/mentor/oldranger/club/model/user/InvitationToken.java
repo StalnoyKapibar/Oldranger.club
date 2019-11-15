@@ -32,8 +32,13 @@ public class InvitationToken {
     @Column(name = "used_invite")
     private Boolean used;
 
+    @JoinColumn(name = "new_user")
+    @ManyToOne
+    private User visitor;
+
     public InvitationToken() {
     }
+
 
     public InvitationToken(String key, User user) {
         this.key = key;

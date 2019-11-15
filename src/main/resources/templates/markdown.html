@@ -1,21 +1,14 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="utf-8">
     <title>CKEditor</title>
-    <script src="https://cdn.ckeditor.com/ckeditor5/15.0.0/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
 </head>
 <body>
-<textarea name="content" id="editor">This is some sample content.</textarea>
+<textarea name="editor"></textarea>
 <script>
-    ClassicEditor
-        .create( document.querySelector( '#editor' ) )
-        .then( editor => {
-            console.log( editor );
-        } )
-        .catch( error => {
-            console.error( error );
-        } );
+    CKEDITOR.replace( 'editor' );
 </script>
 </body>
 </html>
