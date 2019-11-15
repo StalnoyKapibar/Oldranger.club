@@ -65,7 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/com/*", "/css/**", "/js/*", "/dist-smile/*").permitAll()
+                .antMatchers("/com/*", "/dist-smile/*", "/markdown").permitAll()
                 .antMatchers("/", "/api/**", "/invite", "/passwordrecovery/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -76,7 +76,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .invalidSessionUrl("/")
                 .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
+                .maxSessionsPreventsLogin(false)
                 .sessionRegistry(sessionRegistry());
     }
 
