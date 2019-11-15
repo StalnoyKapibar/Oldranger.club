@@ -24,6 +24,7 @@
 <body>
 <div class="wrapper">
     <h1>Обновление профиля пользователя</h1>
+    <h2 th:if="${err}" th:text="${err}"></h2>
     <form action="#" th:action="@{/profile/updateProfile}" th:object="${profile}" method="post" >
         <input type="hidden" th:field="*{id}">
         <input type="hidden" th:field="*{user.id}">
@@ -35,11 +36,11 @@
             </div>
             <div class="form-group">
                 <label for="firstName">Имя</label>
-                <input type="text" th:field="*{user.firstName}" id="firstName" required>
+                <input type="text" th:field="*{user.firstName}" id="firstName">
             </div>
             <div class="form-group">
                 <label for="lastName">Фамилия</label>
-                <input type="text" th:field="*{user.lastName}" id="lastName" required>
+                <input type="text" th:field="*{user.lastName}" id="lastName">
             </div>
             <div class="form-group">
                 <label for="birthday">Дата рождения</label>
@@ -47,18 +48,18 @@
             </div>
             <div class="form-group">
                 <label for="gender">Пол</label>
-                <select name="gender" id="gender" required>
+                <select name="gender" id="gender">
                     <option value="MALE">мужской</option>
                     <option value="FEMALE">женский</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="country">Страна</label>
-                <input type="text" th:field="*{country}" id="country" required>
+                <input type="text" th:field="*{country}" id="country">
             </div>
             <div class="form-group">
                 <label for="city">Город</label>
-                <input type="text" th:field="*{city}" id="city" required>
+                <input type="text" th:field="*{city}" id="city">
             </div>
         </fieldset>
         <fieldset>

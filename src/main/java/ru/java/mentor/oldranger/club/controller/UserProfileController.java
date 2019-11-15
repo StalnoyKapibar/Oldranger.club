@@ -60,6 +60,30 @@ public class UserProfileController {
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
         session.setAttribute("currentUser",user);
         model.addAttribute("profile", profile);
+        model.addAttribute("owner", true);
+        model.addAttribute("stat", stat);
+        return "profile/profileInfo";
+    }
+
+    @GetMapping("/{id}")
+    public String getAnotherUserProfile(@AuthenticationPrincipal User authUser,
+                                        @PathVariable Long id,
+                                        HttpSession session,
+                                        Model model) {
+        User user = null;
+        try {
+            user = userService.findById(id);
+        } catch (Exception e){
+            //
+        }
+        if (user == null){
+            model.addAttribute("message", "Такого пользователя не существует");
+            return "404";
+        }
+        UserProfile profile = userProfileService.getUserProfileByUser(user);
+        UserStatistic stat = userStatisticService.getUserStaticByUser(user);
+        model.addAttribute("profile", profile);
+        model.addAttribute("owner", false);
         model.addAttribute("stat", stat);
         return "profile/profileInfo";
     }
@@ -97,8 +121,14 @@ public class UserProfileController {
     }
 
     @PostMapping("/updateProfile")
-    public String updateProfile(UserProfile profile,
-                                @SessionAttribute User currentUser) {
+    public String updateProfile(@SessionAttribute User currentUser,
+                                UserProfile profile,
+                                Model model) {
+        if (profile.getUser().getNickName() == null || profile.getUser().getEmail() == null){
+            model.addAttribute("profile", profile);
+            model.addAttribute("err","Поля 'Ник' и 'Email' обязательно должны быть заполнены");
+            return "profile/updateUserProfile";
+        }
         currentUser.setNickName(profile.getUser().getNickName());
         currentUser.setFirstName(profile.getUser().getFirstName());
         currentUser.setLastName(profile.getUser().getLastName());
@@ -173,7 +203,7 @@ public class UserProfileController {
 
 
         if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
-            if (passConfirm.trim().equals(newPass.trim())){
+            if (passConfirm.equals(newPass)){
                 currentUser.setPassword(passwordEncoder.encode(newPass));
                 userService.save(currentUser);
                 return "redirect:/profile";
@@ -182,8 +212,5 @@ public class UserProfileController {
         model.addAttribute("err","Пароль указан неверно");
         return "profile/changePassword";
     }
-
-
-
 
 }

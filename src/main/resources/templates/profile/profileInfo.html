@@ -18,8 +18,8 @@
    <a th:href="@{/logout}">Logout</a>
 </div>
 <div class="wrapper">
-    <h1>Профиль пользователя</h1>
-    <nav style="display: flex;margin-bottom: 20px">
+    <h1 th:text="'Профиль пользователя ' + ${profile.user.nickName}"></h1>
+    <nav th:if="${owner}" style="display: flex;margin-bottom: 20px">
         <a href="#" th:href="@{/profile}" style="margin-right: 10px">Профиль</a>
         <a href="#" th:href="@{/profile/comments}" style="margin-right: 10px">Сообщения</a>
         <a href="#" th:href="@{/profile/topics}" style="margin-right: 10px">Темы</a>
@@ -37,17 +37,19 @@
                 <h3 th:case="'ROLE_USER'" th:text="Пользователь"></h3>
                 <h3 th:case="'ROLE_UNVERIFIED'" th:text="Неподтвержденный пользователь"></h3>
             </th:block>
-            <div th:if="${profile.user.avatar.original != 'default.png'}">
-                <a href="#" th:href="@{/profile/deleteAvatar}"><button>Удалить аватар</button></a>
+            <th:block th:if="${owner}">
+                <div th:if="${profile.user.avatar.original != 'default.png'}">
+                    <a href="#" th:href="@{/profile/deleteAvatar}"><button>Удалить аватар</button></a>
+                    <br><br>
+                </div>
+                <form method="POST" th:action="@{/profile/uploadAvatar}" enctype="multipart/form-data">
+                    <input type="file" name="file"/><br/><br/>
+                    <button type="submit">Загрузить аватар</button><br/><br/>
+                </form>
+                <a href="#" th:href="@{/profile/updateProfile}"><button>Редактировать</button></a>
                 <br><br>
-            </div>
-            <form method="POST" th:action="@{/profile/uploadAvatar}" enctype="multipart/form-data">
-                <input type="file" name="file"/><br/><br/>
-                <button type="submit">Загрузить аватар</button><br/><br/>
-            </form>
-            <a href="#" th:href="@{/profile/updateProfile}"><button>Редактировать</button></a>
-            <br><br>
-            <a href="#" th:href="@{/profile/changePassword}"><button>Изменить пароль</button></a>
+                <a href="#" th:href="@{/profile/changePassword}"><button>Изменить пароль</button></a>
+            </th:block>
         </section>
         <section style="width: 60%">
             <fieldset id="generalInfo">

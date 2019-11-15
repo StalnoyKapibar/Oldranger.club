@@ -41,7 +41,7 @@ public class TestCommentDtoController {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
         if (position != null) {
-            page = (position % pageable.getPageSize() != 0) ? position / pageable.getPageSize() : position / pageable.getPageSize() - 1;
+            page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
 
