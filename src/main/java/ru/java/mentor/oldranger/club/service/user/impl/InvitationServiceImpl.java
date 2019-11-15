@@ -121,3 +121,21 @@ public class InvitationServiceImpl implements InvitationService {
         return mapInvited;
     }
 }
+
+//    const flatData = [
+//            { "name": "root", "parent": "" },
+//            { "name": "Boss", "parent": "root" },
+//            { "name": "User 3", "parent": "root" },
+//            { "name": "User 4", "parent": "root" },
+//            { "name": "User 1", "parent": "Boss" },
+//            { "name": "User 2", "parent": "Boss" },
+//            { "name": "User 21", "parent": "User 2" },
+//            { "name": "User 22", "parent": "User 2" },
+//            { "name": "User 31", "parent": "User 3" },
+//            { "name": "User 32", "parent": "User 3" },
+//            { "name": "User 41", "parent": "User 4" },
+//            { "name": "User 411", "parent": "User 41" },
+//            { "name": "User 4111", "parent": "User 411" },
+//            { "name": "User 41111", "parent": "User 4111" },
+//            { "name": "User 5", "parent": "root" },
+//            ];

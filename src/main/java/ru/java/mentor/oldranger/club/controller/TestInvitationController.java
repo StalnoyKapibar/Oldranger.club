@@ -29,4 +29,10 @@ public class TestInvitationController {
         }
         return modelAndView;
     }
+
+    // !!! из продакшена убрать !!! сделан для теста отрисовки древа кто кого пригласил
+    @GetMapping("/tree")
+    public String testDrawingInvitationTree() {
+        return "testDrawingInvitationTree";
+    }
 }
