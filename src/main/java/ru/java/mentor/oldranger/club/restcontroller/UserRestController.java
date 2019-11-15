@@ -27,8 +27,11 @@ public class UserRestController {
     @PostMapping
     @ResponseBody
     public void addUser(@RequestBody String key) {
-        User user = new User();
+        User user = new User(); //это "тестовый" юзер. Надо добавить получение данных юзера из формы
+        user.setEmail("email@mail.ru");
+        user.setNickName("Nick");
+        userService.save(user);
+        invitationService.getInvitationTokenByKey(key).setVisitor(user);
         invitationService.markAsUsed(key);
-        //  userService.save(user);
     }
 }
