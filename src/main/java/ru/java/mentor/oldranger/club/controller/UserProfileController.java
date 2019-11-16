@@ -66,10 +66,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/{id}")
-    public String getAnotherUserProfile(@AuthenticationPrincipal User authUser,
-                                        @PathVariable Long id,
-                                        HttpSession session,
-                                        Model model) {
+    public String getAnotherUserProfile(@PathVariable Long id, Model model) {
         User user = null;
         try {
             user = userService.findById(id);
@@ -91,7 +88,6 @@ public class UserProfileController {
     @PostMapping("/uploadAvatar")
     public String uploadAvatar(@RequestParam("file") MultipartFile file,
                                @SessionAttribute User currentUser) {
-
         if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())){
             try {
                 userAvatarService.updateUserAvatar(currentUser, file);
@@ -99,7 +95,6 @@ public class UserProfileController {
                 e.printStackTrace();
             }
         }
-
         return "redirect:/profile";
     }
 
@@ -200,8 +195,6 @@ public class UserProfileController {
                                  @RequestParam String newPass,
                                  @RequestParam String passConfirm,
                                  Model model) {
-
-
         if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
             if (passConfirm.equals(newPass)){
                 currentUser.setPassword(passwordEncoder.encode(newPass));

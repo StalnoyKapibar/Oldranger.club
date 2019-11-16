@@ -44,11 +44,8 @@ public class TestCommentDtoController {
             page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
-
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
-
         topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
-
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", dtos.getTotalPages());
         model.addAttribute("commentList", dtos.getContent());
