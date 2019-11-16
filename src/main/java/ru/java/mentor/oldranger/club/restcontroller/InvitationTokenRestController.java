@@ -62,13 +62,13 @@ public class InvitationTokenRestController {
     @RequestMapping(value = "/bymail", method = RequestMethod.POST)
     public String sendInviteByMail(@RequestBody String mail) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
-        User user = userService.getUserByNickName(userName);
+        String senderName = auth.getName();
+        User user = userService.getUserByNickName(senderName);
         //  String message = "Привет! Это приглашение на форум. Для регистрации пройди по ссылке:\n";
         String key = invitationService.generateKey();
         String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
-        String status = mailService.sendHtmlEmail(mail, userName, "letter.html", link);
+        String status = mailService.sendHtmlEmail(mail, senderName, "letter.html", link);
         invitationService.markInviteOnMailAsUsed(mail);
         invitationService.save(invitationToken);
         return status;

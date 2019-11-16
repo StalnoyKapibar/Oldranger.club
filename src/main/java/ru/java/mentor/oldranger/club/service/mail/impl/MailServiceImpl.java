@@ -40,7 +40,7 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public String sendHtmlEmail(String to, String subject, String fileName, String link) {
+    public String sendHtmlEmail(String to, String senderName, String fileName, String link) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
@@ -48,12 +48,11 @@ public class MailServiceImpl implements MailService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String date = LocalDateTime.now().format(formatter);
             Context context = new Context();
-            context.setVariable("subject", subject);
+            context.setVariable("senderName", senderName);
             context.setVariable("date", date);
             context.setVariable("link", link);
             String htmlContent = this.templateEngine.process(fileName, context);
             helper.setText(htmlContent, true);
-
             mailSender.send(mimeMessage);
             return "1";
         } catch (MailSendException | MessagingException e) {
