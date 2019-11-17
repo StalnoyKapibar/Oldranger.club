@@ -124,6 +124,18 @@ public class UserProfileController {
             model.addAttribute("err","Поля 'Ник' и 'Email' обязательно должны быть заполнены");
             return "profile/updateUserProfile";
         }
+        User user = userService.getUserByNickName(profile.getUser().getNickName());
+        if (user != null && !currentUser.getNickName().equals(user.getNickName())) {
+            model.addAttribute("profile", profile);
+            model.addAttribute("err","Пользователь с таким ником уже существует");
+            return "profile/updateUserProfile";
+        }
+        user = userService.getUserByEmail(profile.getUser().getEmail());
+        if (user != null && !currentUser.getEmail().equals(user.getEmail())) {
+            model.addAttribute("profile", profile);
+            model.addAttribute("err","Пользователь с таким адресом почты уже существует");
+            return "profile/updateUserProfile";
+        }
         currentUser.setNickName(profile.getUser().getNickName());
         currentUser.setFirstName(profile.getUser().getFirstName());
         currentUser.setLastName(profile.getUser().getLastName());
