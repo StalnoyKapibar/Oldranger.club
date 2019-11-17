@@ -59,7 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable() //наверное, временно?
                 .authorizeRequests()
-                .antMatchers("/test/**", "/img/**", "/css/**", "/js/**", "/image/**").permitAll()
+                .antMatchers("/test/**", "/img/**", "/css/**", "/js/**", "/image/**", "/albums").permitAll() //TODO убрать /albums
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")

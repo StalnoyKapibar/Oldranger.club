@@ -1,10 +1,14 @@
 package ru.java.mentor.oldranger.club.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.media.Media;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
@@ -58,6 +62,10 @@ public class User implements UserDetails{
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "media_id")
+    private Media media;
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
