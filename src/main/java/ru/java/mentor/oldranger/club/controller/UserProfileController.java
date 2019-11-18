@@ -67,13 +67,10 @@ public class UserProfileController {
 
     @GetMapping("/{id}")
     public String getAnotherUserProfile(@PathVariable Long id, Model model) {
-        User user = null;
+        User user;
         try {
             user = userService.findById(id);
         } catch (Exception e){
-            //
-        }
-        if (user == null){
             model.addAttribute("message", "Такого пользователя не существует");
             return "404";
         }

@@ -176,7 +176,7 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         for (int i =1; i< 12; i++) {
-            User newuser = new User("User", "User", "user@javamentor.com", "User" + i, roleUser);
+            User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
         }
