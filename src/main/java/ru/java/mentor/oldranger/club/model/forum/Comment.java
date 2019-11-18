@@ -23,6 +23,10 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "position")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long positionInTopic;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")
     private Topic topic;

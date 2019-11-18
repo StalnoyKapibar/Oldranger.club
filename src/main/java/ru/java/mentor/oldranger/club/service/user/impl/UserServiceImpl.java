@@ -1,20 +1,26 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserAvatar;
+import ru.java.mentor.oldranger.club.model.user.UserProfile;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     private UserRepository userRepository;
+    private UserProfileService userProfileService;
+    private UserStatisticService userStatistic;
 
     @Override
     public List<User> findAll() {
@@ -29,10 +35,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(User user) {
+
         if (user.getAvatar() == null) {
             user.setAvatar(setDefaultAvatar());
         }
+
         userRepository.save(user);
+
+        if (userStatistic.getUserStaticByUser(user) == null) {
+            userStatistic.saveUserStatic(new UserStatistic(user));
+        }
+
+        if (userProfileService.getUserProfileByUser(user) == null) {
+            userProfileService.createUserProfile(new UserProfile(user));
+        }
     }
 
     @Override

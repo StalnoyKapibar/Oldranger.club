@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Обновление профиля пользователя</title>
+    <style>
+        .wrapper {
+            margin-right: auto;
+            margin-left:  auto;
+            max-width: 960px;
+            padding-right: 10px;
+            padding-left:  10px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        fieldset {
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        fieldset label {margin-right: 10px}
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <h1>Обновление профиля пользователя</h1>
+    <h2 th:if="${err}" th:text="${err}"></h2>
+    <form action="#" th:action="@{/profile/updateProfile}" th:object="${profile}" method="post" >
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{user.id}">
+        <fieldset>
+            <legend>Общее</legend>
+            <div class="form-group">
+                <label for="nick">Ник</label>
+                <input type="text" th:field="*{user.nickName}" id="nick" required>
+            </div>
+            <div class="form-group">
+                <label for="firstName">Имя</label>
+                <input type="text" th:field="*{user.firstName}" id="firstName">
+            </div>
+            <div class="form-group">
+                <label for="lastName">Фамилия</label>
+                <input type="text" th:field="*{user.lastName}" id="lastName">
+            </div>
+            <div class="form-group">
+                <label for="birthday">Дата рождения</label>
+                <input type="date" th:field="*{birthday}" id="birthday">
+            </div>
+            <div class="form-group">
+                <label for="gender">Пол</label>
+                <select name="gender" id="gender">
+                    <option value="MALE">мужской</option>
+                    <option value="FEMALE">женский</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="country">Страна</label>
+                <input type="text" th:field="*{country}" id="country">
+            </div>
+            <div class="form-group">
+                <label for="city">Город</label>
+                <input type="text" th:field="*{city}" id="city">
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Контакты</legend>
+            <div class="form-group">
+                <label for="email">Почта</label>
+                <input type="email" th:field="*{user.email}" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Моб.телефон</label>
+                <input type="tel" th:field="*{phoneNumber}" id="phone">
+            </div>
+            <div class="form-group">
+                <label for="vk">Vk</label>
+                <input type="text" th:field="*{socialVk}" id="vk">
+            </div>
+            <div class="form-group">
+                <label for="fb">Facebook</label>
+                <input type="text" th:field="*{socialFb}" id="fb">
+            </div>
+            <div class="form-group">
+                <label for="tw">Twitter</label>
+                <input type="text" th:field="*{socialTw}" id="tw">
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Про меня</legend>
+            <textarea th:field="*{aboutMe}"></textarea>
+        </fieldset>
+        <input type="submit" value="Обновить профиль">
+    </form>
+    <br>
+    <a href="#" th:href="@{/profile}"><button>Назад</button></a>
+</div>
+
+</body>
+</html>
