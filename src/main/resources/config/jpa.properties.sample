@@ -13,3 +13,4 @@ spring.jpa.generate-ddl=true
 
 spring.jpa.properties.hibernate.search.default.directory__provider=filesystem
 spring.jpa.properties.hibernate.search.default.indexBase=./data/index/default
+spring.jpa.properties.hibernate.search.analyzer=org.apache.lucene.analysis.ru.RussianAnalyzer

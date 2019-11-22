@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SearchService {
 
-    List<Topic> searchByTopicName(String queryString);
+    List searchByTopicName(String queryString);
 
-    List<Comment> searchByComment(String queryString);
+    List searchByComment(String queryString);
 }

@@ -109,8 +109,12 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAllSections(), topics, user);
         } else {
-            topics.removeIf(topic -> topic.isHideToAnon());
-            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllSectionsForAnon(), topics);
+            List<Topic> topicsForAnon = new ArrayList<>();
+            for (Topic topic : topics) {
+                if (!topic.isHideToAnon())
+                    topicsForAnon.add(topic);
+            }
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllSectionsForAnon(), topicsForAnon);
         }
         sectionsAndTopicsDtos.removeIf(sectionsAndTopicsDto -> sectionsAndTopicsDto.getTopics().isEmpty());
         return sectionsAndTopicsDtos;

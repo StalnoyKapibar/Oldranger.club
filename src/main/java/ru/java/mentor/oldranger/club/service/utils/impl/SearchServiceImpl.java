@@ -39,28 +39,28 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Transactional
-    public List<Topic> searchByTopicName(String queryString) {
+    public List searchByTopicName(String queryString) {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Topic.class).get();
 
         Query query = queryBuilder
-                .phrase()
-                .withSlop(5)
+                .keyword()
+                .fuzzy()
                 .onField("name")
-                .sentence(queryString)
+                .matching(queryString)
                 .createQuery();
 
         return fullTextEntityManager.createFullTextQuery(query, Topic.class).getResultList();
     }
 
     @Transactional
-    public List<Comment> searchByComment(String queryString) {
+    public List searchByComment(String queryString) {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Comment.class).get();
 
         Query query = queryBuilder
-                .phrase()
-                .withSlop(5)
+                .keyword()
+                .fuzzy()
                 .onField("commentText")
-                .sentence(queryString)
+                .matching(queryString)
                 .createQuery();
 
         return fullTextEntityManager.createFullTextQuery(query, Comment.class).getResultList();
