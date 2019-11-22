@@ -5,13 +5,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
+import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
-import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
@@ -22,13 +23,13 @@ import java.util.Random;
 public class DataInitializer implements CommandLineRunner {
     private RoleService roleService;
     private UserService userService;
-    private UserProfileService userProfileService;
     private SectionService sectionService;
     private SubsectionService subsectionService;
     private TopicService topicService;
     private CommentService commentService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
+    private ChatService chatService;
 
     @Autowired
     @Lazy
@@ -37,22 +38,22 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     public DataInitializer(RoleService roleService,
                            UserService userService,
-                           UserProfileService userProfileService,
                            SectionService sectionService,
                            SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
-                           BlackListService blackListService) {
+                           BlackListService blackListService,
+                           ChatService chatService) {
         this.roleService = roleService;
         this.userService = userService;
-        this.userProfileService = userProfileService;
         this.sectionService = sectionService;
         this.subsectionService = subsectionService;
         this.topicService = topicService;
         this.commentService = commentService;
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
+        this.chatService = chatService;
     }
 
     @Override
@@ -180,6 +181,9 @@ public class DataInitializer implements CommandLineRunner {
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
         }
+
+        // Общий чат
+        chatService.createChat(new Chat());
 
     }
 }

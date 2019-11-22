@@ -20,5 +20,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         String location = "file:///" + absolutePath + "/";
         registry.addResourceHandler("/img/**").
                 addResourceLocations(location);
+        registry.addResourceHandler("/img/chat/**").
+                addResourceLocations(location + "chat/");
     }
 }

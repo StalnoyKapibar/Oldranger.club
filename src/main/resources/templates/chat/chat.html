@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Общий чат</title>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html,body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-weight: 400;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.58;
+            color: #333;
+            background-color: #f4f4f4;
+            height: 100%;
+        }
+
+
+        .clearfix:after {
+            display: block;
+            content: "";
+            clear: both;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 38px;
+            font-size: 15px;
+            border: 1px solid #c8c8c8;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            padding-left: 10px;
+            outline: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.7em;
+        }
+
+        a {
+            color: #128ff2;
+        }
+
+        button {
+            box-shadow: none;
+            border: 1px solid transparent;
+            font-size: 14px;
+            outline: none;
+            line-height: 100%;
+            white-space: nowrap;
+            vertical-align: middle;
+            padding: 0.6rem 1rem;
+            border-radius: 2px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            min-height: 38px;
+        }
+
+        button.default {
+            background-color: #e8e8e8;
+            color: #333;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        button.primary {
+            background-color: #128ff2;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+            color: #fff;
+        }
+
+        button.primary:hover{
+            background-color: #0d75c7;
+        }
+
+        button.accent {
+            background-color: #128ff2;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+            color: #fff;
+        }
+
+        #greeting {
+            text-align: center;
+        }
+
+        .greeting-container {
+            background: #fff;
+            box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+            border-radius: 2px;
+            width: 100%;
+            max-width: 500px;
+            display: inline-block;
+            margin-top: 42px;
+            vertical-align: middle;
+            position: relative;
+            padding: 35px 55px 35px;
+            min-height: 250px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            margin-top: -160px;
+        }
+
+        .greeting-container .greeting-submit {
+            margin-top: 10px;
+        }
+
+
+        #chat {
+            position: relative;
+            height: 100%;
+        }
+
+        .chat-container {
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+            box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+            margin-top: 30px;
+            height: calc(100% - 60px);
+            max-height: 700px;
+            position: relative;
+            border-radius: 10px;
+            padding-bottom: 45px;
+        }
+
+        #chat ul {
+            list-style-type: none;
+            background-color: #FFF;
+            margin: 0;
+            overflow: auto;
+            overflow-y: scroll;
+            padding: 0 20px 0px 20px;
+            height: 100%;
+            float: left;
+            width: 80%;
+            border-left: 1px solid #e8e8e8;
+        }
+
+        #chat #messageForm {
+            padding: 20px;
+        }
+
+        #chat ul li {
+            line-height: 1.5rem;
+            padding: 10px 20px;
+            margin: 0;
+            border-bottom: 1px solid #f4f4f4;
+        }
+
+        #chat ul li p {
+            margin: 0;
+        }
+
+        #chat .event-message {
+            width: 100%;
+            text-align: center;
+            clear: both;
+        }
+
+        #chat .event-message p {
+            color: #777;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        #chat .chat-message {
+            padding-left: 68px;
+            position: relative;
+        }
+
+        #chat .chat-message i {
+            position: absolute;
+            background-size: cover;
+            width: 42px;
+            height: 42px;
+            overflow: hidden;
+            left: 10px;
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 18px;
+            line-height: 42px;
+            color: #128ff2;
+            border: 1px solid;
+            text-align: center;
+            border-radius: 50%;
+            font-style: normal;
+            text-transform: uppercase;
+        }
+
+        #chat .chat-message span {
+            color: #333;
+            font-weight: 600;
+        }
+
+        #chat .chat-message span.message-date {
+            color: #888888;
+            font-weight: 300;
+            font-size: 10px;
+            float: right;
+        }
+
+        #chat .chat-message p {
+            color: #43464b;
+        }
+
+        #messageForm .input-group input {
+            width: 100%;
+        }
+
+        #messageForm .input-group button {
+            float: right;
+            width: 100px;
+            height: 38px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .chat-header {
+            text-align: center;
+            padding: 15px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .chat-main {
+            height: calc(100% - 150px);
+        }
+
+        .chat-main .user-list {
+            float: left;
+            width: 20%;
+        }
+
+        #chat .chat-main .user-list ul {
+            overflow: auto;
+            overflow-y: unset;
+            border:none;
+            float: none;
+            width: 100%;
+        }
+
+        #chat .chat-main .user-list li {
+            border-bottom: none;
+            padding: 5px;
+        }
+
+
+        #chat .chat-main .user-list a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        #chat .chat-main .user-list a:hover {
+            color: #128ff2;
+        }
+
+        #chat .chat-main a.image-link {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-main h3 {
+            margin-left: 5px;
+            font-weight: 300;
+            display: inline-block;
+        }
+
+        .indicator-online {
+            background: #28B62C;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-bottom: 2px;
+            margin-left: 20px;
+            border-radius: 50%;
+            -webkit-animation: pulse-animation 2s infinite linear;
+        }
+
+        @-webkit-keyframes pulse-animation {
+            0% { -webkit-transform: scale(1); }
+            25% { -webkit-transform: scale(1); }
+            50% { -webkit-transform: scale(1.2) }
+            75% { -webkit-transform: scale(1); }
+            100% { -webkit-transform: scale(1); }
+        }
+
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            width: 32px;
+            height: 32px;
+            opacity: 0.3;
+        }
+        .close:hover {
+            opacity: 1;
+        }
+        .close:before, .close:after {
+            position: absolute;
+            left: 15px;
+            content: ' ';
+            height: 33px;
+            width: 2px;
+            background-color: #333;
+        }
+        .close:before {
+            transform: rotate(45deg);
+        }
+        .close:after {
+            transform: rotate(-45deg);
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .connecting {
+            padding-top: 5px;
+            text-align: center;
+            color: #777;
+            position: absolute;
+            top: 65px;
+            width: 100%;
+        }
+
+
+        #messageForm .input-group input[type="file"] {
+            cursor: pointer !Important;
+            float: left;
+            width: 50% !important;
+            margin-top: 10px;
+            padding-left: 0;
+            border-radius: 5px;
+        }
+
+        #messageForm .input-group #file-input::-webkit-file-upload-button {
+            background: #128ff2;
+            border: 0;
+            padding: 1em;
+            cursor: pointer;
+            color: #fff;
+            border-radius: 5px;
+
+        }
+        #messageForm .input-group input[type="file"]::-ms-browse {
+            background: #128ff2;
+            border: 0;
+            padding: 1em;
+            cursor: pointer;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+
+        @media screen and (max-width: 730px) {
+
+            .chat-container {
+                margin-left: 10px;
+                margin-right: 10px;
+                margin-top: 10px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .chat-container {
+                height: calc(100% - 30px);
+            }
+
+            .greeting-container {
+                width: auto;
+                margin-left: 15px;
+                margin-right: 15px;
+                padding: 25px;
+            }
+
+            #chat ul {
+                height: calc(100% - 120px);
+            }
+
+            #messageForm .input-group button {
+                width: 65px;
+            }
+
+            #messageForm .input-group input {
+                width: calc(100% - 70px);
+            }
+
+            .chat-header {
+                padding: 10px;
+            }
+
+            .connecting {
+                top: 60px;
+            }
+
+            .chat-header h2 {
+                font-size: 1.1em;
+            }
+
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="greeting">
+    <div class="greeting-container">
+        <h1 class="title">Общий Чат</h1>
+        <p>Познакомьтесь с Клубом и общайтесь с другими участниками!</p>
+        <form id="greetingForm" name="greetingForm">
+            <div class="form-group">
+                <button type="submit" class="accent greeting-submit">Присоединиться</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="chat" class="hidden">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Chat</h2>
+            <a href="#" class="close"></a>
+        </div>
+        <div class="connecting">
+            Подключаюсь...
+        </div>
+        <div class="chat-main clearfix">
+            <div class="user-list">
+                <span class="indicator-online"></span>
+                <h3>Online:</h3>
+                <ul></ul>
+            </div>
+            <ul id="messageArea"></ul>
+        </div>
+        <form id="messageForm" name="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input type="text" id="message" placeholder="Введите сообщение..." autocomplete="off" class="form-control"/>
+                    <input type="file" name="file-input" id="file-input">
+                    <button type="submit" class="primary">Отправить</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/jquery-3.4.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/js/chat.js"></script>
+</body>
+</html>
