@@ -6,12 +6,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
+import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.*;
+import ru.java.mentor.oldranger.club.service.utils.SearchService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +32,8 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
     private TopicService topicService;
 
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+
+    private SearchService searchService;
 
     public List<SectionsAndTopicsDto> getAllSectionsAndActualTopicsLimit10BySection() {
         List<SectionsAndTopicsDto> sectionsAndTopicsDtos;
@@ -83,5 +87,36 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
             boolean o2HasSubscription = subscriptionsForUser.stream().anyMatch(subscription -> subscription.getTopic().equals(o2));
             return Boolean.compare(o2HasSubscription, o1HasSubscription);
         }
+    }
+
+    public List<Topic> getTopicsByQuery(String query, String searchBy) {
+        if (searchBy.equals("byTopics")) {
+            return searchService.searchByTopicName(query);
+        } else {
+            List<Comment> comments = searchService.searchByComment(query);
+            List<Topic> topics = new ArrayList<>();
+            comments.forEach(comment -> topics.add(comment.getTopic()));
+            return topics;
+        }
+    }
+
+    public List<SectionsAndTopicsDto> getSectionsAndTopicsByQuery(String query, String searchBy) {
+        List<SectionsAndTopicsDto> sectionsAndTopicsDtos;
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        Collection<? extends GrantedAuthority> reachableGrantedAuthorities = roleHierarchy.getReachableGrantedAuthorities(authorities);
+        List<Topic> topics = getTopicsByQuery(query, searchBy);
+        if (reachableGrantedAuthorities.contains(new Role("ROLE_USER"))) {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAllSections(), topics, user);
+        } else {
+            List<Topic> topicsForAnon = new ArrayList<>();
+            for (Topic topic : topics) {
+                if (!topic.isHideToAnon())
+                    topicsForAnon.add(topic);
+            }
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllSectionsForAnon(), topicsForAnon);
+        }
+        sectionsAndTopicsDtos.removeIf(sectionsAndTopicsDto -> sectionsAndTopicsDto.getTopics().isEmpty());
+        return sectionsAndTopicsDtos;
     }
 }
