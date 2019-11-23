@@ -37,7 +37,7 @@ uploads/*
 /src/main/resources/static/css/mystyle.css.map
 
 ## Credential and Environment  depended properties
-/src/main/resources/config/application.properties
-/src/main/resources/config/datasource.properties
-/src/main/resources/config/jpa.properties
-/src/main/resources/config/mail.properties
+/src/main/resources/config/application.properties.sample
+/src/main/resources/config/datasource.properties.sample
+/src/main/resources/config/jpa.properties.sample
+/src/main/resources/config/mail.properties.sample
