@@ -5,7 +5,7 @@
     <title>Мои фотоальбомы</title>
     <script type="application/javascript" src="/js/photoAlbum.js"></script>
 </head>
-<body>
+<body onload="getAllAlbums()">
 <input id="albumTitle" type="text">Название альбома</input><br>
 <button type="button" onclick="createAlbum()">Создать альбом</button>
 <ul id="listAlbums"></ul>

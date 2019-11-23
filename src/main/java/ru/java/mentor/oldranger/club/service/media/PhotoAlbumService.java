@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface PhotoAlbumService {
 
-    PhotoAlbum createAlbum(String title);
+    void createAlbum(String title);
 
-    void save(PhotoAlbum album);
+    PhotoAlbum save(PhotoAlbum album);
 
     List<PhotoAlbum> findAll();
 
@@ -18,6 +18,8 @@ public interface PhotoAlbumService {
     void renameAlbum(String oldTitle, String newTitle);
 
     void deleteAlbum(String title);
+
+    void deleteAllAlbums();
 
     PhotoAlbum findByTitle(String title);
 

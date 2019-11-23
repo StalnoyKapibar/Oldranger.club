@@ -5,9 +5,23 @@ function createAlbum() {
     if (title == "") {
         title = "Без имени";
     }
-    listAlbums.innerHTML += "<li>" + title + "</li>";
     fetch('http://localhost:8888/api/albums', {
         method: 'POST',
         body: title
-    });
+    })
+        .then(response => response.json())
+        .then(album => {
+            listAlbums.innerHTML += "<li><a href='http://localhost:8888/api/albums/'>" + title + "</a></li>";
+        });
+}
+
+function getAllAlbums() {
+    let listAlbums = document.getElementById("listAlbums");
+    fetch('http://localhost:8888/api/albums')
+        .then(response => response.json())
+        .then(albums => {
+            albums.forEach(album => {
+                listAlbums.innerHTML += "<li><a href='http://localhost:8888/api/albums'>" + album.title + "</a></li>";
+            });
+        });
 }

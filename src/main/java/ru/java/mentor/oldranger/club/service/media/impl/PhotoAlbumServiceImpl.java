@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.UserRepository.media.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.media.Media;
@@ -12,6 +13,7 @@ import ru.java.mentor.oldranger.club.model.user.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
 
@@ -40,28 +42,35 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public PhotoAlbum createAlbum(String title) {
+    public void createAlbum(String title) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        File uploadPath = new File(albumsdDir + "//" + userName + "//photo_albums//" + title);
+        File uploadPath = new File(albumsdDir + File.separator + userName + File.separator + "photo_albums" + File.separator + title);
         if (!uploadPath.exists()) {
             uploadPath.mkdirs();
         }
-        PhotoAlbum album = new PhotoAlbum(title);
-        return album;
     }
 
     @Override
-    public void save(PhotoAlbum album) {
+    public PhotoAlbum save(PhotoAlbum album) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByNickName(userName);
         Media media = user.getMedia();
         media.getPhotoAlbums().add(album);
-        albumRepository.save(album);
+        return albumRepository.save(album);
+
     }
 
     @Override
+
     public List<PhotoAlbum> findAll() {
-        return null;
+        return albumRepository.findAll();
+    }
+
+    @Override
+    @PostConstruct
+    public void deleteAllAlbums() {
+        File dir = new File(albumsdDir);
+        boolean result = FileSystemUtils.deleteRecursively(dir);
     }
 
     @Override
