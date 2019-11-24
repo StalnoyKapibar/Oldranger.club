@@ -3,8 +3,10 @@ package ru.java.mentor.oldranger.club.model.user.media;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,6 +14,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "photoAlbum")
+@DynamicUpdate
 public class PhotoAlbum {
 
     @Id
@@ -26,10 +29,10 @@ public class PhotoAlbum {
     @OneToOne
     private Photo skin;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}) //TODO возможно здесь нужно FetchType.LAZY
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinTable(name = "album_photos", joinColumns = @JoinColumn(name = "album_id"),
             inverseJoinColumns = @JoinColumn(name = "photo_id"))
-    private List<Photo> photos;
+    private List<Photo> photos = new ArrayList<>();
 
     public PhotoAlbum(String title) {
         this.title = title;

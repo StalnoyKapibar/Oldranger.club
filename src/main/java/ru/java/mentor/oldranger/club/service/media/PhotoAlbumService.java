@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.media;
 
+import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.user.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.media.PhotoAlbum;
 
@@ -24,4 +25,8 @@ public interface PhotoAlbumService {
     PhotoAlbum findByTitle(String title);
 
     PhotoAlbum findById(Long id);
+
+    Photo addPhotoToDir(MultipartFile file, PhotoAlbum albumId);
+
+    PhotoAlbum update(PhotoAlbum album);
 }

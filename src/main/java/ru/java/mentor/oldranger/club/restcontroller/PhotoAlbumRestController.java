@@ -27,7 +27,7 @@ public class PhotoAlbumRestController {
     @PostMapping
     public PhotoAlbum savePhotoAlbum(@RequestBody String title) {
         PhotoAlbum album = albumService.save(new PhotoAlbum(title));
-        albumService.createAlbum(album.getId() + "");
+        albumService.createAlbum(album.getId() + "");   //TODO перенести в обычный контроллер?
         return album;
     }
 

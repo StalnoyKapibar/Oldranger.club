@@ -11,7 +11,7 @@ function createAlbum() {
     })
         .then(response => response.json())
         .then(album => {
-            listAlbums.innerHTML += "<li><a href='http://localhost:8888/api/albums/'>" + title + "</a></li>";
+            listAlbums.innerHTML += "<li><a href='http://localhost:8888/album/" + album.id + "'>" + title + "</a></li>";
         });
 }
 
@@ -21,7 +21,7 @@ function getAllAlbums() {
         .then(response => response.json())
         .then(albums => {
             albums.forEach(album => {
-                listAlbums.innerHTML += "<li><a href='http://localhost:8888/api/albums'>" + album.title + "</a></li>";
+                listAlbums.innerHTML += "<li><a href='http://localhost:8888/album/" + album.id + "'>" + album.title + "</a></li>";
             });
         });
 }

@@ -25,4 +25,9 @@ public class Photo {
 
     @Column(name = "description")
     private String description;
+
+    public Photo(String original, String small) {
+        this.original = original;
+        this.small = small;
+    }
 }
