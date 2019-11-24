@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -15,6 +17,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Indexed
 @Table(name = "comments")
 public class Comment {
 
@@ -42,6 +45,7 @@ public class Comment {
     @Column(columnDefinition = "DATETIME", name = "date_comment")
     private LocalDateTime dateTime;
 
+    @Field
     @Column(name = "text_comment")
     private String commentText;
 

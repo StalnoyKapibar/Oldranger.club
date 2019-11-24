@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SectionsAndTopicsService {
     List<SectionsAndTopicsDto> getAllSectionsAndActualTopicsLimit10BySection();
+
+    List<SectionsAndTopicsDto> getSectionsAndTopicsByQuery(String query, String searchBy);
 }
