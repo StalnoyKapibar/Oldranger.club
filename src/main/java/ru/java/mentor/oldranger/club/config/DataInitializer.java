@@ -66,11 +66,11 @@ public class DataInitializer implements CommandLineRunner {
         Role roleAdmin = new Role("ROLE_ADMIN");
         Role roleModerator = new Role("ROLE_MODERATOR");
         Role roleUser = new Role("ROLE_USER");
-        Role roleUnverified = new Role("ROLE_UNVERIFIED");
+        Role roleProspect = new Role("ROLE_PROSPECT");
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);
-        roleService.createRole(roleUnverified);
+        roleService.createRole(roleProspect);
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
@@ -82,8 +82,8 @@ public class DataInitializer implements CommandLineRunner {
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
         user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
         user.setPassword(passwordEncoder.encode("user"));
-        User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
-        unverified.setPassword(passwordEncoder.encode("unverified"));
+        User unverified = new User("Prospect", "Prospect", "prospect@javamentor.com", "Prospect", roleProspect);
+        unverified.setPassword(passwordEncoder.encode("prospect"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
