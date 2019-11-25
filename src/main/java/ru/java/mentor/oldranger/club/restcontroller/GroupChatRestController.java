@@ -41,26 +41,22 @@ public class GroupChatRestController {
 
     @GetMapping("/users")
     ResponseEntity<Map<String, Long>> getOnlineUsers() {
-        List<User> userList = chatService.getChatById(1L).getUserList();
-        Map<String, Long> users = new HashMap<>();
-        for (User user : userList) {
-            users.put(user.getNickName(), user.getId());
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return new ResponseEntity<>(messageService.getOnlineUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/messages")
     ResponseEntity<List<Message>> getLastMessages(
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(value = "page", required = false) Integer page) {
+            @RequestParam(value = "page") Integer page) {
 
         Chat chat = chatService.getChatById(1L);
-        if (page != null) {
-            pageable = PageRequest.of(page, 20, Sort.by("id"));
-        }
+        pageable = PageRequest.of(page, 20, Sort.by("id").descending());
         Page<Message> msgPage = messageService.getPagebleMessages(chat,pageable);
-        int pageCount = msgPage.getTotalPages();
-        return new ResponseEntity<>(msgPage.getContent(), HttpStatus.OK);
+        if (msgPage.getTotalPages() > page) {
+            return new ResponseEntity<>(msgPage.getContent(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/image")

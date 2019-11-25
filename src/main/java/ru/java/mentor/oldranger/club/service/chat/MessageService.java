@@ -18,4 +18,6 @@ public interface MessageService {
     Page<Message> getPagebleMessages(Chat chat, Pageable pageable);
 
     Map<String,String> processImage(MultipartFile file) throws IOException;
+
+    Map<String, Long> getOnlineUsers();
 }

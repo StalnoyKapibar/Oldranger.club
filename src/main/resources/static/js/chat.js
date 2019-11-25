@@ -12,20 +12,21 @@ $(document).ready(function () {
         usersOnline = $('html .user-list ul'),
         username = null,
         userAvatar = null,
-        stompClient = null;
+        replyTo = null,
+        stompClient = null,
+        page = 0;
 
 
     greetingForm.on('submit', connect);
-    messageForm.on('submit',sendMessage);
-    close.on('click',disconnect);
+    messageForm.on('submit', sendMessage);
+    close.on('click', disconnect);
     $(window).on('beforeunload', disconnect);
-
 
 
     function getUsersOnline() {
         usersOnline.empty();
-        $.get( "/api/chat/users", function(data) {
-            $.each(data, function(key,value){
+        $.get("/api/chat/users", function (data) {
+            $.each(data, function (key, value) {
                 let item = $('<li>');
                 let profileLink = $('<a target="_blank">');
                 let username;
@@ -41,11 +42,11 @@ $(document).ready(function () {
 
     function connect(e) {
         e.preventDefault();
-        $.get( "/api/chat/user", function(data) {
+        $.get("/api/chat/user", function (data) {
             username = data["username"];
             userAvatar = data["ava"];
         });
-        if(username) {
+        if (username) {
             greeting.addClass('hidden');
             chat.removeClass('hidden');
             stompClient = Stomp.over(new SockJS('/ws'));
@@ -59,18 +60,20 @@ $(document).ready(function () {
         greeting.removeClass('hidden');
         stompClient.send("/chat/delUser", {}, JSON.stringify({sender: username, type: 'LEAVE'}));
         stompClient.disconnect();
+        page = 0;
     }
 
     function onConnected() {
         stompClient.subscribe('/channel/public', onMessageReceived, {});
         stompClient.send("/chat/addUser", {}, JSON.stringify({sender: username, type: 'JOIN'}));
         connecting.addClass('hidden');
+        messageArea.empty();
         getMessages();
     }
 
     function onError(er) {
         connecting.text('Не удалось подключиться к серверу. Обновите страницу и попробуйте войти еще раз!');
-        connecting.css('color','red');
+        connecting.css('color', 'red');
     }
 
     function sendMessage(e) {
@@ -78,7 +81,7 @@ $(document).ready(function () {
         let messageContent = message.val().trim();
         let originalImg;
         let thumbnailImg;
-        let replyTo;
+
 
         if (fileInput.get(0).files.length !== 0) {
             let formData = new FormData(messageForm[0]);
@@ -90,27 +93,27 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 data: formData,
-                success: function(data)
-                {
+                success: function (data) {
                     originalImg = data["originalImg"];
                     thumbnailImg = data["thumbnailImg"];
                 }
             });
         }
 
-        if(messageContent || (fileInput.get(0).files.length !== 0) ) {
+        if (messageContent || (fileInput.get(0).files.length !== 0)) {
             let chatMessage = {
                 sender: username,
                 text: message.val(),
                 senderAvatar: userAvatar,
                 originalImg: originalImg,
                 thumbnailImg: thumbnailImg,
-                replyTo:replyTo,
+                replyTo: replyTo,
                 type: 'MESSAGE'
             };
             stompClient.send("/chat/sendMessage", {}, JSON.stringify(chatMessage));
             message.val('');
             fileInput.val('');
+            replyTo = null;
         }
     }
 
@@ -120,7 +123,7 @@ $(document).ready(function () {
         getUsersOnline();
     }
 
-    function drawMessage(message) {
+    function drawMessage(message, prepend) {
         let messageElement = $('<li>');
         switch (message.type) {
             case 'JOIN':
@@ -133,12 +136,15 @@ $(document).ready(function () {
                 break;
             case 'MESSAGE':
                 messageElement.addClass('chat-message');
+                if (message.replyTo === username){
+                    messageElement.addClass('reply');
+                }
                 let avatarElement = $('<i>');
-                avatarElement.css("background","url(/img/"+ message.senderAvatar +")");
-                avatarElement.css("background-size","cover");
+                avatarElement.css("background", "url(/img/" + message.senderAvatar + ")");
+                avatarElement.css("background-size", "cover");
                 messageElement.append(avatarElement);
 
-                let usernameElement = $('<span>');
+                let usernameElement = $('<span class="sender">');
                 let usernameText = document.createTextNode(message.sender);
                 usernameElement.append(usernameText);
                 messageElement.append(usernameElement);
@@ -152,7 +158,7 @@ $(document).ready(function () {
                     let link = $('<a target="_blank" class="image-link">');
                     link.attr("href", "http://localhost:8888/img/chat/" + message.originalImg);
                     let img = $('<img>');
-                    img.attr("src","/img/chat/" + message.thumbnailImg);
+                    img.attr("src", "/img/chat/" + message.thumbnailImg);
                     link.append(img);
                     messageElement.append(link);
 
@@ -164,27 +170,77 @@ $(document).ready(function () {
         let messageText = document.createTextNode(message.text);
         textElement.append(messageText);
         messageElement.append(textElement);
-
-        messageArea.append(messageElement);
+        if (prepend) {
+            messageArea.prepend(messageElement);
+        } else {
+            messageArea.append(messageElement);
+        }
         messageArea.scrollTop(messageArea[0].scrollHeight);
     }
 
-    function getMessages() {
-        messageArea.empty();
+    function getMessages(page) {
+        if (page === undefined) {
+            page = 0;
+        }
         $.ajax({
-            url : '/api/chat/messages',
-            datatype : 'json',
+            url: '/api/chat/messages?page=' + page,
+            datatype: 'json',
             async: false,
-            type : "get",
-            contentType : 'application/json',
-            success : function(data) {
-                for (i = (data.length - 1); i >= 0; i--) {
-                    var test = data[i];
-                    drawMessage(test);
+            type: "get",
+            contentType: 'application/json',
+            success: function (data) {
+                if (page === 0) {
+                    for (i = (data.length - 1); i >= 0; i--) {
+                        let test = data[i];
+                        drawMessage(test);
+                    }
+
+                } else {
+                    for (i = 0; i < data.length; i++) {
+                        let test = data[i];
+                        drawMessage(test, true);
+                    }
                 }
+
+                if ($('#messageArea li').length > 19){
+                    $("<button class='prev-msg'><span class='arrow up'></span></button>").prependTo(messageArea);
+                }
+            },
+            error: function (data) {
+                $('#messageArea button.prev-msg').hide();
             }
         });
     }
 
+    // function throttle(fn, wait) {
+    //     let time = Date.now();
+    //     return function() {
+    //         if ((time + wait - Date.now()) < 0) {
+    //             fn();
+    //             time = Date.now();
+    //         }
+    //     }
+    // }
+    //
+    // messageArea.on('scroll', throttle(updateMessages, 1000) );
+
+
+
+    $(document).on('click','button.prev-msg',function (e) {
+
+        let messageElement = $('#messageArea li'),
+            firstMsg = $('#messageArea li:first');
+
+        $(this).hide();
+        getMessages(++page);
+        messageArea.scrollTop(firstMsg.offset().top);
+    });
+
+    $(document).on('click','span.sender',function (e) {
+        let sender = $(this).text();
+        message.val(sender + ', ');
+        replyTo = sender;
+
+    });
 
 });

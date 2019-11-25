@@ -59,6 +59,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        // Общий чат
+        chatService.createChat(new Chat());
+
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
         Role roleModerator = new Role("ROLE_MODERATOR");
@@ -181,9 +184,6 @@ public class DataInitializer implements CommandLineRunner {
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
         }
-
-        // Общий чат
-        chatService.createChat(new Chat());
 
     }
 }
