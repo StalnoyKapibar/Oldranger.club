@@ -43,4 +43,4 @@ uploads/*
 /src/main/resources/config/mail.properties
 
 ##indexies
-data/
+/data/index/default/**
