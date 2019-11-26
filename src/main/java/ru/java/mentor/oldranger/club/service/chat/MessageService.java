@@ -7,6 +7,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface MessageService {
@@ -20,4 +21,8 @@ public interface MessageService {
     Map<String,String> processImage(MultipartFile file) throws IOException;
 
     Map<String, Long> getOnlineUsers();
+
+    void deleteChatImages(List<String> images);
+
+    void setOlderThan(String olderThan);
 }

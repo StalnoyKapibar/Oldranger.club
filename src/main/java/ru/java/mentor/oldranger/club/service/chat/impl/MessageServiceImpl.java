@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.service.chat.impl;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,21 +20,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class MessageServiceImpl implements MessageService {
 
     private MessageRepository messageRepository;
     private ChatService chatService;
-    private String uploadDir = "./uploads/chat";
+    private String uploadDir;
+    private String olderThan;
 
     public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
+        uploadDir = "./uploads/chat";
+        olderThan = "week";
+    }
+
+    public void setOlderThan(String olderThan) {
+        this.olderThan = olderThan;
     }
 
     @Override
@@ -86,6 +92,16 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    public void deleteChatImages(List<String> images) {
+        images.forEach(img -> {
+            try {
+                Files.deleteIfExists(Paths.get(uploadDir + File.separator + img ));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     @Override
     public Map<String, Long> getOnlineUsers() {
         List<User> userList = chatService.getChatById(1L).getUserList();
@@ -96,4 +112,35 @@ public class MessageServiceImpl implements MessageService {
         return users;
     }
 
+    private List<Message> findAllByChat(Chat chat) {
+        LocalDateTime date;
+        switch (olderThan){
+            case "week":
+                date = LocalDateTime.now().minusWeeks(1L);
+                break;
+            case "two-weeks":
+                date = LocalDateTime.now().minusWeeks(2L);
+                break;
+            case "month":
+                date = LocalDateTime.now().minusMonths(1L);
+                break;
+            default:
+                date = LocalDateTime.now().minusWeeks(1L);
+        }
+        return messageRepository.findAllByChatAndDate(chat.getId(), date);
+    }
+
+    @Scheduled(cron = "0 0 0 * * 0")
+    private void cleanMessages(){
+        if (!olderThan.equals("never")){
+            List<Message> messages = findAllByChat(chatService.getChatById(1L));
+            List<String> images = new ArrayList<>();
+            messages.forEach(msg -> {
+                images.add(msg.getOriginalImg());
+                images.add(msg.getThumbnailImg());
+            });
+            deleteChatImages(images);
+            messages.forEach(msg -> removeMessageById(msg.getId()));
+        }
+    }
 }
