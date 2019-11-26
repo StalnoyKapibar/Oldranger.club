@@ -18,13 +18,13 @@ import javax.persistence.*;
 public class Direction {
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "periodicity")
     @Enumerated(EnumType.STRING)
     private DirectionType directionType;
 
-    @OneToOne(mappedBy = "userDirection")
+    @OneToOne
+    @MapsId
     private User user;
 
 }
