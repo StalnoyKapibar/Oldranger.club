@@ -69,7 +69,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .and()
-                .logout().permitAll();
+                .logout().permitAll()
+                .and()
+                .sessionManagement()
+                .invalidSessionUrl("/")
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry());
     }
 
     @Bean(name = "sessionRegistry")
