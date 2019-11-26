@@ -45,6 +45,11 @@ public class TestCommentDtoController {
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
+        if (currentUser.getRole().getRole().equals("ROLE_PROSPECT")) {
+            for (CommentDto cd : dtos.getContent()) {
+                cd.setSmallAvatar("default-sm.png");
+            }
+        }
         topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", dtos.getTotalPages());
