@@ -54,7 +54,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public void createAlbum(String albumId) {
+    public void createAlbumDir(String albumId) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         File uploadPath = new File(albumsdDir + File.separator + userName + File.separator + "photo_albums" + File.separator + albumId);
         if (!uploadPath.exists()) {
@@ -67,10 +67,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByNickName(userName);
         Media media = user.getMedia();
-        List<PhotoAlbum> list = media.getPhotoAlbums();
-        list.add(album);
-        media.setPhotoAlbums(list);
-        return albumRepository.save(album);
+        media.getPhotoAlbums().add(album);
+        PhotoAlbum savedAlbum = albumRepository.save(album);
+        createAlbumDir(savedAlbum.getId() + "");
+        return savedAlbum;
     }
 
     @Override
@@ -82,22 +82,21 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @PostConstruct
     public void deleteAllAlbums() {
         File dir = new File(albumsdDir);
-        boolean result = FileSystemUtils.deleteRecursively(dir);
+        FileSystemUtils.deleteRecursively(dir);
     }
 
     @Override
-    public List<Photo> findAllPhotos(String title) {
-        return null;
+    public void deleteAlbumDir(String id) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        File dir = new File(albumsdDir + File.separator + userName
+                + File.separator + "photo_albums" + File.separator + id);
+        FileSystemUtils.deleteRecursively(dir);
     }
 
     @Override
-    public void renameAlbum(String oldTitle, String newTitle) {
-
-    }
-
-    @Override
-    public void deleteAlbum(String title) {
-
+    public void deleteAlbum(String id) {
+        albumRepository.deleteById(Long.parseLong(id));
+        deleteAlbumDir(id);
     }
 
     @Override

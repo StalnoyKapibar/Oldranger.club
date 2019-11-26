@@ -14,21 +14,18 @@ public class PhotoAlbumRestController {
     private PhotoAlbumService albumService;
 
     @Autowired
-    public void setInvitationService(PhotoAlbumService service) {
+    public void setPhotoAlbumService(PhotoAlbumService service) {
         this.albumService = service;
     }
 
     @GetMapping
     public List<PhotoAlbum> getPhotoAlbums() {
-        List<PhotoAlbum> albums = albumService.findAll();
         return albumService.findAll();
     }
 
     @PostMapping
-    public PhotoAlbum savePhotoAlbum(@RequestBody String title) {
-        PhotoAlbum album = albumService.save(new PhotoAlbum(title));
-        albumService.createAlbum(album.getId() + "");   //TODO перенести в обычный контроллер?
-        return album;
+    public PhotoAlbum savePhotoAlbum(@RequestBody PhotoAlbum album) {
+        return albumService.save(album);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -36,4 +33,13 @@ public class PhotoAlbumRestController {
         return albumService.findById(Long.parseLong(id));
     }
 
+    @PutMapping
+    public PhotoAlbum updateAlbum(@RequestBody PhotoAlbum album) {
+        return albumService.update(album);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public void deleteAlbum(@PathVariable("id") String id) {
+        albumService.deleteAlbum(id);
+    }
 }

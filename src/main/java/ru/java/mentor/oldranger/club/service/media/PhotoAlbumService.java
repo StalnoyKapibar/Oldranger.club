@@ -8,19 +8,17 @@ import java.util.List;
 
 public interface PhotoAlbumService {
 
-    void createAlbum(String title);
+    void createAlbumDir(String title);
+
+    void deleteAlbumDir(String id);
 
     PhotoAlbum save(PhotoAlbum album);
 
     List<PhotoAlbum> findAll();
 
-    List<Photo> findAllPhotos(String title);
-
-    void renameAlbum(String oldTitle, String newTitle);
-
-    void deleteAlbum(String title);
-
     void deleteAllAlbums();
+
+    void deleteAlbum(String id);
 
     PhotoAlbum findByTitle(String title);
 
