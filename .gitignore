@@ -41,6 +41,3 @@ uploads/*
 /src/main/resources/config/datasource.properties
 /src/main/resources/config/jpa.properties
 /src/main/resources/config/mail.properties
-
-##indexies
-/data/index/**
