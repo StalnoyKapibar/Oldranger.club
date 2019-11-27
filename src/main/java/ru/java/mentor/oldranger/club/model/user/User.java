@@ -35,10 +35,10 @@ public class User implements UserDetails{
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "nick_name", nullable = false, unique = true)
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
 
     @JsonIgnore
