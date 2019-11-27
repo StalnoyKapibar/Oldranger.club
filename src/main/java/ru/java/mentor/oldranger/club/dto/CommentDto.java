@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
+    private long positionInTopic;
+    private long topicId;
     private String nickName;
     private String roleName;
     private String smallAvatar;

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователмя</title>
+    <script type="application/javascript" th:src="@{/js/invite.js}"></script>
+</head>
+<style>
+    .wrapper {
+        margin-right: auto;
+        margin-left:  auto;
+        max-width: 960px;
+        padding-right: 10px;
+        padding-left:  10px;
+    }
+</style>
+<body>
+<div style="display: flex;flex-direction: row-reverse">
+    <a th:href="@{/logout}">Logout</a>
+</div>
+<div class="wrapper">
+    <h1>Приглашения</h1>
+    <nav style="display: flex;margin-bottom: 20px">
+        <a href="#" th:href="@{/profile}" style="margin-right: 10px">Профиль</a>
+        <a href="#" th:href="@{/profile/comments}" style="margin-right: 10px">Сообщения</a>
+        <a href="#" th:href="@{/profile/topics}" style="margin-right: 10px">Темы</a>
+        <a href="#" th:href="@{/profile/subscriptions}" style="margin-right: 10px">Подписки</a>
+        <a href="#" th:href="@{/profile/invite}">Приглашения</a>
+    </nav>
+    <main style="display: flex;flex-direction: row;height: 100%;">
+        <div th:if="${user.role.role!='ROLE_UNVERIFIED'}">
+            <p>На этой странице можно сгенерировать ссылку для регистрации нового пользователя и передать ее самостоятельно:</p>
+            <br>
+            <button type="button" onclick="test()">
+                Генерировать
+            </button>
+            <br><br>
+            <fieldset id="fieldset" style="width:400px;height:40px">
+                <legend>Invitation link:</legend>
+                <div id="innerFieldText">
+                    <div th:if="${key!=null}" th:text="'http://localhost:8888/invite?key=' + ${key}"></div>
+                </div>
+            </fieldset>
+            <br>
+            <p>или отправить ссылку по почте:</p>
+            <br>
+            <fieldset style="width:400px">
+                <br>
+                <input id="mail" type="email"> e-mail</input><br><br>
+                <button type="button" onclick="sendInviteOnMail()">Отправить приглашение</button>
+            </fieldset>
+        </div>
+    </main>
+</div>
+
+
+
+</body>
+
+</html>

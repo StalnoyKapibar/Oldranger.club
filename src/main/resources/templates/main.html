@@ -13,6 +13,15 @@
     <div class="wrap">
         <a class="navicon" href="#menu-left"></a>
         <div class="forum" id="sectionsandtopicsplain">
+
+            <form action="/test/search" method="GET">
+                <input name="query" type="text"/>
+                <select name="searchBy">
+                    <option value="byTopics">По темам</option>
+                    <option value="byComments">По сообщениям</option>
+                </select>
+                <button type="submit">Поиск</button>
+            </form>
             <h4>Sections and topics example thymeleaf driven:</h4>
             <div class="forum_section">
                 <th:block th:each="section : ${sectionsAndTopics}">

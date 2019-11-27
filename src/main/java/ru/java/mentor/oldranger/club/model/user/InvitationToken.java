@@ -39,7 +39,6 @@ public class InvitationToken {
     public InvitationToken() {
     }
 
-
     public InvitationToken(String key, User user) {
         this.key = key;
         this.user = user;

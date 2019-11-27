@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователя</title>
+</head>
+<style>
+    .wrapper {
+        margin-right: auto;
+        margin-left:  auto;
+        max-width: 960px;
+        padding-right: 10px;
+        padding-left:  10px;
+    }
+</style>
+<body>
+<div style="display: flex;flex-direction: row-reverse">
+   <a th:href="@{/logout}">Logout</a>
+</div>
+<div class="wrapper">
+    <h1 th:text="'Профиль пользователя ' + ${profile.user.nickName}"></h1>
+    <nav th:if="${owner}" style="display: flex;margin-bottom: 20px">
+        <a href="#" th:href="@{/profile}" style="margin-right: 10px">Профиль</a>
+        <a href="#" th:href="@{/profile/comments}" style="margin-right: 10px">Сообщения</a>
+        <a href="#" th:href="@{/profile/topics}" style="margin-right: 10px">Темы</a>
+        <a href="#" th:href="@{/profile/subscriptions}" style="margin-right: 10px">Подписки</a>
+        <a href="#" th:href="@{/profile/invite}">Приглашения</a>
+    </nav>
+    <main style="display: flex;flex-direction: row;height: 100%;">
+        <section style="width: 40%">
+            <br><br>
+            <img src="#" th:src="${'/img/' + profile.user.avatar.medium}" alt="avatar-middle" width="256">
+            <h2 th:text="${profile.user.firstName} + ' ' + ${profile.user.lastName}"></h2>
+            <th:block th:switch="${profile.user.role.role}">
+                <h3 th:case="'ROLE_ADMIN'" th:text="Администратор"></h3>
+                <h3 th:case="'ROLE_MODERATOR'" th:text="Модератор"></h3>
+                <h3 th:case="'ROLE_USER'" th:text="Пользователь"></h3>
+                <h3 th:case="'ROLE_UNVERIFIED'" th:text="Неподтвержденный пользователь"></h3>
+            </th:block>
+            <th:block th:if="${owner}">
+                <div th:if="${profile.user.avatar.original != 'default.png'}">
+                    <a href="#" th:href="@{/profile/deleteAvatar}"><button>Удалить аватар</button></a>
+                    <br><br>
+                </div>
+                <form method="POST" th:action="@{/profile/uploadAvatar}" enctype="multipart/form-data">
+                    <input type="file" name="file"/><br/><br/>
+                    <button type="submit">Загрузить аватар</button><br/><br/>
+                </form>
+                <a href="#" th:href="@{/profile/updateProfile}"><button>Редактировать</button></a>
+                <br><br>
+                <a href="#" th:href="@{/profile/changePassword}"><button>Изменить пароль</button></a>
+            </th:block>
+        </section>
+        <section style="width: 60%">
+            <fieldset id="generalInfo">
+                <legend>Общее</legend>
+                <ul>
+                    <li th:if="${profile.user.nickName}"><b>Ник: </b><span id="nickName" th:text="${profile.user.nickName}"></span></li>
+                    <li th:if="${profile.user.firstName}"><b>Имя: </b><span id="firstName" th:text="${profile.user.firstName}"></span></li>
+                    <li th:if="${profile.user.lastName}"><b>Фамилия: </b><span id="lastName" th:text="${profile.user.lastName}"></span></li>
+                    <li th:if="${profile.birthday}"><b>Дата рождения: </b><span id="birthday" th:text="${#temporals.format(profile.birthday, 'dd.MM.yyyy')}"></span></li>
+                    <li th:if="${profile.gender}">
+                        <b>Пол: </b><span id="gender" th:text="${profile.gender == 'FEMALE'} ? 'женский' : 'мужской'"></span>
+                    </li>
+                    <li th:if="${profile.country}"><b>Страна: </b><span id="country" th:text="${profile.country}"></span></li>
+                    <li th:if="${profile.city}"><b>Город: </b><span id="city" th:text="${profile.city}"></span></li>
+                </ul>
+            </fieldset>
+            <br>
+            <fieldset id="contacts">
+                <legend>Контакты</legend>
+                <ul>
+                    <li th:if="${profile.user.email}"><b>Email: </b><span id="email" th:text="${profile.user.email}"></span></li>
+                    <li th:if="${profile.phoneNumber}"><b>Моб.телефон: </b><span id="phone" th:text="${profile.phoneNumber}"></span></li>
+                    <li th:if="${profile.socialVk}"><b>Vk: </b><span id="vk" th:text="${profile.socialVk}"></span></li>
+                    <li th:if="${profile.socialFb}"><b>Facebook: </b><span id="fb" th:text="${profile.socialFb}"></span></li>
+                    <li th:if="${profile.socialTw}"><b>Twitter: </b><span id="tw" th:text="${profile.socialTw}"></span></li>
+                </ul>
+            </fieldset>
+            <br>
+            <fieldset id="stat">
+                <legend>Статистика</legend>
+                <ul>
+                    <li><b>Зарегистрирован: </b><span id="regDate" th:text="${#temporals.format(profile.user.regDate, 'dd.MM.yyyy HH:mm')}"></span></li>
+                    <li><b>Сообщений: </b><span id="messageCount" th:text="${stat.messageCount}"></span></li>
+                    <li><b>Последнее сообщение: </b><span id="lastMessage" th:text="${#temporals.format(stat.lastComment, 'dd.MM.yyyy HH:mm')}"></span></li>
+                    <li><b>Последний вход: </b><span id="lastVisit" th:text="${#temporals.format(stat.lastVizit, 'dd.MM.yyyy HH:mm')}"></span></li>
+                    <li><b>Начал тем: </b><span id="topicStart" th:text="${stat.topicStartCount}"></span></li>
+                </ul>
+            </fieldset>
+            <br>
+            <fieldset id="about" th:if="${profile.aboutMe}">
+                <legend>Про меня</legend>
+                <p id="aboutMe" th:text="${profile.aboutMe}"></p>
+            </fieldset>
+        </section>
+    </main>
+</div>
+
+</body>
+
+</html>

@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MODERATOR > ROLE_USER > ROLE_UNVERIFIED");
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MODERATOR > ROLE_USER > ROLE_PROSPECT");
         return roleHierarchy;
     }
 
@@ -73,8 +73,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .invalidSessionUrl("/")
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
+                .maximumSessions(-1)
+                .maxSessionsPreventsLogin(false)
                 .sessionRegistry(sessionRegistry());
     }
 
