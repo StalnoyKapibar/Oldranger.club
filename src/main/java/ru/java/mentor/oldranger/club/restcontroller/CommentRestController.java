@@ -13,6 +13,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
 
@@ -24,14 +25,16 @@ public class CommentRestController {
     private CommentService commentService;
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private SecurityUtilsService securityUtilsService;
 
 
     @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
     public ResponseEntity<List<CommentDto>> getPageableComments(@PathVariable(value = "topicId") Long topicId,
-                                                    @SessionAttribute User currentUser,
                                                     @RequestAttribute(value = "page", required = false) Integer page,
                                                     @RequestParam(value = "pos",required = false) Integer position,
                                                     @PageableDefault(size = 10, sort = "dateTime") Pageable pageable) {
+
+        User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
             return ResponseEntity.noContent().build();

@@ -26,7 +26,6 @@ public class AdminRestController {
     public ResponseEntity<List<UserStatisticDto>> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
                                                            @PageableDefault(size = 5, sort = "user_id") Pageable pageable,
                                                            @RequestParam(value = "query", required = false) String query) {
-
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("user_id"));
         }
@@ -38,15 +37,7 @@ public class AdminRestController {
             users = userStatisticService.getUserStatisticsByQuery(pageable, query).getContent();
         }
 
-        List<UserStatisticDto> dtos = new ArrayList<>();
-
-        users.forEach(user -> dtos.add(new UserStatisticDto(user.getUser().getNickName(),
-                                                            user.getUser().getEmail(),
-                                                            user.getUser().getRegDate(),
-                                                            user.getUser().getRole().getAuthority(),
-                                                            user.getLastComment(),
-                                                            user.getLastVizit())));
-
+        List<UserStatisticDto> dtos = userStatisticService.getUserStatisticDtoFromUserStatistic(users);
         return ResponseEntity.ok(dtos);
     }
 

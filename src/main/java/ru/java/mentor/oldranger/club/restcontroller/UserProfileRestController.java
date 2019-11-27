@@ -7,12 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
@@ -23,9 +20,8 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.user.*;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -33,7 +29,6 @@ import java.util.List;
 @RequestMapping("/api")
 public class UserProfileRestController {
 
-    private UserAvatarService userAvatarService;
     private UserProfileService userProfileService;
     private UserStatisticService userStatisticService;
     private UserService userService;
@@ -42,6 +37,7 @@ public class UserProfileRestController {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private CommentService commentService;
     private PasswordEncoder passwordEncoder;
+    private SecurityUtilsService securityUtilsService;
 
 
     @InitBinder
@@ -51,27 +47,18 @@ public class UserProfileRestController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ProfileDto> getProfile(@AuthenticationPrincipal User user,
-                                                 HttpSession session) {
+    public ResponseEntity<ProfileDto> getProfile() {
+
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        session.setAttribute("currentUser",user);
-        ProfileDto dto = new ProfileDto(profile.getUser().getNickName(),
-                                        profile.getUser().getFirstName(),
-                                        profile.getUser().getLastName(),
-                                        profile.getUser().getEmail(),
-                                        profile.getUser().getRegDate(),
-                                        stat.getMessageCount(),
-                                        stat.getTopicStartCount(),
-                                        stat.getLastComment(),
-                                        stat.getLastVizit(),
-                                        profile.getUser().getAvatar().getOriginal(),
-                                        true);
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id, Model model) {
+    public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id) {
         User user;
         try {
             user = userService.findById(id);
@@ -80,52 +67,24 @@ public class UserProfileRestController {
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = new ProfileDto(profile.getUser().getNickName(),
-                profile.getUser().getFirstName(),
-                profile.getUser().getLastName(),
-                profile.getUser().getEmail(),
-                profile.getUser().getRegDate(),
-                stat.getMessageCount(),
-                stat.getTopicStartCount(),
-                stat.getLastComment(),
-                stat.getLastVizit(),
-                profile.getUser().getAvatar().getOriginal(),
-                false);
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false);
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/uploadAvatar")
-    public String uploadAvatar(@RequestParam("file") MultipartFile file,
-                               @SessionAttribute User currentUser) {
-        if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())){
-            try {
-                userAvatarService.updateUserAvatar(currentUser, file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return "redirect:/profile";
-    }
-
-    @GetMapping("/deleteAvatar")
-    public String deleteAvatar(@SessionAttribute User currentUser) {
-        try {
-            userAvatarService.deleteUserAvatar(currentUser);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "redirect:/profile";
-    }
-
     @GetMapping("/updateProfile")
-    public ResponseEntity<UserProfile> getUpdateForm(@SessionAttribute User currentUser) {
-        UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
+    public ResponseEntity<UserProfile> getUpdateForm() {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
+        UserProfile profile = userProfileService.getUserProfileByUser(user);
         return ResponseEntity.ok(profile);
     }
 
     @PostMapping("/updateProfile")
-    public ResponseEntity<UpdateProfileDto> updateProfile(@SessionAttribute User currentUser,
-                                                          UserProfile profile) {
+    public ResponseEntity<UpdateProfileDto> updateProfile(UserProfile profile) {
+
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         if (profile.getUser().getNickName() == null || profile.getUser().getEmail() == null){
             UpdateProfileDto dto = new UpdateProfileDto(profile, new ErrorDto("Поля 'Ник' и 'Email' обязательно должны быть заполнены"));
             return ResponseEntity.ok(dto);
@@ -152,19 +111,24 @@ public class UserProfileRestController {
     }
 
     @GetMapping("/comments")
-    public ResponseEntity<List<CommentDto>> getComments(@SessionAttribute User currentUser,
+    public ResponseEntity<List<CommentDto>> getComments(
                                             @RequestAttribute(value = "page", required = false) Integer page,
-                                            @PageableDefault(size = 10, sort = "dateTime",direction = Sort.Direction.DESC) Pageable pageable,
-                                            Model model) {
+                                            @PageableDefault(size = 10, sort = "dateTime",direction = Sort.Direction.DESC) Pageable pageable) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         List<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable).getContent();
         return ResponseEntity.ok(dtos);
     }
 
 
     @GetMapping("/subscriptions")
-    public ResponseEntity<List<TopicVisitAndSubscription>> getSubscriptions(@SessionAttribute User currentUser,
+    public ResponseEntity<List<TopicVisitAndSubscription>> getSubscriptions(
                                    @RequestAttribute(value = "page", required = false) Integer page,
                                    @PageableDefault(size = 10) Pageable pageable) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         }
@@ -175,9 +139,12 @@ public class UserProfileRestController {
 
 
     @GetMapping("/topics")
-    public ResponseEntity<List<Topic>> getTopics(@SessionAttribute User currentUser,
+    public ResponseEntity<List<Topic>> getTopics(
                             @RequestAttribute(value = "page", required = false) Integer page,
                             @PageableDefault(size = 10, sort = "lastMessageTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         }
@@ -186,7 +153,10 @@ public class UserProfileRestController {
     }
 
     @GetMapping("/invite")
-    public ResponseEntity<InviteDto> getIvitation(@SessionAttribute User currentUser) {
+    public ResponseEntity<InviteDto> getIvitation() {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         String key = invitationService.getCurrentKey(currentUser);
         InviteDto dto = new InviteDto(currentUser, key);
         return ResponseEntity.ok(dto);
@@ -198,10 +168,12 @@ public class UserProfileRestController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<ErrorDto> changePassword(@SessionAttribute User currentUser,
-                                                   @RequestParam String oldPass,
+    public ResponseEntity<ErrorDto> changePassword(@RequestParam String oldPass,
                                                    @RequestParam String newPass,
                                                    @RequestParam String passConfirm) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
         if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
             if (passConfirm.equals(newPass)){
                 currentUser.setPassword(passwordEncoder.encode(newPass));
