@@ -9,10 +9,10 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.UserRepository.media.PhotoAlbumRepository;
+import ru.java.mentor.oldranger.club.model.media.Media;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.media.Media;
-import ru.java.mentor.oldranger.club.model.user.media.Photo;
-import ru.java.mentor.oldranger.club.model.user.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
@@ -86,7 +86,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public void deleteAlbumDir(String id) {
+    public void deleteAlbumDir(Long id) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         File dir = new File(albumsdDir + File.separator + userName
                 + File.separator + "photo_albums" + File.separator + id);
@@ -94,8 +94,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public void deleteAlbum(String id) {
-        albumRepository.deleteById(Long.parseLong(id));
+    public void deleteAlbum(Long id) {
+        albumRepository.deleteById(id);
         deleteAlbumDir(id);
     }
 
@@ -138,5 +138,13 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Override
     public PhotoAlbum update(PhotoAlbum album) {
         return albumRepository.save(album);
+    }
+
+    @Override
+    public void deletePhotoFromDir(PhotoAlbum album, Photo photo) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        File file = new File(albumsdDir + File.separator + userName
+                + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
+        FileSystemUtils.deleteRecursively(file);
     }
 }

@@ -7,7 +7,11 @@ function createAlbum() {
     }
     fetch('http://localhost:8888/api/albums', {
         method: 'POST',
-        body: title
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({"title": title})
     })
         .then(response => response.json())
         .then(album => {

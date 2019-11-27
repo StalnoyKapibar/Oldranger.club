@@ -1,4 +1,4 @@
-package ru.java.mentor.oldranger.club.model.user.media;
+package ru.java.mentor.oldranger.club.model.media;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

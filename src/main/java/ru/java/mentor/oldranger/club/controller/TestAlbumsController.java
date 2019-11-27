@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import ru.java.mentor.oldranger.club.model.user.media.Photo;
-import ru.java.mentor.oldranger.club.model.user.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
@@ -45,7 +45,7 @@ public class TestAlbumsController {
     private String port;
 
     @GetMapping("/albums")
-    protected String createAlbum() {
+    protected String returnPageAlbums() {
         return "albums";
     }
 
@@ -68,6 +68,14 @@ public class TestAlbumsController {
         photos.add(photo);
         album.setPhotos(photos);
         albumService.update(album);
+        return null;
+    }
+
+    @RequestMapping(value = "album/deletePhoto", method = RequestMethod.GET)
+    public ModelAndView deletePhoto() {
+        PhotoAlbum album = albumService.findById(Long.parseLong("1"));
+        Photo photo = restTemplate.getForObject(protocol + "://" + host + ":" + port + "/api/photos/" + "1", Photo.class);
+        albumService.deletePhotoFromDir(album, photo);
         return null;
     }
 }

@@ -1,8 +1,8 @@
 package ru.java.mentor.oldranger.club.service.media;
 
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.model.user.media.Photo;
-import ru.java.mentor.oldranger.club.model.user.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public interface PhotoAlbumService {
 
     void createAlbumDir(String title);
 
-    void deleteAlbumDir(String id);
+    void deleteAlbumDir(Long id);
 
     PhotoAlbum save(PhotoAlbum album);
 
@@ -18,7 +18,7 @@ public interface PhotoAlbumService {
 
     void deleteAllAlbums();
 
-    void deleteAlbum(String id);
+    void deleteAlbum(Long id);
 
     PhotoAlbum findByTitle(String title);
 
@@ -27,4 +27,6 @@ public interface PhotoAlbumService {
     Photo addPhotoToDir(MultipartFile file, PhotoAlbum albumId);
 
     PhotoAlbum update(PhotoAlbum album);
+
+    void deletePhotoFromDir(PhotoAlbum album, Photo photo);
 }
