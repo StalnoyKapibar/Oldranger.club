@@ -92,7 +92,7 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
-    public void deleteChatImages(List<String> images) {
+    private void deleteChatImages(List<String> images) {
         images.forEach(img -> {
             try {
                 Files.deleteIfExists(Paths.get(uploadDir + File.separator + img ));

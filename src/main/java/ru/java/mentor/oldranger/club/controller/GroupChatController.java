@@ -36,18 +36,18 @@ public class GroupChatController {
     @MessageMapping("/addUser")
     @SendTo("/channel/public")
     public Message addUser(@Payload Message chatMessage) {
-        changeUserList(chatMessage,true);
+        updateUserList(chatMessage,true);
         return chatMessage;
     }
 
     @MessageMapping("/delUser")
     @SendTo("/channel/public")
     public Message delUser(@Payload Message chatMessage) {
-        changeUserList(chatMessage,false);
+        updateUserList(chatMessage,false);
         return chatMessage;
     }
 
-    private void changeUserList(Message chatMessage, boolean bool) {
+    private void updateUserList(Message chatMessage, boolean bool) {
         Chat chat = chatService.getChatById(1L);
         User user =  userService.getUserByNickName(chatMessage.getSender());
         List<User> users = chat.getUserList();
