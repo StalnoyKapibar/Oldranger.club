@@ -6,11 +6,9 @@ import java.util.List;
 
 public interface ChatService {
 
-    public Chat getChatById(Long id);
+    Chat getChatById(Long id);
 
-    public void createChat(Chat chat);
+    void createChat(Chat chat);
 
-    public void deleteChatById(Long id);
-
-    public List<Chat> getAllChats();
+    List<Chat> getAllChats();
 }
