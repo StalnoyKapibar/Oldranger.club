@@ -74,11 +74,4 @@ public class TestAlbumsController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "album/deletePhoto", method = RequestMethod.GET)
-    public ModelAndView deletePhoto() {
-        PhotoAlbum album = albumService.findById(Long.parseLong("1"));
-        Photo photo = restTemplate.getForObject(protocol + "://" + host + ":" + port + "/api/photos/" + "1", Photo.class);
-        albumService.deletePhotoFromDir(album, photo);
-        return null;
-    }
 }
