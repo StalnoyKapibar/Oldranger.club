@@ -21,4 +21,7 @@ public class MainPageController {
         modelAndView.addObject("sectionsAndTopics", sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection());
         return modelAndView;
     }
+
+    @GetMapping("/chat")
+    public String getChatPage(){ return "chat/chat"; }
 }

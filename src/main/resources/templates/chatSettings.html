@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -24,10 +24,10 @@
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Пользователи</a>
+                        <a class="nav-link" href="/admin/users">Пользователи</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/chat">Чат</a>
+                        <a class="nav-link active" href="#">Чат</a>
                     </li>
                 </ul>
             </div>
@@ -35,54 +35,24 @@
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
 
-            <h1 class="h2">Пользователи</h1>
+            <h1 class="h2 mb-4">Настройки общего чата</h1>
 
-            <form action="/admin/users" method="get" class="form-inline">
+            <form action="/admin/chat" method="post" class="form-inline">
                 <div class="form-group mr-2 mb-2">
-                    <input type="text" name="query" class="form-control">
+                    <label for="cleanChat" class="mr-2">Удалять сообщения:</label>
+                    <select name="cleanChat" id="cleanChat">
+                        <option value="week">раз в неделю</option>
+                        <option value="two-weeks">раз в 2 недели</option>
+                        <option value="month">раз в месяц</option>
+                        <option value="never">никогда</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn btn-primary mb-2">Поиск</button>
+                <button type="submit" class="btn btn-primary mb-2">Установить</button>
             </form>
 
-            <nav>
-                <ul class="pagination pagination-sm">
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, pageCount -1)}" th:class="${users.getNumber() == i} ? 'page-item active' : 'page-item'">
-                        <a class="page-link" href="#" th:href="@{'/admin/users' + ''( query=${q}, page=${i})}" th:text="${i+1}"></a>
-                    </li>
-                </ul>
-            </nav>
-
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>Ник</th>
-                        <th>Email</th>
-                        <th>Зарегистрирован</th>
-                        <th>Группа</th>
-                        <th>Последнее посещение</th>
-                        <th>Сообщений</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="user : ${usersList}">
-                        <td th:text="${user.user.nickName}"></td>
-                        <td th:text="${user.user.email}"></td>
-                        <td th:text="${user.user.regDate}"></td>
-                        <td th:text="${user.user.role.role}"></td>
-                        <td th:text="${user.lastVizit}"></td>
-                        <td th:text="${user.messageCount}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
         </main>
     </div>
 </div>
-
-
-
-
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
