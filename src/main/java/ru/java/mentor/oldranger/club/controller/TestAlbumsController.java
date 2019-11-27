@@ -68,7 +68,10 @@ public class TestAlbumsController {
         photos.add(photo);
         album.setPhotos(photos);
         albumService.update(album);
-        return null;
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("album");
+        modelAndView.addObject("album", album);
+        return modelAndView;
     }
 
     @RequestMapping(value = "album/deletePhoto", method = RequestMethod.GET)

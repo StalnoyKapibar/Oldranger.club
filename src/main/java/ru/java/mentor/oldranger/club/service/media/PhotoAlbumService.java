@@ -20,8 +20,6 @@ public interface PhotoAlbumService {
 
     void deleteAlbum(Long id);
 
-    PhotoAlbum findByTitle(String title);
-
     PhotoAlbum findById(Long id);
 
     Photo addPhotoToDir(MultipartFile file, PhotoAlbum albumId);

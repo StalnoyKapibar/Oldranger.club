@@ -2,7 +2,7 @@ package ru.java.mentor.oldranger.club.service.media.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.java.mentor.oldranger.club.dao.UserRepository.media.PhotoRepository;
+import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
