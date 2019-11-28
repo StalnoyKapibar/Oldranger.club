@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Мои фотоальбомы</title>
     <script type="application/javascript" src="/js/photoAlbum.js"></script>
 </head>
-<body onload="getAllAlbums()">
-<input id="albumTitle" type="text">Название альбома</input><br>
-<button type="button" onclick="createAlbum()">Создать альбом</button>
-<ul id="listAlbums"></ul>
+<body>
+<form action="/create" method="post">
+    <input type="text" name="title">Название альбома</input><br>
+    <button type="submit">Создать альбом</button>
+</form>
+<ul id="listAlbums" th:each="album : ${albums}">
+    <li><a th:href="@{'http://localhost:8888/album/'+${album.id}}" th:text="${album.title}"></a></li>
+</ul>
 </body>
 </html>

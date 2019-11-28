@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -9,8 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.util.List;
 
@@ -18,6 +21,7 @@ import java.util.List;
 public class TestAlbumsController {
     private PhotoAlbumService albumService;
     private PhotoService photoService;
+    private UserService userService;
     private RestTemplate restTemplate;
 
     @Autowired
@@ -35,6 +39,11 @@ public class TestAlbumsController {
         this.photoService = service;
     }
 
+    @Autowired
+    protected void setUserService(UserService service) {
+        this.userService = service;
+    }
+
     @Value("${server.protocol}")
     private String protocol;
 
@@ -45,8 +54,26 @@ public class TestAlbumsController {
     private String port;
 
     @GetMapping("/albums")
-    protected String returnPageAlbums() {
-        return "albums";
+    protected ModelAndView returnPageAlbums(String title) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getUserByNickName(userName);
+        List<PhotoAlbum> albums = user.getMedia().getPhotoAlbums();
+        ModelAndView model = new ModelAndView();
+        model.addObject("albums", albums);
+        model.setViewName("albums");
+        return model;
+    }
+
+    @PostMapping("/create")
+    protected String createAlbum(String title) {
+        PhotoAlbum album;
+        if (title == null) {
+            album = new PhotoAlbum("Без имени");
+        } else {
+            album = new PhotoAlbum(title);
+        }
+        albumService.save(album);
+        return "redirect:albums";
     }
 
     @RequestMapping(value = "album/{id}", method = RequestMethod.GET)
