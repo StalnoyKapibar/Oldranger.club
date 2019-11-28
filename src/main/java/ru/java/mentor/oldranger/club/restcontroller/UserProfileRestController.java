@@ -153,7 +153,7 @@ public class UserProfileRestController {
     }
 
     @GetMapping("/invite")
-    public ResponseEntity<InviteDto> getIvitation() {
+    public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
 
