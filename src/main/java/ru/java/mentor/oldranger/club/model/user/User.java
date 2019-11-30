@@ -63,7 +63,7 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinTable(name = "users_media", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "media_id"))
     private Media media;

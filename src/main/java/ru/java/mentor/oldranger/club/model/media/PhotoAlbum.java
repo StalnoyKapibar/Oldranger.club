@@ -29,9 +29,7 @@ public class PhotoAlbum {
     @OneToOne
     private Photo skin;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinTable(name = "album_photos", joinColumns = @JoinColumn(name = "album_id"),
-            inverseJoinColumns = @JoinColumn(name = "photo_id"))
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Photo> photos = new ArrayList<>();
 
     public PhotoAlbum(String title) {

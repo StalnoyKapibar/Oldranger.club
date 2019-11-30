@@ -54,7 +54,7 @@ public class TestAlbumsController {
     private String port;
 
     @GetMapping("/albums")
-    protected ModelAndView returnPageAlbums(String title) {
+    public ModelAndView returnPageAlbums(String title) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByNickName(userName);
         List<PhotoAlbum> albums = user.getMedia().getPhotoAlbums();
@@ -65,7 +65,7 @@ public class TestAlbumsController {
     }
 
     @PostMapping("/create")
-    protected String createAlbum(String title) {
+    public String createAlbum(String title) {
         PhotoAlbum album;
         if (title == null) {
             album = new PhotoAlbum("Без имени");
@@ -85,7 +85,6 @@ public class TestAlbumsController {
         return modelAndView;
     }
 
-
     @RequestMapping(value = "album/uploadPhoto", method = RequestMethod.POST)
     public ModelAndView uploadPhoto(@RequestParam("file") MultipartFile file, String albumId) {
         PhotoAlbum album = albumService.findById(Long.parseLong(albumId));
@@ -101,4 +100,18 @@ public class TestAlbumsController {
         return modelAndView;
     }
 
+    @RequestMapping(value = "deleteAlbum/{id}", method = RequestMethod.GET)
+    public String deleteAlbum(@PathVariable("id") String id) {
+        albumService.deleteAlbum(Long.parseLong(id));
+        return "redirect:/albums";
+    }
+
+    @RequestMapping(value = "deletePhoto/{albumId}/{photoId}", method = RequestMethod.GET)
+    public String deleteAlbum(@PathVariable("albumId") String albumId, @PathVariable("photoId") String photoId) {
+        Photo photo = photoService.findById(Long.parseLong(photoId));
+        PhotoAlbum album = albumService.findById(Long.parseLong(albumId));
+        albumService.deletePhotoFromDir(album, photo);
+        photoService.deletePhoto(Long.parseLong(photoId));
+        return "redirect:/album/" + albumId;
+    }
 }

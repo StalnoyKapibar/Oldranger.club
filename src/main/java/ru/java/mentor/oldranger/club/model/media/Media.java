@@ -20,7 +20,5 @@ public class Media {
 
 
     @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
-    @JoinTable(name = "media_albums", joinColumns = @JoinColumn(name = "media_id"),
-            inverseJoinColumns = @JoinColumn(name = "album_id"))
     private List<PhotoAlbum> photoAlbums;
 }
