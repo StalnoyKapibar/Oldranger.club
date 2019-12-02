@@ -8,11 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 @Controller
@@ -21,6 +19,7 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 public class TestAdminController {
 
     UserStatisticService userStatisticService;
+    MessageService messageService;
 
     @GetMapping("/users")
     public String getAllUsers(Model model,
@@ -32,13 +31,14 @@ public class TestAdminController {
             pageable = PageRequest.of(page, 5, Sort.by("user_id"));
         }
 
-
         Page<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable);
 
         if (query != null && !query.trim().isEmpty()) {
             query = query.toLowerCase().trim().replaceAll("\\s++", ",");
             users = userStatisticService.getUserStatisticsByQuery(pageable, query);
-        } else { query = null; }
+        } else {
+            query = null;
+        }
 
         model.addAttribute("users", users);
         model.addAttribute("pageCount", users.getTotalPages());
@@ -51,6 +51,17 @@ public class TestAdminController {
     @GetMapping("/sectionsandsubsections")
     public String getPageSections() {
         return "testSortableSectionsAndSubsections";
+    }
+
+    @GetMapping("/chat")
+    public String getChatSettings() {
+        return "chatSettings";
+    }
+
+    @PostMapping("/chat")
+    public String setChatSettings(@RequestParam String cleanChat) {
+        messageService.setOlderThan(cleanChat);
+        return "redirect:/admin/chatSettings";
     }
 
 }
