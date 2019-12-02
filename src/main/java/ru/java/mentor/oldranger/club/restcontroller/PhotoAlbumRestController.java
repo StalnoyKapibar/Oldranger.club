@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.restcontroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 
@@ -31,6 +32,11 @@ public class PhotoAlbumRestController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public PhotoAlbum getAlbum(@PathVariable("id") String id) {
         return service.findById(Long.parseLong(id));
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    public List<Photo> getPhotosByAlbum(@PathVariable("id") String id) {
+        return service.getAllPhotos(service.findById(Long.parseLong(id)));
     }
 
     @PutMapping

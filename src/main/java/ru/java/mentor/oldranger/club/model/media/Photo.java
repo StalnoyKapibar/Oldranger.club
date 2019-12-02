@@ -30,4 +30,7 @@ public class Photo {
         this.original = original;
         this.small = small;
     }
+
+    @ManyToOne
+    PhotoAlbum album;
 }

@@ -6,8 +6,6 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -29,8 +27,8 @@ public class PhotoAlbum {
     @OneToOne
     private Photo skin;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Photo> photos = new ArrayList<>();
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<Photo> photos = new ArrayList<>();
 
     public PhotoAlbum(String title) {
         this.title = title;

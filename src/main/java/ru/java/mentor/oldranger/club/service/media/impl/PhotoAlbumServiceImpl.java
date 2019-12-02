@@ -73,11 +73,6 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public PhotoAlbum findAlbumByPhoto(Photo photo) {
-        return albumRepository.findByPhotosContains(photo);
-    }
-
-    @Override
     @PostConstruct
     public void deleteAllAlbums() {
         File dir = new File(albumsdDir);
@@ -103,4 +98,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         return albumRepository.save(album);
     }
 
+    @Override
+    public List<Photo> getAllPhotos(PhotoAlbum album) {
+        return photoService.findPhotoByAlbum(album);
+    }
 }

@@ -11,7 +11,7 @@ public interface PhotoAlbumService {
 
     List<PhotoAlbum> findAll();
 
-    PhotoAlbum findAlbumByPhoto(Photo photo);
+    List<Photo> getAllPhotos(PhotoAlbum album);
 
     void deleteAllAlbums();
 

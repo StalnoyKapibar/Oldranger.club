@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -70,8 +71,8 @@ public class PhotoServiceImpl implements PhotoService {
             e.printStackTrace();
         }
         Photo photo = new Photo(resultFileName, "small_" + resultFileName);
+        photo.setAlbum(album);
         photo = photoRepository.save(photo);
-        album.getPhotos().add(photo);
         albumService.update(album);
         return photo;
     }
@@ -82,9 +83,14 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
+        return photoRepository.findAllByAlbum(album);
+    }
+
+    @Override
     public void deletePhoto(Long id) {
         Photo photo = findById(id);
-        PhotoAlbum album = albumService.findAlbumByPhoto(photo);
+        PhotoAlbum album = photo.getAlbum();
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         File file = new File(albumsdDir + File.separator + userName
                 + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
