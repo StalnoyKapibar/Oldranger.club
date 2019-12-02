@@ -51,7 +51,7 @@ public class Topic {
     private boolean isHideToAnon;
 
     //@OneToMany(mappedBy = "topic"/*, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY*/)
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
