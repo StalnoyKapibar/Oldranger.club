@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Рассылка</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Oldranger.club</a>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="/logout">Logout</a>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Пользователи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Чат</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Рассылка</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+
+            <h1 class="h2 mb-4">Рассылка</h1>
+
+            <form action="/admin/sendMail" method="post" th:object="${draft}" class="col-md-6">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-group">
+                    <label for="subject">Тема</label>
+                    <input type="text" class="form-control" id="subject" th:field="*{subject}" required>
+                </div>
+                <div class="form-group">
+                    <label for="summernote">Сообщение</label>
+                    <textarea class="form-control" id="summernote" th:field="*{message}" required></textarea>
+                    <small class="form-text text-muted">* сообщение будет отправлено всем пользователям</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+                <button type="submit" class="btn btn-outline-primary" formaction="/admin/saveDraft">Сохранить в черновик</button>
+                <a th:if="${draft.subject}" href="/admin/mail"><button type="button" class="btn btn-outline-danger">Отмена</button></a>
+            </form>
+
+
+            <h3 class="mb-4 mt-5">Черновик</h3>
+            <nav th:if="${pageCount != 0}">
+                <ul class="pagination pagination-sm">
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, pageCount -1)}" th:class="${drafts.getNumber() == i} ? 'page-item active' : 'page-item'">
+                        <a class="page-link" href="#" th:href="@{'/admin/mail' + ''(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="table-responsive col-md-6">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Тема</th>
+                        <th>Последнее редактирование</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="draft : ${draftList}">
+                        <td th:text="${draft.subject}"></td>
+                        <td th:text="${#temporals.format(draft.lastEditDate, 'dd.MM.yyyy HH:mm')}"></td>
+                        <td>
+                            <a href="#" th:href="@{'/admin/editDraft/' + ${draft.id}}"><button class="btn btn-outline-success">Смотреть</button></a>
+                            <a href="#" th:href="@{'/admin/deleteDraft/' + ${draft.id}}"><button class="btn btn-danger">Удалить</button></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<!-- include summernote css/js -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/lang/summernote-ru-RU.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#summernote').summernote({
+            lang: 'ru-RU',
+            height: 150,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']]
+            ]
+        });
+    });
+</script>
+</body>
+</html>
