@@ -27,9 +27,6 @@ public class PhotoAlbum {
     @OneToOne
     private Photo skin;
 
-//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Photo> photos = new ArrayList<>();
-
     public PhotoAlbum(String title) {
         this.title = title;
     }
