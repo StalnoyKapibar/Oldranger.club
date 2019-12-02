@@ -26,8 +26,8 @@ public class TopicVisitAndSubscription {
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
     private Topic topic;
 
     @Column(name = "is_subscribed", columnDefinition = "TINYINT", nullable = false)

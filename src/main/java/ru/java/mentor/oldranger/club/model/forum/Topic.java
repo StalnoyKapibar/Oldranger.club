@@ -50,11 +50,6 @@ public class Topic {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    //@OneToMany(mappedBy = "topic"/*, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY*/)
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topic_id")
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
-
     public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
         this.name = name;
         this.topicStarter = topicStarter;
