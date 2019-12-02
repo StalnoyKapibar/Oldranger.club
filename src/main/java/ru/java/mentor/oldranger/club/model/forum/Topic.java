@@ -50,6 +50,7 @@ public class Topic {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
+
     @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
@@ -76,5 +77,9 @@ public class Topic {
                 ", lastMessageTime=" + lastMessageTime +
                 ", isHideToAnon=" + isHideToAnon +
                 '}';
+    }
+
+    public boolean isHideToAnon() {
+        return isHideToAnon;
     }
 }

@@ -60,6 +60,7 @@ public class User implements UserDetails{
     private PasswordRecoveryToken passwordRecoveryToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {

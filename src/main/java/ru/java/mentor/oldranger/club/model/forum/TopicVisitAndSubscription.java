@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,12 +23,15 @@ public class TopicVisitAndSubscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 
+
     @ManyToOne
     @JoinColumn(name = "id_topic", nullable = false)
+    @JsonIgnore
     private Topic topic;
 
     @Column(name = "is_subscribed", columnDefinition = "TINYINT", nullable = false)
