@@ -13,12 +13,11 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
-public class SectionsAndTopicsRestController {
-
+public class MainPageRestController {
     private SectionsAndTopicsService sectionsAndTopicsService;
 
-    @GetMapping("/sectionsandactualtopics")
-    public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
+    @GetMapping("")
+    public ResponseEntity<List<SectionsAndTopicsDto>> mainPage() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         return ResponseEntity.ok(dtos);
     }
