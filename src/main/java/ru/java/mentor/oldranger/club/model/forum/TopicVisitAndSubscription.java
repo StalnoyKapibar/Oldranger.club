@@ -17,17 +17,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "topic_visit_and_subscriptions")
 public class TopicVisitAndSubscription {
-
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
-
 
     @ManyToOne
     @JoinColumn(name = "id_topic", nullable = false)
