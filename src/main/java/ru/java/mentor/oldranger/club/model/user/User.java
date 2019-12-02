@@ -59,10 +59,6 @@ public class User implements UserDetails{
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordRecoveryToken passwordRecoveryToken;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
-
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
