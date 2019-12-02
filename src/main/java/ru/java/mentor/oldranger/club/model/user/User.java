@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -34,10 +35,10 @@ public class User implements UserDetails{
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "nick_name", nullable = false, unique = true)
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
 
     @JsonIgnore
