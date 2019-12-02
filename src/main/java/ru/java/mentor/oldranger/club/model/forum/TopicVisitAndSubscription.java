@@ -27,8 +27,7 @@ public class TopicVisitAndSubscription {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "id_topic", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "topic_id", insertable = false, updatable = false)
     private Topic topic;
 
     @Column(name = "is_subscribed", columnDefinition = "TINYINT", nullable = false)
