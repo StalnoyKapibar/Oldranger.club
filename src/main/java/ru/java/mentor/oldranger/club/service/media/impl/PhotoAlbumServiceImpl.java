@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -34,6 +35,13 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     private PhotoService photoService;
 
+    private MediaService mediaService;
+
+    @Autowired
+    public void setMediaService(MediaService service) {
+        this.mediaService = service;
+    }
+
     @Autowired
     public void setPhotoService(PhotoService service) {
         this.photoService = service;
@@ -57,8 +65,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     public PhotoAlbum save(PhotoAlbum album) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByNickName(userName);
-        Media media = user.getMedia();
-        media.getPhotoAlbums().add(album);
+        Media media = mediaService.findMediaByUser(user);
+        album.setMedia(media);
         PhotoAlbum savedAlbum = albumRepository.save(album);
         File uploadPath = new File(albumsdDir + File.separator + userName + File.separator + "photo_albums" + File.separator + savedAlbum.getId());
         if (!uploadPath.exists()) {

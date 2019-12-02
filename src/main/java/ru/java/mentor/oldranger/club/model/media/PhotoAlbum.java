@@ -23,9 +23,8 @@ public class PhotoAlbum {
     @Column(name = "title")
     private String title;
 
-    @JoinColumn(name = "skin")
-    @OneToOne
-    private Photo skin;
+    @ManyToOne
+    private Media media;
 
     public PhotoAlbum(String title) {
         this.title = title;

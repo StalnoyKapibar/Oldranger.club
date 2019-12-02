@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -60,13 +60,8 @@ public class User implements UserDetails{
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordRecoveryToken passwordRecoveryToken;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinTable(name = "users_media", joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private Media media;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
@@ -74,7 +69,6 @@ public class User implements UserDetails{
         this.email = email;
         this.nickName = nickName;
         this.role = role;
-        this.media = new Media();
     }
 
     @Override
