@@ -186,6 +186,14 @@ public class User implements UserDetails{
         this.passwordRecoveryToken = passwordRecoveryToken;
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
