@@ -6,15 +6,21 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
@@ -58,5 +64,27 @@ public class MailServiceImpl implements MailService {
         } catch (MailSendException | MessagingException e) {
             return "0";
         }
+    }
+
+    @Override
+    @Async
+    public void sendHtmlMessage(String[] to, EmailDraft mail) throws MessagingException, IOException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+
+        Map<String,Object> model = new HashMap<>();
+        model.put("content", mail.getMessage());
+        Context context = new Context();
+        context.setVariables(model);
+        String html = templateEngine.process("email-template", context);
+
+        helper.setTo(to);
+        helper.setText(html, true);
+        helper.setSubject(mail.getSubject());
+        helper.setFrom(username);
+
+        mailSender.send(message);
     }
 }

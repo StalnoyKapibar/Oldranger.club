@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.mail.EmailDraftService;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 @Hidden
@@ -22,6 +25,9 @@ public class TestAdminController {
 
     UserStatisticService userStatisticService;
     MessageService messageService;
+    EmailDraftService emailDraftService;
+    MailService mailService;
+    UserService userService;
 
     @GetMapping("/users")
     public String getAllUsers(Model model,
@@ -46,7 +52,7 @@ public class TestAdminController {
         model.addAttribute("pageCount", users.getTotalPages());
         model.addAttribute("usersList", users.getContent());
         model.addAttribute("query", query);
-        return "users";
+        return "admin/users";
     }
 
     // в админке получить список сеций и подсекций с возможностью сортировки
@@ -57,7 +63,7 @@ public class TestAdminController {
 
     @GetMapping("/chat")
     public String getChatSettings() {
-        return "chatSettings";
+        return "admin/chatSettings";
     }
 
     @PostMapping("/chat")
@@ -66,4 +72,8 @@ public class TestAdminController {
         return "redirect:/admin/chatSettings";
     }
 
+    @GetMapping("/mail")
+    public String getMailPage(){
+        return "admin/mail";
+    }
 }
