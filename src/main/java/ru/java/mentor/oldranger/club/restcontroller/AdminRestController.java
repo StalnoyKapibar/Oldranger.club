@@ -8,7 +8,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
-import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
@@ -20,8 +19,9 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -72,12 +72,21 @@ public class AdminRestController {
         return ResponseEntity.ok(drafts);
     }
 
+    @GetMapping("/getTotalPages")
+    public ResponseEntity<Map<String,Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
+        Integer pages = emailDraftService.getAllDraftsPageable(pageable).getTotalPages();
+        Map<String,Integer> totalPages = new HashMap<>();
+        totalPages.put("totalPages", pages);
+        return ResponseEntity.ok(totalPages);
+    }
+
     @PostMapping("/sendMail")
     public ResponseEntity<String> sendMail(EmailDraft draft) {
-        List<User> users = userService.findAll();
-        List<String> mailList = new ArrayList<>();
-        users.forEach(user -> mailList.add(user.getEmail()));
-        String[] emails = (String[]) mailList.toArray();
+//        List<User> users = userService.findAll();
+//        List<String> mailList = new ArrayList<>();
+//        users.forEach(user -> mailList.add(user.getEmail()));
+//        String[] emails = (String[]) mailList.toArray();
+        String[] emails = new String[]{"swish92@gmail.com"};
         try {
             mailService.sendHtmlMessage(emails, draft);
         } catch (MessagingException | IOException e) {
