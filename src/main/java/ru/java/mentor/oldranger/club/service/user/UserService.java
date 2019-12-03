@@ -6,13 +6,13 @@ import java.util.List;
 
 public interface UserService {
 
-    public List<User> findAll();
+    List<User> findAll();
 
-    public User findById(Long theId);
+    User findById(Long theId);
 
-    public void save(User user);
+    void save(User user);
 
-    public void deleteById(Long theId);
+    void deleteById(Long theId);
 
     User getUserByNickName(String login);
 
