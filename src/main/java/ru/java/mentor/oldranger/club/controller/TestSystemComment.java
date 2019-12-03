@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,9 +11,12 @@ import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
@@ -24,12 +29,14 @@ public class TestSystemComment {
     private CommentService commentService;
     private TopicService topicService;
     private UserService userService;
+    private WritingBanService writingBanService;
 
     @Autowired
-    public TestSystemComment(CommentService commentService, TopicService topicService, UserService userService) {
+    public TestSystemComment(CommentService commentService, TopicService topicService, UserService userService, WritingBanService writingBanService) {
         this.commentService = commentService;
         this.topicService = topicService;
         this.userService = userService;
+        this.writingBanService = writingBanService;
     }
 
     // Пример работы с системой комментирования
@@ -37,8 +44,6 @@ public class TestSystemComment {
     public String sendComment(@PathVariable Long id,
                               Model model,
                               HttpSession session) {
-        session.setAttribute("nameUser", "Admin");
-        session.setAttribute("idUser", 1);
         session.setAttribute("urlAva", "https://static.tolstoycomments.com/ui/38/73/c6/3873c649-85f1-492a-8f3a-c70de64aefbc.png");
         model.addAttribute("idTopic", id);
         List<Comment> commentsList = new ArrayList<>();
@@ -49,6 +54,21 @@ public class TestSystemComment {
             }
         }
         model.addAttribute("comments", commentsList);
+        boolean isForbidden = false;
+        try {
+            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            session.setAttribute("nameUser", user.getNickName());
+            session.setAttribute("idUser", user.getId());
+            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
+            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
+                isForbidden = true;
+            }
+        }
+        catch (Exception e) {
+            isForbidden = true;
+        }
+        model.addAttribute("isForbidden", isForbidden);
         return "test-comment";
     }
 
