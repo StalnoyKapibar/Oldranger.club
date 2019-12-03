@@ -7,8 +7,6 @@ import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -50,9 +48,6 @@ public class Topic {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
-
     public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
         this.name = name;
         this.topicStarter = topicStarter;
@@ -76,5 +71,9 @@ public class Topic {
                 ", lastMessageTime=" + lastMessageTime +
                 ", isHideToAnon=" + isHideToAnon +
                 '}';
+    }
+
+    public boolean isHideToAnon() {
+        return isHideToAnon;
     }
 }

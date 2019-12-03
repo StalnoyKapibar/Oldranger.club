@@ -1,12 +1,15 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
+import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
@@ -21,6 +24,12 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
+    private MediaService mediaService;
+
+    @Autowired
+    void setMediaService(MediaService service) {
+        this.mediaService = service;
+    }
 
     @Override
     public List<User> findAll() {
@@ -40,7 +49,7 @@ public class UserServiceImpl implements UserService {
             user.setAvatar(setDefaultAvatar());
         }
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         if (userStatistic.getUserStaticByUser(user) == null) {
             userStatistic.saveUserStatic(new UserStatistic(user));
@@ -49,6 +58,11 @@ public class UserServiceImpl implements UserService {
         if (userProfileService.getUserProfileByUser(user) == null) {
             userProfileService.createUserProfile(new UserProfile(user));
         }
+
+        Media media = new Media();
+        media.setUser(user);
+        mediaService.save(media);
+
     }
 
     @Override
