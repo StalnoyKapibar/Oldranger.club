@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -35,10 +35,10 @@ public class User implements UserDetails{
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "nick_name", nullable = false, unique = true)
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
 
     @JsonIgnore
@@ -59,13 +59,6 @@ public class User implements UserDetails{
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordRecoveryToken passwordRecoveryToken;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "direction_id", referencedColumnName = "id")
-    private Direction direction;
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
@@ -184,14 +177,6 @@ public class User implements UserDetails{
 
     public void setPasswordRecoveryToken(PasswordRecoveryToken passwordRecoveryToken) {
         this.passwordRecoveryToken = passwordRecoveryToken;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
     }
 
     @Override
