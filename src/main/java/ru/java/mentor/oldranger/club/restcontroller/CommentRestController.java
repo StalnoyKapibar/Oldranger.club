@@ -1,10 +1,17 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
@@ -20,6 +27,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Comments")
 public class CommentRestController {
 
     private CommentService commentService;
@@ -28,20 +36,26 @@ public class CommentRestController {
     private SecurityUtilsService securityUtilsService;
 
 
-    @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get CommentDto list", description = "Get comments by topic id", tags = { "Comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+    @GetMapping(value = "/topic/{topicId}", produces = { "application/json" })
     public ResponseEntity<List<CommentDto>> getPageableComments(@PathVariable(value = "topicId") Long topicId,
-                                                    @RequestAttribute(value = "page", required = false) Integer page,
-                                                    @RequestParam(value = "pos",required = false) Integer position,
-                                                    @PageableDefault(size = 10, sort = "dateTime") Pageable pageable) {
+                                                                @RequestParam(value = "page", required = false) Integer page,
+                                                                @RequestParam(value = "pos",required = false) Integer position) {
 
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
             return ResponseEntity.noContent().build();
         }
-        if (page != null) {
-            pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
-        }
+
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
+
         if (position != null) {
             page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));

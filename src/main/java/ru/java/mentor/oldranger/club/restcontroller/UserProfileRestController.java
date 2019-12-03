@@ -1,5 +1,13 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +35,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "User profile")
 public class UserProfileRestController {
 
     private UserProfileService userProfileService;
@@ -46,18 +55,31 @@ public class UserProfileRestController {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     }
 
-    @GetMapping("/profile")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get ProfileDto of logged in user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ProfileDto.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/profile", produces = { "application/json" })
     public ResponseEntity<ProfileDto> getProfile() {
 
         User user = securityUtilsService.getLoggedUser();
         if (user == null) return ResponseEntity.noContent().build();
+
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
         ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true);
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/{id}")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get ProfileDto of another user by id", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ProfileDto.class))),
+            @ApiResponse(responseCode = "204", description = "User by id not found")})
+    @GetMapping(value = "/{id}", produces = { "application/json" })
     public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id) {
         User user;
         try {
@@ -71,14 +93,12 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/updateProfile")
-    public ResponseEntity<UserProfile> getUpdateForm() {
-        User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
-        UserProfile profile = userProfileService.getUserProfileByUser(user);
-        return ResponseEntity.ok(profile);
-    }
-
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Update profile", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/updateProfile")
     public ResponseEntity<UpdateProfileDto> updateProfile(UserProfile profile) {
 
@@ -110,10 +130,19 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/comments")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get CommentDto list for current user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/comments", produces = { "application/json" })
     public ResponseEntity<List<CommentDto>> getComments(
-                                            @RequestAttribute(value = "page", required = false) Integer page,
-                                            @PageableDefault(size = 10, sort = "dateTime",direction = Sort.Direction.DESC) Pageable pageable) {
+                                            @RequestAttribute(value = "page", required = false) Integer page) {
+
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime").descending());
+
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
 
@@ -121,10 +150,16 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dtos);
     }
 
-
-    @GetMapping("/subscriptions")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get TopicVisitAndSubscription list for current user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/subscriptions", produces = { "application/json" })
     public ResponseEntity<List<TopicVisitAndSubscription>> getSubscriptions(
                                    @RequestAttribute(value = "page", required = false) Integer page,
+                                   @Parameter(description="Not required, by default size: 10")
                                    @PageableDefault(size = 10) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
@@ -137,22 +172,32 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get all topics started by current user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Topic.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/topics", produces = { "application/json" })
+    public ResponseEntity<List<Topic>> getTopics(@RequestParam(value = "page", required = false) Integer page) {
 
-    @GetMapping("/topics")
-    public ResponseEntity<List<Topic>> getTopics(
-                            @RequestAttribute(value = "page", required = false) Integer page,
-                            @PageableDefault(size = 10, sort = "lastMessageTime", direction = Sort.Direction.DESC) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
 
-        if (page != null) {
-            pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
-        }
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
+
         List<Topic> dtos = topicService.findAllTopicsStartedByUser(currentUser,pageable).getContent();
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/invite")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get InviteDto for current user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = InviteDto.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/invite", produces = { "application/json" })
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
@@ -162,12 +207,13 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/changePassword")
-    public String getChangePasswordForm() {
-        return "profile/changePassword";
-    }
-
-    @PostMapping("/changePassword")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Change password", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ErrorDto.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @PostMapping(value = "/changePassword", produces = { "application/json" })
     public ResponseEntity<ErrorDto> changePassword(@RequestParam String oldPass,
                                                    @RequestParam String newPass,
                                                    @RequestParam String passConfirm) {

@@ -1,9 +1,18 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
@@ -19,15 +28,23 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Scrollable topics")
 public class ScrollableTopicsRestController {
 
     private TopicService topicService;
-
     private SubsectionService subsectionService;
 
-    @GetMapping("/subsection/{subsectionId}")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get TopicAndNewMessagesCountDto list", tags = { "Scrollable topics" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TopicAndNewMessagesCountDto or empty array if section doesn't contain topics",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class)))) })
+    @GetMapping(value = "/subsection/{subsectionId}", produces = { "application/json" })
     public ResponseEntity<List<TopicAndNewMessagesCountDto>> getPart(@PathVariable long subsectionId,
-                                        @PageableDefault(size = 20) Pageable pageable) {
+                                                                     @RequestParam(value = "page", required = false) Integer page) {
+
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("topic_id"));
 
         Optional<Subsection> optionalSubsection = subsectionService.getById(subsectionId);
 
