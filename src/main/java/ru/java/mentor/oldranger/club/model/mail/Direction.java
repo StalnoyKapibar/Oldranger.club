@@ -24,7 +24,8 @@ public class Direction {
     @Enumerated(EnumType.STRING)
     private DirectionType directionType;
 
-    @OneToOne(mappedBy = "userDirection")
+    @OneToOne(cascade={CascadeType.PERSIST})
+    @JoinColumn(name="user_id")
     private User user;
 
 }

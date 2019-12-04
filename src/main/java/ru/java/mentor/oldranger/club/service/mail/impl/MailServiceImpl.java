@@ -10,8 +10,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import ru.java.mentor.oldranger.club.dao.ChatRepository.ChatRepository;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -26,11 +30,21 @@ import java.util.Map;
 @Service
 public class MailServiceImpl implements MailService {
 
+
     @Autowired
     private JavaMailSender mailSender;
 
     @Autowired
     private SpringTemplateEngine templateEngine;
+
+    @Autowired
+    private TopicService service;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ChatRepository chatRepository;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -86,5 +100,18 @@ public class MailServiceImpl implements MailService {
         helper.setFrom(username);
 
         mailSender.send(message);
+    }
+
+    public Map<String, Integer> getCountTopicsAndActiveChats(String email) {
+        Map<String, Integer> countTopicsAndActiveChats = new HashMap<>();
+        User user = userService.getUserByEmail(email);
+        Integer newTopicsCount = service
+                .getNewMessagesCountForTopicsAndUser(service
+                        .getActualTopicsLimitAnyBySection(30), user).size();
+        Integer countActiveChats = chatRepository.getCountChatByUserID(user.getId());
+
+        countTopicsAndActiveChats.put("unreadTopics", newTopicsCount);
+        countTopicsAndActiveChats.put("activeChats", countActiveChats);
+        return countTopicsAndActiveChats;
     }
 }
