@@ -24,7 +24,8 @@ public class Direction {
     @Enumerated(EnumType.STRING)
     private DirectionType directionType;
 
-    @OneToOne(mappedBy = "userDirection")
-    private User user;
+//    @OneToOne
+//    @MapsId
+//    private User user;
 
 }

@@ -88,7 +88,7 @@ public class MailServiceImpl implements MailService {
         Integer newTopicsCount = service
                 .getNewMessagesCountForTopicsAndUser(service
                         .getActualTopicsLimitAnyBySection(30), user).size();
-        Integer countActiveChats = chatRepository.getChatByUserListContaining(user.getId()).size();
+        Integer countActiveChats = chatRepository.getCountChatByUserID(user.getId());
 
         countTopicsAndActiveChats.put("unreadTopics", newTopicsCount);
         countTopicsAndActiveChats.put("activeChats", countActiveChats);

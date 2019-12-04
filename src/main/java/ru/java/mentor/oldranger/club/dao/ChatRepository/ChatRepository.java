@@ -14,8 +14,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     Chat findChatById(Long id);
 
     @Query(nativeQuery = true,
-            value = "select * from (select * from chats cId left join from (" +
-            "select * from chat_users ON cId.id = chat_users.chat_id)) where user_id = :userId")
-    List<Chat> getChatByUserListContaining(Long userID);
+            value = "select count(*) from chat_user c where c.user_id = :userID")
+    Integer getCountChatByUserID(Long userID);
 
 }
