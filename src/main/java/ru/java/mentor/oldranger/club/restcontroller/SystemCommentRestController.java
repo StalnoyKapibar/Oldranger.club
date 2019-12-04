@@ -1,5 +1,12 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +39,10 @@ public class SystemCommentRestController {
     @Autowired
     private WritingBanService writingBanService;
 
+    @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
     @GetMapping("/com/comments/{id}")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long id) {
         List<Comment> commentsList = new ArrayList<>();
@@ -44,6 +55,10 @@ public class SystemCommentRestController {
         return ResponseEntity.ok(commentsList.stream().map(commentService::assembleCommentDto).collect(Collectors.toList()));
     }
 
+    @Operation(summary = "Can a user participate", tags = { "Topic comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Boolean",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))})
     @GetMapping("/com/status/{id}")
     public ResponseEntity<Boolean> getStatus() {
         boolean isForbidden = false;
@@ -60,5 +75,4 @@ public class SystemCommentRestController {
         }
         return ResponseEntity.ok(isForbidden);
     }
-
 }

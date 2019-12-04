@@ -75,6 +75,11 @@ public class GroupChatRestController {
         return ResponseEntity.ok(messageService.getOnlineUsers());
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Can a user participate", tags = { "Group chat" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Boolean",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))})
     @GetMapping("/writingBan")
     ResponseEntity<Boolean> getWritingStatus() {
         boolean isForbidden = false;

@@ -47,6 +47,11 @@ public class SystemBlockingUsersRestController {
         return ResponseEntity.ok(userList);
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Add user to blacklist", tags = { "System blocking users" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = BlackListDto.class))) })
     @PostMapping("/admin/blocking")
     public BlackListDto blockUser(@RequestBody BlackListDto blackListDto) {
         User user = userService.findById(blackListDto.getId());
@@ -77,6 +82,11 @@ public class SystemBlockingUsersRestController {
         return blackListDto;
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Add writingBan for user", tags = { "System blocking users" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = WritingBanDto.class))) })
     @PostMapping("/admin/writingBan")
     public WritingBanDto writingBanUser(@RequestBody WritingBanDto writingBanDto) {
         User user = userService.findById(writingBanDto.getId());
