@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
-@ControllerAdvice
+@Hidden
 @Controller
 @RequestMapping("/profile")
 @AllArgsConstructor

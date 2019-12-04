@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 
+@Hidden
 @Controller
 @RequestMapping("/passwordrecovery")
 @AllArgsConstructor
