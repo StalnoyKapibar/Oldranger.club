@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Hidden
 @Controller
 public class TestSystemBlockingUsers {
 

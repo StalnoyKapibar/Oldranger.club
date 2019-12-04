@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+@Hidden
 @Controller
 @RequestMapping("/test*")
 public class TestUserAvatarController {

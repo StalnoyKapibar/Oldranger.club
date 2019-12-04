@@ -1,9 +1,15 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import ru.java.mentor.oldranger.club.dto.PasswordRecoveryDto;
 import ru.java.mentor.oldranger.club.dto.PasswordRecoveryStatusDto;
 import ru.java.mentor.oldranger.club.dto.RecoveryTokenDto;
@@ -19,20 +25,19 @@ import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Password recovery")
 public class PasswordRecoveryRestController {
 
     private UserService userService;
-
     private PasswordsService passwordsService;
-
     private PasswordRecoveryService passwordRecoveryService;
 
-    @GetMapping("/passwordrecovery")
-    public String requestForPasswordRecovery() {
-        return "passwordrecovery/request";
-    }
-
-    @PostMapping("/passwordrecovery")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Request for password recovery", tags = { "Password recovery" })
+    @PostMapping(value = "/passwordrecovery", produces = { "application/json" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PasswordRecoveryStatusDto",
+                    content = @Content(schema = @Schema(implementation = PasswordRecoveryStatusDto.class))) })
     public ResponseEntity<PasswordRecoveryStatusDto> requestForPasswordRecovery(@RequestParam(name = "email") String email) {
         User user = userService.getUserByEmail(email);
         String recoveryStatus;
@@ -51,7 +56,12 @@ public class PasswordRecoveryRestController {
         return ResponseEntity.ok(new PasswordRecoveryStatusDto(recoveryStatus, next_recovery_possible));
     }
 
-    @GetMapping("/token/{recoveryToken}")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Response on recovery token", description = "Return RecoveryTokenDto", tags = { "Password recovery" })
+    @GetMapping(value = "/token/{recoveryToken}", produces = { "application/json" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "RecoveryTokenDto",
+                    content = @Content(schema = @Schema(implementation = RecoveryTokenDto.class))) })
     public ResponseEntity<RecoveryTokenDto> responseOnRecoveryToken(@PathVariable String recoveryToken) {
         String token = null;
         String tokenstatus = null;
@@ -67,7 +77,12 @@ public class PasswordRecoveryRestController {
         return ResponseEntity.ok(new RecoveryTokenDto(token, tokenstatus));
     }
 
-    @PostMapping("/setnewpassword")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Response on recovery token and new password", description = "Return PasswordRecoveryDto", tags = { "Password recovery" })
+    @PostMapping(value = "/setnewpassword", produces = { "application/json" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PasswordRecoveryDto",
+                    content = @Content(schema = @Schema(implementation = PasswordRecoveryDto.class))) })
     public ResponseEntity<PasswordRecoveryDto> responseOnRecoveryTokenAndNewPassword(@RequestParam(name = "token") String recoveryToken,
                                                                                      @RequestParam(name = "password") String password,
                                                                                      @RequestParam(name = "password_confirm") String passwordConfirm) {

@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,6 +16,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Hidden
 @Controller
 @AllArgsConstructor
 public class GroupChatController {
