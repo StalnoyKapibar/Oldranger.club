@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Hidden
+@AllArgsConstructor
 @Controller
 public class TestSystemComment {
 
@@ -32,14 +34,6 @@ public class TestSystemComment {
     private TopicService topicService;
     private UserService userService;
     private WritingBanService writingBanService;
-
-    @Autowired
-    public TestSystemComment(CommentService commentService, TopicService topicService, UserService userService, WritingBanService writingBanService) {
-        this.commentService = commentService;
-        this.topicService = topicService;
-        this.userService = userService;
-        this.writingBanService = writingBanService;
-    }
 
     // Пример работы с системой комментирования
     @GetMapping("/com/{id}")

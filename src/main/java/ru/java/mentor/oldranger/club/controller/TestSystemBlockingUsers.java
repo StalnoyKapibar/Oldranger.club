@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Hidden
+@AllArgsConstructor
 @Controller
 public class TestSystemBlockingUsers {
 
@@ -29,14 +31,6 @@ public class TestSystemBlockingUsers {
     private BlackListService blackListService;
     private SessionService sessionService;
     private WritingBanService writingBanService;
-
-    @Autowired
-    public TestSystemBlockingUsers(BlackListService blackListService, UserService userService, SessionService sessionService, WritingBanService writingBanService) {
-        this.blackListService = blackListService;
-        this.userService = userService;
-        this.sessionService = sessionService;
-        this.writingBanService = writingBanService;
-    }
 
     @GetMapping("/admin")
     public String allUsers(Model model) {
