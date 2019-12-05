@@ -25,20 +25,28 @@ function sendInviteOnMail() {
     let field = document.getElementById("mail");
     let mail = field.value;
     if (mail != 0) {
-        fetch('http://localhost:8888/api/invite/bymail', {method: 'POST', body: mail})
-            .then(response => response.json())
-            .then(status => {
-                if (status == '1') {
-                    alert("Приглашение успешно отправлено на почту: " + mail);
-                } else {
-                    alert("Адрес отправки указан неверно!");
-                }
-            });
+        if (validateEmail(mail)) {
+            fetch('http://localhost:8888/api/invite/bymail', {method: 'POST', body: mail})
+                .then(response => response.json())
+                .then(status => {
+                    if (status == '1') {
+                        alert("Приглашение успешно отправлено на почту: " + mail);
+                    } else {
+                        alert("Приглашение не может быть доставлено по адресу:" + mail + "!");
+                    }
+                });
+        } else {
+            alert("Адрес отправки указан неверно!");
+        }
+
         field.value = "";
 
     } else {
         alert("Адрес отправки не указан!");
     }
+}
 
-
+function validateEmail(email) {
+    let pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return pattern.test(String(email).toLowerCase());
 }

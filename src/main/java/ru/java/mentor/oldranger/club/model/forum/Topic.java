@@ -1,12 +1,12 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 //@ToString
+@Indexed
 @EqualsAndHashCode
 @Table(name = "topics")
 public class Topic {
@@ -23,12 +24,16 @@ public class Topic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Field
     @Column(name = "name_topic", nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User topicStarter;
+
+    @Column(name = "message_count")
+    private long messageCount;
 
     @Column(name = "date_start")
     private LocalDateTime startTime;
@@ -42,9 +47,6 @@ public class Topic {
 
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
-
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<TopicVisitAndSubscription> visitAndSubscriptions = new ArrayList<>();
 
     public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
         this.name = name;
@@ -69,5 +71,9 @@ public class Topic {
                 ", lastMessageTime=" + lastMessageTime +
                 ", isHideToAnon=" + isHideToAnon +
                 '}';
+    }
+
+    public boolean isHideToAnon() {
+        return isHideToAnon;
     }
 }

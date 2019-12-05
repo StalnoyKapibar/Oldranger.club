@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -20,5 +21,12 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         String location = "file:///" + absolutePath + "/";
         registry.addResourceHandler("/img/**").
                 addResourceLocations(location);
+        registry.addResourceHandler("/img/chat/**").
+                addResourceLocations(location + "chat/");
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**");
     }
 }

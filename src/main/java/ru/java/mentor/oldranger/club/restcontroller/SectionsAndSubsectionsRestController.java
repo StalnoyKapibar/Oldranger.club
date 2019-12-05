@@ -1,5 +1,13 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +20,17 @@ import java.util.Map;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Sections and subsections")
 public class SectionsAndSubsectionsRestController {
 
     private SectionsAndSubsectionsService sectionsAndSubsectionsService;
 
-    @GetMapping("/allsectionsandsubsections")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Get all SectionsAndSubsectionsDto", tags = { "Sections and subsections" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndSubsectionsDto.class)))) })
+    @GetMapping(value = "/allsectionsandsubsections", produces = { "application/json" })
     public ResponseEntity<List<SectionsAndSubsectionsDto>> getSectionsAndSubsectionsDto() {
         List<SectionsAndSubsectionsDto> dtos = sectionsAndSubsectionsService.getAllSectionsAndSubsections();
         if (dtos == null) {
@@ -25,18 +39,20 @@ public class SectionsAndSubsectionsRestController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PatchMapping("/swapsections")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Swap sections", tags = { "Sections and subsections" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200") })
+    @PatchMapping(value = "/swapsections", produces = { "application/json" })
     public ResponseEntity swapSections(@RequestBody List<Long> sectionsId) {
-        // клиент посылает это: {"1","3"}
-        // {"section_id","section_id"}
         sectionsAndSubsectionsService.swapSections(sectionsId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/swapsubsections")
+    @Operation(security = @SecurityRequirement(name = "security"),
+               summary = "Swap subsections", tags = { "Sections and subsections" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200") })
+    @PatchMapping(value = "/swapsubsections", produces = { "application/json" })
     public ResponseEntity swapSubsections(@RequestBody Map<Long, List<String>> sectionsAndSubsectionsIds) {
-        // клиент посылает это: {"1":["3.7","1.1","1.2"],"3":["3.5","3.6"]}
-        // {"section_id":["section_id.subsection_id","section_id.subsection_id" ......
         sectionsAndSubsectionsService.swapSubsectons(sectionsAndSubsectionsIds);
         return ResponseEntity.ok().build();
     }

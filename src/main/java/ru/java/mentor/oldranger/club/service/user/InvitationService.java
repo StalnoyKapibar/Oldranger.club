@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface InvitationService {
-    public void save(InvitationToken invitationToken);
+    void save(InvitationToken invitationToken);
 
     List<InvitationToken> findAll();
 
@@ -26,4 +26,5 @@ public interface InvitationService {
     void setShelfLife(Long time);
 
     boolean checkShelfLife(InvitationToken token);
+
 }

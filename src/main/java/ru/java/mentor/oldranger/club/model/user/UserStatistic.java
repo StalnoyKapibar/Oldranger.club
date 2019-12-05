@@ -24,6 +24,12 @@ public class UserStatistic {
     @Column(name = "message_count")
     private long messageCount;
 
+    @Column(name = "topics_count")
+    private long topicStartCount;
+
+    @Column(name = "last_comment")
+    private LocalDateTime lastComment;
+
     @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 

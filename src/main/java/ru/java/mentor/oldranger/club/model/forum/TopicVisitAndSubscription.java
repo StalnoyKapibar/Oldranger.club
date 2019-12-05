@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "topic_visit_and_subscriptions")
 public class TopicVisitAndSubscription {
-
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +26,8 @@ public class TopicVisitAndSubscription {
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "id_topic", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
     private Topic topic;
 
     @Column(name = "is_subscribed", columnDefinition = "TINYINT", nullable = false)

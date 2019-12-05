@@ -24,7 +24,7 @@ public class SessionService {
         this.sessionRegistry = sessionRegistry;
     }
 
-    @Value("server.port")
+    @Value("${server.port}")
     String port;
 
     //Метод для удаления сессии любого пользователя

@@ -1,12 +1,19 @@
 package ru.java.mentor.oldranger.club.service.user;
 
+import ru.java.mentor.oldranger.club.dto.ProfileDto;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 
 public interface UserProfileService {
 
-    public UserProfile createUserProfile(UserProfile userProfile);
+    UserProfile createUserProfile(UserProfile userProfile);
 
-    public void deleteUserProfileById(Long id);
+    void deleteUserProfileById(Long id);
 
-    public void editUserProfile(UserProfile userProfile);
+    void editUserProfile(UserProfile userProfile);
+
+    UserProfile getUserProfileByUser(User user);
+
+    ProfileDto buildProfileDto(UserProfile profile, UserStatistic stat, boolean owner);
 }
