@@ -26,14 +26,24 @@
             </div>
             <div class="modal-body col-lg-8 text-center mx-auto">
                 <!--/*@thymesVar id="theUserEdit" type=""*/-->
-                <form class="form-horizontal" action="#" th:action="@{/admin/blocking}" method="POST">
+                <form class="form-horizontal" id="sendBan" method="POST">
+                    <input type="hidden" name="banType" id="banType" value="ON_PRIVATE_MESS">
+                    <input type="hidden" name="action_name" id="action_id">
                     <div class="form-group">
                         <label>ID</label>
                         <input id="userId" type="number" name="id" placeholder="ID" class="form-control" readonly>
                     </div>
+                    <div id="group1" class="form-group">
+                        <label>Тип запрета:</label>
+                        <select id="sel_banType">
+                            <option value="ON_PRIVATE_MESS">На личные сообщения</option>
+                            <option value="ON_FORUM_MESS">На сообщения на форуме</option>
+                            <option value="ON_COMMENTS">На комментарии</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Блокировать на:</label>
-                        <select>
+                        <select id="sel_banType1">
                             <option selected value="0"> ----</option>
                             <option value="1">1 день</option>
                             <option value="7">7 дней</option>
@@ -78,6 +88,7 @@
     </div>
 </div>
 
+
 <div th:insert="fragment/header :: head"></div>
 
 <div class="row">
@@ -118,29 +129,37 @@
 
     </div>
 </div>
+
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
 
+<script src="/js/BlackList.js"></script>
+
 <script type="text/javascript">
-    function showFunctionModal(id, firstName, lastName, email, nickName) {
+    function showFunctionModal(id, firstName, lastName, email, nickName, action) {
         $('#userId').val(id);
         $('#firstName').val(firstName);
         $('#lastName').val(lastName);
         $('#email').val(email);
         $('#nickName').val(nickName);
+        $('#action_id').val(action);
+        if (action=="/admin/blocking") {
+            $('#group1').hide();
+        }
+        else {
+            $('#group1').show();
+        }
     }
 
     let picker = $('#datetimepicker5');
@@ -152,7 +171,7 @@
         picker.datetimepicker('date', new Date());
     });
 
-    $('select').change(function () {
+    $('#sel_banType1').change(function () {
         let select = $(this).find("option:selected").val();
         if (select == "0") {
             picker.datetimepicker('date', new Date());
@@ -167,11 +186,18 @@
         }
     });
 
+    $('#sel_banType').change(function () {
+        let select = $(this).find("option:selected").val();
+        $('#banType').val(select);
+    });
+
     Date.prototype.addDays = function (days) {
         let date = new Date(this.valueOf());
         date.setDate(date.getDate() + days);
         return date;
     }
+
+
 
 </script>
 </body>
