@@ -5,19 +5,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.java.mentor.oldranger.club.model.article.Article;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
-import ru.java.mentor.oldranger.club.service.forum.CommentService;
-import ru.java.mentor.oldranger.club.service.forum.SectionService;
-import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
+import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
-import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
@@ -27,14 +27,15 @@ import java.util.Random;
 public class DataInitializer implements CommandLineRunner {
     private RoleService roleService;
     private UserService userService;
-    private UserProfileService userProfileService;
-    private UserStatisticService userStatisticService;
     private SectionService sectionService;
     private SubsectionService subsectionService;
     private TopicService topicService;
     private CommentService commentService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
+    private ChatService chatService;
+    private ArticleTagService articleTagService;
+    private ArticleService articleService;
 
     @Autowired
     @Lazy
@@ -43,38 +44,43 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     public DataInitializer(RoleService roleService,
                            UserService userService,
-                           UserProfileService userProfileService,
-                           UserStatisticService userStatisticService,
                            SectionService sectionService,
                            SubsectionService subsectionService,
                            TopicService topicService,
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
-                           BlackListService blackListService) {
+                           BlackListService blackListService,
+                           ChatService chatService,
+                           ArticleTagService articleTagService,
+                           ArticleService articleService) {
         this.roleService = roleService;
         this.userService = userService;
-        this.userProfileService = userProfileService;
-        this.userStatisticService = userStatisticService;
         this.sectionService = sectionService;
         this.subsectionService = subsectionService;
         this.topicService = topicService;
         this.commentService = commentService;
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
+        this.chatService = chatService;
+        this.articleTagService = articleTagService;
+        this.articleService = articleService;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
+        // Общий чат
+        chatService.createChat(new Chat());
+
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
         Role roleModerator = new Role("ROLE_MODERATOR");
         Role roleUser = new Role("ROLE_USER");
-        Role roleUnverified = new Role("ROLE_UNVERIFIED");
+        Role roleProspect = new Role("ROLE_PROSPECT");
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);
-        roleService.createRole(roleUnverified);
+        roleService.createRole(roleProspect);
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
@@ -86,23 +92,39 @@ public class DataInitializer implements CommandLineRunner {
         User user = new User("User", "User", "user@javamentor.com", "User", roleUser);
         user.setRegDate(LocalDateTime.of(2019, 11, 2, 11, 10, 35));
         user.setPassword(passwordEncoder.encode("user"));
-        User unverified = new User("Unverified", "Unverified", "unverified@javamentor.com", "Unverified", roleUnverified);
-        admin.setRegDate(LocalDateTime.now());
-        unverified.setPassword(passwordEncoder.encode("unverified"));
+        User unverified = new User("Prospect", "Prospect", "prospect@javamentor.com", "Prospect", roleProspect);
+        unverified.setPassword(passwordEncoder.encode("prospect"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
 
+
+        ArticleTag newsTag1 = new ArticleTag("Тема 1");
+        ArticleTag newsTag2 = new ArticleTag("Тема 2");
+        ArticleTag newsTag3 = new ArticleTag("Тема 3");
+        ArticleTag newsTag4 = new ArticleTag("Тема 4");
+        ArticleTag newsTag5 = new ArticleTag("Тема 5");
+
+        newsTag2.setParent(newsTag1);
+        newsTag3.setParent(newsTag1);
+        newsTag4.setParent(newsTag3);
+
+        articleTagService.addTag(newsTag1);
+        articleTagService.addTag(newsTag2);
+        articleTagService.addTag(newsTag3);
+        articleTagService.addTag(newsTag4);
+        articleTagService.addTag(newsTag5);
+
+        ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3, newsTag4, newsTag5};
+        for (int i = 1; i < 11; i++) {
+            articleService.addArticle(new Article("news", admin, newsTags[i % 5], LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
+                    "Text news!"));
+        }
+
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
-
-        // Создаем статистику пользователей
-        userStatisticService.saveUserStatic(new UserStatistic(admin));
-        userStatisticService.saveUserStatic(new UserStatistic(user));
-        userStatisticService.saveUserStatic(new UserStatistic(moderator));
-        userStatisticService.saveUserStatic(new UserStatistic(unverified));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));
@@ -191,11 +213,15 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         for (int i =1; i< 12; i++) {
-            User newuser = new User("User", "User", "user@javamentor.com", "User" + i, roleUser);
+            User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
-            userStatisticService.saveUserStatic(new UserStatistic(newuser));
         }
 
+
+
+        System.out.println("Инициализация закончена!");
+
     }
+
 }

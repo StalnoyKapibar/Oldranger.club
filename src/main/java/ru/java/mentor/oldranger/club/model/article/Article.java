@@ -1,4 +1,4 @@
-package ru.java.mentor.oldranger.club.model.news;
+package ru.java.mentor.oldranger.club.model.article;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "news")
-public class News {
+@Table(name = "articles")
+public class Article {
 
     @Id
     @Column(name = "id")
@@ -25,24 +25,24 @@ public class News {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
-    private NewsTag newsTag;
+    private ArticleTag articleTag;
 
-    @Column(name = "news_date")
+    @Column(name = "article_date")
     private LocalDateTime date;
 
-    @Column(name = "news_test")
+    @Column(name = "article_text")
     private String text;
 
-    public News(String title, User user, NewsTag newsTag, LocalDateTime date, String text) {
+    public Article(String title, User user, ArticleTag articleTag, LocalDateTime date, String text) {
         this.title = title;
         this.user = user;
-        this.newsTag = newsTag;
+        this.articleTag = articleTag;
         this.date = date;
         this.text = text;
     }

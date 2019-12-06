@@ -5,34 +5,34 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.java.mentor.oldranger.club.model.news.NewsTag;
-import ru.java.mentor.oldranger.club.service.news.NewsService;
-import ru.java.mentor.oldranger.club.service.news.NewsTagService;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
 @Controller
 @RequestMapping(path = "/test/news")
 public class TestNewsController {
 
-    private NewsTagService newsTagService;
-    private NewsService newsService;
+    private ArticleTagService articleTagService;
+    private ArticleService articleService;
 
-    public TestNewsController(NewsTagService newsTagService, NewsService newsService) {
-        this.newsTagService = newsTagService;
-        this.newsService = newsService;
+    public TestNewsController(ArticleTagService articleTagService, ArticleService articleService) {
+        this.articleTagService = articleTagService;
+        this.articleService = articleService;
     }
 
     @GetMapping
     public String getNews(Model model) {
-        model.addAttribute("tagList", newsTagService.getAllTags());
-        model.addAttribute("newsList", newsService.getAllNews());
+        model.addAttribute("tagList", articleTagService.getAllTags());
+        model.addAttribute("newsList", articleService.getAllArticles());
         return "testNews";
     }
 
     @GetMapping(path = "/t/{tagId}")
     public String getNewsByTag(@PathVariable(name = "tagId") Long tagId, Model model) {
-        model.addAttribute("tagList", newsTagService.getAllTags());
-        NewsTag newsTag = newsTagService.getTagById(tagId);
-        model.addAttribute("newsList", newsService.getAllByTag(newsTag));
+        model.addAttribute("tagList", articleTagService.getAllTags());
+        ArticleTag articleTag = articleTagService.getTagById(tagId);
+        model.addAttribute("newsList", articleService.getAllByTag(articleTag));
         return "testNews";
     }
 }
