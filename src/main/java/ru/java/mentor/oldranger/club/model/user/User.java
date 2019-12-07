@@ -87,7 +87,7 @@ public class User implements UserDetails{
     public boolean isAccountNonExpired() {
         return true;
     }
-
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return BlackListServiceImpl.getInstance().userSearchBlackListByUserId(getId());
