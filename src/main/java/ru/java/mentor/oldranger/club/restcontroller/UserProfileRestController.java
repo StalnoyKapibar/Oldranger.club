@@ -99,8 +99,8 @@ public class UserProfileRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @PostMapping("/updateProfile")
-    public ResponseEntity<UpdateProfileDto> updateProfile(UserProfile profile) {
+    @PostMapping(value = "/updateProfile", produces = { "application/json" }, consumes = { "application/json" })
+    public ResponseEntity<UpdateProfileDto> updateProfile(@RequestBody UserProfile profile) {
 
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();

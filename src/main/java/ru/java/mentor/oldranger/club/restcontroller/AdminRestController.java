@@ -105,8 +105,8 @@ public class AdminRestController {
             @ApiResponse(responseCode = "200", description = "Mail send",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
-    @PostMapping(value = "/sendMail", produces = { "application/json" })
-    public ResponseEntity<String> sendMail(EmailDraft draft) {
+    @PostMapping(value = "/sendMail", produces = { "application/json" }, consumes = { "application/json" })
+    public ResponseEntity<String> sendMail(@RequestBody EmailDraft draft) {
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
         users.forEach(user -> mailList.add(user.getEmail()));
@@ -153,7 +153,7 @@ public class AdminRestController {
             @ApiResponse(responseCode = "200", description = "Draft saved",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Saving error")})
-    @PostMapping(value = "/saveDraft", produces = { "application/json" })
+    @PostMapping(value = "/saveDraft", produces = { "application/json" }, consumes = { "application/json" })
     public ResponseEntity<String> saveDraft(EmailDraft draft) {
         draft.setLastEditDate(LocalDateTime.now());
         try {

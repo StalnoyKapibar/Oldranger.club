@@ -84,7 +84,7 @@ public class InvitationTokenRestController {
             @ApiResponse(responseCode = "200", description = "Status, 1 - success, 0 - failed",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @PostMapping(value = "/bymail", produces = { "application/json" })
+    @PostMapping(value = "/bymail", produces = { "application/json" }, consumes = { "application/json" })
     public ResponseEntity<String> sendInviteByMail(@Parameter(description="Email")
                                                    @RequestBody String mail) {
         User user = securityUtilsService.getLoggedUser();
