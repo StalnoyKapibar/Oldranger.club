@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <title>Теcтовая страница системы комментирования</title>
     <link rel="stylesheet" type="text/css" th:href="@{/css/style-comment.css}"/>
-<!--    smile-->
+    <!--    smile-->
     <link rel="stylesheet" type="text/css" th:href="@{/dist-smile/emojionearea.min.css}" media="screen">
 </head>
 <body>
@@ -11,6 +11,7 @@
 <div style="width: 600px; max-height: 600px; margin: 0 auto;"> Topic
     <div th:insert="fragment/comment-field :: comment-field"></div>
 </div>
+<input type="hidden" id="isForbidden" name="isForbidden" th:value="${isForbidden}"/>
 
 <script th:src="@{/js/comment.js}" type="text/javascript" th:inline="javascript"></script>
 <!--smile-->
@@ -18,6 +19,12 @@
 <script type="text/javascript" th:src="@{/dist-smile/emojionearea.js}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        if ($("#isForbidden").val()=="true") {
+            $("#comment-footer_id").hide();
+        }
+        else {
+            $("#comment-footer_id").show();
+        }
         $("#body-comments").emojioneArea({
             pickerPosition: "bottom",
             filtersPosition: "bottom",

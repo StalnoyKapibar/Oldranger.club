@@ -16,16 +16,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +43,11 @@ import java.util.Map;
 @Tag(name = "Group chat")
 public class GroupChatRestController {
 
+
     private ChatService chatService;
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
+    private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get current user info", description = "Avatar and username", tags = { "Group chat" })
@@ -50,7 +59,6 @@ public class GroupChatRestController {
     ResponseEntity<Map<String, String>> getUserInfo() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) return ResponseEntity.noContent().build();
-
         Map<String, String> info = new HashMap<>();
         info.put("username", user.getNickName());
         info.put("ava", user.getAvatar().getSmall());
@@ -67,6 +75,28 @@ public class GroupChatRestController {
         return ResponseEntity.ok(messageService.getOnlineUsers());
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Can a user participate", tags = { "Group chat" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Boolean",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))})
+    @GetMapping("/writingBan")
+    ResponseEntity<Boolean> getWritingStatus() {
+        boolean isForbidden = false;
+        try {
+            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_PRIVATE_MESS);
+            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
+                isForbidden = true;
+            }
+        }
+        catch (Exception e) {
+            isForbidden = true;
+        }
+        return ResponseEntity.ok(isForbidden);
+    }
+  
     @Operation(summary = "Get last messages", description = "limit 20 messages", tags = { "Group chat" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
