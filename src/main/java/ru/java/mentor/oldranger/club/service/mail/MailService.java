@@ -13,5 +13,5 @@ public interface MailService {
 
     void sendHtmlMessage(String[] to, EmailDraft mail) throws MessagingException, IOException;
 
-    Map<String, Integer> getCountTopicsAndActiveChats(String email);
+    void sendHtmlMessage(String to, Map<String, Object> attributes, String fileName);
 }

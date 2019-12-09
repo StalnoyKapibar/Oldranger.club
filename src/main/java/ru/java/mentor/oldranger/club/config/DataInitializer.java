@@ -7,11 +7,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
+import ru.java.mentor.oldranger.club.service.mail.MailDirectionService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
@@ -30,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
     private ChatService chatService;
+    private MailDirectionService mailDirectionService;
 
     @Autowired
     @Lazy
@@ -44,7 +47,8 @@ public class DataInitializer implements CommandLineRunner {
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
                            BlackListService blackListService,
-                           ChatService chatService) {
+                           ChatService chatService,
+                           MailDirectionService mailDirectionService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -54,6 +58,7 @@ public class DataInitializer implements CommandLineRunner {
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
         this.chatService = chatService;
+        this.mailDirectionService = mailDirectionService;
     }
 
     @Override
@@ -88,6 +93,15 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+
+        //Тест рассылки.
+        User testDirection = new User("Tester", "Tester", "daemods@gmail.com", "Tayker", roleAdmin);
+        testDirection.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
+        testDirection.setPassword(passwordEncoder.encode("admin"));
+        userService.save(testDirection);
+
+        mailDirectionService.changeUserDirection(userService.getUserByNickName("Tayker").getId(), DirectionType.TWO_TO_DAY);
+
 
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);

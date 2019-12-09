@@ -37,15 +37,6 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    @Autowired
-    private TopicService service;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ChatRepository chatRepository;
-
     @Value("${spring.mail.username}")
     private String username;
 
@@ -88,7 +79,7 @@ public class MailServiceImpl implements MailService {
                 MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name());
 
-        Map<String,Object> model = new HashMap<>();
+        Map<String, Object> model = new HashMap<>();
         model.put("content", mail.getMessage());
         Context context = new Context();
         context.setVariables(model);
@@ -102,16 +93,24 @@ public class MailServiceImpl implements MailService {
         mailSender.send(message);
     }
 
-    public Map<String, Integer> getCountTopicsAndActiveChats(String email) {
-        Map<String, Integer> countTopicsAndActiveChats = new HashMap<>();
-        User user = userService.getUserByEmail(email);
-        Integer newTopicsCount = service
-                .getNewMessagesCountForTopicsAndUser(service
-                        .getActualTopicsLimitAnyBySection(30), user).size();
-        Integer countActiveChats = chatRepository.getCountChatByUserID(user.getId());
+    @Override
+    public void sendHtmlMessage(String to, Map<String, Object> attributes, String fileName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
-        countTopicsAndActiveChats.put("unreadTopics", newTopicsCount);
-        countTopicsAndActiveChats.put("activeChats", countActiveChats);
-        return countTopicsAndActiveChats;
+            Context context = new Context();
+            context.setVariables(attributes);
+
+            String html = templateEngine.process(fileName, context);
+
+            helper.setTo(to);
+            helper.setFrom(username);
+            helper.setText(html, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }

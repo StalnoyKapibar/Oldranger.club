@@ -21,12 +21,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.mail.MailDirectionService;
 import ru.java.mentor.oldranger.club.service.user.*;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
@@ -47,6 +49,7 @@ public class UserProfileRestController {
     private CommentService commentService;
     private PasswordEncoder passwordEncoder;
     private SecurityUtilsService securityUtilsService;
+    private MailDirectionService mailDirectionService;
 
 
     @InitBinder
@@ -230,4 +233,10 @@ public class UserProfileRestController {
         return ResponseEntity.ok(new ErrorDto("Пароль указан неверно"));
     }
 
+
+    @PostMapping(value = "/changeUserDirection")
+    public void setUserDirection(@RequestParam Long userId,
+                                 @RequestParam String userDirection){
+        mailDirectionService.changeUserDirection(userId, Direction.stringToDirectionType(userDirection));
+    }
 }
