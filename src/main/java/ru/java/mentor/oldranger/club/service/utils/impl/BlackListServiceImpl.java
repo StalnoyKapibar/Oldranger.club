@@ -61,10 +61,9 @@ public class BlackListServiceImpl implements BlackListService {
     private void deleteUnlockBlock(List<BlackList> blackLists) {
         LocalDateTime now = LocalDateTime.now();
         for (BlackList blackList : blackLists) {
-            if(blackList.getUnlockTime() == null){
-                return;
-            }
-            else if(now.isAfter(blackList.getUnlockTime())) {
+            if (blackList.getUnlockTime() == null) {
+                break;
+            } else if (now.isAfter(blackList.getUnlockTime())) {
                 blackListRepository.delete(blackList);
             }
         }
