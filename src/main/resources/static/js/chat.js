@@ -10,11 +10,13 @@ $(document).ready(function () {
         connecting = $('.connecting'),
         close = $('.close'),
         usersOnline = $('html .user-list ul'),
+        forbiddenForm=$('#messBanId'),
         username = null,
         userAvatar = null,
         replyTo = null,
         stompClient = null,
-        page = 0;
+        page = 0,
+        isForbidden = false;
 
 
     greetingForm.on('submit', connect);
@@ -42,15 +44,24 @@ $(document).ready(function () {
 
     function connect(e) {
         e.preventDefault();
-        $.get("/api/chat/user", function (data) {
-            username = data["username"];
-            userAvatar = data["ava"];
+        $.get("/api/chat/writingBan", function (data) {
+            isForbidden = data;
         });
-        if (username) {
+        if (isForbidden) {
             greeting.addClass('hidden');
-            chat.removeClass('hidden');
-            stompClient = Stomp.over(new SockJS('/ws'));
-            stompClient.connect({}, onConnected, onError);
+            forbiddenForm.removeClass('hidden');
+        }
+        else {
+            $.get("/api/chat/user", function (data) {
+                username = data["username"];
+                userAvatar = data["ava"];
+            });
+            if (username) {
+                greeting.addClass('hidden');
+                chat.removeClass('hidden');
+                stompClient = Stomp.over(new SockJS('/ws'));
+                stompClient.connect({}, onConnected, onError);
+            }
         }
     }
 
