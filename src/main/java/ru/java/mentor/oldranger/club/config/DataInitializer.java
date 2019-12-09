@@ -52,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
                            BlackListService blackListService,
                            ChatService chatService,
-                           MailDirectionService mailDirectionService) {
+                           MailDirectionService mailDirectionService,
                            WritingBanService writingBanService) {
         this.roleService = roleService;
         this.userService = userService;
