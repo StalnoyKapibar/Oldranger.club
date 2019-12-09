@@ -50,23 +50,23 @@ public class BlackListServiceImpl implements BlackListService {
     @Override
     public boolean userSearchBlackListByUserId(Long id) {
         List<BlackList> blackLists = findByUserId(id);
-        if (blackLists.size() == 0) {
+        if (blackLists.size() == 0 || deleteUnlockBlock(blackLists)) {
             return true;
-        } else {
-            deleteUnlockBlock(blackLists);
-            return false;
         }
+        return false;
     }
 
-    private void deleteUnlockBlock(List<BlackList> blackLists) {
+    private boolean deleteUnlockBlock(List<BlackList> blackLists) {
         LocalDateTime now = LocalDateTime.now();
         for (BlackList blackList : blackLists) {
             if (blackList.getUnlockTime() == null) {
-                break;
+                return false;
             } else if (now.isAfter(blackList.getUnlockTime())) {
                 blackListRepository.delete(blackList);
+                return true;
             }
         }
+        return false;
     }
 
     @Override
