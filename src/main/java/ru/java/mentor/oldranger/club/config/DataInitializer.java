@@ -94,15 +94,6 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(user);
         userService.save(unverified);
 
-        //Тест рассылки.
-        User testDirection = new User("Tester", "Tester", "daemods@gmail.com", "Tayker", roleAdmin);
-        testDirection.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
-        testDirection.setPassword(passwordEncoder.encode("admin"));
-        userService.save(testDirection);
-
-        mailDirectionService.changeUserDirection(userService.getUserByNickName("Tayker").getId(), DirectionType.TWO_TO_DAY);
-
-
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
@@ -199,5 +190,12 @@ public class DataInitializer implements CommandLineRunner {
             userService.save(newuser);
         }
 
+        //Тест рассылки.
+        User testDirection = new User("Tester", "Tester", "daemods@gmail.com", "Tayker", roleAdmin);
+        testDirection.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
+        testDirection.setPassword(passwordEncoder.encode("admin"));
+        userService.save(testDirection);
+
+        mailDirectionService.changeUserDirection(userService.getUserByNickName("Tayker").getId(), DirectionType.TWO_TO_DAY);
     }
 }
