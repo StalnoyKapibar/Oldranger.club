@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmailOrNickName(String login) {
-        return userRepository.findUserByEmailOrNickName(login);
+    public Optional<User> getUserByEmailOrNickName(String login) {
+        return Optional.of(userRepository.findUserByEmailOrNickName(login));
     }
 }
