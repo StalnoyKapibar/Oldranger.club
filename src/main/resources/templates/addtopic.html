@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Topic</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<form class="ml-5 mt-5" style="max-width: 500px">
+    <h1>Create a new topic:</h1>
+    <div class="form-group">
+        <label for="topicNameInput">Topic name:</label>
+        <input type="text" class="form-control" id="topicNameInput" aria-describedby="topicName" required>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="isVisibleCheckbox">
+        <label class="form-check-label" for="isVisibleCheckbox">Is topic visible to anon</label>
+    </div>
+    <div class="form-group">
+        <label for="subsectionSelector">Example select</label>
+        <select class="form-control" id="subsectionSelector">
+            <script>
+                $(document).ready(function () {
+                    getSubsectionList();
+                });
+
+                    function getSubsectionList() {
+                        $.ajax({
+                            url: '/api/allsectionsandsubsections',
+                            method: "GET",
+                            dataType: "json",
+                            success: function (data) {
+                                var selectBody = $('#subsectionSelector');
+                                $(data).each(function (i, section) {
+                                    selectBody.append(`
+                <option value="${section.section.id}" disabled style="background-color: #c5c5c5">${section.section.name}</option>
+                `);
+                                    $(section.subsections).each(function (j, subsection) {
+                                        selectBody.append(`
+                    <option value="${subsection.id}" >${subsection.name}</option>
+                    `);
+                                    })
+                                })
+                            },
+                        })
+                    }
+            </script>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary" id="createTopicButton">Submit</button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#createTopicButton').click(function (e) {
+            e.preventDefault();
+            ajaxPost();
+        });
+
+        function ajaxPost() {
+            var topicDetails = {
+                name: $("#topicNameInput").val(),
+                topicStarter: null,
+                startTime: null,
+                lastMessageTime: null,
+                subsection: getSubsection(),
+                hideToAnon: $('#isVisibleCheckbox').is(':checked')
+            };
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;",
+                url: "/api/topic/new",
+                data: JSON.stringify(topicDetails),
+                dataType: 'json',
+                success:
+                    function (data) {
+                        window.location.href = "/test/topic/" + data.id;
+                    }
+            });
+        }
+
+        function getSubsection() {
+            var result;
+            $.ajax({
+                url: '/api/getsubsection/' + $('#subsectionSelector').val(),
+                method: "GET",
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                    result = data;
+                }
+            });
+            return result;
+        }
+    });
+</script>
+
+</body>
+</html>
