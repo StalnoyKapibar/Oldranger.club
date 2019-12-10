@@ -5,25 +5,22 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
-import ru.java.mentor.oldranger.club.service.article.ArticleService;
-import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -36,8 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
     private ChatService chatService;
-    private ArticleTagService articleTagService;
-    private ArticleService articleService;
+    private WritingBanService writingBanService;
 
     @Autowired
     @Lazy
@@ -53,8 +49,7 @@ public class DataInitializer implements CommandLineRunner {
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
                            BlackListService blackListService,
                            ChatService chatService,
-                           ArticleTagService articleTagService,
-                           ArticleService articleService) {
+                           WritingBanService writingBanService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -64,8 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
         this.chatService = chatService;
-        this.articleTagService = articleTagService;
-        this.articleService = articleService;
+        this.writingBanService = writingBanService;
     }
 
     @Override
@@ -104,6 +98,9 @@ public class DataInitializer implements CommandLineRunner {
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
+
+        //Запрещаем пользователью отправлять личные сообщения
+        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11,28,19,10,0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));
@@ -197,24 +194,5 @@ public class DataInitializer implements CommandLineRunner {
             userService.save(newuser);
         }
 
-        ArticleTag newsTag1 = new ArticleTag("Тема 1");
-        ArticleTag newsTag2 = new ArticleTag("Тема 2");
-        ArticleTag newsTag3 = new ArticleTag("Тема 3");
-
-        articleTagService.addTag(newsTag1);
-        articleTagService.addTag(newsTag2);
-        articleTagService.addTag(newsTag3);
-
-        ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
-        for (int i = 1; i < 11; i++) {
-            Set<ArticleTag> tags = new HashSet<>();
-            tags.add(newsTags[i % 3]);
-            articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!"));
-        }
-
-        System.out.println("Инициализация закончена!");
-
     }
-
 }

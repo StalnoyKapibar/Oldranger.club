@@ -24,7 +24,8 @@
                 <th>email</th>
                 <th>nickName</th>
                 <th>regDate</th>
-                <th>action</th>
+                <th>blocking</th>
+                <th>action restriction</th>
             </tr>
             </thead>
 
@@ -39,9 +40,16 @@
                 <td th:text="${tempUser.regDate}"/>
                 <td>
                     <a class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModalEdit"
-                       th:attr="onclick=|showFunctionModal('${tempUser.id}','${tempUser.firstName}','${tempUser.lastName}','${tempUser.email}','${tempUser.nickName}')|"
+                       th:attr="onclick=|showFunctionModal('${tempUser.id}','${tempUser.firstName}','${tempUser.lastName}','${tempUser.email}','${tempUser.nickName}', '/admin/blocking')|"
                     >
                         Blocking
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModalEdit"
+                       th:attr="onclick=|showFunctionModal('${tempUser.id}','${tempUser.firstName}','${tempUser.lastName}','${tempUser.email}','${tempUser.nickName}', '/admin/writingBan')|"
+                    >
+                        Action restriction
                     </a>
                 </td>
             </tr>

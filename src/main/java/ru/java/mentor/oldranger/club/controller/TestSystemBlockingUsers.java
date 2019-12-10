@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,15 +10,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Hidden
+@AllArgsConstructor
 @Controller
 public class TestSystemBlockingUsers {
 
@@ -25,13 +30,7 @@ public class TestSystemBlockingUsers {
     private UserService userService;
     private BlackListService blackListService;
     private SessionService sessionService;
-
-    @Autowired
-    public TestSystemBlockingUsers(BlackListService blackListService, UserService userService, SessionService sessionService) {
-        this.blackListService = blackListService;
-        this.userService = userService;
-        this.sessionService = sessionService;
-    }
+    private WritingBanService writingBanService;
 
     @GetMapping("/admin")
     public String allUsers(Model model) {
@@ -70,6 +69,38 @@ public class TestSystemBlockingUsers {
         }
         blackListService.save(blackList);
         sessionService.expireUserSessions(user.getUsername());
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/writingBan")
+    public String writingBanUser(@RequestParam(value = "id") Long id,
+                                 @RequestParam(value = "banType") String banType,
+                                 @RequestParam(value = "datetimepicker", required = false) String dateUnblock) {
+        User user = userService.findById(id);
+        BanType type = BanType.valueOf(banType);
+        WritingBan oldWritingBan = writingBanService.getByUserAndType(user, type);
+        WritingBan writingBan;
+        LocalDateTime localDateTime = null;
+        if (dateUnblock==null) {
+            localDateTime = null;
+        }
+        else {
+            String[] dateTime = dateUnblock.split(" ");
+            String[] date = dateTime[0].split("/");
+            String[] time = dateTime[1].split(":");
+            localDateTime = LocalDateTime.of( Integer.parseInt(date[2]),
+                    Integer.parseInt(date[1]),
+                    Integer.parseInt(date[0]),
+                    Integer.parseInt(time[0]),
+                    Integer.parseInt(time[1]),
+                    0);
+        }
+        if (oldWritingBan != null) {
+            writingBan = new WritingBan(oldWritingBan.getId(), user, type, localDateTime);
+        } else {
+            writingBan = new WritingBan(user, type, localDateTime);
+        }
+        writingBanService.save(writingBan);
         return "redirect:/admin";
     }
 
