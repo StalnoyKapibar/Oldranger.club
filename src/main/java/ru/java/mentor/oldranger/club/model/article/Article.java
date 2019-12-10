@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,9 +30,11 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tag_id")
-    private ArticleTag articleTag;
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.EAGER)
+    @JoinTable(name = "article_tags",
+            joinColumns = { @JoinColumn(name = "article_id") },
+            inverseJoinColumns = { @JoinColumn(name = "tag_id") })
+    private Set<ArticleTag> articleTags;
 
     @Column(name = "article_date")
     private LocalDateTime date;
@@ -39,10 +42,10 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
-    public Article(String title, User user, ArticleTag articleTag, LocalDateTime date, String text) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text) {
         this.title = title;
         this.user = user;
-        this.articleTag = articleTag;
+        this.articleTags = articleTags;
         this.date = date;
         this.text = text;
     }

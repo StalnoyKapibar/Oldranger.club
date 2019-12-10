@@ -16,15 +16,12 @@ import java.util.List;
 @Tag(name = "Article")
 public class ArticleRestController {
 
-    private ArticleTagService articleTagService;
     private ArticleService articleService;
 
     @GetMapping(value = "/tag/{tag_id}", produces = { "application/json" })
-    public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id,
-                                                           @RequestParam(value = "recursive", required = false) boolean recursive) {
+    public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
 
-        List<Article> articles = recursive ? articleService.getAllByTagRecursive(articleTagService.getTagById(tag_id)) :
-                                             articleService.getAllByTag(articleTagService.getTagById(tag_id));
+        List<Article> articles = articleService.getAllByTag(tag_id);
 
         return ResponseEntity.ok(articles);
     }

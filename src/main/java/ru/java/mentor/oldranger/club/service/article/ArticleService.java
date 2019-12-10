@@ -9,9 +9,7 @@ public interface ArticleService {
 
     List<Article> getAllArticles();
 
-    List<Article> getAllByTag(ArticleTag articleTag);
-
-    List<Article> getAllByTagRecursive(ArticleTag articleTag);
+    List<Article> getAllByTag(long tagId);
 
     void addArticle(Article article);
 }

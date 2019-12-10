@@ -26,18 +26,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllByTag(ArticleTag articleTag) {
-        return articleRepository.getAllByArticleTagOrderByDateDesc(articleTag);
-    }
-
-    @Override
-    public List<Article> getAllByTagRecursive(ArticleTag articleTag) {
-        List<Article> articles = getAllByTag(articleTag);
-
-        if (!articleTag.getSubTags().isEmpty())
-           articleTag.getSubTags().forEach(articleSubTag -> articles.addAll(getAllByTagRecursive(articleSubTag)));
-
-        return articles;
+    public List<Article> getAllByTag(long tagId) {
+        return articleRepository.findAllByArticleTags_id(tagId);
     }
 
     @Override

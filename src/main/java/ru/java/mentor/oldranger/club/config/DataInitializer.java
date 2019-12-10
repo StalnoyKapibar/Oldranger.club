@@ -21,7 +21,9 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -98,29 +100,6 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
-
-
-        ArticleTag newsTag1 = new ArticleTag("Тема 1");
-        ArticleTag newsTag2 = new ArticleTag("Тема 2");
-        ArticleTag newsTag3 = new ArticleTag("Тема 3");
-        ArticleTag newsTag4 = new ArticleTag("Тема 4");
-        ArticleTag newsTag5 = new ArticleTag("Тема 5");
-
-        newsTag2.setParent(newsTag1);
-        newsTag3.setParent(newsTag1);
-        newsTag4.setParent(newsTag3);
-
-        articleTagService.addTag(newsTag1);
-        articleTagService.addTag(newsTag2);
-        articleTagService.addTag(newsTag3);
-        articleTagService.addTag(newsTag4);
-        articleTagService.addTag(newsTag5);
-
-        ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3, newsTag4, newsTag5};
-        for (int i = 1; i < 11; i++) {
-            articleService.addArticle(new Article("news", admin, newsTags[i % 5], LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!"));
-        }
 
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
@@ -218,7 +197,21 @@ public class DataInitializer implements CommandLineRunner {
             userService.save(newuser);
         }
 
+        ArticleTag newsTag1 = new ArticleTag("Тема 1");
+        ArticleTag newsTag2 = new ArticleTag("Тема 2");
+        ArticleTag newsTag3 = new ArticleTag("Тема 3");
 
+        articleTagService.addTag(newsTag1);
+        articleTagService.addTag(newsTag2);
+        articleTagService.addTag(newsTag3);
+
+        ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
+        for (int i = 1; i < 11; i++) {
+            Set<ArticleTag> tags = new HashSet<>();
+            tags.add(newsTags[i % 3]);
+            articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
+                    "Text news!"));
+        }
 
         System.out.println("Инициализация закончена!");
 

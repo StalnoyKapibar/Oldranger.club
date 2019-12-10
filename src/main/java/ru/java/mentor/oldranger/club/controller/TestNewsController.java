@@ -31,8 +31,7 @@ public class TestNewsController {
     @GetMapping(path = "/t/{tagId}")
     public String getNewsByTag(@PathVariable(name = "tagId") Long tagId, Model model) {
         model.addAttribute("tagList", articleTagService.getAllTags());
-        ArticleTag articleTag = articleTagService.getTagById(tagId);
-        model.addAttribute("newsList", articleService.getAllByTag(articleTag));
+        model.addAttribute("newsList", articleService.getAllByTag(tagId));
         return "testNews";
     }
 }
