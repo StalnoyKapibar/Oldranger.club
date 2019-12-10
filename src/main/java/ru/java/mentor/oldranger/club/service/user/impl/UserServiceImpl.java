@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.model.media.Media;
@@ -89,7 +90,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserByEmailOrNickName(String login) {
-        return Optional.of(userRepository.findUserByEmailOrNickName(login));
+    public User getUserByEmailOrNickName(String login) {
+        Optional<User> result = userRepository.findUserByEmailOrNickName(login);
+        return result.orElseThrow(() -> new UsernameNotFoundException("There is no such user."));
     }
 }

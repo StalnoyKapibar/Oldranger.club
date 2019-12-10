@@ -19,5 +19,5 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
-    Optional<User> getUserByEmailOrNickName(String login);
+    User getUserByEmailOrNickName(String login);
 }

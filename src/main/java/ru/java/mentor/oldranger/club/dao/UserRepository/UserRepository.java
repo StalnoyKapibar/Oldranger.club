@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -16,5 +17,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByEmail(String email);
 
     @Query(value = "SELECT * FROM users WHERE nick_name=:q or email=:q", nativeQuery = true)
-    User findUserByEmailOrNickName(@Param("q") String login);
+    Optional<User> findUserByEmailOrNickName(@Param("q") String login);
 }
