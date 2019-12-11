@@ -27,8 +27,8 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "Comments")
-public class CommentRestController {
+@Tag(name = "Topic and comments")
+public class CommentAndTopicRestController {
 
     private CommentService commentService;
     private TopicService topicService;
@@ -37,7 +37,7 @@ public class CommentRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get CommentDto list", description = "Get comments by topic id", tags = { "Comments" })
+               summary = "Get CommentDto list", description = "Get comments by topic id", tags = { "Topic and comments" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                          content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
@@ -65,4 +65,20 @@ public class CommentRestController {
 
         return ResponseEntity.ok(dtos);
     }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get Topic ", description = "Get topic by topic id", tags = { "Topic and comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Topic.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+    @GetMapping(value = "/getTopic/{topicId}", produces = { "application/json" })
+    public ResponseEntity<Topic> getTopicById (@PathVariable(value = "topicId") Long topicId){
+        Topic topic = topicService.findById(topicId);
+        if (topic == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(topic);
+    }
+
 }
