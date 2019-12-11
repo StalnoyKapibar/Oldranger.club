@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ru.java.mentor.oldranger.club.model.mail.DirectionType.*;
+
 @AllArgsConstructor
 @EnableScheduling
 @Service

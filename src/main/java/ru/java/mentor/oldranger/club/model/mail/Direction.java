@@ -8,6 +8,7 @@ import lombok.Setter;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -24,7 +25,21 @@ public class Direction {
     @Enumerated(EnumType.STRING)
     private DirectionType directionType;
 
+    @Column
+    LocalDateTime lastSendTime;
+
     @OneToOne
     private User user;
+
+    public static DirectionType stringToDirectionType(String userDirection) {
+        switch (userDirection){
+            case "ONE_TO_DAY": return DirectionType.ONE_TO_DAY;
+            case "TWO_TO_DAY": return DirectionType.TWO_TO_DAY;
+            case "ONE_TO_WEEK": return DirectionType.ONE_TO_WEEK;
+            default: return DirectionType.NEVER;
+        }
+    }
+
+
 
 }
