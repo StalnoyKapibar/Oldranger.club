@@ -61,7 +61,8 @@ public class SectionsAndSubsectionsRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a subsection by Id", tags = { "Sections and subsections" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200")})
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Subsection.class)))})
     @GetMapping(value = "/getsubsection/{subsectionId}", produces = { "application/json" })
     public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
         Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);

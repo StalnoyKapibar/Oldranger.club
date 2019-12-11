@@ -45,8 +45,9 @@ public class SectionsAndTopicsRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Creates a new topic", tags = { "Sections and topics" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))) })
+            @ApiResponse(responseCode = "200", description = "Topic created",
+                    content = @Content(schema = @Schema(implementation = Topic.class))),
+            @ApiResponse(responseCode = "400", description = "Failed to create topic") })
     @PostMapping(value = "/topic/new", produces = { "application/json" })
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
 
@@ -65,6 +66,10 @@ public class SectionsAndTopicsRestController {
         }
 
         topicService.createTopic(topic);
+
+        if (topic.getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(topic);
     }
 }
