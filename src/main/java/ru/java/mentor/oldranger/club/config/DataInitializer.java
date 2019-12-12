@@ -9,12 +9,15 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -30,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private BlackListService blackListService;
     private ChatService chatService;
+    private WritingBanService writingBanService;
 
     @Autowired
     @Lazy
@@ -44,7 +48,8 @@ public class DataInitializer implements CommandLineRunner {
                            CommentService commentService,
                            TopicVisitAndSubscriptionService topicVisitAndSubscriptionService,
                            BlackListService blackListService,
-                           ChatService chatService) {
+                           ChatService chatService,
+                           WritingBanService writingBanService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -54,6 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
         this.blackListService = blackListService;
         this.chatService = chatService;
+        this.writingBanService = writingBanService;
     }
 
     @Override
@@ -92,6 +98,9 @@ public class DataInitializer implements CommandLineRunner {
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
+
+        //Запрещаем пользователью отправлять личные сообщения
+        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11,28,19,10,0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));
