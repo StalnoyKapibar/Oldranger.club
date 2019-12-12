@@ -29,6 +29,7 @@ public class Direction {
     LocalDateTime lastSendTime;
 
     @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     public static DirectionType stringToDirectionType(String userDirection) {
