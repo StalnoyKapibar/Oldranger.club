@@ -43,6 +43,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public Message findFirst(Chat chat) {
+        return messageRepository.findFirstByChatOrderByMessageDateAsc(chat);
+    }
+
+    @Override
     public void addMessage(Message message) {
         messageRepository.save(message);
     }
@@ -112,20 +117,24 @@ public class MessageServiceImpl implements MessageService {
         return users;
     }
 
-    private List<Message> findAllByChat(Chat chat) {
+    private List<Message> findAllByChat(Chat chat, boolean isPrivate) {
         LocalDateTime date;
-        switch (olderThan){
-            case "week":
-                date = LocalDateTime.now().minusWeeks(1L);
-                break;
-            case "two-weeks":
-                date = LocalDateTime.now().minusWeeks(2L);
-                break;
-            case "month":
-                date = LocalDateTime.now().minusMonths(1L);
-                break;
-            default:
-                date = LocalDateTime.now().minusWeeks(1L);
+        if (isPrivate){
+            date =  LocalDateTime.now().minusMonths(1L);
+        } else {
+            switch (olderThan){
+                case "week":
+                    date = LocalDateTime.now().minusWeeks(1L);
+                    break;
+                case "two-weeks":
+                    date = LocalDateTime.now().minusWeeks(2L);
+                    break;
+                case "month":
+                    date = LocalDateTime.now().minusMonths(1L);
+                    break;
+                default:
+                    date = LocalDateTime.now().minusWeeks(1L);
+            }
         }
         return messageRepository.findAllByChatAndDate(chat.getId(), date);
     }
@@ -133,14 +142,24 @@ public class MessageServiceImpl implements MessageService {
     @Scheduled(cron = "0 0 0 * * 0")
     private void cleanMessages(){
         if (!olderThan.equals("never")){
-            List<Message> messages = findAllByChat(chatService.getChatById(1L));
-            List<String> images = new ArrayList<>();
-            messages.forEach(msg -> {
-                images.add(msg.getOriginalImg());
-                images.add(msg.getThumbnailImg());
-            });
-            deleteChatImages(images);
-            messages.forEach(msg -> removeMessageById(msg.getId()));
+            deleteMessages(false,false,"-");
         }
+    }
+
+    public void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken) {
+        List<Message> messages;
+        if (!isPrivate) {
+            messages = findAllByChat(chatService.getChatById(1L), false);
+        } else {
+            Chat chat = chatService.getChatByToken(chatToken);
+            messages = deleteAll ? messageRepository.findAll(chat) : findAllByChat(chat, true);
+        }
+        List<String> images = new ArrayList<>();
+        messages.forEach(msg -> {
+            images.add(msg.getOriginalImg());
+            images.add(msg.getThumbnailImg());
+        });
+        deleteChatImages(images);
+        messages.forEach(msg -> removeMessageById(msg.getId()));
     }
 }

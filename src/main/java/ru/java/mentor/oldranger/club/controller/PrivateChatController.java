@@ -45,7 +45,4 @@ public class PrivateChatController {
     @SendTo("/channel/private/{chatToken}")
     public Message delUser(@Payload Message chatMessage) { return chatMessage; }
 
-
-
-
 }
