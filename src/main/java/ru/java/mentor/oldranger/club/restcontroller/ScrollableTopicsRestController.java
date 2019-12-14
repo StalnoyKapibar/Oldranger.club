@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,10 +42,13 @@ public class ScrollableTopicsRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class)))) })
     @GetMapping(value = "/subsection/{subsectionId}", produces = { "application/json" })
     public ResponseEntity<List<TopicAndNewMessagesCountDto>> getPart(@PathVariable long subsectionId,
-                                                                     @RequestParam(value = "page", required = false) Integer page) {
+                                                                     @RequestParam(value = "page", required = false) Integer page,
+                                                                     @Parameter(description="yyyy-MM-dd HH:mm:ss (for example 2019-10-31 18:33:36)",
+                                                                             required=true)
+                                                                     @RequestParam(value = "dateTime") String dateTime) {
 
         if (page == null) page = 0;
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("topic_id"));
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("id"));
 
         Optional<Subsection> optionalSubsection = subsectionService.getById(subsectionId);
 
@@ -54,17 +58,10 @@ public class ScrollableTopicsRestController {
 
         Subsection subsection = optionalSubsection.get();
 
-        Page<Topic> pageableTopicsBySubsection = topicService.getPageableBySubsection(subsection, pageable);
+        Page<Topic> pageableTopicsBySubsection = topicService.getPageableBySubsectionWithFixTime(subsection, dateTime, pageable);
 
         if (pageableTopicsBySubsection.getNumberOfElements() == 0) {
             return ResponseEntity.ok(new ArrayList<>());
-        }
-
-        int currentPageNumber = pageable.getPageNumber();
-        String nextPageLink = null;
-
-        if (pageableTopicsBySubsection.getTotalPages() > currentPageNumber && !pageableTopicsBySubsection.isLast()) {
-            nextPageLink = "?page=" + (currentPageNumber + 1);
         }
 
         List<TopicAndNewMessagesCountDto> dtos = topicService.getTopicsDto(pageableTopicsBySubsection.getContent());

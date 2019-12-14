@@ -39,6 +39,16 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      */
     Page<Topic> findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(Subsection subsection, Pageable pageable);
 
+    @Query(nativeQuery = true, value = "select * from topics as t " +
+                                       "where t.date_start < ?2 and t.subsection_id = ?1 and t.is_hide=0 " +
+                                       "order by t.date_last_message")
+    Page<Topic> findBySubsectionWithTimeForAnon(Subsection subsection, String date, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "select * from topics as topic " +
+                                       "where topic.date_start < ?2 and topic.subsection_id = ?1 " +
+                                       "order by topic.date_last_message")
+    Page<Topic> findBySubsectionWithTimeForUser(Subsection subsection, String date, Pageable pageable);
+
     /**
      * Используется для неанонимов.<br>
      * Возвращает подмножество Topics для выбранной id Subsection с эмуляцией пагинации.<br>
@@ -88,8 +98,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      * @return пара {@code IdAndNumberProjection} "id Топика" - "количество новых сообщений для пользователя в Топике"
      */
     @Query(nativeQuery = true,
-    value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.id_topic " +
-            "where t.id_user=?2 and t.id_topic in ?1 and c.date_comment>t.date_lastvisit " +
+    value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.topic_id " +
+            "where t.id_user=?2 and t.topic_id in ?1 and c.date_comment>t.date_lastvisit " +
             "group by c.id_topic")
     List<IdAndNumberProjection> getPairsTopicIdAndNewMessagesCountForUserId(List<Long> ids, Long userId);
 }
