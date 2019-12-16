@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,8 +27,8 @@ import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
-import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -40,8 +39,8 @@ import java.util.Map;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/chat")
-@Tag(name = "Group chat")
-public class GroupChatRestController {
+@Tag(name = "Chat")
+public class ChatRestController {
 
 
     private ChatService chatService;
@@ -50,7 +49,7 @@ public class GroupChatRestController {
     private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get current user info", description = "Avatar and username", tags = { "Group chat" })
+               summary = "Get current user info", description = "Avatar and username", tags = { "Chat" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                          content = @Content(schema = @Schema(implementation = Map.class))),
@@ -120,7 +119,7 @@ public class GroupChatRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Upload image", tags = { "Group chat" })
+               summary = "Upload image", tags = { "Chat" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
                     content = @Content(schema = @Schema(implementation = Map.class)))})

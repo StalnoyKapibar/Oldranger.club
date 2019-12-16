@@ -23,6 +23,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3030", maxAge = 3600)
 @Tag(name = "Sections and topics")
 public class SectionsAndTopicsRestController {
 

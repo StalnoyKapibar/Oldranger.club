@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
-import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
@@ -28,8 +27,8 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "Comments")
-public class CommentRestController {
+@Tag(name = "Topic and comments")
+public class CommentAndTopicRestController {
 
     private CommentService commentService;
     private TopicService topicService;
@@ -38,7 +37,7 @@ public class CommentRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = { "Comments" })
+            summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = { "Topic and comments" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
@@ -73,4 +72,20 @@ public class CommentRestController {
 
         return ResponseEntity.ok(topicAndCommentsDTO);
     }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get Topic ", description = "Get topic by topic id", tags = { "Topic and comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Topic.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+    @GetMapping(value = "/getTopic/{topicId}", produces = { "application/json" })
+    public ResponseEntity<Topic> getTopicById (@PathVariable(value = "topicId") Long topicId){
+        Topic topic = topicService.findById(topicId);
+        if (topic == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(topic);
+    }
+
 }
