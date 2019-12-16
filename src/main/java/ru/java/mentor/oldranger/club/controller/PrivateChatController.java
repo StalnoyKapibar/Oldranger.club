@@ -1,6 +1,5 @@
 package ru.java.mentor.oldranger.club.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -14,7 +13,6 @@ import ru.java.mentor.oldranger.club.service.chat.MessageService;
 
 import java.time.LocalDateTime;
 
-@Hidden
 @Controller
 @AllArgsConstructor
 public class PrivateChatController {

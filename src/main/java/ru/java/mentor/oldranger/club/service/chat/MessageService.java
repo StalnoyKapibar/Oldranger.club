@@ -23,7 +23,7 @@ public interface MessageService {
 
     void setOlderThan(String olderThan);
 
-    Message findFirst(Chat chat);
+    Message findFirstMessageByChat(Chat chat);
 
     void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken);
 }

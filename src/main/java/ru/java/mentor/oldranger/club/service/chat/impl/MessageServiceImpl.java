@@ -43,7 +43,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message findFirst(Chat chat) {
+    public Message findFirstMessageByChat(Chat chat) {
         return messageRepository.findFirstByChatOrderByMessageDateAsc(chat);
     }
 

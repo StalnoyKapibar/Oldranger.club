@@ -98,7 +98,9 @@ public class PrivateChatRestController {
     ResponseEntity<Map<String, String>> getAnotherUserInfoByChatToken(@PathVariable String chatToken,
                                                                       @AuthenticationPrincipal User currentUser) {
         Chat chat = chatService.getChatByToken(chatToken);
-        if (chat == null) {return ResponseEntity.noContent().build();}
+        if (chat == null) {
+            return ResponseEntity.noContent().build();
+        }
         User user = chat.getUserList().stream().filter(u -> !u.equals(currentUser)).findFirst().get();
         Map<String, String> info = new HashMap<>();
         info.put("username", user.getNickName());
@@ -127,7 +129,7 @@ public class PrivateChatRestController {
     ResponseEntity<Boolean> checkMessageDate(@PathVariable String chatToken){
         boolean result;
         Chat chat = chatService.getChatByToken(chatToken);
-        Message msg = messageService.findFirst(chat);
+        Message msg = messageService.findFirstMessageByChat(chat);
         result = msg.getMessageDate().isBefore(LocalDateTime.now().minusMonths(6L));
         return ResponseEntity.ok(result);
     }
