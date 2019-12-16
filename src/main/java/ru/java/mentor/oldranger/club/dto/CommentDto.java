@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.time.LocalDateTime;
 
@@ -14,48 +15,13 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private long positionInTopic;
     private long topicId;
-    private String nickName;
-    private String roleName;
-    private String smallAvatar;
-    private String timeSinceRegistration;
+    private User author;
     private LocalDateTime commentDateTime;
     private Long messageCount;
     private LocalDateTime replyDateTime;
     private String replyNick;
     private String replyText;
     private String commentText;
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public String getSmallAvatar() {
-        return smallAvatar;
-    }
-
-    public void setSmallAvatar(String smallAvatar) {
-        this.smallAvatar = smallAvatar;
-    }
-
-    public String getTimeSinceRegistration() {
-        return timeSinceRegistration;
-    }
-
-    public void setTimeSinceRegistration(String timeSinceRegistration) {
-        this.timeSinceRegistration = timeSinceRegistration;
-    }
 
     public LocalDateTime getCommentDateTime() {
         return commentDateTime;

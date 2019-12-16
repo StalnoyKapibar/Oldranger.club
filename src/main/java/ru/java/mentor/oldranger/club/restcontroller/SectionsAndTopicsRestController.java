@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.jboss.logging.annotations.Pos;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
@@ -35,7 +34,8 @@ public class SectionsAndTopicsRestController {
                summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = { "Sections and topics" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))) })
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id") })
     @GetMapping(value = "/sectionsandactualtopics", produces = { "application/json" })
     public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
@@ -58,6 +58,7 @@ public class SectionsAndTopicsRestController {
         topic.setStartTime(LocalDateTime.now());
         topic.setLastMessageTime(LocalDateTime.now());
         topic.setSubsection(topicDetails.getSubsection());
+        topic.setStartMessage(topicDetails.getStartMessage());
 
         if (topic.getSubsection().isHideToAnon()) {
             topic.setHideToAnon(true);

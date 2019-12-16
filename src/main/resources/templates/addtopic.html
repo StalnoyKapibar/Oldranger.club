@@ -5,7 +5,7 @@
     <title>New Topic</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-
+    <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
     <script src="/js/jquery-3.4.1.js"></script>
     <script
             src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<form class="ml-5 mt-5" style="max-width: 500px">
+<form class="ml-5 mt-5" style="max-width: 700px">
     <h1>Create a new topic:</h1>
     <div class="form-group">
         <label for="topicNameInput">Topic name:</label>
@@ -30,7 +30,7 @@
         <label class="form-check-label" for="isVisibleCheckbox">Is topic visible to anon</label>
     </div>
     <div class="form-group">
-        <label for="subsectionSelector">Example select</label>
+        <label for="subsectionSelector">Select a forum section and subsection:</label>
         <select class="form-control" id="subsectionSelector">
             <script>
                 $(document).ready(function () {
@@ -60,6 +60,13 @@
             </script>
         </select>
     </div>
+    <div class="form-group">
+        <label for="createTopicTextArea">Opening message:</label>
+        <textarea class="form-control" id="createTopicTextArea" rows="3"></textarea>
+        <script>
+            CKEDITOR.replace('createTopicTextArea');
+        </script>
+    </div>
     <button type="submit" class="btn btn-primary" id="createTopicButton">Submit</button>
 </form>
 
@@ -76,6 +83,7 @@
                 topicStarter: null,
                 startTime: null,
                 lastMessageTime: null,
+                startMessage: CKEDITOR.instances.createTopicTextArea.getData(),
                 subsection: getSubsection(),
                 hideToAnon: $('#isVisibleCheckbox').is(':checked')
             };
