@@ -40,7 +40,7 @@ public class AvatarUserRestController {
             summary = "Set Avatar ", description = "Set avatar by user id", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserAvatar.class)))),})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
     @PostMapping(value = "/{userId}", produces = { "application/json" })
     public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id, @RequestParam("file") MultipartFile file){
         User user = userService.findById(id);
@@ -64,7 +64,7 @@ public class AvatarUserRestController {
             summary = "Delete Avatar ", description = "Delete avatar by user id", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserAvatar.class)))),})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
     @PostMapping(value = "/delete/{userId}", produces = { "application/json" })
     public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id){
         User user = userService.findById(id);
