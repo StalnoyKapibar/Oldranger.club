@@ -16,4 +16,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByChatAndDate(long chatId, LocalDateTime date);
 
     Page<Message> findAllByChat(Chat chat, Pageable pageable);
+
+    List<Message> findAllByChat(Chat chat);
+
+    Message findFirstByChatOrderByMessageDateAsc(Chat chat);
 }

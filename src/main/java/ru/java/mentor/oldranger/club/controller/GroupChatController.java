@@ -1,11 +1,11 @@
 package ru.java.mentor.oldranger.club.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -16,7 +16,6 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Hidden
 @Controller
 @AllArgsConstructor
 public class GroupChatController {
@@ -25,6 +24,11 @@ public class GroupChatController {
     private MessageService messageService;
     private UserService userService;
 
+
+    @GetMapping("/chat")
+    public String getChatPage() {
+        return "chat/chat";
+    }
 
     @MessageMapping("/sendMessage")
     @SendTo("/channel/public")
@@ -61,6 +65,4 @@ public class GroupChatController {
         chat.setUserList(users);
         chatService.createChat(chat);
     }
-
-
 }
