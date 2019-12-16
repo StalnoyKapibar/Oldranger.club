@@ -22,29 +22,20 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 @Tag(name = "Avatar from user")
 public class AvatarUserRestController {
 
+    @Autowired
     private UserService userService;
+    @Autowired
     private UserAvatarService userAvatarService;
-
-    @Autowired
-    public void setUserService(UserService service) {
-        this.userService = service;
-    }
-
-    @Autowired
-    public void setUserAvatarService(UserAvatarService userAvatarService) {
-        this.userAvatarService = userAvatarService;
-    }
-
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Set Avatar ", description = "Set avatar by user id", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
+                    content = @Content(schema = @Schema(implementation = String.class)))})
     @PostMapping(value = "/{userId}", produces = { "application/json" })
     public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id, @RequestParam("file") MultipartFile file){
         User user = userService.findById(id);
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         }
 
@@ -64,11 +55,11 @@ public class AvatarUserRestController {
             summary = "Delete Avatar ", description = "Delete avatar by user id", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
+                    content = @Content(schema = @Schema(implementation = String.class)))})
     @PostMapping(value = "/delete/{userId}", produces = { "application/json" })
     public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id){
         User user = userService.findById(id);
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         }
 
@@ -81,11 +72,6 @@ public class AvatarUserRestController {
         } catch (Exception o) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok("аватар удален");
+        return ResponseEntity.ok("удален");
     }
-
-
-
-
-
 }
