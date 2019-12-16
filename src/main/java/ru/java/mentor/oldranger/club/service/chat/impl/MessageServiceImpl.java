@@ -117,6 +117,8 @@ public class MessageServiceImpl implements MessageService {
         return users;
     }
 
+    // Метод получает все сообщения в чате позднее даты, заданной полем olderThan. Для приватного чата - все
+    // сообщения позднее месяца
     private List<Message> findAllByChat(Chat chat, boolean isPrivate) {
         LocalDateTime date;
         if (isPrivate){
@@ -146,13 +148,16 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    // Метод удаляет сообщеня и связанные с ними изображения. Для приватного чата - если параметр deleteAll = true,
+    // то удаляются все сообщения, иначе удаляются только сообщения позднее месяца. Для общего чата - удаляются сообщения
+    // позднее даты заданной адмном(поле olderThan)
     public void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken) {
         List<Message> messages;
         if (!isPrivate) {
             messages = findAllByChat(chatService.getChatById(1L), false);
         } else {
             Chat chat = chatService.getChatByToken(chatToken);
-            messages = deleteAll ? messageRepository.findAll(chat) : findAllByChat(chat, true);
+            messages = deleteAll ? messageRepository.findAllByChat(chat) : findAllByChat(chat, true);
         }
         List<String> images = new ArrayList<>();
         messages.forEach(msg -> {
