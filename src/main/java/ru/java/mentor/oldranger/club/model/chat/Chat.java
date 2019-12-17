@@ -22,9 +22,19 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @Column(name = "is_private")
+    private boolean privacy = false;
+
+    @Column(name = "token")
+    private String token;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private List<User> userList;
+
+    public Chat(boolean privacy) {
+        this.privacy = privacy;
+    }
 }

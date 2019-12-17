@@ -22,4 +22,8 @@ public interface MessageService {
     Map<String, Long> getOnlineUsers();
 
     void setOlderThan(String olderThan);
+
+    Message findFirstMessageByChat(Chat chat);
+
+    void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken);
 }
