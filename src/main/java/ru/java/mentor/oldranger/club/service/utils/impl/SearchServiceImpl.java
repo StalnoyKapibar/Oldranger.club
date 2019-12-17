@@ -1,6 +1,9 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -15,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -65,4 +69,45 @@ public class SearchServiceImpl implements SearchService {
 
         return fullTextEntityManager.createFullTextQuery(query, Comment.class).getResultList();
     }
+
+    @Override
+    public List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
+        QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Topic.class).get();
+        Session session = fullTextEntityManager.unwrap(Session.class);
+        Criteria fetch = session.createCriteria(Topic.class);
+        fetch.setFetchMode("subsection",FetchMode.JOIN);
+        fetch.setFetchMode("subsection.section", FetchMode.JOIN);
+
+        Query query = queryBuilder
+                .keyword()
+                .fuzzy()
+                .onField("name")
+                .matching(finderTag)
+                .createQuery();
+        List<Topic> topics = fullTextEntityManager
+                .createFullTextQuery(query, Topic.class)
+                .setCriteriaQuery(fetch)
+                .getResultList();
+        switch (node) {
+            case 0:{
+                return topics;
+            }
+            case 1: {
+                List<Topic> topicsList = topics
+                        .stream()
+                        .filter(topic -> topic.getSection().getId() == nodeValue)
+                        .collect(Collectors.toList());
+                return topicsList;
+            }
+            case 2: {
+                return topics
+                        .stream()
+                        .filter(topic -> topic.getSubsection().getId() == nodeValue)
+                        .collect(Collectors.toList());
+            }
+            default:
+                return null;
+        }
+    }
+
 }
