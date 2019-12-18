@@ -15,7 +15,8 @@ public class SearchConfig {
     @Bean
     @Autowired
     SearchRepository searchService(EntityManagerFactory em) {
-        SearchRepositoryImpl searchRepository = new SearchRepositoryImpl(em);
+        SearchRepositoryImpl searchRepository = new SearchRepositoryImpl();
+        searchRepository.init(em);
         searchRepository.initializeHibernateSearch();
         return searchRepository;
     }

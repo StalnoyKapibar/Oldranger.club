@@ -21,21 +21,20 @@ import java.util.List;
 
 
 public class SearchRepositoryImpl implements SearchRepository {
-    private EntityManager entityManager;
     private FullTextEntityManager fullTextEntityManager;
 
     public SearchRepositoryImpl() {
     }
 
-    @Autowired
     public void init(EntityManagerFactory entityManagerFactory){
-        this.entityManager = entityManagerFactory.createEntityManager();
-        this.fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
     }
 
     @PostConstruct
     public void initializeHibernateSearch() {
         try {
+
             fullTextEntityManager.createIndexer().startAndWait();
         } catch (InterruptedException e) {
             e.printStackTrace();
