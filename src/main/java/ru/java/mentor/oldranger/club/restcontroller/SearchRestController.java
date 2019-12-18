@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 @Tag(name = "Search API")
 @RequestMapping("/api")
 public class SearchRestController {
-    SearchService searchService;
-    CommentService commentService;
+    private SearchService searchService;
+    private CommentService commentService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get found topics", tags = {"Search API"})
