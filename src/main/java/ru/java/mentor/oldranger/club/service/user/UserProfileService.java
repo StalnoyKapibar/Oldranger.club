@@ -15,5 +15,5 @@ public interface UserProfileService {
 
     UserProfile getUserProfileByUser(User user);
 
-    ProfileDto buildProfileDto(UserProfile profile, UserStatistic stat, boolean owner);
+    ProfileDto buildProfileDto(UserProfile profile, UserStatistic stat, boolean owner, boolean isUser);
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.RequestInvitation;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -69,7 +70,7 @@ public class UserProfileRestController {
 
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true);
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserIsUser());
         return ResponseEntity.ok(dto);
     }
 
@@ -89,7 +90,7 @@ public class UserProfileRestController {
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false);
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserIsUser());
         return ResponseEntity.ok(dto);
     }
 
@@ -196,11 +197,12 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = InviteDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
     @GetMapping(value = "/invite", produces = { "application/json" })
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        Boolean isUser = securityUtilsService.isLoggedUserIsUser();
+        if (currentUser == null || !isUser) return ResponseEntity.noContent().build();
 
         String key = invitationService.getCurrentKey(currentUser);
         InviteDto dto = new InviteDto(currentUser, key);

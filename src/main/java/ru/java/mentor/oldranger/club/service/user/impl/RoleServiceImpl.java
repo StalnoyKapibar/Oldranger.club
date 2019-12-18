@@ -19,4 +19,9 @@ public class RoleServiceImpl implements RoleService {
     public void createRole(Role role) {
         roleRepository.save(role);
     }
+
+    @Override
+    public Role getRoleByAuthority(String authority) {
+        return roleRepository.findRoleByRole(authority);
+    }
 }

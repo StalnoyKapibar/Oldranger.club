@@ -1,6 +1,6 @@
 function test() {
 
-    fetch('http://localhost:8888/api/invite', {method: 'POST'})
+    fetch('http://localhost:8888/api/token/invite', {method: 'POST'})
         .then(response => response.json())
         .then(key => {
             let p = document.getElementById("innerFieldText");
@@ -26,7 +26,7 @@ function sendInviteOnMail() {
     let mail = field.value;
     if (mail != 0) {
         if (validateEmail(mail)) {
-            fetch('http://localhost:8888/api/invite/bymail', {method: 'POST', body: mail})
+            fetch('http://localhost:8888/api/token/invite/bymail', {method: 'POST', body: mail})
                 .then(response => response.json())
                 .then(status => {
                     if (status == '1') {
