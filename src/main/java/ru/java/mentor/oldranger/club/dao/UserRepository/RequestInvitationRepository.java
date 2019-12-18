@@ -6,5 +6,4 @@ import ru.java.mentor.oldranger.club.model.user.RequestInvitation;
 import java.util.List;
 
 public interface RequestInvitationRepository extends JpaRepository<RequestInvitation, Long> {
-    List<RequestInvitation> findAll();
 }
