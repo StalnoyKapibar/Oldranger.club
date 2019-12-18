@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
 
 import java.util.List;
@@ -55,6 +56,20 @@ public class SectionsAndSubsectionsRestController {
     public ResponseEntity swapSubsections(@RequestBody Map<Long, List<String>> sectionsAndSubsectionsIds) {
         sectionsAndSubsectionsService.swapSubsectons(sectionsAndSubsectionsIds);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get a subsection by Id", tags = { "Sections and subsections" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Subsection.class)))})
+    @GetMapping(value = "/getsubsection/{subsectionId}", produces = { "application/json" })
+    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
+        Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
+        if (subsection == null && subsection.getId() == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(subsection);
     }
 
 }

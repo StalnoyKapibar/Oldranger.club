@@ -10,13 +10,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,16 +27,47 @@ import java.util.List;
 @Tag(name = "Sections and topics")
 public class SectionsAndTopicsRestController {
 
+    private SecurityUtilsService securityUtilsService;
+    private TopicService topicService;
     private SectionsAndTopicsService sectionsAndTopicsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = { "Sections and topics" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))) })
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id") })
     @GetMapping(value = "/sectionsandactualtopics", produces = { "application/json" })
     public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         return ResponseEntity.ok(dtos);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Creates a new topic", tags = { "Sections and topics" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Topic created",
+                    content = @Content(schema = @Schema(implementation = Topic.class))),
+            @ApiResponse(responseCode = "400", description = "Failed to create topic") })
+    @PostMapping(value = "/topic/new", produces = { "application/json" })
+    public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
+
+        Topic topic = new Topic();
+
+        topic.setName(topicDetails.getName());
+        topic.setTopicStarter(securityUtilsService.getLoggedUser());
+        topic.setStartTime(LocalDateTime.now());
+        topic.setLastMessageTime(LocalDateTime.now());
+        topic.setSubsection(topicDetails.getSubsection());
+        topic.setStartMessage(topicDetails.getStartMessage());
+
+        topic.setHideToAnon(topic.getSubsection().isHideToAnon() | topicDetails.isHideToAnon());
+
+        topicService.createTopic(topic);
+
+        if (topic.getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(topic);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
+import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
@@ -37,15 +38,16 @@ public class CommentAndTopicRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get CommentDto list", description = "Get comments by topic id", tags = { "Topic and comments" })
+            summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = { "Topic and comments" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
             @ApiResponse(responseCode = "204", description = "invalid topic id")})
     @GetMapping(value = "/topic/{topicId}", produces = { "application/json" })
-    public ResponseEntity<List<CommentDto>> getPageableComments(@PathVariable(value = "topicId") Long topicId,
-                                                                @RequestParam(value = "page", required = false) Integer page,
-                                                                @RequestParam(value = "pos",required = false) Integer position) {
+    public ResponseEntity<TopicAndCommentsDTO> getTopicAndPageableComments(@PathVariable(value = "topicId") Long topicId,
+                                                                           @RequestParam(value = "page", required = false) Integer page,
+                                                                           @RequestParam(value = "pos", required = false) Integer position,
+                                                                           @RequestParam(value = "limit", required =  false) Integer limit) {
 
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(topicId);
@@ -53,17 +55,23 @@ public class CommentAndTopicRestController {
             return ResponseEntity.noContent().build();
         }
 
+        if (limit == null) {
+            limit = 10;
+        }
+
         if (page == null) page = 0;
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
 
         if (position != null) {
             page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
-            pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
+            pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
         }
-        List<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable).getContent();
-        topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
 
-        return ResponseEntity.ok(dtos);
+        List<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable).getContent();
+        TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
+        topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
+
+        return ResponseEntity.ok(topicAndCommentsDTO);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
