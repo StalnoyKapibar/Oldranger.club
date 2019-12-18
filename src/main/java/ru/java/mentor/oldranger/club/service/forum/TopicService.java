@@ -38,8 +38,6 @@ public interface TopicService {
      */
     Page<Topic> getPageableBySubsection(Subsection subsection, Pageable pageable);
 
-    Page<Topic> getPageableBySubsectionWithFixTime(Subsection subsection, String dateTime, Pageable pageable);
-
     /**
      * Пейджинг для подсекций для анонимов.<br>
      * Сортировка: по дате последнего сообщения (новые сверху).
