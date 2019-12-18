@@ -61,9 +61,8 @@ public class SectionsAndTopicsRestController {
         topic.setSubsection(topicDetails.getSubsection());
         topic.setStartMessage(topicDetails.getStartMessage());
 
-        if (topic.getSubsection().isHideToAnon()) {
-            topic.setHideToAnon(true);
-        } else {
+        topic.setHideToAnon(topic.getSubsection().isHideToAnon());
+        if (!topic.isHideToAnon()) {
             topic.setHideToAnon(topicDetails.isHideToAnon());
         }
 
