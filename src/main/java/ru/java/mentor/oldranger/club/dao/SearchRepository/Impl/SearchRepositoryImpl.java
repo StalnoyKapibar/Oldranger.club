@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
@@ -20,10 +21,14 @@ import java.util.List;
 
 
 public class SearchRepositoryImpl implements SearchRepository {
-    private final EntityManager entityManager;
-    private final FullTextEntityManager fullTextEntityManager;
+    private EntityManager entityManager;
+    private FullTextEntityManager fullTextEntityManager;
 
-    public SearchRepositoryImpl(final EntityManagerFactory entityManagerFactory) {
+    public SearchRepositoryImpl() {
+    }
+
+    @Autowired
+    public void init(EntityManagerFactory entityManagerFactory){
         this.entityManager = entityManagerFactory.createEntityManager();
         this.fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
     }
