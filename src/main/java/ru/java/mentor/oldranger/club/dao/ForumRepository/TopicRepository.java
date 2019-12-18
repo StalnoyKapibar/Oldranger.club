@@ -40,13 +40,13 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Page<Topic> findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(Subsection subsection, Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from topics as t " +
-                                       "where t.date_start < ?2 and t.subsection_id = ?1 and t.is_hide=0 " +
-                                       "order by t.date_last_message")
+                                       "where t.date_last_message < ?2 and t.subsection_id = ?1 and t.is_hide=0 " +
+                                       "order by t.date_last_message DESC")
     Page<Topic> findBySubsectionWithTimeForAnon(Subsection subsection, String date, Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from topics as topic " +
-                                       "where topic.date_start < ?2 and topic.subsection_id = ?1 " +
-                                       "order by topic.date_last_message")
+                                       "where topic.date_last_message < ?2 and topic.subsection_id = ?1 " +
+                                       "order by topic.date_last_message DESC")
     Page<Topic> findBySubsectionWithTimeForUser(Subsection subsection, String date, Pageable pageable);
 
     /**
@@ -62,7 +62,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
      */
     @Query(nativeQuery = true,
             value = "select *, (comb.id_user is not null and comb.is_subscribed=true and (comb.date_last_message>=comb.date_lastvisit or comb.date_lastvisit is null)) as subscriber_has_new_msg from " +
-                    "(select * from topics t left join (select id_topic, id_user, date_lastvisit, is_subscribed from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) st on t.id=st.id_topic " +
+                    "(select * from topics t left join (select topic_id, id_user, date_lastvisit, is_subscribed from topic_visit_and_subscriptions s where s.id_user=?1 group by s.topic_id) st on t.id=st.topic_id " +
                     "where t.subsection_id=?2) as comb " +
                     "order by subscriber_has_new_msg desc, comb.date_last_message desc " +
                     "limit ?3,?4")
@@ -75,8 +75,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query(nativeQuery = true,
             value = "select count(*) from " +
                     "(select * from topics t left join " +
-                    "(select id_topic from topic_visit_and_subscriptions s where s.id_user=?1 group by s.id_topic) " +
-                    "st on t.id=st.id_topic where t.subsection_id=?2) as comb")
+                    "(select topic_id from topic_visit_and_subscriptions s where s.id_user=?1 group by s.topic_id) " +
+                    "st on t.id=st.topic_id where t.subsection_id=?2) as comb")
     long countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(long userId, long subsectionId);
 
     /**

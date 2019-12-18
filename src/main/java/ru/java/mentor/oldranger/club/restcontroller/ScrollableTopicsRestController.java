@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,10 +43,16 @@ public class ScrollableTopicsRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class)))) })
     @GetMapping(value = "/subsection/{subsectionId}", produces = { "application/json" })
     public ResponseEntity<List<TopicAndNewMessagesCountDto>> getPart(@PathVariable long subsectionId,
+                                                                     @Parameter(description="Topic list is pageable, so you can set page number;" +
+                                                                             " default page size is 20 (currently hardcoded); not required")
                                                                      @RequestParam(value = "page", required = false) Integer page,
                                                                      @Parameter(description="yyyy-MM-dd HH:mm:ss (for example 2019-10-31 18:33:36)",
                                                                              required=true)
-                                                                     @RequestParam(value = "dateTime") String dateTime) {
+                                                                     @RequestParam(value = "dateTime") String dateTime,
+                                                                     @Parameter(description="По умолчанию топики выдаются в порядке убывания" +
+                                                                             " по времени последнего ответа - от более новых к более старым; " +
+                                                                             "для обратного порядка передать параметр reversed=1")
+                                                                         @RequestParam(value = "reversed", required = false) Integer reversed) {
 
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 20, Sort.by("id"));
@@ -65,6 +72,11 @@ public class ScrollableTopicsRestController {
         }
 
         List<TopicAndNewMessagesCountDto> dtos = topicService.getTopicsDto(pageableTopicsBySubsection.getContent());
+
+        if (reversed != null && dtos != null & reversed == 1) {
+            Collections.reverse(dtos);
+        }
+
         return ResponseEntity.ok(dtos);
     }
 }
