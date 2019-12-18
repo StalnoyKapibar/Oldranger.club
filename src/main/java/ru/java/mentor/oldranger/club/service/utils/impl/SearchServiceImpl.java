@@ -75,7 +75,7 @@ public class SearchServiceImpl implements SearchService {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Topic.class).get();
         Session session = fullTextEntityManager.unwrap(Session.class);
         Criteria fetch = session.createCriteria(Topic.class);
-        fetch.setFetchMode("subsection",FetchMode.JOIN);
+        fetch.setFetchMode("subsection", FetchMode.JOIN);
         fetch.setFetchMode("subsection.section", FetchMode.JOIN);
 
         Query query = queryBuilder
@@ -89,7 +89,7 @@ public class SearchServiceImpl implements SearchService {
                 .setCriteriaQuery(fetch)
                 .getResultList();
         switch (node) {
-            case 0:{
+            case 0: {
                 return topics;
             }
             case 1: {
