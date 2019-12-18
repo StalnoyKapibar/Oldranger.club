@@ -24,7 +24,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     public List searchByComment(String queryString) {
-        return searchRepository.searchObjectsByName(queryString,null, Comment.class);
+        return searchRepository.searchObjectsByName(queryString, null, Comment.class);
     }
 
     @Override
