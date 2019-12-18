@@ -1,8 +1,5 @@
 package ru.java.mentor.oldranger.club.service.utils;
 
-import ru.java.mentor.oldranger.club.model.forum.Comment;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
-
 import java.util.List;
 
 public interface SearchService {
@@ -10,4 +7,6 @@ public interface SearchService {
     List searchByTopicName(String queryString);
 
     List searchByComment(String queryString);
+
+    List searchTopicsByNode(String finderTag, Integer node, Long nodeValue);
 }
