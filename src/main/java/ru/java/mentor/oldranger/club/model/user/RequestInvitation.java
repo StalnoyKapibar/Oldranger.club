@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Table(name = "requestInvitations")
 public class RequestInvitation {
     @Id
-    @Column(name = "id_requestInvitation")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

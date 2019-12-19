@@ -63,9 +63,9 @@ public class SystemCommentRestController {
     public ResponseEntity<Boolean> getStatus() {
         boolean isForbidden = false;
         User user = securityUtilsService.getLoggedUser();
-        if (user == null)
+        if (user == null) {
             isForbidden = true;
-        else {
+        } else {
             WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
             if (writingBan != null && (writingBan.getUnlockTime() == null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))) {
                 isForbidden = true;

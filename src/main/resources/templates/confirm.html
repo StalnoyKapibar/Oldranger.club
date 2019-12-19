@@ -16,7 +16,7 @@
     $(document).ready(function () {
             $.ajax({
                 type : "POST",
-                url : "/api/users"+window.location.href.slice(window.location.href.indexOf('?')),
+                url : "/api/users" + window.location.href.slice(window.location.href.indexOf('?')),
                 success : function (e) {
                     window.location = "/";
                 }

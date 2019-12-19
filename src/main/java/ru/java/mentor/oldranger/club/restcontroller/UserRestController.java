@@ -39,9 +39,9 @@ public class UserRestController {
                     description = "parameter 'key' not correct")})
     @PostMapping
     public ResponseEntity<String> addUser(@Parameter(description = "parameter 'key' from url") @RequestParam String key) {
-        String enc = key.replaceAll("%2F","/").replaceAll("%3F","?")
-                .replaceAll("%3D","=").replaceAll("%26","&")
-                .replaceAll("%2523","#").replaceAll(" ","+");
+        String enc = key.replaceAll("%2F", "/").replaceAll("%3F", "?")
+                .replaceAll("%3D", "=").replaceAll("%26", "&")
+                .replaceAll("%2523", "#").replaceAll(" ", "+");
         String dec = null;
         User user = new User();
         try {
@@ -53,8 +53,7 @@ public class UserRestController {
             user.setPassword(dec.split(" ")[4]);
             user.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
             user.setRegDate(LocalDateTime.now());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         userService.save(user);

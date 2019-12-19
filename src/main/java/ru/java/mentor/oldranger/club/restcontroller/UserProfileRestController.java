@@ -66,7 +66,9 @@ public class UserProfileRestController {
     public ResponseEntity<ProfileDto> getProfile() {
 
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
+        if (user == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
@@ -104,7 +106,9 @@ public class UserProfileRestController {
     public ResponseEntity<UpdateProfileDto> updateProfile(UserProfile profile) {
 
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         if (profile.getUser().getNickName() == null || profile.getUser().getEmail() == null){
             UpdateProfileDto dto = new UpdateProfileDto(profile, new ErrorDto("Поля 'Ник' и 'Email' обязательно должны быть заполнены"));
@@ -141,11 +145,15 @@ public class UserProfileRestController {
     public ResponseEntity<List<CommentDto>> getComments(
                                             @RequestAttribute(value = "page", required = false) Integer page) {
 
-        if (page == null) page = 0;
+        if (page == null) {
+            page = 0;
+        }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime").descending());
 
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         List<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable).getContent();
         return ResponseEntity.ok(dtos);
@@ -163,7 +171,9 @@ public class UserProfileRestController {
                                    @Parameter(description="Not required, by default size: 10")
                                    @PageableDefault(size = 10) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
@@ -183,7 +193,9 @@ public class UserProfileRestController {
     public ResponseEntity<List<Topic>> getTopics(@RequestParam(value = "page", required = false) Integer page) {
 
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
@@ -202,7 +214,9 @@ public class UserProfileRestController {
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
         Boolean isUser = securityUtilsService.isLoggedUserIsUser();
-        if (currentUser == null || !isUser) return ResponseEntity.noContent().build();
+        if (currentUser == null || !isUser) {
+            return ResponseEntity.noContent().build();
+        }
 
         String key = invitationService.getCurrentKey(currentUser);
         InviteDto dto = new InviteDto(currentUser, key);
@@ -220,7 +234,9 @@ public class UserProfileRestController {
                                                    @RequestParam String newPass,
                                                    @RequestParam String passConfirm) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
 
         if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
             if (passConfirm.equals(newPass)){

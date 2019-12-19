@@ -67,8 +67,7 @@ public class RequestInvitationRestController {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_PROSPECT"))) {
             requestInvitationService.save(requestInvitation);
             return ResponseEntity.ok("Ok");
-        }
-        else {
+        } else {
             return new ResponseEntity<>(HttpStatus.LOCKED);
         }
     }

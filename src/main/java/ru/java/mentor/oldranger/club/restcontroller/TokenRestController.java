@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -35,49 +36,21 @@ import java.util.Base64;
 @RequestMapping("/api/token")
 @Tag(name = "Registration token")
 public class TokenRestController {
-
+    @Autowired
     private InvitationService invitationService;
+    @Autowired
     private UserService userService;
+    @Autowired
     private MailService mailService;
+    @Autowired
     private SecurityUtilsService securityUtilsService;
+    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
     private PasswordsService passwordsService;
+    @Autowired
     private RoleService roleService;
 
-    @Autowired
-    public void setInvitationService(InvitationService invitationService) {
-        this.invitationService = invitationService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setMailService(MailService mailService) {
-        this.mailService = mailService;
-    }
-
-    @Autowired
-    public void setSecurityUtilsService(SecurityUtilsService securityUtilsService) {
-        this.securityUtilsService = securityUtilsService;
-    }
-
-    @Autowired
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
-    }
-
-    @Autowired
-    public void setPasswordsService(PasswordsService passwordsService) {
-        this.passwordsService = passwordsService;
-    }
 
     @Value("${server.protocol}")
     private String protocol;
@@ -143,8 +116,7 @@ public class TokenRestController {
         }
         try {
             passwordsService.checkStrength(registrationUserDto.getPassword());
-        }
-        catch (PasswordException e) {
+        } catch (PasswordException e) {
             return ResponseEntity.badRequest().build();
         }
         registrationUserDto.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
