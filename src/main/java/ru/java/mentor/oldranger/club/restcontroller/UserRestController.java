@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,12 +33,12 @@ public class UserRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Add user", tags = { "User" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "200", description = "request on invitation has been successfully saved",
+                    content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400",
                     description = "parameter 'key' not correct")})
     @PostMapping
-    public ResponseEntity<String> addUser(@RequestParam String key) {
+    public ResponseEntity<String> addUser(@Parameter(description = "parameter 'key' from url") @RequestParam String key) {
         String enc = key.replaceAll("%2F","/").replaceAll("%3F","?")
                 .replaceAll("%3D","=").replaceAll("%26","&")
                 .replaceAll("%2523","#").replaceAll(" ","+");

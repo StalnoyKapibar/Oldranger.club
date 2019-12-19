@@ -136,7 +136,7 @@ public class TokenRestController {
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "User with this login or email already exists")})
     @PostMapping(value = "/confirm/bymail", produces = { "application/json" })
-    public ResponseEntity<String> sendConfirmByMail(@RequestBody RegistrationUserDto registrationUserDto) {
+    public ResponseEntity<String> sendConfirmByMail(@Parameter(description = "New user data") @RequestBody RegistrationUserDto registrationUserDto) {
         if (userService.getUserByEmail(registrationUserDto.getEmail()) != null ||
                 userService.getUserByNickName(registrationUserDto.getNickName()) != null) {
             return ResponseEntity.badRequest().build();

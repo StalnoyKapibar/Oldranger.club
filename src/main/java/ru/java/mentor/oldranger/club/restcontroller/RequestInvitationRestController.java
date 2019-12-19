@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,7 +32,7 @@ public class RequestInvitationRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get all requests on invite from guests", tags = { "Request Invitation" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = RequestInvitation.class)))),
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @GetMapping(produces = { "application/json" })
@@ -44,11 +45,11 @@ public class RequestInvitationRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "delete request invitation", tags = { "Request Invitation" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "200", description = "request on invitation has been successfully deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @DeleteMapping(value = "/delete", produces = { "application/json" })
-    public ResponseEntity<String> delRequestInvitation(RequestInvitation requestInvitation) {
+    public ResponseEntity<String> delRequestInvitation(@Parameter(description = "request invitation") @RequestBody RequestInvitation requestInvitation) {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN")))
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         requestInvitationService.deleteById(requestInvitation.getId());
@@ -58,11 +59,11 @@ public class RequestInvitationRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "send request invitation", tags = { "Request Invitation" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "200", description = "request on invitation was senе successfully",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "423", description = "User already logged in")})
     @PostMapping(value = "/send", produces = { "application/json" })
-    public ResponseEntity<String> saveRequestInvitation(@RequestBody RequestInvitation requestInvitation) {
+    public ResponseEntity<String> saveRequestInvitation(@Parameter(description = "request invitation") @RequestBody RequestInvitation requestInvitation) {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_PROSPECT"))) {
             requestInvitationService.save(requestInvitation);
             return ResponseEntity.ok("Ok");
