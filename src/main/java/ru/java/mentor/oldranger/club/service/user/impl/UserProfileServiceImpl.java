@@ -37,8 +37,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public ProfileDto buildProfileDto(UserProfile profile, UserStatistic stat, boolean owner) {
-        return new ProfileDto(profile.getUser().getId(),
-                profile.getUser().getNickName(),
+        return new ProfileDto(profile.getUser().getNickName(),
                 profile.getUser().getFirstName(),
                 profile.getUser().getLastName(),
                 profile.getUser().getEmail(),
