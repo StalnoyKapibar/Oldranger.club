@@ -14,6 +14,8 @@ public interface CommentService {
 
     void createComment(Comment comment, Topic topic);
 
+    void deleteComment(Long id);
+
     Page<Comment> getPageableCommentByTopic(Topic topic, Pageable pageable);
 
     CommentDto assembleCommentDto(Comment comment);

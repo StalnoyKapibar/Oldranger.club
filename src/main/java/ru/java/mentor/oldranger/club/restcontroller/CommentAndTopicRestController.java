@@ -16,13 +16,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
+import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -35,6 +39,7 @@ public class CommentAndTopicRestController {
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private SecurityUtilsService securityUtilsService;
+    private UserService userService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -87,6 +92,50 @@ public class CommentAndTopicRestController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(topic);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Add a comment on topic", tags = { "Topic and comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Comment.class))),
+            @ApiResponse(responseCode = "400",
+                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+    @PostMapping(value = "/comment/add", produces = { "application/json" })
+    public ResponseEntity<Comment> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments) {
+        Comment comment;
+        Topic topic = topicService.findById(messageComments.getIdTopic());
+        User user = userService.findById(messageComments.getIdUser());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (messageComments.getAnswerID() != 0) {
+            Comment answer = commentService.getCommentById(messageComments.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
+        } else {
+            comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
+        }
+
+        if (user.getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        commentService.createComment(comment);
+        return ResponseEntity.ok(comment);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete comment from topic", description = "Delete comment by id", tags = { "Topic and comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comment deleted",
+                    content = @Content(schema = @Schema(implementation = Comment.class))),
+            @ApiResponse(responseCode = "404", description = "Error deleting comment",
+                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+    @DeleteMapping(value = "/comment/delete/{commentId}", produces = { "application/json" })
+    public ResponseEntity<Comment> deleteComment(@PathVariable(value = "commentId") Long id) {
+        Comment comment = commentService.getCommentById(id);
+        if (comment == null) {
+            return ResponseEntity.notFound().build();
+        }
+        commentService.deleteComment(id);
+        return ResponseEntity.ok().build();
     }
 
 }
