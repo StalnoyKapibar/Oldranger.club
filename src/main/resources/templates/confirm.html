@@ -16,18 +16,11 @@
     $(document).ready(function () {
             $.ajax({
                 type : "POST",
-                url : "/api/users",
-                data : getUrlVars(),
+                url : "/api/users"+window.location.href.slice(window.location.href.indexOf('?')),
                 success : function (e) {
                     window.location = "/";
                 }
             });
-
-        function getUrlVars(){
-            var hash = window.location.href.slice(window.location.href.indexOf('=') + 1);
-            return hash;
-        }
-
     });
 </script>
 </body>

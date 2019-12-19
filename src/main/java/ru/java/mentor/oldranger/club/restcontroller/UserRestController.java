@@ -37,8 +37,10 @@ public class UserRestController {
             @ApiResponse(responseCode = "400",
                     description = "parameter 'key' not correct")})
     @PostMapping
-    public ResponseEntity<String> addUser(@RequestBody String parKey) {
-        String enc = parKey.replaceAll("%2F","/").replaceAll("%3F","?").replaceAll("%3D","=").replaceAll("%26","&").replaceAll("%2523","#");
+    public ResponseEntity<String> addUser(@RequestParam String key) {
+        String enc = key.replaceAll("%2F","/").replaceAll("%3F","?")
+                .replaceAll("%3D","=").replaceAll("%26","&")
+                .replaceAll("%2523","#").replaceAll(" ","+");
         String dec = null;
         User user = new User();
         try {

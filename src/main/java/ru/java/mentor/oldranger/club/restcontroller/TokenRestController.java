@@ -74,6 +74,11 @@ public class TokenRestController {
         this.roleService = roleService;
     }
 
+    @Autowired
+    public void setPasswordsService(PasswordsService passwordsService) {
+        this.passwordsService = passwordsService;
+    }
+
     @Value("${server.protocol}")
     private String protocol;
 

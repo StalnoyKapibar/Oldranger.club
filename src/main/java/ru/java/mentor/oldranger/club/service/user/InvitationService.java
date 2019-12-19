@@ -27,5 +27,4 @@ public interface InvitationService {
     void setShelfLife(Long time);
 
     boolean checkShelfLife(InvitationToken token);
-
 }
