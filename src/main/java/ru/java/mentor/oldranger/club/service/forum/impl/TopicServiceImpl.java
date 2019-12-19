@@ -99,8 +99,28 @@ public class TopicServiceImpl implements TopicService {
         return page;
     }
 
+    @Override
+    public Page<Topic> getPageableBySubsectionWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        Page<Topic> page;
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            page = getPageableBySubsectionForUserWithFixTime(subsection, dateTime, pageable);
+        } else {
+            page = getPageableBySubsectionForAnonWithFixTime(subsection, dateTime, pageable);
+        }
+
+        return page;
+    }
+
     public Page<Topic> getPageableBySubsectionForAnon(Subsection subsection, Pageable pageable) {
         return topicRepository.findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(subsection, pageable);
+    }
+
+    public Page<Topic> getPageableBySubsectionForAnonWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        return topicRepository.findBySubsectionWithTimeForAnon(subsection, dateTime, pageable);
+    }
+
+    public Page<Topic> getPageableBySubsectionForUserWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        return topicRepository.findBySubsectionWithTimeForUser(subsection, dateTime, pageable);
     }
 
     @Override

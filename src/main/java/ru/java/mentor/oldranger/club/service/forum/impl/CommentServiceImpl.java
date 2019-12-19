@@ -107,12 +107,9 @@ public class CommentServiceImpl implements CommentService {
         }
         commentDto.setPositionInTopic(comment.getPositionInTopic());
         commentDto.setTopicId(comment.getTopic().getId());
-        commentDto.setNickName(comment.getUser().getNickName());
-        commentDto.setRoleName(comment.getUser().getRole().getRole());
-        commentDto.setSmallAvatar(comment.getUser().getAvatar().getSmall());
+        commentDto.setAuthor(comment.getUser());
         commentDto.setCommentDateTime(comment.getDateTime());
         commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
-        commentDto.setTimeSinceRegistration(timeSinceRegistration(comment.getUser().getRegDate()));
         commentDto.setReplyDateTime(replyTime);
         commentDto.setReplyNick(replyNick);
         commentDto.setReplyText(replyText);

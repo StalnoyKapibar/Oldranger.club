@@ -46,4 +46,9 @@ public class TestPageableCommentController {
         model.addAttribute("commentList", commentList.getContent());
         return "testPageable";
     }
+
+    @RequestMapping(path = "/test/addtopic", method = RequestMethod.GET)
+    public String getNewTopicForm() {
+        return "addtopic";
+    }
 }

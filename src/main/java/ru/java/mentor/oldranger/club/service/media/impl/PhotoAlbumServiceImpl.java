@@ -38,6 +38,15 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private MediaService mediaService;
 
     @Autowired
+    public PhotoAlbumServiceImpl(PhotoAlbumRepository repository) {
+        this.albumRepository = repository;
+    }
+
+    public PhotoAlbumServiceImpl() {
+        super();
+    }
+
+    @Autowired
     public void setMediaService(MediaService service) {
         this.mediaService = service;
     }
@@ -50,15 +59,6 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Autowired
     public void setUserService(UserService service) {
         this.userService = service;
-    }
-
-    @Autowired
-    public PhotoAlbumServiceImpl(PhotoAlbumRepository repository) {
-        this.albumRepository = repository;
-    }
-
-    public PhotoAlbumServiceImpl() {
-        super();
     }
 
     @Override
