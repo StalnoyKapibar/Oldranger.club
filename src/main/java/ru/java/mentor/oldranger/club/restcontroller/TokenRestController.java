@@ -91,7 +91,9 @@ public class TokenRestController {
     public ResponseEntity<String> sendInviteByMail(@Parameter(description="Email")
                                                    @RequestBody String mail) {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
 
         String key = invitationService.generateKey();
         String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
