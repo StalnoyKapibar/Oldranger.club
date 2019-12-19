@@ -234,7 +234,7 @@ public class UserProfileRestController {
             summary = "Get ID of currently logged user", tags = { "User profile" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = ErrorDto.class))),
+                    content = @Content(schema = @Schema(implementation = Long.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/getloggeduserid", produces = { "application/json" })
     public ResponseEntity<Long> getCurrentUserId() {
