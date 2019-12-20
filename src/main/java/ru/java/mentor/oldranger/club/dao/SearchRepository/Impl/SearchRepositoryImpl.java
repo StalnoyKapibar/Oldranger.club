@@ -51,12 +51,10 @@ public class SearchRepositoryImpl implements SearchRepository {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(aClass).get();
         Session session = fullTextEntityManager.unwrap(Session.class);
         Criteria fetch = session.createCriteria(aClass);
-        String field;
+        String field = "name";
         try {
             if (Class.forName("Comment").equals(aClass)) {
                 field = "commentText";
-            } else {
-                field = "name";
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
