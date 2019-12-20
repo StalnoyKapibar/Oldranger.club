@@ -1,4 +1,3 @@
-
 package ru.java.mentor.oldranger.club.dao.UserRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
