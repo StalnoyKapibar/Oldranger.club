@@ -1,6 +1,5 @@
 package ru.java.mentor.oldranger.club.dao.SearchRepository.Impl;
 
-import lombok.AllArgsConstructor;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -8,8 +7,6 @@ import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -26,7 +23,7 @@ public class SearchRepositoryImpl implements SearchRepository {
     public SearchRepositoryImpl() {
     }
 
-    public void init(EntityManagerFactory entityManagerFactory){
+    public void init(EntityManagerFactory entityManagerFactory) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
     }
@@ -53,7 +50,18 @@ public class SearchRepositoryImpl implements SearchRepository {
     public List searchObjectsByName(String finderTag, String[] fetchingFields, Class aClass) {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(aClass).get();
         Session session = fullTextEntityManager.unwrap(Session.class);
-        Criteria fetch = session.createCriteria(Topic.class);
+        String field;
+        try {
+            if (Class.forName("Comment").equals(aClass)) {
+                field = "commentText";
+            } else {
+                field = "name";
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Criteria fetch = session.createCriteria(aClass);
         if (fetchingFields != null) {
             for (String fetchField : fetchingFields) {
                 fetch.setFetchMode(fetchField, FetchMode.JOIN);
@@ -62,7 +70,7 @@ public class SearchRepositoryImpl implements SearchRepository {
         Query query = queryBuilder
                 .keyword()
                 .fuzzy()
-                .onField("name")
+                .onField(field)
                 .matching(finderTag)
                 .createQuery();
         return fullTextEntityManager
