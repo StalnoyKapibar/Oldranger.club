@@ -70,7 +70,9 @@ public class TokenRestController {
     @PostMapping(value = "/invite", produces = { "application/json" })
     public ResponseEntity<String> saveInvitationToken() {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
 
         String key = invitationService.getCurrentKey(user);
         if (key == null) {
