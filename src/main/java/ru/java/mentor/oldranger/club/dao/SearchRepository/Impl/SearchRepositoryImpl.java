@@ -50,6 +50,7 @@ public class SearchRepositoryImpl implements SearchRepository {
     public List searchObjectsByName(String finderTag, String[] fetchingFields, Class aClass) {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(aClass).get();
         Session session = fullTextEntityManager.unwrap(Session.class);
+        Criteria fetch = session.createCriteria(aClass);
         String field;
         try {
             if (Class.forName("Comment").equals(aClass)) {
@@ -61,7 +62,6 @@ public class SearchRepositoryImpl implements SearchRepository {
             e.printStackTrace();
         }
 
-        Criteria fetch = session.createCriteria(aClass);
         if (fetchingFields != null) {
             for (String fetchField : fetchingFields) {
                 fetch.setFetchMode(fetchField, FetchMode.JOIN);
