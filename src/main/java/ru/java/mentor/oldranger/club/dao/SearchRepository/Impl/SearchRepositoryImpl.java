@@ -4,6 +4,7 @@ import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -52,12 +53,9 @@ public class SearchRepositoryImpl implements SearchRepository {
         Session session = fullTextEntityManager.unwrap(Session.class);
         Criteria fetch = session.createCriteria(aClass);
         String field = "name";
-        try {
-            if (Class.forName("Comment").equals(aClass)) {
-                field = "commentText";
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+
+        if (aClass.getName().contains("Comment")) {
+            field = "commentText";
         }
 
         if (fetchingFields != null) {
@@ -71,8 +69,9 @@ public class SearchRepositoryImpl implements SearchRepository {
                 .onField(field)
                 .matching(finderTag)
                 .createQuery();
+
         return fullTextEntityManager
-                .createFullTextQuery(query, Topic.class)
+                .createFullTextQuery(query, aClass)
                 .setCriteriaQuery(fetch)
                 .getResultList();
     }
