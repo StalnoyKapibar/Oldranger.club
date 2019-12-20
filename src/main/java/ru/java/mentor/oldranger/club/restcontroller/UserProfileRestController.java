@@ -239,4 +239,18 @@ public class UserProfileRestController {
                                  @RequestParam String userDirection){
         mailDirectionService.changeUserDirection(userId, Direction.stringToDirectionType(userDirection));
     }
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get ID of currently logged user", tags = { "User profile" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/getloggeduserid", produces = { "application/json" })
+    public ResponseEntity<Long> getCurrentUserId() {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(currentUser.getId());
+    }
+
 }

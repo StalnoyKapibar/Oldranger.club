@@ -57,6 +57,12 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
         }
     }
 
+    @Override
+    public Subsection getSubsectionById(Long id) {
+        Subsection subsection = subsectionRepository.findById(id).get();
+        return subsection;
+    }
+
     private List<SectionsAndSubsectionsDto> combineListOfSectionsAndSubsections(List<Section> sections, List<Subsection> subsections) {
         List<SectionsAndSubsectionsDto> dtos = new ArrayList<>();
         for (Section section : sections) {

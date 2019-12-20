@@ -41,6 +41,9 @@ public class Topic {
     @Column(name = "date_last_message")
     private LocalDateTime lastMessageTime;
 
+    @Column(name = "start_message", columnDefinition = "varchar(8000)")
+    private String startMessage;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subsection_id")
     private Subsection subsection;
@@ -55,6 +58,17 @@ public class Topic {
         this.lastMessageTime = lastMessageTime;
         this.subsection = subsection;
         this.isHideToAnon = isHideToAnon;
+        this.startMessage = "Default start message";
+    }
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
+        this.name = name;
+        this.topicStarter = topicStarter;
+        this.startTime = startTime;
+        this.lastMessageTime = lastMessageTime;
+        this.subsection = subsection;
+        this.isHideToAnon = isHideToAnon;
+        this.startMessage = startMessage;
     }
 
     public Section getSection() {
@@ -76,4 +90,5 @@ public class Topic {
     public boolean isHideToAnon() {
         return isHideToAnon;
     }
+
 }

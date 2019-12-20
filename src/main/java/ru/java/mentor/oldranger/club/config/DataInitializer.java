@@ -204,7 +204,6 @@ public class DataInitializer implements CommandLineRunner {
         testDirection.setRegDate(LocalDateTime.of(2019, 10, 31, 21, 33, 35));
         testDirection.setPassword(passwordEncoder.encode("admin"));
         userService.save(testDirection);
-
         mailDirectionService.changeUserDirection(userService.getUserByNickName("Tayker").getId(), DirectionType.TWO_TO_DAY);
     }
 }

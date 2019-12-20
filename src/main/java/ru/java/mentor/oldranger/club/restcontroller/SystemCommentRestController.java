@@ -45,8 +45,13 @@ public class SystemCommentRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
     @GetMapping("/com/comments/{id}")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long id) {
-        List<Comment> commentsList = new ArrayList<>();
+        List<Comment> commentsList;
         commentsList = commentService.getAllCommentsByTopicId(id);
+
+        if (commentsList == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         for (Comment comment : commentsList) {
             if (comment.getAnswerTo() != null) {
                 comment.setPozition(true);
