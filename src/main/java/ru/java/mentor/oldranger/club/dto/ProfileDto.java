@@ -22,4 +22,5 @@ public class ProfileDto {
     private LocalDateTime lastVizit;
     private String avatar;
     private boolean owner;
+    private boolean isUser;
 }
