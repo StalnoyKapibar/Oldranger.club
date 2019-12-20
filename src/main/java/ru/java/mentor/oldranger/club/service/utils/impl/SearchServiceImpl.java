@@ -20,17 +20,20 @@ public class SearchServiceImpl implements SearchService {
 
     @Deprecated
     public List searchByTopicName(String queryString) {
-        return searchRepository.searchObjectsByName(queryString, null, Topic.class);
+        String[] targetFields = {"name"};
+        return searchRepository.searchObjectsByName(queryString, null, targetFields, Topic.class);
     }
 
     public List searchByComment(String queryString) {
-        return searchRepository.searchObjectsByName(queryString, null, Comment.class);
+        String[] targetFields = {"commentText"};
+        return searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
     }
 
     @Override
     public List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
         String[] fetchingFields = {"subsection", "subsection.section"};
-        List<Topic> topics = searchRepository.searchObjectsByName(finderTag, fetchingFields, Topic.class);
+        String[] targetFields = {"name"};
+        List<Topic> topics = searchRepository.searchObjectsByName(finderTag, fetchingFields, targetFields, Topic.class);
         switch (node) {
             case 0: {
                 return topics;

@@ -4,13 +4,11 @@ import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -48,15 +46,10 @@ public class SearchRepositoryImpl implements SearchRepository {
 
     @Transactional
     @Override
-    public List searchObjectsByName(String finderTag, String[] fetchingFields, Class aClass) {
+    public List searchObjectsByName(String finderTag, String[] fetchingFields, String[] targetFields, Class aClass) {
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(aClass).get();
         Session session = fullTextEntityManager.unwrap(Session.class);
         Criteria fetch = session.createCriteria(aClass);
-        String field = "name";
-
-        if (aClass.getName().contains("Comment")) {
-            field = "commentText";
-        }
 
         if (fetchingFields != null) {
             for (String fetchField : fetchingFields) {
@@ -66,7 +59,7 @@ public class SearchRepositoryImpl implements SearchRepository {
         Query query = queryBuilder
                 .keyword()
                 .fuzzy()
-                .onField(field)
+                .onFields(targetFields)
                 .matching(finderTag)
                 .createQuery();
 
