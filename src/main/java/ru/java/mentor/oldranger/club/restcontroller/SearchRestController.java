@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +19,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
+import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,14 +72,15 @@ public class SearchRestController {
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
-                                                            @RequestParam(value = "finderTag") String finderTag) {
-        List<Comment> comments = searchService.searchByComment(finderTag);
-        if (comments.size() > 0) {
-            List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());
-            return ResponseEntity.ok(commentDtoList);
-        } else {
+                                                            @RequestParam(value = "finderTag") String finderTag,
+                                                            @RequestParam(value = "page", required = false) Integer page,
+                                                            @RequestParam(value = "limit", required = false) Integer limit) {
+        List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
+        if (comments == null){
             return ResponseEntity.noContent().build();
         }
-    }
+        List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());
 
+        return ResponseEntity.ok(commentDtoList);
+    }
 }
