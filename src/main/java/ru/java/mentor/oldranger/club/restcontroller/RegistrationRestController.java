@@ -22,16 +22,16 @@ import java.util.Base64;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/users")
-@Tag(name = "User")
-public class UserRestController {
+@RequestMapping("/api/registration")
+@Tag(name = "Registration user")
+public class RegistrationRestController {
     private InvitationService invitationService;
     private UserService userService;
     private RoleService roleService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Add user", tags = { "User" })
+               summary = "Add user", tags = { "Registration user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "request on invitation has been successfully saved",
                     content = @Content(schema = @Schema(implementation = String.class))),

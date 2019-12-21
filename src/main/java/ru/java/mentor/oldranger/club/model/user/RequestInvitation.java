@@ -23,6 +23,6 @@ public class RequestInvitation {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "about_Me", nullable = false)
+    @Column(name = "about_Me", nullable = false, length = 8000)
     private String aboutMe;
 }
