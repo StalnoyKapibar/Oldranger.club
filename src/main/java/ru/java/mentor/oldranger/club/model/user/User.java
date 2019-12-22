@@ -94,7 +94,6 @@ public class User implements UserDetails{
     }
 
     @Override
-    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
