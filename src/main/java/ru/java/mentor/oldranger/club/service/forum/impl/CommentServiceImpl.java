@@ -73,6 +73,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public void updateComment(Comment comment) {
+        commentRepository.save(comment);
+    }
+
+    @Override
     public Page<Comment> getPageableCommentByTopic(Topic topic, Pageable pageable) {
         return commentRepository.findByTopic(topic, pageable);
     }

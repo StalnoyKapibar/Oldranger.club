@@ -102,23 +102,27 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                     content = @Content(schema = @Schema(implementation = Comment.class)))})
     @PostMapping(value = "/comment/add", produces = { "application/json" })
-    public ResponseEntity<Comment> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments) {
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestParam(value = "idTopic") Long idTopic,
+                                                        @RequestParam(value = "idUser") Long idUser,
+                                                        @RequestParam(value = "text") String text,
+                                                        @RequestParam(value = "answerID") Long answerID) {
         Comment comment;
-        Topic topic = topicService.findById(messageComments.getIdTopic());
-        User user = userService.findById(messageComments.getIdUser());
+        Topic topic = topicService.findById(idTopic);
+        User user = userService.findById(idUser);
         LocalDateTime localDateTime = LocalDateTime.now();
-        if (messageComments.getAnswerID() != 0) {
-            Comment answer = commentService.getCommentById(messageComments.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
+        if (answerID != 0) {
+            Comment answer = commentService.getCommentById(answerID);
+            comment = new Comment(topic, user, answer, localDateTime, text);
         } else {
-            comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
+            comment = new Comment(topic, user, null, localDateTime, text);
         }
 
         if (user.getId() == null) {
             return ResponseEntity.badRequest().build();
         }
         commentService.createComment(comment);
-        return ResponseEntity.ok(comment);
+        CommentDto commentDto = commentService.assembleCommentDto(comment);
+        return ResponseEntity.ok(commentDto);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -129,7 +133,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "404", description = "Error deleting comment",
                     content = @Content(schema = @Schema(implementation = Comment.class)))})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = { "application/json" })
-    public ResponseEntity<Comment> deleteComment(@PathVariable(value = "commentId") Long id) {
+    public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
         if (comment == null) {
             return ResponseEntity.notFound().build();
@@ -137,5 +141,41 @@ public class CommentAndTopicRestController {
         commentService.deleteComment(id);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Update a comment", tags = { "Topic and comments" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Comment.class))),
+            @ApiResponse(responseCode = "400",
+                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+    @PutMapping(value = "/comment/update")
+    public ResponseEntity<CommentDto> updateComment(@RequestParam(value = "idTopic") Long idTopic,
+                                                    @RequestParam(value = "idUser") Long idUser,
+                                                    @RequestParam(value = "text") String text,
+                                                    @RequestParam(value = "answerID") Long answerID,
+                                                    @RequestParam(value = "commentID") Long commentID) {
+
+        Comment comment = commentService.getCommentById(commentID);
+        comment.setTopic(topicService.findById(idTopic));
+        comment.setUser(userService.findById(idUser));
+        comment.setCommentText(text);
+        if (answerID != 0) {
+            comment.setAnswerTo(commentService.getCommentById(answerID));
+        } else {
+            comment.setAnswerTo(null);
+        }
+        comment.setDateTime(comment.getDateTime());
+
+        if (idUser != null) {
+            commentService.updateComment(comment);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+        CommentDto commentDto = commentService.assembleCommentDto(comment);
+        return ResponseEntity.ok(commentDto);
+    }
+
+
 
 }
