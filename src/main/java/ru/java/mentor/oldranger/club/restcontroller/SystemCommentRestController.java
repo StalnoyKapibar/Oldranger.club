@@ -22,6 +22,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
@@ -34,10 +35,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class SystemCommentRestController {
 
-    @Autowired
     private CommentService commentService;
-    @Autowired
     private WritingBanService writingBanService;
+    private SecurityUtilsService securityUtilsService;
 
     @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
     @ApiResponses(value = {
@@ -67,16 +67,14 @@ public class SystemCommentRestController {
     @GetMapping("/com/status/{id}")
     public ResponseEntity<Boolean> getStatus() {
         boolean isForbidden = false;
-        try {
-            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            isForbidden = true;
+        } else {
             WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
-            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
+            if (writingBan != null && (writingBan.getUnlockTime() == null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))) {
                 isForbidden = true;
             }
-        }
-        catch (Exception e) {
-            isForbidden = true;
         }
         return ResponseEntity.ok(isForbidden);
     }
