@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,11 +30,7 @@ public class TopicServiceImpl implements TopicService {
 
     private TopicRepository topicRepository;
     private UserStatisticService userStatisticService;
-
-    @Autowired
     private SecurityUtilsService securityUtilsService;
-
-    @Autowired
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Override
@@ -90,7 +85,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Page<Topic> getPageableBySubsection(Subsection subsection, Pageable pageable) {
         Page<Topic> page;
-        if (securityUtilsService.isLoggedUserIsUser()) {
+        if (securityUtilsService.isLoggedUserHasRoleUser()) {
             page = getPageableBySubsectionForUser(securityUtilsService.getLoggedUser(), subsection, pageable);
         } else {
             page = getPageableBySubsectionForAnon(subsection, pageable);
@@ -102,7 +97,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Page<Topic> getPageableBySubsectionWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
         Page<Topic> page;
-        if (securityUtilsService.isLoggedUserIsUser()) {
+        if (securityUtilsService.isLoggedUserHasRoleUser()) {
             page = getPageableBySubsectionForUserWithFixTime(subsection, dateTime, pageable);
         } else {
             page = getPageableBySubsectionForAnonWithFixTime(subsection, dateTime, pageable);
@@ -158,7 +153,7 @@ public class TopicServiceImpl implements TopicService {
         List<IdAndNumberProjection> newMessagesCountForTopicsAndUser = null;
         List<TopicVisitAndSubscription> topicVisitAndSubscriptionForUser = null;
 
-        if (securityUtilsService.isLoggedUserIsUser()) {
+        if (securityUtilsService.isLoggedUserHasRoleUser()) {
             logged = true;
             User loggedUser = securityUtilsService.getLoggedUser();
             newMessagesCountForTopicsAndUser = getNewMessagesCountForTopicsAndUser(topics, loggedUser);

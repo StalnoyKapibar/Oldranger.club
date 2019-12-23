@@ -37,6 +37,7 @@ public class RequestInvitationRestController {
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @GetMapping(produces = { "application/json" })
     public ResponseEntity<List<RequestInvitation>> getRequestInvitation() {
+
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"))) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -44,24 +45,24 @@ public class RequestInvitationRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "delete request invitation", tags = { "Request Invitation" })
+            summary = "delete request invitation by id", tags = { "Request Invitation" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "request on invitation has been successfully deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @DeleteMapping(value = "/delete", produces = { "application/json" })
-    public ResponseEntity<String> delRequestInvitation(@Parameter(description = "request invitation") @RequestBody RequestInvitation requestInvitation) {
+    public ResponseEntity<String> delRequestInvitation(@Parameter(description = "id of request invitation") @RequestBody Long id) {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"))) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        requestInvitationService.deleteById(requestInvitation.getId());
+        requestInvitationService.deleteById(id);
         return ResponseEntity.ok("Ok");
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "send request invitation", tags = { "Request Invitation" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "request on invitation was senе successfully",
+            @ApiResponse(responseCode = "200", description = "request on invitation was send successfully",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "423", description = "User already logged in")})
     @PostMapping(value = "/send", produces = { "application/json" })

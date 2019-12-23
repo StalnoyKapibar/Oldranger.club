@@ -49,7 +49,7 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     }
 
     @Override
-    public boolean isLoggedUserIsUser() {
+    public boolean isLoggedUserHasRoleUser() {
         return isAuthorityReachableForLoggedUser(new Role("ROLE_USER"));
     }
 

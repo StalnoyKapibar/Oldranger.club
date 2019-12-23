@@ -42,8 +42,7 @@ public class TestSystemComment {
                               HttpSession session) {
         session.setAttribute("urlAva", "https://static.tolstoycomments.com/ui/38/73/c6/3873c649-85f1-492a-8f3a-c70de64aefbc.png");
         model.addAttribute("idTopic", id);
-        List<Comment> commentsList = new ArrayList<>();
-        commentsList = commentService.getAllCommentsByTopicId(id);
+        List<Comment> commentsList = commentService.getAllCommentsByTopicId(id);
         for (Comment comment : commentsList) {
             if (comment.getAnswerTo() != null) {
                 comment.setPozition(true);

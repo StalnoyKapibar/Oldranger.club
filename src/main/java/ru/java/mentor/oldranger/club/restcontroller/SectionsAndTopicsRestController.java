@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,7 +51,8 @@ public class SectionsAndTopicsRestController {
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Failed to create topic") })
     @PostMapping(value = "/topic/new", produces = { "application/json" })
-    public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
+    public ResponseEntity<Topic> getSectionsAndTopicsDto(@Parameter(description = "topic details (name, subsection, hide to anon or not ...)")
+                                                             @RequestBody Topic topicDetails) {
 
         Topic topic = new Topic();
 

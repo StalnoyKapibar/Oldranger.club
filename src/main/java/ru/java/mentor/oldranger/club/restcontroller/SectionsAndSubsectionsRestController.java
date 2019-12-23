@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,7 +45,7 @@ public class SectionsAndSubsectionsRestController {
                summary = "Swap sections", tags = { "Sections and subsections" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsections", produces = { "application/json" })
-    public ResponseEntity swapSections(@RequestBody List<Long> sectionsId) {
+    public ResponseEntity swapSections(@Parameter(description = "Sections ids") @RequestBody List<Long> sectionsId) {
         sectionsAndSubsectionsService.swapSections(sectionsId);
         return ResponseEntity.ok().build();
     }

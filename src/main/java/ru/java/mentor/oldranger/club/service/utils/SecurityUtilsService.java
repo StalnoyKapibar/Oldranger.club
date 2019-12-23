@@ -10,7 +10,7 @@ public interface SecurityUtilsService {
     /**
      * Авторизованный пользователь не ниже ROLE_USER
      */
-    boolean isLoggedUserIsUser();
+    boolean isLoggedUserHasRoleUser();
     User getLoggedUser();
     List<Long> getUsersFromSessionRegistry();
 }

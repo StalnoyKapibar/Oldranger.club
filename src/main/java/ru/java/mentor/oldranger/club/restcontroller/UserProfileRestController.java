@@ -18,10 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.user.RequestInvitation;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -49,7 +49,6 @@ public class UserProfileRestController {
     private PasswordEncoder passwordEncoder;
     private SecurityUtilsService securityUtilsService;
 
-
     @InitBinder
     // передаем пустые строки как null
     public void initBinder(WebDataBinder binder) {
@@ -72,7 +71,7 @@ public class UserProfileRestController {
 
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserIsUser());
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserHasRoleUser());
         return ResponseEntity.ok(dto);
     }
 
@@ -92,7 +91,7 @@ public class UserProfileRestController {
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserIsUser());
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserHasRoleUser());
         return ResponseEntity.ok(dto);
     }
 
@@ -213,7 +212,7 @@ public class UserProfileRestController {
     @GetMapping(value = "/invite", produces = { "application/json" })
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
-        Boolean isUser = securityUtilsService.isLoggedUserIsUser();
+        boolean isUser = securityUtilsService.isLoggedUserHasRoleUser();
         if (currentUser == null || !isUser) {
             return ResponseEntity.noContent().build();
         }
@@ -230,8 +229,11 @@ public class UserProfileRestController {
                     content = @Content(schema = @Schema(implementation = ErrorDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping(value = "/changePassword", produces = { "application/json" })
-    public ResponseEntity<ErrorDto> changePassword(@RequestParam String oldPass,
+    public ResponseEntity<ErrorDto> changePassword(@Parameter(name = "Old Password")
+                                                   @RequestParam String oldPass,
+                                                   @Parameter(name = "New password")
                                                    @RequestParam String newPass,
+                                                   @Parameter(name = "Confirm new password")
                                                    @RequestParam String passConfirm) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {

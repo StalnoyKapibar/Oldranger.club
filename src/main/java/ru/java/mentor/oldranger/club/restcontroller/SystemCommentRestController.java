@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,10 +45,9 @@ public class SystemCommentRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
     @GetMapping("/com/comments/{id}")
-    public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long id) {
+    public ResponseEntity<List<CommentDto>> getComments(@Parameter(description = "Topic id") @PathVariable Long id) {
         List<Comment> commentsList;
         commentsList = commentService.getAllCommentsByTopicId(id);
-
         if (commentsList == null) {
             return ResponseEntity.noContent().build();
         }
