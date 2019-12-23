@@ -20,9 +20,7 @@ public class ArticleRestController {
 
     @GetMapping(value = "/tag/{tag_id}", produces = { "application/json" })
     public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
-
         List<Article> articles = articleService.getAllByTag(tag_id);
-
         return ResponseEntity.ok(articles);
     }
 }
