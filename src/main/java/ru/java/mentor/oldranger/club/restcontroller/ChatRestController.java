@@ -75,24 +75,13 @@ public class ChatRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Can a user participate", tags = { "Group chat" })
+            summary = "Is it forbidden to participate in the chat", tags = { "Group chat" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
-    @GetMapping("/writingBan")
-    ResponseEntity<Boolean> getWritingStatus() {
-        boolean isForbidden = false;
-        try {
-            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_PRIVATE_MESS);
-            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
-                isForbidden = true;
-            }
-        }
-        catch (Exception e) {
-            isForbidden = true;
-        }
+    @GetMapping("/isForbidden")
+    ResponseEntity<Boolean> isForbidden() {
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_PRIVATE_MESS);
         return ResponseEntity.ok(isForbidden);
     }
   

@@ -44,7 +44,7 @@ $(document).ready(function () {
 
     function connect(e) {
         e.preventDefault();
-        $.get("/api/chat/writingBan", function (data) {
+        $.get("/api/chat/isForbidden", function (data) {
             isForbidden = data;
         });
         if (isForbidden) {
