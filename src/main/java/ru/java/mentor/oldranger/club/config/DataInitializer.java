@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.DirectionRepository;
+import ru.java.mentor.oldranger.club.model.article.Article;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
@@ -15,6 +17,8 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
+import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -24,7 +28,9 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -39,6 +45,8 @@ public class DataInitializer implements CommandLineRunner {
     private ChatService chatService;
     private WritingBanService writingBanService;
     private DirectionRepository directionRepository;
+    private ArticleTagService articleTagService;
+    private ArticleService articleService;
 
     @Autowired
     @Lazy
@@ -55,7 +63,9 @@ public class DataInitializer implements CommandLineRunner {
                            BlackListService blackListService,
                            ChatService chatService,
                            WritingBanService writingBanService,
-                           DirectionRepository directionRepository) {
+                           DirectionRepository directionRepository,
+                           ArticleTagService articleTagService,
+                           ArticleService articleService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -67,6 +77,8 @@ public class DataInitializer implements CommandLineRunner {
         this.chatService = chatService;
         this.writingBanService = writingBanService;
         this.directionRepository = directionRepository;
+        this.articleTagService = articleTagService;
+        this.articleService = articleService;
     }
 
     @Override
@@ -211,5 +223,20 @@ public class DataInitializer implements CommandLineRunner {
             userService.save(newuser);
         }
 
+        ArticleTag newsTag1 = new ArticleTag("Тема 1");
+        ArticleTag newsTag2 = new ArticleTag("Тема 2");
+        ArticleTag newsTag3 = new ArticleTag("Тема 3");
+
+        articleTagService.addTag(newsTag1);
+        articleTagService.addTag(newsTag2);
+        articleTagService.addTag(newsTag3);
+
+        ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
+        for (int i = 1; i < 11; i++) {
+            Set<ArticleTag> tags = new HashSet<>();
+            tags.add(newsTags[i % 3]);
+            articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
+                    "Text news!"));
+        }
     }
 }
