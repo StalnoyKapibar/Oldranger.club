@@ -138,7 +138,7 @@ public class CommentAndTopicRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
 
-        if (comment.getId() == null && !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
+        if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
         commentService.deleteComment(id);
@@ -162,7 +162,6 @@ public class CommentAndTopicRestController {
         boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setUser(comment.getUser());
         comment.setCommentText(messageComments.getText());
         if (messageComments.getAnswerID() != 0) {
             comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
@@ -171,7 +170,7 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() == null && !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
+        if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
