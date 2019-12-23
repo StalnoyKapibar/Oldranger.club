@@ -16,8 +16,8 @@ import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-
 import java.util.Optional;
+
 @Deprecated
 @Hidden
 @Controller
