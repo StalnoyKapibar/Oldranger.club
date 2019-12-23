@@ -17,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
+@Deprecated
 @Hidden
 @Controller
 @RequestMapping("/admin")

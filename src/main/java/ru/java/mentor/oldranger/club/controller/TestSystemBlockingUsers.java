@@ -20,7 +20,7 @@ import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Deprecated
 @Hidden
 @AllArgsConstructor
 @Controller

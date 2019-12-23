@@ -29,7 +29,7 @@ import ru.java.mentor.oldranger.club.service.user.*;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-
+@Deprecated
 @Hidden
 @Controller
 @RequestMapping("/profile")

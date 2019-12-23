@@ -24,7 +24,7 @@ import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Deprecated
 @Hidden
 @AllArgsConstructor
 @Controller

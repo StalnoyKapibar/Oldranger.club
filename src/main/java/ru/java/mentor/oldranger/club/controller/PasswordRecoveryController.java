@@ -13,7 +13,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
-
+@Deprecated
 @Hidden
 @Controller
 @RequestMapping("/passwordrecovery")
