@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
@@ -40,6 +41,7 @@ public class CommentAndTopicRestController {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
     private SecurityUtilsService securityUtilsService;
     private UserService userService;
+    private RoleService roleService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -100,10 +102,11 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Comment.class))),
             @ApiResponse(responseCode = "400",
-                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+                   description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = { "application/json" })
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments) {
         Comment comment;
+        User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = userService.findById(messageComments.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -114,7 +117,7 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
         }
 
-        if (user.getId() == null) {
+        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
         commentService.createComment(comment);
@@ -125,14 +128,17 @@ public class CommentAndTopicRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete comment from topic", description = "Delete comment by id", tags = { "Topic and comments" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Comment deleted",
-                    content = @Content(schema = @Schema(implementation = Comment.class))),
-            @ApiResponse(responseCode = "404", description = "Error deleting comment",
-                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+            @ApiResponse(responseCode = "200", description = "Comment deleted"),
+            @ApiResponse(responseCode = "404", description = "Error deleting comment")})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = { "application/json" })
     public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
-        if (comment == null) {
+        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
+        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        User currentUser = securityUtilsService.getLoggedUser();
+        User user = comment.getUser();
+
+        if (comment.getId() == null && !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
         commentService.deleteComment(id);
@@ -144,15 +150,19 @@ public class CommentAndTopicRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Comment.class))),
-            @ApiResponse(responseCode = "400",
-                    content = @Content(schema = @Schema(implementation = Comment.class)))})
+            @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
     public ResponseEntity<CommentDto> updateComment(@RequestBody JsonSavedMessageComentsEntity messageComments,
                                                     @RequestParam(value = "commentID") Long commentID) {
 
         Comment comment = commentService.getCommentById(commentID);
+        User currentUser = securityUtilsService.getLoggedUser();
+        User user = userService.findById(messageComments.getIdUser());
+        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
+        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setUser(userService.findById(messageComments.getIdUser()));
+        comment.setUser(comment.getUser());
         comment.setCommentText(messageComments.getText());
         if (messageComments.getAnswerID() != 0) {
             comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
@@ -161,15 +171,11 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() != null) {
-            commentService.updateComment(comment);
-        } else {
+        if (messageComments.getIdUser() == null && !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.badRequest().build();
         }
+        commentService.updateComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
     }
-
-
-
 }
