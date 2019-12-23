@@ -89,17 +89,19 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         }
     }
 
+    @Deprecated
     public List<Topic> getTopicsByQuery(String query, String searchBy) {
         if (searchBy.equals("byTopics")) {
             return searchService.searchByTopicName(query);
         } else {
-            List<Comment> comments = searchService.searchByComment(query);
+            List<Comment> comments = searchService.searchByComment(query, null, null);
             List<Topic> topics = new ArrayList<>();
             comments.forEach(comment -> topics.add(comment.getTopic()));
             return topics;
         }
     }
 
+    @Deprecated
     public List<SectionsAndTopicsDto> getSectionsAndTopicsByQuery(String query, String searchBy) {
         List<SectionsAndTopicsDto> sectionsAndTopicsDtos;
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();

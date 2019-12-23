@@ -39,8 +39,7 @@ public class SearchRestController {
                     content = @Content(schema = @Schema(implementation = SectionsAndTopicsDto.class))),
             @ApiResponse(responseCode = "204", description = "Topics not found")})
     @GetMapping(value = "/searchTopics", produces = {"application/json"})
-    public ResponseEntity<SectionsAndTopicsDto> getFindTopics(@Parameter(description = "Ключевое слово поиска",
-            schema = @Schema(description = "Топик"))
+    public ResponseEntity<SectionsAndTopicsDto> getFindTopics(@Parameter(description = "Ключевое слово поиска")
                                                               @RequestParam(value = "finderTag") String finderTag,
                                                               @Parameter(description = "0 - везде, 1 - в разделе, 2 - в подразделе.")
                                                               @RequestParam(value = "node") Integer node,
@@ -64,14 +63,15 @@ public class SearchRestController {
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
-                                                            @RequestParam(value = "finderTag") String finderTag) {
-        List<Comment> comments = searchService.searchByComment(finderTag);
-        if (comments.size() > 0) {
-            List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());
-            return ResponseEntity.ok(commentDtoList);
-        } else {
+                                                            @RequestParam(value = "finderTag") String finderTag,
+                                                            @RequestParam(value = "page", required = false) Integer page,
+                                                            @RequestParam(value = "limit", required = false) Integer limit) {
+        List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
+        if (comments == null){
             return ResponseEntity.noContent().build();
         }
-    }
+        List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());
 
+        return ResponseEntity.ok(commentDtoList);
+    }
 }
