@@ -87,4 +87,24 @@ public class MailServiceImpl implements MailService {
 
         mailSender.send(message);
     }
+
+    @Override
+    public void sendHtmlMessage(String to, Map<String, Object> attributes, String fileName) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+
+            Context context = new Context();
+            context.setVariables(attributes);
+
+            String htmlContent = this.templateEngine.process(fileName, context);
+
+            helper.setTo(to);
+            helper.setText(htmlContent, true);
+            helper.setFrom(username);
+            mailSender.send(mimeMessage);
+        } catch (MailSendException | MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 }
