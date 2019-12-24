@@ -58,8 +58,7 @@ public class TestSystemComment {
             session.setAttribute("nameUser", user.getNickName());
             session.setAttribute("idUser", user.getId());
             isForbidden = writingBanService.isForbidden(user, BanType.ON_COMMENTS);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             isForbidden = true;
         }
         model.addAttribute("isForbidden", isForbidden);

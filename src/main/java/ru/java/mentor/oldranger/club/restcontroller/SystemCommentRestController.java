@@ -39,7 +39,7 @@ public class SystemCommentRestController {
     private WritingBanService writingBanService;
     private SecurityUtilsService securityUtilsService;
 
-    @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
+    @Operation(summary = "Get all comments in topic", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
@@ -60,7 +60,7 @@ public class SystemCommentRestController {
         return ResponseEntity.ok(commentsList.stream().map(commentService::assembleCommentDto).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Is it forbidden to write comments", tags = { "Topic comments" })
+    @Operation(summary = "Is it forbidden to write comments", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})

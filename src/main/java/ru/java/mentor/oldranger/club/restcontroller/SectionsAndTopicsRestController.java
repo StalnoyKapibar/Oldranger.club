@@ -35,19 +35,19 @@ public class SectionsAndTopicsRestController {
     private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = { "Sections and topics" })
+            summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))),
-            @ApiResponse(responseCode = "204", description = "invalid topic id") })
-    @GetMapping(value = "/sectionsandactualtopics", produces = { "application/json" })
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+    @GetMapping(value = "/sectionsandactualtopics", produces = {"application/json"})
     public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         return ResponseEntity.ok(dtos);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Is it forbidden to create new topics", tags = { "Sections and topics" })
+            summary = "Is it forbidden to create new topics", tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
@@ -58,12 +58,12 @@ public class SectionsAndTopicsRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Creates a new topic", tags = { "Sections and topics" })
+            summary = "Creates a new topic", tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
-            @ApiResponse(responseCode = "400", description = "Failed to create topic") })
-    @PostMapping(value = "/topic/new", produces = { "application/json" })
+            @ApiResponse(responseCode = "400", description = "Failed to create topic")})
+    @PostMapping(value = "/topic/new", produces = {"application/json"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
 
         Topic topic = new Topic();
