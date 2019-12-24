@@ -30,11 +30,11 @@ public class AvatarUserRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Set Avatar ", description = "Set avatar by user id", tags = { "Avatar from user" })
+            summary = "Set Avatar ", description = "Set avatar to user ", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/avatar", produces = { "application/json" })
+    @PostMapping(value = "/set", produces = { "application/json" })
     public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file){
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
@@ -54,7 +54,7 @@ public class AvatarUserRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete Avatar ", description = "Delete avatar by user id", tags = { "Avatar from user" })
+            summary = "Delete Avatar ", description = "Delete avatar", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class)))})
