@@ -39,7 +39,7 @@ public class SystemCommentRestController {
     private WritingBanService writingBanService;
     private SecurityUtilsService securityUtilsService;
 
-    @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
+    @Operation(summary = "Get all comments in topic", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
@@ -60,22 +60,13 @@ public class SystemCommentRestController {
         return ResponseEntity.ok(commentsList.stream().map(commentService::assembleCommentDto).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Can a user participate", tags = { "Topic comments" })
+    @Operation(summary = "Is it forbidden to write comments", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
-    @GetMapping("/com/status/{id}")
-    public ResponseEntity<Boolean> getStatus() {
-        boolean isForbidden = false;
-        User user = securityUtilsService.getLoggedUser();
-        if (user == null) {
-            isForbidden = true;
-        } else {
-            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
-            if (writingBan != null && (writingBan.getUnlockTime() == null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))) {
-                isForbidden = true;
-            }
-        }
+    @GetMapping("/com/isForbidden")
+    public ResponseEntity<Boolean> isForbidden() {
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_COMMENTS);
         return ResponseEntity.ok(isForbidden);
     }
 }
