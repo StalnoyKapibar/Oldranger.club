@@ -45,7 +45,7 @@ public class SectionsAndSubsectionsRestController {
                summary = "Swap sections", tags = { "Sections and subsections" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsections", produces = { "application/json" })
-    public ResponseEntity swapSections(@Parameter(description = "Sections id ", example = "[1]") @RequestParam List<Long> sectionsId) {
+    public ResponseEntity swapSections(@Parameter(description = "Sections id ", example = "[1]") @RequestBody List<Long> sectionsId) {
         sectionsAndSubsectionsService.swapSections(sectionsId);
         return ResponseEntity.ok().build();
     }
@@ -54,7 +54,7 @@ public class SectionsAndSubsectionsRestController {
                summary = "Swap subsections", tags = { "Sections and subsections" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsubsections", produces = { "application/json" })
-    public ResponseEntity swapSubsections(@Parameter(description = "Each section contains several subsections (sectionId:subsectionIdList)")  @RequestParam Map<Long, List<String>> sectionsAndSubsectionsIds) {
+    public ResponseEntity swapSubsections(@Parameter(description = "Each section contains several subsections (sectionId:subsectionIdList)")  @RequestBody Map<Long, List<String>> sectionsAndSubsectionsIds) {
         sectionsAndSubsectionsService.swapSubsectons(sectionsAndSubsectionsIds);
         return ResponseEntity.ok().build();
     }
