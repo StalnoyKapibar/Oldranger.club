@@ -34,7 +34,7 @@ public class SearchServiceImpl implements SearchService {
          */
         List<Comment> comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
 
-        if (comments == null) {
+        if (comments == null || comments.size() == 0) {
             return null;
         }
 
