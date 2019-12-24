@@ -9,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 
+@Deprecated
 @Hidden
 @Controller
 @RequestMapping("/invite")
