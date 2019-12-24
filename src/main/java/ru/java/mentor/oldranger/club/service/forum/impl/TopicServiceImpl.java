@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
@@ -85,7 +86,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Page<Topic> getPageableBySubsection(Subsection subsection, Pageable pageable) {
         Page<Topic> page;
-        if (securityUtilsService.isLoggedUserHasRoleUser()) {
+        if (securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER)) {
             page = getPageableBySubsectionForUser(securityUtilsService.getLoggedUser(), subsection, pageable);
         } else {
             page = getPageableBySubsectionForAnon(subsection, pageable);
@@ -97,7 +98,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Page<Topic> getPageableBySubsectionWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
         Page<Topic> page;
-        if (securityUtilsService.isLoggedUserHasRoleUser()) {
+        if (securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER)) {
             page = getPageableBySubsectionForUserWithFixTime(subsection, dateTime, pageable);
         } else {
             page = getPageableBySubsectionForAnonWithFixTime(subsection, dateTime, pageable);
@@ -153,7 +154,7 @@ public class TopicServiceImpl implements TopicService {
         List<IdAndNumberProjection> newMessagesCountForTopicsAndUser = null;
         List<TopicVisitAndSubscription> topicVisitAndSubscriptionForUser = null;
 
-        if (securityUtilsService.isLoggedUserHasRoleUser()) {
+        if (securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER)) {
             logged = true;
             User loggedUser = securityUtilsService.getLoggedUser();
             newMessagesCountForTopicsAndUser = getNewMessagesCountForTopicsAndUser(topics, loggedUser);

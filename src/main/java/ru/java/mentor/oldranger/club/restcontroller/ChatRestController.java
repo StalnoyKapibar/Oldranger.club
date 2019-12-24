@@ -67,7 +67,7 @@ public class ChatRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get online users", tags = { "Group chat" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Map userNickname:userId",
+            @ApiResponse(responseCode = "200", description = "Map userNickname",
                     content = @Content(schema = @Schema(implementation = Map.class)))})
     @GetMapping(value = "/users", produces = { "application/json" })
     ResponseEntity<Map<String, Long>> getOnlineUsers() {

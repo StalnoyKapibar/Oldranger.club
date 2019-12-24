@@ -17,13 +17,13 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
+import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,6 +38,7 @@ public class SystemBlockingUsersRestController {
     private WritingBanService writingBanService;
     private SessionService sessionService;
     private SecurityUtilsService securityUtilsService;
+    private RoleService roleService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get all users", tags = { "System blocking users" })
@@ -54,17 +55,13 @@ public class SystemBlockingUsersRestController {
             summary = "Add user to blacklist", tags = { "System blocking users" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = BlackListDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
+                    content = @Content(schema = @Schema(implementation = BlackListDto.class)))})
     @PostMapping("/admin/blocking")
     public ResponseEntity <BlackListDto> blockUser(@RequestBody BlackListDto blackListDto) {
         User user = userService.findById(blackListDto.getId());
         BlackList list = blackListService.findByUser(user);
         BlackList blackList;
-        User currentUser = securityUtilsService.getLoggedUser();
-        boolean isUser = securityUtilsService.isLoggedUserHasRoleUser();
-
-        if (currentUser == null || isUser) return ResponseEntity.noContent().build();
+        roleService.getRoleByAuthority("ROLE_USER");
         if (list == null && blackListDto.getDateUnblock().equals("")) {
             blackList = new BlackList(user, null);
         } else if (list != null && blackListDto.getDateUnblock().equals("")) {
@@ -94,8 +91,7 @@ public class SystemBlockingUsersRestController {
             summary = "Add writingBan for user", tags = { "System blocking users" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = WritingBanDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
+                    content = @Content(schema = @Schema(implementation = WritingBanDto.class)))})
     @PostMapping("/admin/writingBan")
     public ResponseEntity<WritingBanDto> writingBanUser(@RequestBody WritingBanDto writingBanDto) {
         User user = userService.findById(writingBanDto.getId());
@@ -103,10 +99,7 @@ public class SystemBlockingUsersRestController {
         WritingBan oldWritingBan = writingBanService.getByUserAndType(user, type);
         WritingBan writingBan;
         LocalDateTime localDateTime;
-        User currentUser = securityUtilsService.getLoggedUser();
-        boolean isUser = securityUtilsService.isLoggedUserHasRoleUser();
 
-        if (currentUser == null || isUser) return ResponseEntity.noContent().build();
         if (writingBanDto.getDateUnblock() == null || writingBanDto.getDateUnblock().equals("")) {
             localDateTime = null;
         }
@@ -134,14 +127,9 @@ public class SystemBlockingUsersRestController {
                summary = "Get all blocked users", tags = { "System blocking users" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = BlackList.class)))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = BlackList.class))))})
     @GetMapping(value = "/admin/blackList", produces = { "application/json" })
     public ResponseEntity<List<BlackList>> allBlockedUsers() {
-        User currentUser = securityUtilsService.getLoggedUser();
-        boolean isUser = securityUtilsService.isLoggedUserHasRoleUser();
-
-        if (currentUser == null || isUser) return ResponseEntity.noContent().build();
         List<BlackList> blackList = blackListService.findAll();
         return ResponseEntity.ok(blackList);
     }

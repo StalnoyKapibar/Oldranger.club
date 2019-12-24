@@ -69,10 +69,10 @@ public class DataInitializer implements CommandLineRunner {
         chatService.createChat(new Chat());
 
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
-        Role roleAdmin = new Role("ROLE_ADMIN");
-        Role roleModerator = new Role("ROLE_MODERATOR");
-        Role roleUser = new Role("ROLE_USER");
-        Role roleProspect = new Role("ROLE_PROSPECT");
+        Role roleAdmin = Role.ROLE_ADMIN;
+        Role roleModerator = Role.ROLE_MODERATOR;
+        Role roleUser = Role.ROLE_USER;
+        Role roleProspect = Role.ROLE_PROSPECT;
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);

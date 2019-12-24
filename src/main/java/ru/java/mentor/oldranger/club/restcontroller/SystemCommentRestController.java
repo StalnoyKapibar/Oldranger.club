@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
@@ -39,13 +40,19 @@ public class SystemCommentRestController {
     private CommentService commentService;
     private WritingBanService writingBanService;
     private SecurityUtilsService securityUtilsService;
+    private TopicService topicService;
 
     @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")
+    })
     @GetMapping("/com/comments/{id}")
     public ResponseEntity<List<CommentDto>> getComments(@Parameter(description = "Topic id") @PathVariable Long id) {
+        if (topicService.findById(id).isHideToAnon()) {
+            return  ResponseEntity.noContent().build();
+        }
         List<Comment> commentsList;
         commentsList = commentService.getAllCommentsByTopicId(id);
         if (commentsList == null) {

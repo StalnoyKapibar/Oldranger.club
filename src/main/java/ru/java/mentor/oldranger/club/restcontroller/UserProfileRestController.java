@@ -18,10 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -71,7 +71,7 @@ public class UserProfileRestController {
 
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserHasRoleUser());
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER));
         return ResponseEntity.ok(dto);
     }
 
@@ -91,7 +91,7 @@ public class UserProfileRestController {
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
-        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserHasRoleUser());
+        ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER));
         return ResponseEntity.ok(dto);
     }
 
@@ -212,7 +212,7 @@ public class UserProfileRestController {
     @GetMapping(value = "/invite", produces = { "application/json" })
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
-        boolean isUser = securityUtilsService.isLoggedUserHasRoleUser();
+        boolean isUser = securityUtilsService.isLoggedUserHasRole(Role.ROLE_USER);
         if (currentUser == null || !isUser) {
             return ResponseEntity.noContent().build();
         }

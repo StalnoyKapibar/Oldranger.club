@@ -24,4 +24,5 @@ public class RoleServiceImpl implements RoleService {
     public Role getRoleByAuthority(String authority) {
         return roleRepository.findRoleByRole(authority);
     }
+
 }

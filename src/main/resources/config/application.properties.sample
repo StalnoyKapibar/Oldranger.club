@@ -1,0 +1,59 @@
+
+# для  нормальной работы проекта скопируйте данный файл с расширением properties полученный файл добавлять в GIT не нужно.
+
+# Если вы делаете изменения в конфигурации для проекта то добавляйте их в sample
+server.protocol=http
+server.name=localhost
+server.port=8888
+server.tomcat.remote-ip-header=X-Forwarded-For
+server.tomcat.port-header=X-Forwarded-Port
+server.tomcat.protocol-header=X-Forwarded-Proto
+server.tomcat.protocol-header-https-value=https
+#spring.thymeleaf.mode=LEGACYHTML5
+
+# Charset of HTTP requests and responses. Added to the "Content-Type" header if not set explicitly.
+spring.http.encoding.charset=UTF-8
+# Enable http encoding support.
+spring.http.encoding.enabled=true
+# Force the encoding to the configured charset on HTTP requests and responses.
+spring.http.encoding.force=true
+
+spring.jackson.serialization.fail-on-empty-beans=false
+
+
+# Project properties
+commentEditTime=5
+
+spring.thymeleaf.cache=false
+
+spring.jackson.serialization.WRITE_DATES_AS_TIMESTAMPS = false
+spring.jackson.serialization.INDENT_OUTPUT=true
+
+project.password.encoder.strength=12
+project.password.min-length=8
+
+# JWT secret word
+project.jwt.secret-word=&GD-YY*7$g54Hoi&6
+# Password recovery
+# Recovery password token lifetime, pattern: Days-Hours-Minutes
+project.password-recovery.token-expiration=1-12-30
+# Request for new password recovery interval, pattern: Days-Hours-Minutes
+project.password-recovery.interval=0-0-2
+# Cron scheduled password-recovery-request database cleaning, Spring Cron format (second, minute, hour, day of month, month, day(s) of week)
+# https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
+project.password-recovery.cleanup-db-cron=0 30 3 * * *
+
+# max file size
+spring.servlet.multipart.max-file-size=10MB
+# max request size
+spring.servlet.multipart.max-request-size=10MB
+# files upload location
+upload.location=./uploads
+# photoalbums create location
+photoalbums.location=./media/
+# avatar sizes
+upload.medium=500
+upload.small=100
+
+springdoc.api-docs.path=/api/api-docs
+springdoc.swagger-ui.path=/api/swagger-ui.html

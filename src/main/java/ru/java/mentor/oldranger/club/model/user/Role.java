@@ -15,6 +15,10 @@ import java.util.Objects;
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
+    public final static Role ROLE_ADMIN = new Role("ROLE_ADMIN");
+    public final static Role ROLE_USER = new Role("ROLE_USER");
+    public final static Role ROLE_MODERATOR = new Role("ROLE_MODERATOR");
+    public final static Role ROLE_PROSPECT = new Role("ROLE_PROSPECT");
 
     @Id
     @Column(name = "id")

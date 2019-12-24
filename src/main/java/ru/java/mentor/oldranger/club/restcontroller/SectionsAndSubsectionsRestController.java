@@ -45,7 +45,7 @@ public class SectionsAndSubsectionsRestController {
                summary = "Swap sections", tags = { "Sections and subsections" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsections", produces = { "application/json" })
-    public ResponseEntity swapSections(@Parameter(description = "Sections ids") @RequestBody List<Long> sectionsId) {
+    public ResponseEntity swapSections(@Parameter(description = "Sections id ", example = "[1]") @RequestParam List<Long> sectionsId) {
         sectionsAndSubsectionsService.swapSections(sectionsId);
         return ResponseEntity.ok().build();
     }
@@ -54,7 +54,7 @@ public class SectionsAndSubsectionsRestController {
                summary = "Swap subsections", tags = { "Sections and subsections" })
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsubsections", produces = { "application/json" })
-    public ResponseEntity swapSubsections(@RequestBody Map<Long, List<String>> sectionsAndSubsectionsIds) {
+    public ResponseEntity swapSubsections(@Parameter(description = "Each section contains several subsections (sectionId:subsectionIdList)")  @RequestParam Map<Long, List<String>> sectionsAndSubsectionsIds) {
         sectionsAndSubsectionsService.swapSubsectons(sectionsAndSubsectionsIds);
         return ResponseEntity.ok().build();
     }
@@ -63,11 +63,12 @@ public class SectionsAndSubsectionsRestController {
             summary = "Get a subsection by Id", tags = { "Sections and subsections" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Subsection.class)))})
+                    content = @Content(schema = @Schema(implementation = Subsection.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/getsubsection/{subsectionId}", produces = { "application/json" })
-    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
+    public ResponseEntity<Subsection> getSubsectionById(@Parameter(description = "id of subsection ", example = "1") @PathVariable Long subsectionId) {
         Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
-        if (subsection == null && subsection.getId() == null) {
+        if ((subsection == null && subsection.getId() == null) ||subsection.isHideToAnon()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(subsection);

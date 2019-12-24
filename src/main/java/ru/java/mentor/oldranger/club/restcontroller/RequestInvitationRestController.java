@@ -49,10 +49,10 @@ public class RequestInvitationRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "request on invitation has been successfully deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
+            @ApiResponse(responseCode = "403", description = "User does not have enough rights or User doesn't exist")})
     @DeleteMapping(value = "/delete", produces = { "application/json" })
-    public ResponseEntity<String> delRequestInvitation(@Parameter(description = "id of request invitation") @RequestBody Long id) {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"))) {
+    public ResponseEntity<String> delRequestInvitation(@Parameter(description = "id of request invitation") @RequestParam Long id) {
+        if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN")) || id == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         requestInvitationService.deleteById(id);
