@@ -53,12 +53,12 @@ public class TestSystemComment {
         }
         model.addAttribute("comments", commentsList);
         boolean isForbidden = false;
-        try {
-            User user = securityUtilsService.getLoggedUser();
+        User user = securityUtilsService.getLoggedUser();
+        if (user != null) {
             session.setAttribute("nameUser", user.getNickName());
             session.setAttribute("idUser", user.getId());
             isForbidden = writingBanService.isForbidden(user, BanType.ON_COMMENTS);
-        } catch (Exception e) {
+        } else {
             isForbidden = true;
         }
         model.addAttribute("isForbidden", isForbidden);
