@@ -100,7 +100,7 @@ public class CommentAndTopicRestController {
             summary = "Add a comment on topic", tags = { "Topic and comments" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = commentDto.class))),
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = { "application/json" })
