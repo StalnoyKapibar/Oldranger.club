@@ -31,7 +31,7 @@ public class DirectionRestController {
     SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get found topics", tags = {"Mail direction API"})
+            summary = "Set mail direction for user", tags = {"Mail direction API"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = DirectionType.class)), description = "ONE_TO_DAY, TWO_TO_DAY, ONE_TO_WEEK, NEVER"),
