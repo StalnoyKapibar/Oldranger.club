@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test News</title>
+</head>
+<body>
+    <div style="display: flex">
+        <div style="width: 30%">
+            <ul>
+                <li><a th:href="@{/test/news}">Все новости</a></li>
+                <li th:each="newsTag : ${tagList}"><a th:href="@{'/test/news/t/' + ${newsTag.id}}" th:text="${newsTag.name}"></a></li>
+            </ul>
+        </div>
+        <div>
+            <div th:each="news : ${newsList}" style="border: 1px solid black">
+                <h2 th:text="${news.title}"></h2>
+                <p th:text="'Tag: ' + ${news.newsTag.name}"></p>
+                <div style="display: flex; margin-right: 10px">
+                    <p th:text="${news.date}"></p>
+                    <p th:text="${news.user.nickName}"></p>
+                </div>
+                <p th:text="${news.text}"></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

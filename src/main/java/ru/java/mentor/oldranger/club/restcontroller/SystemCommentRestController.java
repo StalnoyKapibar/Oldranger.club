@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
@@ -38,17 +40,22 @@ public class SystemCommentRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemCommentRestController.class);
     @Autowired
     private CommentService commentService;
-    @Autowired
     private WritingBanService writingBanService;
+    private SecurityUtilsService securityUtilsService;
 
-    @Operation(summary = "Get all comments in topic", tags = { "Topic comments" })
+    @Operation(summary = "Get all comments in topic", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
     @GetMapping("/com/comments/{id}")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long id) {
-        List<Comment> commentsList = new ArrayList<>();
+        List<Comment> commentsList;
         commentsList = commentService.getAllCommentsByTopicId(id);
+
+        if (commentsList == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         for (Comment comment : commentsList) {
             if (comment.getAnswerTo() != null) {
                 comment.setPozition(true);
@@ -57,24 +64,13 @@ public class SystemCommentRestController {
         return ResponseEntity.ok(commentsList.stream().map(commentService::assembleCommentDto).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Can a user participate", tags = { "Topic comments" })
+    @Operation(summary = "Is it forbidden to write comments", tags = {"Topic comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
-    @GetMapping("/com/status/{id}")
-    public ResponseEntity<Boolean> getStatus() {
-        boolean isForbidden = false;
-        try {
-            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
-            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
-                isForbidden = true;
-            }
-        }
-        catch (Exception e) {
-            isForbidden = true;
-        }
+    @GetMapping("/com/isForbidden")
+    public ResponseEntity<Boolean> isForbidden() {
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_COMMENTS);
         return ResponseEntity.ok(isForbidden);
     }
 }

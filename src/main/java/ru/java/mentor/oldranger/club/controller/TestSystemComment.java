@@ -17,13 +17,14 @@ import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
-
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Hidden
 @AllArgsConstructor
 @Controller
@@ -33,6 +34,7 @@ public class TestSystemComment {
     private TopicService topicService;
     private UserService userService;
     private WritingBanService writingBanService;
+    private SecurityUtilsService securityUtilsService;
 
     // Пример работы с системой комментирования
     @GetMapping("/com/{id}")
@@ -50,17 +52,12 @@ public class TestSystemComment {
         }
         model.addAttribute("comments", commentsList);
         boolean isForbidden = false;
-        try {
-            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
+        User user = securityUtilsService.getLoggedUser();
+        if (user != null) {
             session.setAttribute("nameUser", user.getNickName());
             session.setAttribute("idUser", user.getId());
-            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_COMMENTS);
-            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
-                isForbidden = true;
-            }
-        }
-        catch (Exception e) {
+            isForbidden = writingBanService.isForbidden(user, BanType.ON_COMMENTS);
+        } else {
             isForbidden = true;
         }
         model.addAttribute("isForbidden", isForbidden);

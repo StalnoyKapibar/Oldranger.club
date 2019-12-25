@@ -57,7 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*","http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -81,8 +81,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/com/*", "/dist-smile/*", "/markdown").permitAll()
-                .antMatchers("/", "/api/**", "/invite", "/passwordrecovery/**").permitAll()
+                .antMatchers("/com/*", "/dist-smile/*", "/markdown", "/request").permitAll()
+                .antMatchers("/", "/api/**", "/invite", "/passwordrecovery/**", "/confirm").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic()

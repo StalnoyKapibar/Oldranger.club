@@ -1,10 +1,9 @@
-package ru.java.mentor.oldranger.club.model;
+package ru.java.mentor.oldranger.club.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 
@@ -12,16 +11,18 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+//@ToString
 @Entity
-@Table(name = "news")
-public class News {
-
+@Table(name = "requestInvitations")
+public class RequestInvitation {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "about_Me", nullable = false, length = 8000)
+    private String aboutMe;
 }

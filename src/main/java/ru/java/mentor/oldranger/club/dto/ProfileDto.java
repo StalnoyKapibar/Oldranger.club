@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProfileDto {
 
+    private long userId;
     private String nickName;
     private String firstName;
     private String lastName;
@@ -22,4 +23,5 @@ public class ProfileDto {
     private LocalDateTime lastVizit;
     private String avatar;
     private boolean owner;
+    private boolean isUser;
 }

@@ -160,6 +160,18 @@ public class TopicServiceImpl implements TopicService {
         return page;
     }
 
+    @Override
+    public Page<Topic> getPageableBySubsectionWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        Page<Topic> page;
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            page = getPageableBySubsectionForUserWithFixTime(subsection, dateTime, pageable);
+        } else {
+            page = getPageableBySubsectionForAnonWithFixTime(subsection, dateTime, pageable);
+        }
+
+        return page;
+    }
+
     public Page<Topic> getPageableBySubsectionForAnon(Subsection subsection, Pageable pageable) {
         LOG.debug("Getting page {} of topics for subsection for anon with id = {}", pageable.getPageNumber(), subsection.getId());
         Page<Topic> page = null;
@@ -170,6 +182,14 @@ public class TopicServiceImpl implements TopicService {
             LOG.error(e.getMessage(), e);
         }
         return page;
+    }
+
+    public Page<Topic> getPageableBySubsectionForAnonWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        return topicRepository.findBySubsectionWithTimeForAnon(subsection, dateTime, pageable);
+    }
+
+    public Page<Topic> getPageableBySubsectionForUserWithFixTime(Subsection subsection, String dateTime, Pageable pageable) {
+        return topicRepository.findBySubsectionWithTimeForUser(subsection, dateTime, pageable);
     }
 
     @Override

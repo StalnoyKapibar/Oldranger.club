@@ -24,4 +24,9 @@ public class RoleServiceImpl implements RoleService {
             LOG.error(e.getMessage(), e);
         }
     }
+
+    @Override
+    public Role getRoleByAuthority(String authority) {
+        return roleRepository.findRoleByRole(authority);
+    }
 }

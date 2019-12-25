@@ -17,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 
+@Deprecated
 @Hidden
 @Controller
 @AllArgsConstructor
@@ -49,7 +50,7 @@ public class TestCommentDtoController {
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
         if (currentUser.getRole().getRole().equals("ROLE_PROSPECT")) {
             for (CommentDto cd : dtos.getContent()) {
-                cd.setSmallAvatar("default-sm.png");
+                cd.getAuthor().getAvatar().setSmall("default-sm.png");
             }
         }
         topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);

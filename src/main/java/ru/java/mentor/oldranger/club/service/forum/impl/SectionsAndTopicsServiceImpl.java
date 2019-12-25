@@ -106,6 +106,7 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         }
     }
 
+    @Deprecated
     public List<Topic> getTopicsByQuery(String query, String searchBy) {
         LOG.debug("Getting topics by query = {}", query);
         List<Topic> topics = new ArrayList<>();
@@ -113,9 +114,8 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
             if (searchBy.equals("byTopics")) {
                 topics = searchService.searchByTopicName(query);
             } else {
-                List<Comment> comments = searchService.searchByComment(query);
-                List<Topic> finalTopics = topics;
-                comments.forEach(comment -> finalTopics.add(comment.getTopic()));
+                List<Comment> comments = searchService.searchByComment(query, null, null);
+                comments.forEach(comment -> topics.add(comment.getTopic()));
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -124,6 +124,7 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         return topics;
     }
 
+    @Deprecated
     public List<SectionsAndTopicsDto> getSectionsAndTopicsByQuery(String query, String searchBy) {
         LOG.debug("Getting sections and topics dtos by query = {}", query);
         List<SectionsAndTopicsDto> sectionsAndTopicsDtos = null;

@@ -28,7 +28,7 @@
         <a href="#" th:href="@{/profile/invite}">Приглашения</a>
     </nav>
     <main style="display: flex;flex-direction: row;height: 100%;">
-        <div th:if="${user.role.role!='ROLE_UNVERIFIED'}">
+        <div th:if="${user.role.role!='ROLE_PROSPECT'}">
             <p>На этой странице можно сгенерировать ссылку для регистрации нового пользователя и передать ее самостоятельно:</p>
             <br>
             <button type="button" onclick="test()">

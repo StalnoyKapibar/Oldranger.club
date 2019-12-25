@@ -14,13 +14,13 @@
 </div>
 <div th:each="comment : ${commentList}" style="border: 1px solid black; border-radius: 5px; padding-left: 10px" >
     <div th:id="${comment.positionInTopic}" style="display: inline-block;border-right: 1px solid black;padding-right: 20px;">
-        <p th:text="${comment.nickName}"></p>
-        <section th:if="${comment.smallAvatar}">
-            <img src="#" th:src="${'/img/' + comment.smallAvatar}" alt="avatar">
+        <p th:text="${comment.author.nickName}"></p>
+        <section th:if="${comment.author.avatar.small}">
+            <img src="#" th:src="${'/img/' + comment.author.avatar.small}" alt="avatar">
         </section>
-        <p th:text="${comment.timeSinceRegistration}"></p>
+        <p th:text="${comment.author.regDate}"></p>
         <p><b>Всего сообщений: </b> <span th:text="${comment.messageCount}" ></span></p>
-        <p th:text="${comment.roleName}"></p>
+        <p th:text="${comment.author.role.role}"></p>
     </div>
     <div style="display: inline-block; vertical-align: top;padding-left: 25px">
         <blockquote th:if="${comment.replyDateTime}">
