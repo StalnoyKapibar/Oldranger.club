@@ -13,6 +13,7 @@ import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/test")
+@Deprecated
 public class TestSearchController {
 
     private SectionsAndTopicsService sectionsAndTopicsService;
