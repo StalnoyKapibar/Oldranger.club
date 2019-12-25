@@ -12,8 +12,6 @@ import java.util.List;
 public interface CommentService {
     void createComment(Comment comment);
 
-    void createComment(Comment comment, Topic topic);
-
     Page<Comment> getPageableCommentByTopic(Topic topic, Pageable pageable);
 
     CommentDto assembleCommentDto(Comment comment);

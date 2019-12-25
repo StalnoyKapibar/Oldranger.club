@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +29,10 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
-import ru.java.mentor.oldranger.club.service.user.*;
+import ru.java.mentor.oldranger.club.service.user.InvitationService;
+import ru.java.mentor.oldranger.club.service.user.UserProfileService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
@@ -38,6 +43,7 @@ import java.util.List;
 @Tag(name = "User profile")
 public class UserProfileRestController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserProfileRestController.class);
     private UserProfileService userProfileService;
     private UserStatisticService userStatisticService;
     private UserService userService;

@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +32,6 @@ import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.Map;
 @Tag(name = "Chat")
 public class ChatRestController {
 
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatRestController.class);
     private ChatService chatService;
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
@@ -124,8 +125,8 @@ public class ChatRestController {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
                     content = @Content(schema = @Schema(implementation = Map.class)))})
     @PostMapping("/image")
-    ResponseEntity<Map<String,String>> processImage(@Parameter(description="Image file", required=true)
-                                                    @RequestParam("file-input") MultipartFile file) throws IOException {
+    ResponseEntity<Map<String,String>> processImage(@Parameter(description="Image file", required = true)
+                                                    @RequestParam("file-input") MultipartFile file) {
         Map<String,String> result = messageService.processImage(file);
         return ResponseEntity.ok(result);
     }

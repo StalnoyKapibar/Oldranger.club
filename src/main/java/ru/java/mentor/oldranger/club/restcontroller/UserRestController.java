@@ -7,9 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -18,8 +23,9 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 @RequestMapping("/api/users")
 @Tag(name = "User")
 public class UserRestController {
-    private InvitationService invitationService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
+    private InvitationService invitationService;
     private UserService userService;
 
     @Autowired

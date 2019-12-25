@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -81,7 +80,7 @@ public class TestSystemComment {
         } else {
             comment = new Comment(topic, user, null, localDateTime, message.getText());
         }
-        commentService.createComment(comment, topic);
+        commentService.createComment(comment);
         return "ok";
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 //        LocalDateTime joiningDate = LocalDateTime.parse("2014-04-01 00:00:00", formatter);

@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.BlackListDto;
@@ -31,6 +33,7 @@ import java.util.List;
 @Tag(name = "System blocking users")
 public class SystemBlockingUsersRestController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemBlockingUsersRestController.class);
     private UserService userService;
     private BlackListService blackListService;
     private WritingBanService writingBanService;
