@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -8,16 +8,12 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/albums")
 public class PhotoAlbumRestController {
 
     private PhotoAlbumService service;
-
-    @Autowired
-    public void setPhotoAlbumService(PhotoAlbumService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<PhotoAlbum> getPhotoAlbums() {

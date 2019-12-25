@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,8 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import java.time.LocalDateTime;
 
 @Service
+@AllArgsConstructor
 public class WritingBanServiceImpl implements WritingBanService {
-    @Autowired
     WritingBanRepository repository;
 
     @Override

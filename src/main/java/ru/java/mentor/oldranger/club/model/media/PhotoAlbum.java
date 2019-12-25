@@ -1,15 +1,13 @@
 package ru.java.mentor.oldranger.club.model.media;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "photoAlbum")
 @DynamicUpdate

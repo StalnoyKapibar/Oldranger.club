@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagRepository;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
@@ -8,15 +8,11 @@ import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class ArticleTagServiceImpl implements ArticleTagService {
 
     private ArticleTagRepository articleTagRepository;
-
-    @Autowired
-    public ArticleTagServiceImpl(ArticleTagRepository articleTagRepository) {
-        this.articleTagRepository = articleTagRepository;
-    }
 
     @Override
     public List<ArticleTag> getAllTags() {

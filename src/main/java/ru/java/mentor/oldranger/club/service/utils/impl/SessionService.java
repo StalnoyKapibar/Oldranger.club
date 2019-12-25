@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -15,14 +16,11 @@ import org.springframework.web.client.RestTemplate;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 @Service("expireUsereService")
+@RequiredArgsConstructor
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionService {
     //Инжектим sessionRegistry
     private SessionRegistry sessionRegistry;
-    @Autowired
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
-    }
 
     @Value("${server.port}")
     String port;

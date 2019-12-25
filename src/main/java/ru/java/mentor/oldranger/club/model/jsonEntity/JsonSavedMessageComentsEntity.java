@@ -30,12 +30,4 @@ public class JsonSavedMessageComentsEntity {
                 ", answerID='" + answerID + '\'' +
                 '}';
     }
-
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
-    }
 }

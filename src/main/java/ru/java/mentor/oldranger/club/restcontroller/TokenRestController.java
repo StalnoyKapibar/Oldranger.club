@@ -9,18 +9,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.RegistrationUserDto;
 import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordException;
-import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordIllegal;
-import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordTooLong;
-import ru.java.mentor.oldranger.club.exceptions.passwords.PasswordTooShort;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
@@ -32,23 +29,17 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.Base64;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/token")
 @Tag(name = "Registration token")
 public class TokenRestController {
-    @Autowired
     private InvitationService invitationService;
-    @Autowired
     private UserService userService;
-    @Autowired
     private MailService mailService;
-    @Autowired
     private SecurityUtilsService securityUtilsService;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private PasswordsService passwordsService;
-    @Autowired
     private RoleService roleService;
 
 

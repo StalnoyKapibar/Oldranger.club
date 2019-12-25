@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,9 @@ import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryTokenService;
 import java.time.LocalDateTime;
 
 @Service
+@AllArgsConstructor
 public class PasswordRecoveryTokenServiceImpl implements PasswordRecoveryTokenService {
 
-    @Autowired
     private PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
 
     @Override

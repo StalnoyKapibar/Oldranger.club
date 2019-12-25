@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
-import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class ArticleRestController {
 
     private ArticleService articleService;
 
-    @GetMapping(value = "/tag/{tag_id}", produces = { "application/json" })
+    @GetMapping(value = "/tag/{tag_id}", produces = {"application/json"})
     public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
         List<Article> articles = articleService.getAllByTag(tag_id);
         return ResponseEntity.ok(articles);

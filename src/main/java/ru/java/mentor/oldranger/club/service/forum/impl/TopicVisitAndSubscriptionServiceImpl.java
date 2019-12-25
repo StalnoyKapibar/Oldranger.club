@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscriptionService {
 
-    @Autowired
     private TopicVisitAndSubscriptionRepository topicVisitAndSubscriptionRepository;
 
     @Override

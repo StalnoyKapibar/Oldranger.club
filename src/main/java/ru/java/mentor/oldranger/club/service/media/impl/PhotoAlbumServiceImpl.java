@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -36,30 +37,6 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private PhotoService photoService;
 
     private MediaService mediaService;
-
-    @Autowired
-    public PhotoAlbumServiceImpl(PhotoAlbumRepository repository) {
-        this.albumRepository = repository;
-    }
-
-    public PhotoAlbumServiceImpl() {
-        super();
-    }
-
-    @Autowired
-    public void setMediaService(MediaService service) {
-        this.mediaService = service;
-    }
-
-    @Autowired
-    public void setPhotoService(PhotoService service) {
-        this.photoService = service;
-    }
-
-    @Autowired
-    public void setUserService(UserService service) {
-        this.userService = service;
-    }
 
     @Override
     public PhotoAlbum save(PhotoAlbum album) {

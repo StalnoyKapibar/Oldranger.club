@@ -1,24 +1,19 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
-
-    @Autowired
-    public ArticleServiceImpl(ArticleRepository articleRepository) {
-        this.articleRepository = articleRepository;
-    }
 
     @Override
     public List<Article> getAllArticles() {

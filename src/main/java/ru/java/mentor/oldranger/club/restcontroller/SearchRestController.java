@@ -67,7 +67,7 @@ public class SearchRestController {
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "limit", required = false) Integer limit) {
         List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
-        if (comments == null){
+        if (comments == null) {
             return ResponseEntity.noContent().build();
         }
         List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());

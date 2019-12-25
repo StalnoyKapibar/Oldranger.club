@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,21 +19,14 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
-
-    @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, UserStatisticService userStatisticService, TopicService topicService) {
-        this.commentRepository = commentRepository;
-        this.userStatisticService = userStatisticService;
-        this.topicService = topicService;
-    }
 
     @Override
     public void createComment(Comment comment) {

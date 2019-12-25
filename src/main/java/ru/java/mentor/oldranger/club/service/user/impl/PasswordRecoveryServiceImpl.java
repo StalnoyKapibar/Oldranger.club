@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,18 +24,15 @@ import java.time.ZoneId;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
-    @Autowired
     private MailService mailService;
 
-    @Autowired
     private UserService userService;
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
     private PasswordRecoveryTokenService passwordRecoveryTokenService;
 
     @Value("${server.protocol}")

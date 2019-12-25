@@ -27,11 +27,6 @@ public class UserServiceImpl implements UserService {
     private UserStatisticService userStatistic;
     private MediaService mediaService;
 
-    @Autowired
-    void setMediaService(MediaService service) {
-        this.mediaService = service;
-    }
-
     @Override
     public List<User> findAll() {
         return userRepository.findAll();

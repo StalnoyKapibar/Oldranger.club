@@ -1,7 +1,7 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
+import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
     private PhotoRepository photoRepository;
 
@@ -36,16 +37,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Value("${upload.small}")
     private int small;
-
-    @Autowired
-    public void setPhotoAlbumService(PhotoAlbumService service) {
-        this.albumService = service;
-    }
-
-    @Autowired
-    public PhotoServiceImpl(PhotoRepository repository) {
-        this.photoRepository = repository;
-    }
 
     @Override
     public Photo save(Long albumId, MultipartFile file) {

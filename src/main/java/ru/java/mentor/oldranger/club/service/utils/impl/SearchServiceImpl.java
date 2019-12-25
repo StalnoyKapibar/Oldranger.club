@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
@@ -12,12 +13,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class SearchServiceImpl implements SearchService {
     private SearchRepository searchRepository;
-
-    public SearchServiceImpl(SearchRepository searchRepository) {
-        this.searchRepository = searchRepository;
-    }
 
     @Deprecated
     public List searchByTopicName(String queryString) {

@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -18,16 +19,15 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SecurityUtilsServiceImpl implements SecurityUtilsService {
 
     @Autowired
     @Lazy
     private RoleHierarchy roleHierarchy;
 
-    @Autowired
     private UserService userService;
 
-    @Autowired
     private SessionRegistry sessionRegistry;
 
     @Override

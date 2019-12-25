@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.InviteRepository;
@@ -13,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class InvitationServiceImpl implements InvitationService {
     private InviteRepository repository;
 
@@ -21,11 +23,6 @@ public class InvitationServiceImpl implements InvitationService {
     private static final Long DAY_AND_NIGHT = 3600000L;
 
     private Long shelfLife = DAY_AND_NIGHT;
-
-    @Autowired
-    public InvitationServiceImpl(InviteRepository inviteRepository) {
-        this.repository = inviteRepository;
-    }
 
     @Override
     public void save(InvitationToken invitationToken) {

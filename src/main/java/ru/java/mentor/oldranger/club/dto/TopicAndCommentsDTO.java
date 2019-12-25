@@ -1,16 +1,11 @@
 package ru.java.mentor.oldranger.club.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
 public class TopicAndCommentsDTO {
 

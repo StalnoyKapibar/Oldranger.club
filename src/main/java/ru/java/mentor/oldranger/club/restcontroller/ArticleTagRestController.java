@@ -10,9 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
@@ -30,12 +28,12 @@ public class ArticleTagRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get all article tags", tags = { "Article Tag" })
+            summary = "Get all article tags", tags = {"Article Tag"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTag.class)))),
             @ApiResponse(responseCode = "204", description = "admin role required")})
-    @GetMapping(value = "", produces = { "application/json" })
+    @GetMapping(value = "", produces = {"application/json"})
     public ResponseEntity<List<ArticleTag>> getTag() {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
             return ResponseEntity.noContent().build();
@@ -45,12 +43,12 @@ public class ArticleTagRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Create new tag", tags = { "Article Tag" })
+            summary = "Create new tag", tags = {"Article Tag"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTag.class))),
             @ApiResponse(responseCode = "204", description = "admin role required")})
-    @PostMapping(value = "", consumes = { "application/json" })
+    @PostMapping(value = "", consumes = {"application/json"})
     public ResponseEntity<ArticleTag> createTag(@RequestBody ArticleTag articleTag) {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
             return ResponseEntity.noContent().build();
@@ -60,12 +58,12 @@ public class ArticleTagRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Edit tag", tags = { "Article Tag" })
+            summary = "Edit tag", tags = {"Article Tag"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTag.class))),
             @ApiResponse(responseCode = "204", description = "admin role required")})
-    @PutMapping(value = "/{tag_id}", consumes = { "application/json" })
+    @PutMapping(value = "/{tag_id}", consumes = {"application/json"})
     public ResponseEntity<ArticleTag> updateTag(@PathVariable long tag_id,
                                                 @RequestBody ArticleTag articleTag) {
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
@@ -77,7 +75,7 @@ public class ArticleTagRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete tag", tags = { "Article Tag" })
+            summary = "Delete tag", tags = {"Article Tag"})
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "admin role required")})
     @DeleteMapping("/{tag_id}")
     ResponseEntity deleteUser(@PathVariable("tag_id") long id) {

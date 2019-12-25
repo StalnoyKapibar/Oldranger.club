@@ -8,14 +8,11 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-//@ToString
 @Indexed
-@EqualsAndHashCode
 @Table(name = "topics")
 public class Topic {
 

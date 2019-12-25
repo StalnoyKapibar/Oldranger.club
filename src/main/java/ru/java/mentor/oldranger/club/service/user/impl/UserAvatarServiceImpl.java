@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UserAvatarServiceImpl implements UserAvatarService {
 
     @Value("${upload.location:${user.home}}")
@@ -32,12 +35,6 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     private UserAvatarRepository userAvatarRepository;
     private UserService userService;
-
-    public UserAvatarServiceImpl(UserAvatarRepository userAvatarRepository,
-                                 UserService userService) {
-        this.userAvatarRepository = userAvatarRepository;
-        this.userService = userService;
-    }
 
     @Override
     public void save(UserAvatar avatar) {

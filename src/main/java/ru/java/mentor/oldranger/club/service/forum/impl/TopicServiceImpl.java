@@ -28,14 +28,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TopicServiceImpl implements TopicService {
 
-
     private TopicRepository topicRepository;
     private UserStatisticService userStatisticService;
-
-    @Autowired
     private SecurityUtilsService securityUtilsService;
-
-    @Autowired
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Override

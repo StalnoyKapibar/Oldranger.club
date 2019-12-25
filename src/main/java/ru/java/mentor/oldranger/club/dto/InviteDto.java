@@ -1,12 +1,10 @@
 package ru.java.mentor.oldranger.club.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import ru.java.mentor.oldranger.club.model.user.User;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class InviteDto {
 
