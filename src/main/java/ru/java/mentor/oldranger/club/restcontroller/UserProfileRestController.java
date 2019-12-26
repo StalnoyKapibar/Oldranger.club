@@ -57,12 +57,12 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get ProfileDto of logged in user", tags = { "User profile" })
+            summary = "Get ProfileDto of logged in user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/profile", produces = { "application/json" })
+    @GetMapping(value = "/profile", produces = {"application/json"})
     public ResponseEntity<ProfileDto> getProfile() {
 
         User user = securityUtilsService.getLoggedUser();
@@ -77,17 +77,17 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get ProfileDto of another user by id", tags = { "User profile" })
+            summary = "Get ProfileDto of another user by id", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User by id not found")})
-    @GetMapping(value = "/{id}", produces = { "application/json" })
+    @GetMapping(value = "/{id}", produces = {"application/json"})
     public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id) {
         User user;
         try {
             user = userService.findById(id);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
@@ -97,53 +97,53 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Update profile", tags = { "User profile" })
+            summary = "Update profile", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/updateProfile")
-    public ResponseEntity<UpdateProfileDto> updateProfile(UserProfile profile) {
-
+    public ResponseEntity<ErrorDto> updateProfile(@RequestParam(value = "nickName", required = false) String nickName,
+                                                  @RequestParam(value = "firstName", required = false) String firstName,
+                                                  @RequestParam(value = "lastName", required = false) String lastName,
+                                                  @RequestParam(value = "email", required = false) String email) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
+        boolean isNickName = !nickName.isEmpty() && userService.getUserByNickName(nickName) == null;
+        if (isNickName) {
+            currentUser.setNickName(nickName);
+        } else if (!nickName.isEmpty()) {
+            ErrorDto errorDto = new ErrorDto("Неподходящий никнейм, либо используется другим пользователем.");
+            return ResponseEntity.status(406).body(errorDto);
+        }
 
-        if (profile.getUser().getNickName() == null || profile.getUser().getEmail() == null){
-            UpdateProfileDto dto = new UpdateProfileDto(profile, new ErrorDto("Поля 'Ник' и 'Email' обязательно должны быть заполнены"));
-            return ResponseEntity.ok(dto);
+        if (!firstName.isEmpty()) currentUser.setFirstName(firstName);
+        if (!lastName.isEmpty()) currentUser.setLastName(lastName);
+
+        boolean isEmail = !email.isEmpty() && userService.getUserByEmail(email) == null;
+        if (isEmail) {
+            currentUser.setEmail(email);
+        } else if (!email.isEmpty()) {
+            ErrorDto errorDto = new ErrorDto("Неподходящий email, либо используется другим пользователем.");
+            return ResponseEntity.status(406).body(errorDto);
         }
-        User user = userService.getUserByNickName(profile.getUser().getNickName());
-        if (user != null && !currentUser.getNickName().equals(user.getNickName())) {
-            UpdateProfileDto dto = new UpdateProfileDto(profile, new ErrorDto("Пользователь с таким ником уже существует"));
-            return ResponseEntity.ok(dto);
-        }
-        user = userService.getUserByEmail(profile.getUser().getEmail());
-        if (user != null && !currentUser.getEmail().equals(user.getEmail())) {
-            UpdateProfileDto dto = new UpdateProfileDto(profile, new ErrorDto("Пользователь с таким адресом почты уже существует"));
-            return ResponseEntity.ok(dto);
-        }
-        currentUser.setNickName(profile.getUser().getNickName());
-        currentUser.setFirstName(profile.getUser().getFirstName());
-        currentUser.setLastName(profile.getUser().getLastName());
-        currentUser.setEmail(profile.getUser().getEmail());
+
         userService.save(currentUser);
-        profile.setUser(currentUser);
-        userProfileService.editUserProfile(profile);
-        UpdateProfileDto dto = new UpdateProfileDto(profile, null);
-        return ResponseEntity.ok(dto);
+
+        return ResponseEntity.ok(new ErrorDto("OK"));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get CommentDto list for current user", tags = { "User profile" })
+            summary = "Get CommentDto list for current user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/comments", produces = { "application/json" })
+    @GetMapping(value = "/comments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getComments(
-                                            @RequestAttribute(value = "page", required = false) Integer page) {
+            @RequestAttribute(value = "page", required = false) Integer page) {
 
         if (page == null) {
             page = 0;
@@ -160,16 +160,16 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get TopicVisitAndSubscription list for current user", tags = { "User profile" })
+            summary = "Get TopicVisitAndSubscription list for current user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/subscriptions", produces = { "application/json" })
+    @GetMapping(value = "/subscriptions", produces = {"application/json"})
     public ResponseEntity<List<TopicVisitAndSubscription>> getSubscriptions(
-                                   @RequestAttribute(value = "page", required = false) Integer page,
-                                   @Parameter(description="Not required, by default size: 10")
-                                   @PageableDefault(size = 10) Pageable pageable) {
+            @RequestAttribute(value = "page", required = false) Integer page,
+            @Parameter(description = "Not required, by default size: 10")
+            @PageableDefault(size = 10) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
@@ -179,17 +179,17 @@ public class UserProfileRestController {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         }
 
-        List<TopicVisitAndSubscription> dtos = topicVisitAndSubscriptionService.getPagebleTopicVisitAndSubscriptionForUser(currentUser,pageable).getContent();
+        List<TopicVisitAndSubscription> dtos = topicVisitAndSubscriptionService.getPagebleTopicVisitAndSubscriptionForUser(currentUser, pageable).getContent();
         return ResponseEntity.ok(dtos);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get all topics started by current user", tags = { "User profile" })
+            summary = "Get all topics started by current user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/topics", produces = { "application/json" })
+    @GetMapping(value = "/topics", produces = {"application/json"})
     public ResponseEntity<List<Topic>> getTopics(@RequestParam(value = "page", required = false) Integer page) {
 
         User currentUser = securityUtilsService.getLoggedUser();
@@ -200,17 +200,17 @@ public class UserProfileRestController {
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
 
-        List<Topic> dtos = topicService.findAllTopicsStartedByUser(currentUser,pageable).getContent();
+        List<Topic> dtos = topicService.findAllTopicsStartedByUser(currentUser, pageable).getContent();
         return ResponseEntity.ok(dtos);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get InviteDto for current user", tags = { "User profile" })
+            summary = "Get InviteDto for current user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = InviteDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
-    @GetMapping(value = "/invite", produces = { "application/json" })
+    @GetMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
         Boolean isUser = securityUtilsService.isLoggedUserIsUser();
@@ -224,12 +224,12 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Change password", tags = { "User profile" })
+            summary = "Change password", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ErrorDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @PostMapping(value = "/changePassword", produces = { "application/json" })
+    @PostMapping(value = "/changePassword", produces = {"application/json"})
     public ResponseEntity<ErrorDto> changePassword(@RequestParam String oldPass,
                                                    @RequestParam String newPass,
                                                    @RequestParam String passConfirm) {
@@ -238,8 +238,8 @@ public class UserProfileRestController {
             return ResponseEntity.noContent().build();
         }
 
-        if (passwordEncoder.matches(oldPass,currentUser.getPassword())){
-            if (passConfirm.equals(newPass)){
+        if (passwordEncoder.matches(oldPass, currentUser.getPassword())) {
+            if (passConfirm.equals(newPass)) {
                 currentUser.setPassword(passwordEncoder.encode(newPass));
                 userService.save(currentUser);
                 return ResponseEntity.ok(new ErrorDto("Пароль обновлен"));
@@ -249,12 +249,12 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get ID of currently logged user", tags = { "User profile" })
+            summary = "Get ID of currently logged user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Long.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/getloggeduserid", produces = { "application/json" })
+    @GetMapping(value = "/getloggeduserid", produces = {"application/json"})
     public ResponseEntity<Long> getCurrentUserId() {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) return ResponseEntity.noContent().build();
