@@ -115,7 +115,8 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
                 topics = searchService.searchByTopicName(query);
             } else {
                 List<Comment> comments = searchService.searchByComment(query, null, null);
-                comments.forEach(comment -> topics.add(comment.getTopic()));
+                List<Topic> finalTopics = topics;
+                comments.forEach(comment -> finalTopics.add(comment.getTopic()));
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

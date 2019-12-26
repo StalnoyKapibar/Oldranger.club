@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +35,6 @@ import java.util.Map;
 @RequestMapping("/api/private")
 public class PrivateChatRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrivateChatRestController.class);
     private ChatService chatService;
     private MessageService messageService;
     private UserService userService;

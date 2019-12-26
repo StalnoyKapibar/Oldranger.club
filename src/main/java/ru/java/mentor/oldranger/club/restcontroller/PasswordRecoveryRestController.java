@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.PasswordRecoveryDto;
@@ -30,7 +28,6 @@ import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 @Tag(name = "Password recovery")
 public class PasswordRecoveryRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PasswordRecoveryRestController.class);
     private UserService userService;
     private PasswordsService passwordsService;
     private PasswordRecoveryService passwordRecoveryService;

@@ -64,6 +64,7 @@ public class BlackListServiceImpl implements BlackListService {
 
     @Override
     public boolean userSearchBlackListByUserId(Long id) {
+        LOG.debug("Getting blacklist for user with id = {}", id);
         List<BlackList> blackLists = findByUserId(id);
         if (blackLists.size() == 0 || deleteUnlockBlock(blackLists)) {
             return true;
@@ -72,6 +73,7 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     private boolean deleteUnlockBlock(List<BlackList> blackLists) {
+       LOG.debug("Checking ban unlock time");
         LocalDateTime now = LocalDateTime.now();
         for (BlackList blackList : blackLists) {
             if (blackList.getUnlockTime() == null) {
@@ -86,29 +88,51 @@ public class BlackListServiceImpl implements BlackListService {
 
     @Override
     public List<BlackList> findAll() {
-
-        return blackListRepository.findAll();
+        LOG.debug("Getting all blacklists");
+        List<BlackList> blackList = new ArrayList<>();
+        try {
+            blackList = blackListRepository.findAll();
+            LOG.debug("Returned list of {} elements", blackList.size());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return blackList;
     }
 
     @Override
     public void save(BlackList blackList) {
-
-        blackListRepository.save(blackList);
-    }
-
-    @Override
-    public List<BlackList> findByUserId(Long id) {
+        LOG.info("Saving user blackList");
         try {
-            List<BlackList> blackList = blackListRepository.findByUserId(id);
-            return blackList;
-        } catch (NullPointerException e) {
-            return new ArrayList<>();
+            BlackList saved = blackListRepository.save(blackList);
+            LOG.info("User blackList {} saved", saved);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
     }
 
     @Override
+    public List<BlackList> findByUserId(Long id) {
+        LOG.debug("Getting blacklist for user with id = {}", id);
+        List<BlackList> blackList = new ArrayList<>();
+        try {
+            blackList = blackListRepository.findByUserId(id);
+            LOG.debug("Returned blacklist");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return blackList;
+    }
+
+    @Override
     public BlackList findByUser(User user) {
-        BlackList blackList = blackListRepository.findByUser(user);
+        LOG.debug("Getting blacklist for user {}", user);
+        BlackList blackList = null;
+        try {
+            blackList = blackListRepository.findByUser(user);
+            LOG.debug("Returned blacklist");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
         return blackList;
     }
 }

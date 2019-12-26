@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
@@ -26,7 +24,6 @@ import java.util.Map;
 @Tag(name = "Sections and subsections")
 public class SectionsAndSubsectionsRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SectionsAndSubsectionsRestController.class);
     private SectionsAndSubsectionsService sectionsAndSubsectionsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),

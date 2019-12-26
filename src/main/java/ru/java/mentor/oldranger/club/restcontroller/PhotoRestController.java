@@ -1,7 +1,5 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +10,6 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 @RequestMapping("/api/photos")
 public class PhotoRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhotoRestController.class);
     private PhotoService service;
 
 

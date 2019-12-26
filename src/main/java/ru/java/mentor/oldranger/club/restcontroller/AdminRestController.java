@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,7 +39,6 @@ import java.util.Map;
 @Tag(name = "Admin")
 public class AdminRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminRestController.class);
     private UserStatisticService userStatisticService;
     private MessageService messageService;
     private EmailDraftService emailDraftService;
@@ -115,7 +112,6 @@ public class AdminRestController {
         try {
             mailService.sendHtmlMessage(emails, draft);
         } catch (Exception e) {
-            LOGGER.error("Error send messages", e);
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
@@ -144,7 +140,6 @@ public class AdminRestController {
         try {
             emailDraftService.deleteDraft(id);
         } catch (Exception e){
-            LOGGER.error("Error delete draft", e);
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
@@ -162,7 +157,6 @@ public class AdminRestController {
         try {
             emailDraftService.saveDraft(draft);
         } catch (Exception e){
-            LOGGER.error("Error save draft", e);
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

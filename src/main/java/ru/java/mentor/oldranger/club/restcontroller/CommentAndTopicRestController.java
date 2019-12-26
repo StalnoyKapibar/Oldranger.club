@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,7 +36,6 @@ import java.util.List;
 @Tag(name = "Topic and comments")
 public class CommentAndTopicRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommentAndTopicRestController.class);
     private CommentService commentService;
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;

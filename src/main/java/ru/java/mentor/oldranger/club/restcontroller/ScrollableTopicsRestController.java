@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +33,6 @@ import java.util.Optional;
 @Tag(name = "Scrollable topics")
 public class ScrollableTopicsRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScrollableTopicsRestController.class);
     private TopicService topicService;
     private SubsectionService subsectionService;
 

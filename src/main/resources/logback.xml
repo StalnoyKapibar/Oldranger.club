@@ -8,12 +8,15 @@
     <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.home}/logs/Oldrangerclub.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>Oldrangerclub.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.home}/logs/Oldrangerclub.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
     <root level="INFO">
         <appender-ref ref="STASH"/>
+    </root>
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

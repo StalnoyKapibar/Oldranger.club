@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -62,12 +61,24 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(Long id) {
-        commentRepository.deleteById(id);
+        LOG.info("Deleting comment with id = {}", id);
+        try {
+            commentRepository.deleteById(id);
+            LOG.info("Comment {} deleted", id);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public void updateComment(Comment comment) {
-        commentRepository.save(comment);
+        LOG.info("Updating comment with id = {}", comment.getId());
+        try {
+            commentRepository.save(comment);
+            LOG.info("Comment {} updated", comment.getId());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @Override
