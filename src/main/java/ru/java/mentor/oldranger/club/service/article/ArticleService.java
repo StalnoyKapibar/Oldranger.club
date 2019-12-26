@@ -12,4 +12,6 @@ public interface ArticleService {
     List<Article> getAllByTag(long tagId);
 
     void addArticle(Article article);
+
+    Article getArticleById(long id);
 }
