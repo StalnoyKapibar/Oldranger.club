@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -63,7 +64,7 @@ public class SearchRestController {
             summary = "Get found comments by finderTag", tags = {"Search API"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
