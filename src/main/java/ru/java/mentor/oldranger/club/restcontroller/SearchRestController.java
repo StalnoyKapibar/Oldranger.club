@@ -63,7 +63,7 @@ public class SearchRestController {
             summary = "Get found comments by finderTag", tags = {"Search API"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = SectionsAndTopicsDto.class))),
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
