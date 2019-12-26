@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.user.RequestInvitation;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -100,7 +99,7 @@ public class UserProfileRestController {
             summary = "Update profile", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/updateProfile")
     public ResponseEntity<ErrorDto> updateProfile(@RequestParam(value = "nickName", required = false) String nickName,
