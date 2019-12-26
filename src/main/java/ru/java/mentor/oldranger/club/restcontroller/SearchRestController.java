@@ -41,11 +41,15 @@ public class SearchRestController {
     @GetMapping(value = "/searchTopics", produces = {"application/json"})
     public ResponseEntity<SectionsAndTopicsDto> getFindTopics(@Parameter(description = "Ключевое слово поиска")
                                                               @RequestParam(value = "finderTag") String finderTag,
+                                                              @Parameter(description = "page")
+                                                              @RequestParam(value = "page", required = false) Integer page,
+                                                              @Parameter(description = "limit")
+                                                              @RequestParam(value = "limit", required = false) Integer limit,
                                                               @Parameter(description = "0 - везде, 1 - в разделе, 2 - в подразделе.")
-                                                              @RequestParam(value = "node") Integer node,
+                                                              @RequestParam(value = "node", required = false) Integer node,
                                                               @Parameter(description = "Значение узла(ид - раздела, подраздела).")
-                                                              @RequestParam(value = "nodeValue") Long nodeValue) {
-        List<Topic> topics = searchService.searchTopicsByNode(finderTag, node, nodeValue);
+                                                              @RequestParam(value = "nodeValue", required = false) Long nodeValue) {
+        List<Topic> topics = searchService.searchTopicsByPageAndLimits(finderTag, page, limit, node, nodeValue);
 
         try {
             SectionsAndTopicsDto sectionsAndTopicsDto = new SectionsAndTopicsDto(topics.get(0).getSection(), topics);
@@ -67,7 +71,7 @@ public class SearchRestController {
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "limit", required = false) Integer limit) {
         List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
-        if (comments == null){
+        if (comments == null) {
             return ResponseEntity.noContent().build();
         }
         List<CommentDto> commentDtoList = comments.stream().map(commentService::assembleCommentDto).collect(Collectors.toList());
