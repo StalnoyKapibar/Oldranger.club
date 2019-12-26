@@ -105,11 +105,20 @@ public class UserProfileRestController {
     public ResponseEntity<ErrorDto> updateProfile(@RequestParam(value = "nickName", required = false) String nickName,
                                                   @RequestParam(value = "firstName", required = false) String firstName,
                                                   @RequestParam(value = "lastName", required = false) String lastName,
-                                                  @RequestParam(value = "email", required = false) String email) {
+                                                  @RequestParam(value = "email", required = false) String email,
+                                                  @RequestParam(value = "city", required = false) String city,
+                                                  @RequestParam(value = "country", required = false) String country,
+                                                  @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                                  @RequestParam(value = "socialVk", required = false) String socialVk,
+                                                  @RequestParam(value = "socialFb", required = false) String socialFb,
+                                                  @RequestParam(value = "socialTw", required = false) String socialTw,
+                                                  @RequestParam(value = "aboutMe", required = false) String aboutMe) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
+        UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
+
         boolean isNickName = !nickName.isEmpty() && userService.getUserByNickName(nickName) == null;
         if (isNickName) {
             currentUser.setNickName(nickName);
@@ -128,8 +137,22 @@ public class UserProfileRestController {
             ErrorDto errorDto = new ErrorDto("Неподходящий email, либо используется другим пользователем.");
             return ResponseEntity.status(406).body(errorDto);
         }
+        if (profile == null) profile = new UserProfile();
+        try {
+            profile.setUser(currentUser);
+            profile.setField("city", city);
+            profile.setField("country", country);
+            profile.setField("phoneNumber", phoneNumber);
+            profile.setField("socialVk", socialVk);
+            profile.setField("socialFb", socialFb);
+            profile.setField("socialTw", socialTw);
+            profile.setField("aboutMe", aboutMe);
+        } catch (NoSuchFieldException | IllegalAccessException e){
+            e.printStackTrace();
+        }
 
         userService.save(currentUser);
+        userProfileService.editUserProfile(profile);
 
         return ResponseEntity.ok(new ErrorDto("OK"));
     }
