@@ -13,9 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,26 +32,38 @@ public class SectionsAndTopicsRestController {
     private SecurityUtilsService securityUtilsService;
     private TopicService topicService;
     private SectionsAndTopicsService sectionsAndTopicsService;
+    private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = { "Sections and topics" })
+            summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))),
-            @ApiResponse(responseCode = "204", description = "invalid topic id") })
-    @GetMapping(value = "/sectionsandactualtopics", produces = { "application/json" })
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+    @GetMapping(value = "/sectionsandactualtopics", produces = {"application/json"})
     public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
         return ResponseEntity.ok(dtos);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Creates a new topic", tags = { "Sections and topics" })
+            summary = "Is it forbidden to create new topics", tags = {"Sections and topics"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Boolean",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))})
+    @GetMapping("/isForbidden")
+    ResponseEntity<Boolean> isForbidden() {
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_FORUM_MESS);
+        return ResponseEntity.ok(isForbidden);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Creates a new topic", tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
-            @ApiResponse(responseCode = "400", description = "Failed to create topic") })
-    @PostMapping(value = "/topic/new", produces = { "application/json" })
+            @ApiResponse(responseCode = "400", description = "Failed to create topic")})
+    @PostMapping(value = "/topic/new", produces = {"application/json"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
 
         Topic topic = new Topic();

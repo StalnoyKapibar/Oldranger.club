@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 
-import java.io.IOException;
 import java.util.Map;
 
 public interface MessageService {
@@ -17,7 +16,7 @@ public interface MessageService {
 
     Page<Message> getPagebleMessages(Chat chat, Pageable pageable);
 
-    Map<String,String> processImage(MultipartFile file) throws IOException;
+    Map<String,String> processImage(MultipartFile file);
 
     Map<String, Long> getOnlineUsers();
 

@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +20,7 @@ import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Deprecated
 @Hidden
 @AllArgsConstructor
 @Controller

@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +21,11 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CommentServiceImpl.class);
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
@@ -37,89 +39,126 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void createComment(Comment comment) {
-        Topic topic = comment.getTopic();
-        topic.setLastMessageTime(comment.getDateTime());
-        long messages = topic.getMessageCount();
-        comment.setPositionInTopic(++messages);
-        topic.setMessageCount(messages);
-        topicService.editTopicByName(topic);
-        commentRepository.save(comment);
-        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
-        messages = userStatistic.getMessageCount();
-        userStatistic.setMessageCount(++messages);
-        userStatistic.setLastComment(comment.getDateTime());
-        userStatisticService.saveUserStatic(userStatistic);
+        LOG.info("Saving comment {}", comment);
+        try {
+            Topic topic = comment.getTopic();
+            topic.setLastMessageTime(comment.getDateTime());
+            long messages = topic.getMessageCount();
+            comment.setPositionInTopic(++messages);
+            topic.setMessageCount(messages);
+            topicService.editTopicByName(topic);
+            commentRepository.save(comment);
+            UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
+            messages = userStatistic.getMessageCount();
+            userStatistic.setMessageCount(++messages);
+            userStatistic.setLastComment(comment.getDateTime());
+            userStatisticService.saveUserStatic(userStatistic);
+            LOG.info("Comment saved");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @Override
-    public void createComment(Comment comment, Topic topic) {
-        topic.setLastMessageTime(LocalDateTime.now());
-        topicService.createTopic(topic);
-        commentRepository.save(comment);
-        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(comment.getUser());
-        if (userStatistic == null) {
-            userStatistic = new UserStatistic(comment.getUser());
-
+    public void deleteComment(Long id) {
+        LOG.info("Deleting comment with id = {}", id);
+        try {
+            commentRepository.deleteById(id);
+            LOG.info("Comment {} deleted", id);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
-        long messages = userStatistic.getMessageCount();
-        userStatistic.setMessageCount(++messages);
-        userStatisticService.saveUserStatic(userStatistic);
+    }
 
+    @Override
+    public void updateComment(Comment comment) {
+        LOG.info("Updating comment with id = {}", comment.getId());
+        try {
+            commentRepository.save(comment);
+            LOG.info("Comment {} updated", comment.getId());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public Page<Comment> getPageableCommentByTopic(Topic topic, Pageable pageable) {
-        return commentRepository.findByTopic(topic, pageable);
+        LOG.debug("Getting page {} of comments for topic with id = {}", pageable.getPageNumber(), topic.getId());
+        Page<Comment> page = null;
+        try {
+            page = commentRepository.findByTopic(topic, pageable);
+            LOG.debug("Page returned");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return page;
     }
 
     public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable) {
-        return commentRepository.findByTopic(topic, pageable).map(this::assembleCommentDto);
+        LOG.debug("Getting page {} of comment dtos for topic with id = {}", pageable.getPageNumber(), topic.getId());
+        Page<CommentDto> page = null;
+        try {
+            page = commentRepository.findByTopic(topic, pageable).map(this::assembleCommentDto);
+            LOG.debug("Page returned");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return page;
     }
 
     @Override
     public Page<CommentDto> getPageableCommentDtoByUser(User user, Pageable pageable) {
-        return commentRepository.findByUser(user, pageable).map(this::assembleCommentDto);
+        LOG.debug("Getting page {} of comment dtos for user with id = {}", pageable.getPageNumber(), user.getId());
+        Page<CommentDto> page = null;
+        try {
+            page = commentRepository.findByUser(user, pageable).map(this::assembleCommentDto);
+            LOG.debug("Page returned");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return page;
     }
 
 
     public CommentDto assembleCommentDto(Comment comment) {
-
+        LOG.debug("Assembling comment {} dto", comment);
         CommentDto commentDto = new CommentDto();
-
-        LocalDateTime replyTime = null;
-        String replyNick = null;
-        String replyText = null;
-
         try {
-            replyTime = comment.getAnswerTo().getDateTime();
-        } catch (NullPointerException e) {
-            //
+            LocalDateTime replyTime = null;
+            String replyNick = null;
+            String replyText = null;
+            if (comment.getAnswerTo() != null) {
+                replyTime = comment.getAnswerTo().getDateTime();
+                replyNick = comment.getAnswerTo().getUser().getNickName();
+                replyText = comment.getAnswerTo().getCommentText();
+            }
+            commentDto.setPositionInTopic(comment.getPositionInTopic());
+            commentDto.setTopicId(comment.getTopic().getId());
+            commentDto.setAuthor(comment.getUser());
+            commentDto.setCommentDateTime(comment.getDateTime());
+            commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
+            commentDto.setReplyDateTime(replyTime);
+            commentDto.setReplyNick(replyNick);
+            commentDto.setReplyText(replyText);
+            commentDto.setCommentText(comment.getCommentText());
+            LOG.debug("Comment dto assembled");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
-        try {
-            replyNick = comment.getAnswerTo().getUser().getNickName();
-        } catch (NullPointerException e) {
-            //
-        }
-        try {
-            replyText = comment.getAnswerTo().getCommentText();
-        } catch (NullPointerException e) {
-            //
-        }
-        commentDto.setPositionInTopic(comment.getPositionInTopic());
-        commentDto.setTopicId(comment.getTopic().getId());
-        commentDto.setAuthor(comment.getUser());
-        commentDto.setCommentDateTime(comment.getDateTime());
-        commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
-        commentDto.setReplyDateTime(replyTime);
-        commentDto.setReplyNick(replyNick);
-        commentDto.setReplyText(replyText);
-        commentDto.setCommentText(comment.getCommentText());
         return commentDto;
     }
 
     @Override
     public List<Comment> getAllComments() {
-        return commentRepository.findAll();
+        LOG.debug("Getting all comments");
+        List<Comment> comments = null;
+        try {
+            comments = commentRepository.findAll();
+            LOG.debug("Returned list of {} comments", comments.size());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return comments;
     }
 
 
@@ -133,11 +172,20 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> getAllCommentsByTopicId(Long id) {
-        return commentRepository.findByTopicId(id);
+        LOG.debug("Getting all comments for topic with id = {}", id);
+        List<Comment> comments = null;
+        try {
+            comments = commentRepository.findByTopicId(id);
+            LOG.debug("Returned list of {} comments", comments.size());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return comments;
     }
 
     @Override
     public Comment getCommentById(Long id) {
+        LOG.debug("Getting comment with id = {}", id);
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
     }

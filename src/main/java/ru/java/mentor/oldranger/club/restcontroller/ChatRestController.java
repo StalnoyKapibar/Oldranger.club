@@ -16,22 +16,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
-import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,19 +37,18 @@ import java.util.Map;
 @Tag(name = "Chat")
 public class ChatRestController {
 
-
     private ChatService chatService;
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
     private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get current user info", description = "Avatar and username", tags = { "Chat" })
+            summary = "Get current user info", description = "Avatar and username", tags = {"Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = Map.class))),
+                    content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/user", produces = { "application/json" })
+    @GetMapping(value = "/user", produces = {"application/json"})
     ResponseEntity<Map<String, String>> getUserInfo() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) return ResponseEntity.noContent().build();
@@ -65,43 +59,32 @@ public class ChatRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get online users", tags = { "Group chat" })
+            summary = "Get online users", tags = {"Group chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map userNickname:userId",
                     content = @Content(schema = @Schema(implementation = Map.class)))})
-    @GetMapping(value = "/users", produces = { "application/json" })
+    @GetMapping(value = "/users", produces = {"application/json"})
     ResponseEntity<Map<String, Long>> getOnlineUsers() {
         return ResponseEntity.ok(messageService.getOnlineUsers());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Can a user participate", tags = { "Group chat" })
+            summary = "Is it forbidden to participate in the chat", tags = {"Group chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Boolean",
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
-    @GetMapping("/writingBan")
-    ResponseEntity<Boolean> getWritingStatus() {
-        boolean isForbidden = false;
-        try {
-            UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            WritingBan writingBan = writingBanService.getByUserAndType(user, BanType.ON_PRIVATE_MESS);
-            if (writingBan != null && (writingBan.getUnlockTime()==null || writingBan.getUnlockTime().isAfter(LocalDateTime.now()))){
-                isForbidden = true;
-            }
-        }
-        catch (Exception e) {
-            isForbidden = true;
-        }
+    @GetMapping("/isForbidden")
+    ResponseEntity<Boolean> isForbidden() {
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_PRIVATE_MESS);
         return ResponseEntity.ok(isForbidden);
     }
-  
-    @Operation(summary = "Get last messages", description = "limit 20 messages", tags = { "Group chat" })
+
+    @Operation(summary = "Get last messages", description = "limit 20 messages", tags = {"Group chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))),
             @ApiResponse(responseCode = "204", description = "Page parameter is greater than the total number of pages")})
-    @GetMapping(value = "/messages", produces = { "application/json" })
+    @GetMapping(value = "/messages", produces = {"application/json"})
     ResponseEntity<List<Message>> getLastMessages(@RequestParam(value = "page", required = false) Integer page) {
 
         if (page == null) page = 0;
@@ -119,14 +102,14 @@ public class ChatRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Upload image", tags = { "Chat" })
+            summary = "Upload image", tags = {"Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
                     content = @Content(schema = @Schema(implementation = Map.class)))})
     @PostMapping("/image")
-    ResponseEntity<Map<String,String>> processImage(@Parameter(description="Image file", required=true)
-                                                    @RequestParam("file-input") MultipartFile file) throws IOException {
-        Map<String,String> result = messageService.processImage(file);
+    ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
+                                                     @RequestParam("file-input") MultipartFile file) {
+        Map<String, String> result = messageService.processImage(file);
         return ResponseEntity.ok(result);
     }
 

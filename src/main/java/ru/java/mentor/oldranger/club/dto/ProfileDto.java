@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProfileDto {
 
+    private long userId;
     private String nickName;
     private String firstName;
     private String lastName;
