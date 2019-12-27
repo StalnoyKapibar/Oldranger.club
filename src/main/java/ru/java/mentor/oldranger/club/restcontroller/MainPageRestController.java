@@ -23,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api")
 @Tag(name = "Sections and topics")
 public class MainPageRestController {
+
     private SectionsAndTopicsService sectionsAndTopicsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),

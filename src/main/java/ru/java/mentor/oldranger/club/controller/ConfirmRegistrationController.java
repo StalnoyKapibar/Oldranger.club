@@ -15,6 +15,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+@Deprecated
 @Controller
 @Getter
 @Setter

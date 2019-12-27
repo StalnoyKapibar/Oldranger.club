@@ -16,6 +16,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.service.user.UserAvatarService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 @RestController
 @RequestMapping("/api/avatar")
@@ -23,18 +24,19 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 public class AvatarUserRestController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private UserAvatarService userAvatarService;
 
+    @Autowired
+    private SecurityUtilsService securityUtilsService;
+
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Set Avatar ", description = "Set avatar by user id", tags = { "Avatar from user" })
+            summary = "Set Avatar ", description = "Set avatar to user ", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/{userId}", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id, @RequestParam("file") MultipartFile file){
-        User user = userService.findById(id);
+    @PostMapping(value = "/set", produces = { "application/json" })
+    public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file){
+        User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.noContent().build();
         }
@@ -52,13 +54,13 @@ public class AvatarUserRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete Avatar ", description = "Delete avatar by user id", tags = { "Avatar from user" })
+            summary = "Delete Avatar ", description = "Delete avatar", tags = { "Avatar from user" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/delete/{userId}", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(@PathVariable(value = "userId") Long id){
-        User user = userService.findById(id);
+    @PostMapping(value = "/delete", produces = { "application/json" })
+    public ResponseEntity<String> setAvatarToUser(){
+        User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.noContent().build();
         }

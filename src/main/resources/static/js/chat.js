@@ -10,7 +10,7 @@ $(document).ready(function () {
         connecting = $('.connecting'),
         close = $('.close'),
         usersOnline = $('html .user-list ul'),
-        forbiddenForm=$('#messBanId'),
+        forbiddenForm = $('#messBanId'),
         username = null,
         userAvatar = null,
         replyTo = null,
@@ -44,14 +44,13 @@ $(document).ready(function () {
 
     function connect(e) {
         e.preventDefault();
-        $.get("/api/chat/writingBan", function (data) {
+        $.get("/api/chat/isForbidden", function (data) {
             isForbidden = data;
         });
         if (isForbidden) {
             greeting.addClass('hidden');
             forbiddenForm.removeClass('hidden');
-        }
-        else {
+        } else {
             $.get("/api/chat/user", function (data) {
                 username = data["username"];
                 userAvatar = data["ava"];
@@ -147,7 +146,7 @@ $(document).ready(function () {
                 break;
             case 'MESSAGE':
                 messageElement.addClass('chat-message');
-                if (message.replyTo === username){
+                if (message.replyTo === username) {
                     messageElement.addClass('reply');
                 }
                 let avatarElement = $('<i>');
@@ -213,7 +212,7 @@ $(document).ready(function () {
                     }
                 }
 
-                if ($('#messageArea li').length > 19){
+                if ($('#messageArea li').length > 19) {
                     $("<button class='prev-msg'><span class='arrow up'></span></button>").prependTo(messageArea);
                 }
             },
@@ -223,7 +222,7 @@ $(document).ready(function () {
         });
     }
 
-    $(document).on('click','button.prev-msg',function (e) {
+    $(document).on('click', 'button.prev-msg', function (e) {
 
         let messageElement = $('#messageArea li'),
             firstMsg = $('#messageArea li:first');
@@ -233,7 +232,7 @@ $(document).ready(function () {
         messageArea.scrollTop(firstMsg.offset().top);
     });
 
-    $(document).on('click','span.sender',function (e) {
+    $(document).on('click', 'span.sender', function (e) {
         let sender = $(this).text();
         message.val(sender + ', ');
         replyTo = sender;

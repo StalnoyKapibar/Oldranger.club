@@ -12,7 +12,7 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 
 import java.time.LocalDateTime;
-
+@Deprecated
 @Controller
 @AllArgsConstructor
 public class PrivateChatController {

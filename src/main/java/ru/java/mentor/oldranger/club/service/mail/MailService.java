@@ -13,4 +13,5 @@ public interface MailService {
 
     void sendHtmlMessage(String[] to, EmailDraft mail) throws MessagingException, IOException;
     void sendHtmlMessage(String to, Map<String, Object> attributes, String fileName);
+    void sendHtmlMessage(String[] to, EmailDraft mail);
 }
