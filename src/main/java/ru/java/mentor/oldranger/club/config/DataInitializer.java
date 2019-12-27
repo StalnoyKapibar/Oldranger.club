@@ -116,7 +116,7 @@ public class DataInitializer implements CommandLineRunner {
 
         List<User> users = userService.findAll();
         LocalDateTime localDateTime = LocalDateTime.now();
-        for(User iUser : users){
+        for (User iUser : users) {
             Direction direction = new Direction();
             direction.setLastSendTime(localDateTime);
             direction.setUser(iUser);
@@ -129,7 +129,7 @@ public class DataInitializer implements CommandLineRunner {
         blackListService.save(blackList);
 
         //Запрещаем пользователью отправлять личные сообщения
-        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11,28,19,10,0)));
+        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));
@@ -217,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
                     "Тестовое сообщение " + i));
         }
 
-        for (int i =1; i< 12; i++) {
+        for (int i = 1; i < 12; i++) {
             User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);

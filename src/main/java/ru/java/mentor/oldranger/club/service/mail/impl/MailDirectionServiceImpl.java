@@ -1,8 +1,7 @@
 package ru.java.mentor.oldranger.club.service.mail.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.util.Map;
 
 
 @NoArgsConstructor
+@AllArgsConstructor
 @EnableScheduling
 @Service
 public class MailDirectionServiceImpl implements MailDirectionService {
@@ -35,25 +35,16 @@ public class MailDirectionServiceImpl implements MailDirectionService {
     private DirectionRepository directionRepository;
     private TopicService topicService;
 
-    @Autowired
-    public MailDirectionServiceImpl(UserService userService,
-                                    ChatService chatService,
-                                    MailService mailService,
-                                    DirectionRepository directionRepository,
-                                    TopicService topicService) {
-        this.userService = userService;
-        this.chatService = chatService;
-        this.mailService = mailService;
-        this.directionRepository = directionRepository;
-        this.topicService = topicService;
-    }
-
     @Override
     @Scheduled(fixedRate = scheduleTime)
     public void sendDirection() {
         LocalDateTime nowTime = LocalDateTime.now();
-
-        List<Direction> directions = directionRepository.findAll();
+        List<Direction> directions;
+        try {
+            directions = directionRepository.findAll();
+        } catch (NullPointerException e) {
+            return;
+        }
         for (Direction direction : directions) {
             String email = direction.getUser().getEmail();
             switch (direction.getDirectionType()) {

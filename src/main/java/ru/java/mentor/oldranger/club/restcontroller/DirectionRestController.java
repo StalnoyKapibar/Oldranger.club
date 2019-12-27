@@ -38,7 +38,7 @@ public class DirectionRestController {
             @ApiResponse(responseCode = "204", description = "User not found")})
     @PostMapping(value = "/changeDirection", produces = {"application/json"})
     public ResponseEntity<String> setDirection(@Parameter(description = "Тип подписки")
-                                                              @RequestParam(value = "directionType") String directionType) {
+                                               @RequestParam(value = "directionType") String directionType) {
         DirectionType type = Direction.stringToDirectionType(directionType);
         User user = securityUtilsService.getLoggedUser();
         try {
