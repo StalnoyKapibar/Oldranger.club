@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class SearchServiceImpl implements SearchService {
     private SearchRepository searchRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
     public SearchServiceImpl(SearchRepository searchRepository) {
         this.searchRepository = searchRepository;
@@ -22,11 +25,13 @@ public class SearchServiceImpl implements SearchService {
 
     @Deprecated
     public List searchByTopicName(String queryString) {
+        LOG.debug("Searching by topic name {}", queryString);
         String[] targetFields = {"name"};
         return searchRepository.searchObjectsByName(queryString, null, targetFields, Topic.class);
     }
 
     public List searchByComment(String queryString, Integer page, Integer limit) {
+        LOG.debug("Searching in comments {}", queryString);
         String[] targetFields = {"commentText"};
         /*
          * В будущем если к CommentDto потребуются поля из Comment расскоментировать нижнию строку.
@@ -37,7 +42,9 @@ public class SearchServiceImpl implements SearchService {
         return pageable(comments, page, limit);
     }
 
-    private List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
+
+    public List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
+        LOG.debug("Searching topics by node {}, nodeValue = {}, finderTag = {}", node, nodeValue, finderTag);
         String[] fetchingFields = {"subsection", "subsection.section"};
         String[] targetFields = {"name"};
         if (node == null) node = 0;

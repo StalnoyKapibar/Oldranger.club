@@ -1,7 +1,8 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SubsectionRepository;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
@@ -11,27 +12,40 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class SubsectionServiceImpl implements SubsectionService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SubsectionServiceImpl.class);
     private SubsectionRepository subsectionRepository;
 
-    @Autowired
-    public SubsectionServiceImpl(SubsectionRepository subsectionRepository) {
-        this.subsectionRepository = subsectionRepository;
-    }
 
     @Override
     public void createSubsection(Subsection subSection) {
-        subsectionRepository.save(subSection);
+        LOG.info("Saving subsection {}", subSection);
+        try {
+            subsectionRepository.save(subSection);
+            LOG.info("Subsection saved");
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public Optional<Subsection> getById(long id) {
+        LOG.debug("Getting subsection by id = {}", id);
         return subsectionRepository.findById(id);
     }
 
     @Override
     public List<Subsection> getAllSubsections() {
-        return subsectionRepository.findAll();
+        LOG.debug("Getting all subsections");
+        List<Subsection> subsections = null;
+        try {
+            subsections = subsectionRepository.findAll();
+            LOG.debug("Returned list of {} subsections", subsections.size());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return subsections;
     }
 }
