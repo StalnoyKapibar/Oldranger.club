@@ -3,21 +3,31 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
+import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
+    private ArticleCommentRepository articleCommentRepository;
+    private UserStatisticService userStatisticService;
 
     @Autowired
-    public ArticleServiceImpl(ArticleRepository articleRepository) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, ArticleCommentRepository articleCommentRepository, UserStatisticService userStatisticService) {
         this.articleRepository = articleRepository;
+        this.articleCommentRepository = articleCommentRepository;
+        this.userStatisticService = userStatisticService;
     }
 
     @Override
@@ -33,5 +43,66 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void addArticle(Article article) {
         articleRepository.save(article);
+    }
+
+    @Override
+    public Article getArticleById(long id) {
+        return articleRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void addCommentToArticle(ArticleComment articleComment) {
+        Article article = articleComment.getArticle();
+        long comments = article.getCommentCount();
+        articleComment.setPositionInArticle(++comments);
+        article.setCommentCount(comments);
+        articleCommentRepository.save(articleComment);
+        UserStatistic userStatistic = userStatisticService.getUserStaticByUser(articleComment.getUser());
+        comments = userStatistic.getMessageCount();
+        userStatistic.setMessageCount(++comments);
+        userStatistic.setLastComment(articleComment.getDateTime());
+        userStatisticService.saveUserStatic(userStatistic);
+    }
+
+    @Override
+    public ArticleCommentDto conversionCommentToDto(ArticleComment articleComment) {
+        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
+
+        LocalDateTime replyTime = null;
+        String replyNick = null;
+        String replyText = null;
+        if (articleComment.getAnswerTo() != null) {
+            replyTime = articleComment.getAnswerTo().getDateTime();
+            replyNick = articleComment.getAnswerTo().getUser().getNickName();
+            replyText = articleComment.getAnswerTo().getCommentText();
+        }
+
+        articleCommentDto.setArticleId(articleComment.getArticle().getId());
+        articleCommentDto.setAuthor(articleComment.getUser());
+        articleCommentDto.setCommentText(articleComment.getCommentText());
+        articleCommentDto.setPositionInArticle(articleComment.getPositionInArticle());
+        articleCommentDto.setCommentDateTime(articleComment.getDateTime());
+        articleCommentDto.setMessageCount(userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount());
+        articleCommentDto.setReplyDateTime(replyTime);
+        articleCommentDto.setReplyNick(replyNick);
+        articleCommentDto.setReplyText(replyText);
+
+        return articleCommentDto;
+    }
+
+    @Override
+    public ArticleComment getCommentById(Long id) {
+        Optional<ArticleComment> comment = articleCommentRepository.findById(id);
+        return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
+    }
+
+    @Override
+    public void updateArticleComment(ArticleComment articleComment) {
+        articleCommentRepository.save(articleComment);
+    }
+
+    @Override
+    public void deleteComment(Long id) {
+        articleCommentRepository.deleteById(id);
     }
 }
