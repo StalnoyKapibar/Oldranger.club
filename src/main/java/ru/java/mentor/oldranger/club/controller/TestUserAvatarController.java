@@ -15,7 +15,6 @@ import ru.java.mentor.oldranger.club.service.user.UserAvatarService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 @Deprecated
 @Hidden
@@ -50,15 +49,13 @@ public class TestUserAvatarController {
     public String uploadAvatar(@RequestParam("file") MultipartFile file,
                                RedirectAttributes redirectAttributes,
                                @SessionAttribute User user) {
-        try {
-            if (user.getAvatar() == null) {
-                userAvatarService.setAvatarToUser(user, file);
-            } else {
-                userAvatarService.updateUserAvatar(user, file);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (user.getAvatar() == null) {
+            userAvatarService.setAvatarToUser(user, file);
+        } else {
+            userAvatarService.updateUserAvatar(user, file);
         }
+
         redirectAttributes.addFlashAttribute("message", "Аватар " + file.getOriginalFilename() + " успешно загружен!");
         return "redirect:/test/profile";
     }
@@ -66,11 +63,9 @@ public class TestUserAvatarController {
     @GetMapping("/deleteAvatar")
     public String deleteAvatar(@SessionAttribute User user,
                                RedirectAttributes redirectAttributes) {
-        try {
-            userAvatarService.deleteUserAvatar(user);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        userAvatarService.deleteUserAvatar(user);
+
         redirectAttributes.addFlashAttribute("message", "Аватар удален!");
         return "redirect:/test/profile";
     }
