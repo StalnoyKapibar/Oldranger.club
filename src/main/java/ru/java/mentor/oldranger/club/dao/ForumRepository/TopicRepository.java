@@ -55,13 +55,13 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Page<Topic> findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(Subsection subsection, Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from topics as t " +
-                                       "where t.date_last_message < ?2 and t.subsection_id = ?1 and t.is_hide=0 " +
-                                       "order by t.date_last_message DESC")
+            "where t.date_last_message < ?2 and t.subsection_id = ?1 and t.is_hide=0 " +
+            "order by t.date_last_message DESC")
     Page<Topic> findBySubsectionWithTimeForAnon(Subsection subsection, String date, Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from topics as topic " +
-                                       "where topic.date_last_message < ?2 and topic.subsection_id = ?1 " +
-                                       "order by topic.date_last_message DESC")
+            "where topic.date_last_message < ?2 and topic.subsection_id = ?1 " +
+            "order by topic.date_last_message DESC")
     Page<Topic> findBySubsectionWithTimeForUser(Subsection subsection, String date, Pageable pageable);
 
     /**
@@ -97,6 +97,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /**
      * Подсчёт общего количества сообщений для списка идентификаторов класса Topic<br>
      * Если сообщений в Топике нет, то пара с id Топика будет отсутствовать в выбоке!
+     *
      * @param ids список id для Topic
      * @return пара {@code IdAndNumberProjection} "id Топика" - "общее количество сообщений в Топике"
      */
@@ -108,13 +109,14 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /**
      * Подсчёт новых сообщений для пользователя User для списка идентификаторов класса Topic<br>
      * Если новых сообщений в Топике нет, то пара с id Топика будет отсутствовать в выбоке!
-     * @param ids список id для топика Topic
+     *
+     * @param ids    список id для топика Topic
      * @param userId id пользователя User
      * @return пара {@code IdAndNumberProjection} "id Топика" - "количество новых сообщений для пользователя в Топике"
      */
     @Query(nativeQuery = true,
-    value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.topic_id " +
-            "where t.id_user=?2 and t.topic_id in ?1 and c.date_comment>t.date_lastvisit " +
-            "group by c.id_topic")
+            value = "select c.id_topic as id, count(*) as number from comments c cross join topic_visit_and_subscriptions t on c.id_topic=t.topic_id " +
+                    "where t.id_user=?2 and t.topic_id in ?1 and c.date_comment>t.date_lastvisit " +
+                    "group by c.id_topic")
     List<IdAndNumberProjection> getPairsTopicIdAndNewMessagesCountForUserId(List<Long> ids, Long userId);
 }

@@ -52,11 +52,11 @@ public class SectionsAndTopicsRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get TopicAndNewMessagesCountDto list",
             description = "Get actual topics, limit topics in section: 10",
-            tags = { "Sections and topics" })
+            tags = {"Sections and topics"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class)))) })
-    @GetMapping(value = "/actualtopics", produces = { "application/json" })
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class))))})
+    @GetMapping(value = "/actualtopics", produces = {"application/json"})
     public ResponseEntity<List<TopicAndNewMessagesCountDto>> getMostPopularTopics() {
         List<TopicAndNewMessagesCountDto> dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10());
         return ResponseEntity.ok(dtos);
