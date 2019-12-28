@@ -16,22 +16,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
-import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +36,6 @@ import java.util.Map;
 @RequestMapping("/api/chat")
 @Tag(name = "Chat")
 public class ChatRestController {
-
 
     private ChatService chatService;
     private MessageService messageService;
@@ -114,7 +108,7 @@ public class ChatRestController {
                     content = @Content(schema = @Schema(implementation = Map.class)))})
     @PostMapping("/image")
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
-                                                     @RequestParam("file-input") MultipartFile file) throws IOException {
+                                                     @RequestParam("file-input") MultipartFile file) {
         Map<String, String> result = messageService.processImage(file);
         return ResponseEntity.ok(result);
     }

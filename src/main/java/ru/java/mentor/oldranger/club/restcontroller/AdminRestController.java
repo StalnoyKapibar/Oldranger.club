@@ -26,8 +26,6 @@ import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
-import javax.mail.MessagingException;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,11 +39,11 @@ import java.util.Map;
 @Tag(name = "Admin")
 public class AdminRestController {
 
-    UserStatisticService userStatisticService;
-    MessageService messageService;
-    EmailDraftService emailDraftService;
-    MailService mailService;
-    UserService userService;
+    private UserStatisticService userStatisticService;
+    private MessageService messageService;
+    private EmailDraftService emailDraftService;
+    private MailService mailService;
+    private UserService userService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get UserStatisticDto list", tags = { "Admin" })
@@ -113,7 +111,7 @@ public class AdminRestController {
         String[] emails = (String[]) mailList.toArray();
         try {
             mailService.sendHtmlMessage(emails, draft);
-        } catch (MessagingException | IOException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

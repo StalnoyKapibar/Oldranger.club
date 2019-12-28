@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -30,13 +32,21 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityUtilsServiceImpl.class);
+
     @Override
     public List<Long> getUsersFromSessionRegistry() {
+       LOG.debug("Getting users from session registry");
         List<Long> usersIds = new ArrayList<>();
-        for (Object principal: sessionRegistry.getAllPrincipals()) {
-            if (principal instanceof User) {
-                usersIds.add(((User) principal).getId());
+        try {
+            for (Object principal: sessionRegistry.getAllPrincipals()) {
+                if (principal instanceof User) {
+                    usersIds.add(((User) principal).getId());
+                }
             }
+            LOG.debug("Returned list of {} ids", usersIds.size());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
         return usersIds;
     }
@@ -55,8 +65,16 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
 
     @Override
     public User getLoggedUser() {
-        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String) return null;
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        return userService.getUserByNickName(username);
+        LOG.debug("Getting logged user");
+        User user = null;
+        try {
+            if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String) return null;
+            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+            user = userService.getUserByNickName(username);
+            LOG.debug("Returned user {}", user);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return user;
     }
 }
