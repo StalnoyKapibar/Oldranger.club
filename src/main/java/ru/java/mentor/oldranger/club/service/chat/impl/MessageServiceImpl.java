@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.chat.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +26,10 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageServiceImpl.class);
     private MessageRepository messageRepository;
     private ChatService chatService;
     private String uploadDir;
@@ -47,54 +48,54 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message findFirstMessageByChat(Chat chat) {
-        LOG.debug("Getting oldest message of chat with id = {}", chat.getId());
+        log.debug("Getting oldest message of chat with id = {}", chat.getId());
         Message message = null;
         try {
             message = messageRepository.findFirstByChatOrderByMessageDateAsc(chat);
-            LOG.debug("Returned message with id = {}", message.getId());
+            log.debug("Returned message with id = {}", message.getId());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return message;
     }
 
     @Override
     public void addMessage(Message message) {
-        LOG.info("Saving message {}", message);
+        log.info("Saving message {}", message);
         try {
             messageRepository.save(message);
-            LOG.info("Message saved");
+            log.info("Message saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void removeMessageById(Long id) {
-        LOG.info("Deleting message with id = {}", id);
+        log.info("Deleting message with id = {}", id);
         try {
             messageRepository.deleteById(id);
-            LOG.info("Message deleted");
+            log.info("Message deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public Page<Message> getPagebleMessages(Chat chat, Pageable pageable) {
-        LOG.debug("Getting page {} of messages for chat with id = {}", pageable.getPageNumber(), chat.getId());
+        log.debug("Getting page {} of messages for chat with id = {}", pageable.getPageNumber(), chat.getId());
         Page<Message> page = null;
         try {
             page = messageRepository.findAllByChat(chat, pageable);
-            LOG.debug("Page returned");
+            log.debug("Page returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return page;
     }
 
     private String uploadImage(MultipartFile file) throws IOException {
-        LOG.info("Uploading file {}", file.getOriginalFilename());
+        log.info("Uploading file {}", file.getOriginalFilename());
         File uploadPath = new File(uploadDir);
         String resultFileName;
         try {
@@ -105,16 +106,16 @@ public class MessageServiceImpl implements MessageService {
             Path copyLocation = Paths
                     .get(uploadDir + File.separator + resultFileName);
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
-            LOG.info("File uploaded");
+            log.info("File uploaded");
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new IOException(e);
         }
         return resultFileName;
     }
 
     private String thumbnailImage(String imageName, MultipartFile file) throws IOException {
-        LOG.info("Thumbnailing file {}", file.getOriginalFilename());
+        log.info("Thumbnailing file {}", file.getOriginalFilename());
         String resultFileName = null;
         try {
             resultFileName = UUID.randomUUID().toString() + "__" +
@@ -124,9 +125,9 @@ public class MessageServiceImpl implements MessageService {
             Thumbnails.of(uploadDir + File.separator + imageName)
                     .size(150, 150)
                     .toFile(resultFileLocation);
-            LOG.info("Image thumbnailed");
+            log.info("Image thumbnailed");
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new IOException(e);
         }
         return resultFileName;
@@ -134,46 +135,46 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Map<String, String> processImage(MultipartFile file) {
-        LOG.info("Processing file {}", file.getOriginalFilename());
+        log.info("Processing file {}", file.getOriginalFilename());
         if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())) {
             Map<String, String> avatars = new HashMap<>();
             try {
                 avatars.put("originalImg", uploadImage(file));
                 avatars.put("thumbnailImg", thumbnailImage(avatars.get("originalImg"), file));
-                LOG.info("File processed");
+                log.info("File processed");
             } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
             return avatars;
         } else {
-            LOG.error("Wrong file content type");
+            log.error("Wrong file content type");
             return null;
         }
     }
 
     private void deleteChatImages(List<String> images) {
-        LOG.info("Deleting list of {} images", images.size());
+        log.info("Deleting list of {} images", images.size());
         images.forEach(img -> {
             try {
                 Files.deleteIfExists(Paths.get(uploadDir + File.separator + img));
-                LOG.debug("Image {} deleted", img);
+                log.debug("Image {} deleted", img);
             } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         });
-        LOG.info("Images deleted");
+        log.info("Images deleted");
     }
 
     @Override
     public Map<String, Long> getOnlineUsers() {
-        LOG.debug("Getting list of online users");
+        log.debug("Getting list of online users");
         Map<String, Long> users = new HashMap<>();
         try {
             List<User> userList = chatService.getChatById(1L).getUserList();
             userList.forEach(user -> users.put(user.getNickName(), user.getId()));
-            LOG.debug("Returned list of {} users", users.size());
+            log.debug("Returned list of {} users", users.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return users;
     }
@@ -205,7 +206,7 @@ public class MessageServiceImpl implements MessageService {
     @Scheduled(cron = "0 0 0 * * 0")
     private void cleanMessages() {
         if (!olderThan.equals("never")) {
-            LOG.info("Starting scheduled task of deleting messages in group chat");
+            log.info("Starting scheduled task of deleting messages in group chat");
             deleteMessages(false, false, "-");
         }
     }
@@ -216,22 +217,22 @@ public class MessageServiceImpl implements MessageService {
     public void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken) {
         List<Message> messages = null;
         if (!isPrivate) {
-            LOG.debug("Getting list of group chat messages to delete");
+            log.debug("Getting list of group chat messages to delete");
             try {
                 messages = findAllByChat(chatService.getChatById(1L), false);
-                LOG.debug("Returned list of {} messages", messages.size());
+                log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         } else {
-            LOG.debug("Getting list of messages to delete");
+            log.debug("Getting list of messages to delete");
             Chat chat;
             try {
                 chat = chatService.getChatByToken(chatToken);
                 messages = deleteAll ? messageRepository.findAllByChat(chat) : findAllByChat(chat, true);
-                LOG.debug("Returned list of {} messages", messages.size());
+                log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
         List<String> images = new ArrayList<>();
@@ -241,6 +242,6 @@ public class MessageServiceImpl implements MessageService {
         });
         deleteChatImages(images);
         messages.forEach(msg -> removeMessageById(msg.getId()));
-        LOG.debug("All messages successfully deleted");
+        log.debug("All messages successfully deleted");
     }
 }

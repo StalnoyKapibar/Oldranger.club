@@ -1,13 +1,13 @@
 package ru.java.mentor.oldranger.club.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class UserStatisticDto {
 

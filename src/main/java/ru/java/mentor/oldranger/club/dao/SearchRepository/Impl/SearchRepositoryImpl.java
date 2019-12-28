@@ -1,5 +1,8 @@
 package ru.java.mentor.oldranger.club.dao.SearchRepository.Impl;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -15,12 +18,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.List;
 
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class SearchRepositoryImpl implements SearchRepository {
     private FullTextEntityManager fullTextEntityManager;
-
-    public SearchRepositoryImpl() {
-    }
 
     public void init(EntityManagerFactory entityManagerFactory) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();

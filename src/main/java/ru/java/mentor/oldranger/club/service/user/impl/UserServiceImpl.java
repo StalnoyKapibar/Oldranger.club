@@ -1,9 +1,7 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
@@ -20,44 +18,39 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
     private UserRepository userRepository;
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
 
-    @Autowired
-    void setMediaService(MediaService service) {
-        this.mediaService = service;
-    }
-
     @Override
     public List<User> findAll() {
-        LOG.debug("Getting all users");
+        log.debug("Getting all users");
         List<User> users = null;
         try {
             users = userRepository.findAll();
-            LOG.debug("Returned list of {} users", users.size());
+            log.debug("Returned list of {} users", users.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return users;
     }
 
     @Override
     public User findById(Long theId) {
-        LOG.debug("Getting user with id = {}", theId);
+        log.debug("Getting user with id = {}", theId);
         Optional<User> result = userRepository.findById(theId);
         return result.orElseThrow(() -> new RuntimeException("Did not find user id - " + theId));
     }
 
     @Override
     public void save(User user) {
-        LOG.info("Saving user");
+        log.info("Saving user");
         try {
             if (user.getAvatar() == null) {
                 user.setAvatar(setDefaultAvatar());
@@ -72,32 +65,32 @@ public class UserServiceImpl implements UserService {
             Media media = new Media();
             media.setUser(user);
             mediaService.save(media);
-            LOG.info("User {} saved", savedUser);
+            log.info("User {} saved", savedUser);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteById(Long theId) {
-        LOG.info("Deleting user with id = {}", theId);
+        log.info("Deleting user with id = {}", theId);
         try {
             userRepository.deleteById(theId);
-            LOG.info("User deleted");
+            log.info("User deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public User getUserByNickName(String name) {
-        LOG.debug("Getting user with nickname = {}", name);
+        log.debug("Getting user with nickname = {}", name);
         User user = null;
         try {
             user = userRepository.findUserByNickName(name);
-            LOG.debug("User returned");
+            log.debug("User returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return user;
     }
@@ -112,20 +105,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
-        LOG.debug("Getting user with email = {}", email);
+        log.debug("Getting user with email = {}", email);
         User user = null;
         try {
             user = userRepository.findUserByEmail(email);
-            LOG.debug("User returned");
+            log.debug("User returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return user;
     }
 
     @Override
     public User getUserByEmailOrNickName(String login) {
-        LOG.debug("Getting user with email or nickname = {}", login);
+        log.debug("Getting user with email or nickname = {}", login);
         Optional<User> result = userRepository.findUserByEmailOrNickName(login);
         return result.orElseThrow(() -> new UsernameNotFoundException("There is no such user."));
     }

@@ -1,13 +1,11 @@
 package ru.java.mentor.oldranger.club.model.user;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "invitation_token")
 public class InvitationToken {

@@ -3,9 +3,7 @@ package ru.java.mentor.oldranger.club.dto;
 import lombok.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TopicAndNewMessagesCountDto {
