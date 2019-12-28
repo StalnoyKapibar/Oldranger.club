@@ -12,8 +12,6 @@ import java.util.List;
 public interface CommentService {
     void createComment(Comment comment);
 
-    void createComment(Comment comment, Topic topic);
-
     void deleteComment(Long id);
 
     void updateComment(Comment comment);
