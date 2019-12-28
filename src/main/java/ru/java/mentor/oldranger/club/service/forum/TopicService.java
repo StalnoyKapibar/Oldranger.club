@@ -28,6 +28,8 @@ public interface TopicService {
 
     List<Topic> getActualTopicsLimit10BySection();
 
+    List<Topic> getActualTopicsLimit10();
+
     List<Topic> getActualTopicsLimit10BySectionForAnon();
 
     Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable);

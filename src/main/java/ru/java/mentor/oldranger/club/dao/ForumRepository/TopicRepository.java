@@ -33,6 +33,21 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
             value = "select * from (select topics.*, subsections.id_section, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics left join subsections on topics.subsection_id = subsections.id where topics.is_hide = false) t where i <= ?1")
     List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
 
+    /*
+     * Выборка по N первых актуальных (соритировка по дате последнего сообщения) Topic (из topics).
+     * */
+    @Query(nativeQuery = true,
+            value = "select * from topics order by date_last_message desc limit ?1")
+    List<Topic> getActualTopicsLimit(Integer limitTopics);
+
+    /*
+     * Выборка по N первых актуальных (соритировка по дате последнего сообщения) Topic (из topics).
+     * Topic выбираются с условием isHideToAnon = false (значение isHideToAnon в Section не учитывается)
+     * */
+    @Query(nativeQuery = true,
+            value = "select * from topics t where t.is_hide = false order by date_last_message desc limit ?1")
+    List<Topic> getActualTopicsLimitForAnon(Integer limitTopics);
+
     /**
      * Подмножество Topics для выбранной Subsection, которые помечены для анонимов.
      * Отсортированно по дате последнего сообщения в Topic.

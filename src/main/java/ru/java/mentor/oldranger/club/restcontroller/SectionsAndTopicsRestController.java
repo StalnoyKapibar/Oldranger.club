@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
+import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
@@ -36,6 +37,7 @@ public class SectionsAndTopicsRestController {
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
+    @Deprecated
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndTopicsDto.class)))),
@@ -43,6 +45,20 @@ public class SectionsAndTopicsRestController {
     @GetMapping(value = "/sectionsandactualtopics", produces = {"application/json"})
     public ResponseEntity<List<SectionsAndTopicsDto>> getSectionsAndTopicsDto() {
         List<SectionsAndTopicsDto> dtos = sectionsAndTopicsService.getAllSectionsAndActualTopicsLimit10BySection();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get TopicAndNewMessagesCountDto list",
+            description = "Get actual topics, limit topics in section: 10",
+            tags = { "Sections and topics" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class)))) })
+    @GetMapping(value = "/actualtopics", produces = { "application/json" })
+    public ResponseEntity<List<TopicAndNewMessagesCountDto>> getMostPopularTopics() {
+        List<TopicAndNewMessagesCountDto> dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10());
         return ResponseEntity.ok(dtos);
     }
 
