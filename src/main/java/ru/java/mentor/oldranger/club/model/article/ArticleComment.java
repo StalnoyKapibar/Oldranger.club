@@ -2,19 +2,17 @@ package ru.java.mentor.oldranger.club.model.article;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -62,47 +60,4 @@ public class ArticleComment {
         this.commentText = commentText;
     }
 
-    public ArticleComment getAnswerTo() {
-        return answerTo;
-    }
-
-    public void setAnswerTo(ArticleComment answerTo) {
-        this.answerTo = answerTo;
-    }
-
-    public boolean isPosition() {
-        return position;
-    }
-
-    public void setPosition(boolean position) {
-        this.position = position;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ArticleComment that = (ArticleComment) o;
-        return getId().equals(that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
-
-    @Override
-    public String toString() {
-        return "ArticleComment{" +
-                "id=" + id +
-                ", positionInArticle=" + positionInArticle +
-                ", article=" + article +
-                ", user=" + user +
-                ", answerTo=" + answerTo +
-                ", dateTime=" + dateTime +
-                ", commentText='" + commentText + '\'' +
-                ", position=" + position +
-                '}';
-    }
 }
