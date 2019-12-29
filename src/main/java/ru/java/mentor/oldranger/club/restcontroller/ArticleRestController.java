@@ -1,6 +1,10 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -8,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
@@ -36,16 +41,20 @@ public class ArticleRestController {
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add article",description = "Add new article", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Article.class))),})
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestParam("title") String title,
                                                  @RequestParam("text") String text,
-                                                 @RequestParam(value="tags") List<String> tags) {
+                                                 @RequestParam List<Long> tagsId) {
         User user = securityUtilsService.getLoggedUser();
         Set<ArticleTag> tagsArt = new HashSet<>();
-        for(String tag : tags){
-            ArticleTag articleTag = new ArticleTag();
-            articleTag.setName(tag);
-            articleTagService.addTag(articleTag);
+        for(Long tag : tagsId) {
+            ArticleTag articleTag = articleTagService.getTagById(tag);
+            if(articleTag == null) {
+                return ResponseEntity.noContent().build();
+            }
             tagsArt.add(articleTag);
         }
         Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text);
@@ -55,20 +64,26 @@ public class ArticleRestController {
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Update article", description = "Update article", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Article.class))),})
     @PostMapping(value = "/update/{id}", produces = {"application/json"})
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestParam("title") String title,
                                                      @RequestParam("text") String text,
-                                                     @RequestParam(value="tags") List<String> tags) {
+                                                     @RequestParam(value="tagsId") List<Long> tagsId) {
         Article article = articleService.getArticleById(id);
+        if(article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
+          return ResponseEntity.noContent().build();
+        }
         article.setTitle(title);
         article.setText(text);
         Set<ArticleTag> tagsArt = new HashSet<>();
-        for(int i = 0; i < tags.size(); i++){
-            ArticleTag articleTag = new ArticleTag();
-            articleTag.setName(tags.get(i));
-            articleTagService.addTag(articleTag);
-            tagsArt.add(articleTag);
+        for(Long aLong : tagsId) {
+            ArticleTag articleTag = articleTagService.getTagById(aLong);
+            if(articleTag != null) {
+                tagsArt.add(articleTag);
+            } else return ResponseEntity.noContent().build();
         }
         article.setArticleTags(tagsArt);
         articleService.addArticle(article);
