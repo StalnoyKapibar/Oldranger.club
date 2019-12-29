@@ -1,21 +1,20 @@
 package ru.java.mentor.oldranger.club.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 
 import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class SectionsAndSubsectionsDto {
 
     private Section section;
     private List<Subsection> subsections;
-
-    public SectionsAndSubsectionsDto() {}
-
-    public SectionsAndSubsectionsDto(Section section, List<Subsection> subsections) {
-        this.section = section;
-        this.subsections = subsections;
-    }
 
     public Section getSection() {
         return section;

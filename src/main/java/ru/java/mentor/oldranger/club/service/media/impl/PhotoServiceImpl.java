@@ -1,8 +1,7 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +22,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PhotoServiceImpl implements PhotoService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PhotoServiceImpl.class);
 
     private PhotoRepository photoRepository;
 
@@ -53,7 +51,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo save(Long albumId, MultipartFile file) {
-        LOG.info("Saving photo to album with id = {}", albumId);
+        log.info("Saving photo to album with id = {}", albumId);
         Photo photo = null;
         try {
             PhotoAlbum album = albumService.findById(albumId);
@@ -77,42 +75,42 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setAlbum(album);
             photo = photoRepository.save(photo);
             albumService.update(album);
-            LOG.debug("Photo saved");
+            log.debug("Photo saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return photo;
     }
 
     @Override
     public Photo findById(Long id) {
-        LOG.debug("Getting photo with id = {}", id);
+        log.debug("Getting photo with id = {}", id);
         Photo photo = null;
         try {
             photo = photoRepository.findById(id).get();
-            LOG.debug("Album returned");
+            log.debug("Album returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return photo;
     }
 
     @Override
     public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
-        LOG.debug("Getting photos of album {}", album);
+        log.debug("Getting photos of album {}", album);
         List<Photo> photos = null;
         try {
             photos = photoRepository.findAllByAlbum(album);
-            LOG.debug("Returned list of {} photos", photos.size());
+            log.debug("Returned list of {} photos", photos.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return photos;
     }
 
     @Override
     public void deletePhoto(Long id) {
-        LOG.info("Deleting photo with id = {}", id);
+        log.info("Deleting photo with id = {}", id);
         try {
             Photo photo = findById(id);
             PhotoAlbum album = photo.getAlbum();
@@ -121,22 +119,22 @@ public class PhotoServiceImpl implements PhotoService {
                     + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
             photoRepository.delete(photo);
-            LOG.debug("Photo deleted");
+            log.debug("Photo deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
     }
 
     @Override
     public Photo update(Photo photo) {
-        LOG.info("Updating photo with id = {}", photo.getId());
+        log.info("Updating photo with id = {}", photo.getId());
         Photo updatedPhoto = null;
         try {
             updatedPhoto = photoRepository.save(photo);
-            LOG.debug("Photo saved");
+            log.debug("Photo saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return updatedPhoto;
     }

@@ -1,7 +1,7 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -16,24 +16,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.java.mentor.oldranger.club.model.user.User;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service("expireUsereService")
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionService {
-    //Инжектим sessionRegistry
-    private SessionRegistry sessionRegistry;
-    @Autowired
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
-    }
 
-    private static final Logger LOG = LoggerFactory.getLogger(SessionService.class);
+    private SessionRegistry sessionRegistry;
 
     @Value("${server.port}")
     String port;
 
     //Метод для удаления сессии любого пользователя
     public void expireUserSessions(String username) {
-        LOG.info("Expire user {} session", username);
+        log.info("Expire user {} session", username);
         try {
             for (Object principal : sessionRegistry.getAllPrincipals()) {
                 if (principal instanceof User) {
@@ -46,15 +42,15 @@ public class SessionService {
                     }
                 }
             }
-            LOG.info("Session expired");
+            log.info("Session expired");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
     }
 
     public void killExpiredSessionForSure(String id) {
-        LOG.info("Killing session with id = {}", id);
+        log.info("Killing session with id = {}", id);
         try {
             HttpHeaders requestHeaders = new HttpHeaders();
             requestHeaders.add("Cookie", "JSESSIONID=" + id);
@@ -62,9 +58,9 @@ public class SessionService {
             RestTemplate rt = new RestTemplate();
             rt.exchange("http://localhost:" + port, HttpMethod.GET,
                     requestEntity, String.class);
-            LOG.info("Session killed");
+            log.info("Session killed");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }
