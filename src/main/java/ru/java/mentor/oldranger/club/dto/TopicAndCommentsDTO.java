@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.dto;
 
 import lombok.*;
+import org.springframework.data.domain.Page;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
 import java.util.List;
@@ -11,5 +12,5 @@ import java.util.List;
 public class TopicAndCommentsDTO {
 
     private Topic topic;
-    private List<CommentDto> commentDto;
+    private Page<CommentDto> commentDto;
 }
