@@ -27,7 +27,10 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
-import ru.java.mentor.oldranger.club.service.user.*;
+import ru.java.mentor.oldranger.club.service.user.InvitationService;
+import ru.java.mentor.oldranger.club.service.user.UserProfileService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;

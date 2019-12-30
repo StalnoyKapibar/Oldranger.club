@@ -5,10 +5,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.java.mentor.oldranger.club.dao.ForumRepository.DirectionRepository;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.mail.Direction;
+import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -24,6 +27,7 @@ import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -40,6 +44,7 @@ public class DataInitializer implements CommandLineRunner {
     private BlackListService blackListService;
     private ChatService chatService;
     private WritingBanService writingBanService;
+    private DirectionRepository directionRepository;
     private ArticleTagService articleTagService;
     private ArticleService articleService;
 
@@ -58,6 +63,7 @@ public class DataInitializer implements CommandLineRunner {
                            BlackListService blackListService,
                            ChatService chatService,
                            WritingBanService writingBanService,
+                           DirectionRepository directionRepository,
                            ArticleTagService articleTagService,
                            ArticleService articleService) {
         this.roleService = roleService;
@@ -70,6 +76,7 @@ public class DataInitializer implements CommandLineRunner {
         this.blackListService = blackListService;
         this.chatService = chatService;
         this.writingBanService = writingBanService;
+        this.directionRepository = directionRepository;
         this.articleTagService = articleTagService;
         this.articleService = articleService;
     }
@@ -107,12 +114,22 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(user);
         userService.save(unverified);
 
+        List<User> users = userService.findAll();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        for (User iUser : users) {
+            Direction direction = new Direction();
+            direction.setLastSendTime(localDateTime);
+            direction.setUser(iUser);
+            direction.setDirectionType(DirectionType.NEVER);
+            directionRepository.save(direction);
+        }
+
         //Добавляем User в чёрный список
         BlackList blackList = new BlackList(user, null);
         blackListService.save(blackList);
 
         //Запрещаем пользователью отправлять личные сообщения
-        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11,28,19,10,0)));
+        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
         andrew.setPassword(passwordEncoder.encode("developer"));
@@ -200,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
                     "Тестовое сообщение " + i));
         }
 
-        for (int i =1; i< 12; i++) {
+        for (int i = 1; i < 12; i++) {
             User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);

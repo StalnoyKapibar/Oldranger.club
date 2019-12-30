@@ -1,6 +1,9 @@
 package ru.java.mentor.oldranger.club.service.chat.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.ChatRepository;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
@@ -10,6 +13,7 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ChatServiceImpl implements ChatService {
@@ -18,22 +22,52 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat getChatByToken(String token) {
-        return chatRepository.findChatByToken(token);
+        log.debug("Getting chat by token {}.", token);
+        Chat chat = null;
+        try {
+            chat = chatRepository.findChatByToken(token);
+            log.debug("Returned chat with id = {}", chat.getId());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return chat;
     }
 
     @Override
     public Chat getChatById(Long id) {
-        return chatRepository.findChatById(id);
+        log.debug("Getting chat by id {}.", id);
+        Chat chat = null;
+        try {
+            chat = chatRepository.findChatById(id);
+            log.debug("Chat returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return chat;
     }
 
     @Override
     public void createChat(Chat chat) {
-        chatRepository.save(chat);
+        log.info("Saving chat {}", chat);
+        try {
+            chatRepository.save(chat);
+            log.info("Chat saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public List<Chat> getAllChats() {
-        return chatRepository.findAll();
+        log.debug("Getting all chats");
+        List<Chat> chats = null;
+        try {
+            chats = chatRepository.findAll();
+            log.debug("Returned list of {} chats", chats.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return chats;
     }
 
     @Override
@@ -43,6 +77,14 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Chat> getAllPrivateChats(User user) {
-        return chatRepository.findAllByPrivacyTrueAndUserListContaining(user);
+        log.debug("Getting all private chats of user with id = {}", user.getId());
+        List<Chat> chats = null;
+        try {
+            chats = chatRepository.findAllByPrivacyTrueAndUserListContaining(user);
+            log.debug("Returned list of {} chats", chats.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return chats;
     }
 }

@@ -10,18 +10,6 @@ public class JsonSavedMessageComentsEntity {
     private String text;
     private Long answerID;
 
-    public Long getIdTopic() {
-        return idTopic;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public Long getAnswerID() {
-        return answerID;
-    }
-
     @Override
     public String toString() {
         return "JsonSavedMessageComentsEntity{" +
@@ -29,13 +17,5 @@ public class JsonSavedMessageComentsEntity {
                 ", text='" + text + '\'' +
                 ", answerID='" + answerID + '\'' +
                 '}';
-    }
-
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
     }
 }

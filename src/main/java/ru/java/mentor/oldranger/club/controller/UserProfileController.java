@@ -27,7 +27,6 @@ import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionServ
 import ru.java.mentor.oldranger.club.service.user.*;
 
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 @Deprecated
 @Hidden
@@ -87,22 +86,14 @@ public class UserProfileController {
     public String uploadAvatar(@RequestParam("file") MultipartFile file,
                                @SessionAttribute User currentUser) {
         if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())){
-            try {
-                userAvatarService.updateUserAvatar(currentUser, file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userAvatarService.updateUserAvatar(currentUser, file);
         }
         return "redirect:/profile";
     }
 
     @GetMapping("/deleteAvatar")
     public String deleteAvatar(@SessionAttribute User currentUser) {
-        try {
-            userAvatarService.deleteUserAvatar(currentUser);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        userAvatarService.deleteUserAvatar(currentUser);
         return "redirect:/profile";
     }
 

@@ -1,7 +1,9 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,15 +17,18 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
+
+    @NonNull
     private PhotoRepository photoRepository;
 
     private PhotoAlbumService albumService;
@@ -37,69 +42,93 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("${upload.small}")
     private int small;
 
-    @Autowired
-    public void setPhotoAlbumService(PhotoAlbumService service) {
-        this.albumService = service;
-    }
-
-    @Autowired
-    public PhotoServiceImpl(PhotoRepository repository) {
-        this.photoRepository = repository;
-    }
-
     @Override
     public Photo save(Long albumId, MultipartFile file) {
-        PhotoAlbum album = albumService.findById(albumId);
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        String resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
-        File uploadPath = new File(albumsdDir + File.separator + userName
-                + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + resultFileName);
-        if (!uploadPath.exists()) {
-            uploadPath.mkdirs();
-        }
-        Path copyLocation = Paths.get(uploadPath + File.separator + resultFileName);
+        log.info("Saving photo to album with id = {}", albumId);
+        Photo photo = null;
         try {
+            PhotoAlbum album = albumService.findById(albumId);
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            String resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
+            File uploadPath = new File(albumsdDir + File.separator + userName
+                    + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + resultFileName);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+            Path copyLocation = Paths.get(uploadPath + File.separator + resultFileName);
+
             Files.copy(file.getInputStream(), copyLocation);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
+
+
             Thumbnails.of(uploadPath + File.separator + resultFileName)
                     .size(medium, medium)
                     .toFile(uploadPath + File.separator + "small_" + resultFileName);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            photo = new Photo(resultFileName, "small_" + resultFileName);
+            photo.setAlbum(album);
+            photo = photoRepository.save(photo);
+            albumService.update(album);
+            log.debug("Photo saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
-        Photo photo = new Photo(resultFileName, "small_" + resultFileName);
-        photo.setAlbum(album);
-        photo = photoRepository.save(photo);
-        albumService.update(album);
         return photo;
     }
 
     @Override
     public Photo findById(Long id) {
-        return photoRepository.findById(id).get();
+        log.debug("Getting photo with id = {}", id);
+        Photo photo = null;
+        try {
+            photo = photoRepository.findById(id).get();
+            log.debug("Album returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photo;
     }
 
     @Override
     public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
-        return photoRepository.findAllByAlbum(album);
+        log.debug("Getting photos of album {}", album);
+        List<Photo> photos = null;
+        try {
+            photos = photoRepository.findAllByAlbum(album);
+            log.debug("Returned list of {} photos", photos.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photos;
     }
 
     @Override
     public void deletePhoto(Long id) {
-        Photo photo = findById(id);
-        PhotoAlbum album = photo.getAlbum();
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        File file = new File(albumsdDir + File.separator + userName
-                + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
-        FileSystemUtils.deleteRecursively(file);
-        photoRepository.delete(photo);
+        log.info("Deleting photo with id = {}", id);
+        try {
+            Photo photo = findById(id);
+            PhotoAlbum album = photo.getAlbum();
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            File file = new File(albumsdDir + File.separator + userName
+                    + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
+            FileSystemUtils.deleteRecursively(file);
+            photoRepository.delete(photo);
+            log.debug("Photo deleted");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
     }
 
     @Override
     public Photo update(Photo photo) {
-        return photoRepository.save(photo);
+        log.info("Updating photo with id = {}", photo.getId());
+        Photo updatedPhoto = null;
+        try {
+            updatedPhoto = photoRepository.save(photo);
+            log.debug("Photo saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return updatedPhoto;
     }
 }

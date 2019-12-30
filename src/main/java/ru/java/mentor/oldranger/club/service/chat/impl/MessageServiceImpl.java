@@ -1,6 +1,9 @@
 package ru.java.mentor.oldranger.club.service.chat.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class MessageServiceImpl implements MessageService {
 
@@ -44,75 +48,133 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message findFirstMessageByChat(Chat chat) {
-        return messageRepository.findFirstByChatOrderByMessageDateAsc(chat);
+        log.debug("Getting oldest message of chat with id = {}", chat.getId());
+        Message message = null;
+        try {
+            message = messageRepository.findFirstByChatOrderByMessageDateAsc(chat);
+            log.debug("Returned message with id = {}", message.getId());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return message;
     }
 
     @Override
     public void addMessage(Message message) {
-        messageRepository.save(message);
+        log.info("Saving message {}", message);
+        try {
+            messageRepository.save(message);
+            log.info("Message saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public void removeMessageById(Long id) {
-        messageRepository.deleteById(id);
+        log.info("Deleting message with id = {}", id);
+        try {
+            messageRepository.deleteById(id);
+            log.info("Message deleted");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public Page<Message> getPagebleMessages(Chat chat, Pageable pageable) {
-        return messageRepository.findAllByChat(chat,pageable);
+        log.debug("Getting page {} of messages for chat with id = {}", pageable.getPageNumber(), chat.getId());
+        Page<Message> page = null;
+        try {
+            page = messageRepository.findAllByChat(chat, pageable);
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
     }
 
     private String uploadImage(MultipartFile file) throws IOException {
+        log.info("Uploading file {}", file.getOriginalFilename());
         File uploadPath = new File(uploadDir);
-        if (!uploadPath.exists()) {
-            uploadPath.mkdir();
+        String resultFileName;
+        try {
+            if (!uploadPath.exists()) {
+                uploadPath.mkdir();
+            }
+            resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
+            Path copyLocation = Paths
+                    .get(uploadDir + File.separator + resultFileName);
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("File uploaded");
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new IOException(e);
         }
-        String resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
-        Path copyLocation = Paths
-                .get(uploadDir + File.separator + resultFileName);
-        Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
         return resultFileName;
     }
 
     private String thumbnailImage(String imageName, MultipartFile file) throws IOException {
-        String resultFileName = UUID.randomUUID().toString() + "__" +
-                150 + "px" + StringUtils.cleanPath(file.getOriginalFilename());
-        String resultFileLocation = Paths
-                .get(uploadDir + File.separator + resultFileName).toString();
-        Thumbnails.of(uploadDir + File.separator + imageName)
-                .size(150, 150)
-                .toFile(resultFileLocation);
+        log.info("Thumbnailing file {}", file.getOriginalFilename());
+        String resultFileName = null;
+        try {
+            resultFileName = UUID.randomUUID().toString() + "__" +
+                    150 + "px" + StringUtils.cleanPath(file.getOriginalFilename());
+            String resultFileLocation = Paths
+                    .get(uploadDir + File.separator + resultFileName).toString();
+            Thumbnails.of(uploadDir + File.separator + imageName)
+                    .size(150, 150)
+                    .toFile(resultFileLocation);
+            log.info("Image thumbnailed");
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new IOException(e);
+        }
         return resultFileName;
     }
 
     @Override
-    public Map<String,String> processImage(MultipartFile file) throws IOException {
-        if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())){
-            Map<String,String> avatars = new HashMap<>();
-            avatars.put("originalImg", uploadImage(file));
-            avatars.put("thumbnailImg", thumbnailImage(avatars.get("originalImg"),file));
+    public Map<String, String> processImage(MultipartFile file) {
+        log.info("Processing file {}", file.getOriginalFilename());
+        if (("image/jpeg").equals(file.getContentType()) || ("image/png").equals(file.getContentType())) {
+            Map<String, String> avatars = new HashMap<>();
+            try {
+                avatars.put("originalImg", uploadImage(file));
+                avatars.put("thumbnailImg", thumbnailImage(avatars.get("originalImg"), file));
+                log.info("File processed");
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
             return avatars;
         } else {
+            log.error("Wrong file content type");
             return null;
         }
     }
 
     private void deleteChatImages(List<String> images) {
+        log.info("Deleting list of {} images", images.size());
         images.forEach(img -> {
             try {
-                Files.deleteIfExists(Paths.get(uploadDir + File.separator + img ));
+                Files.deleteIfExists(Paths.get(uploadDir + File.separator + img));
+                log.debug("Image {} deleted", img);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         });
+        log.info("Images deleted");
     }
 
     @Override
     public Map<String, Long> getOnlineUsers() {
-        List<User> userList = chatService.getChatById(1L).getUserList();
+        log.debug("Getting list of online users");
         Map<String, Long> users = new HashMap<>();
-        for (User user : userList) {
-            users.put(user.getNickName(), user.getId());
+        try {
+            List<User> userList = chatService.getChatById(1L).getUserList();
+            userList.forEach(user -> users.put(user.getNickName(), user.getId()));
+            log.debug("Returned list of {} users", users.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
         return users;
     }
@@ -121,10 +183,10 @@ public class MessageServiceImpl implements MessageService {
     // сообщения позднее месяца
     private List<Message> findAllByChat(Chat chat, boolean isPrivate) {
         LocalDateTime date;
-        if (isPrivate){
-            date =  LocalDateTime.now().minusMonths(1L);
+        if (isPrivate) {
+            date = LocalDateTime.now().minusMonths(1L);
         } else {
-            switch (olderThan){
+            switch (olderThan) {
                 case "week":
                     date = LocalDateTime.now().minusWeeks(1L);
                     break;
@@ -142,9 +204,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Scheduled(cron = "0 0 0 * * 0")
-    private void cleanMessages(){
-        if (!olderThan.equals("never")){
-            deleteMessages(false,false,"-");
+    private void cleanMessages() {
+        if (!olderThan.equals("never")) {
+            log.info("Starting scheduled task of deleting messages in group chat");
+            deleteMessages(false, false, "-");
         }
     }
 
@@ -152,19 +215,33 @@ public class MessageServiceImpl implements MessageService {
     // то удаляются все сообщения, иначе удаляются только сообщения позднее месяца. Для общего чата - удаляются сообщения
     // позднее даты заданной адмном(поле olderThan)
     public void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken) {
-        List<Message> messages;
+        List<Message> messages = null;
         if (!isPrivate) {
-            messages = findAllByChat(chatService.getChatById(1L), false);
+            log.debug("Getting list of group chat messages to delete");
+            try {
+                messages = findAllByChat(chatService.getChatById(1L), false);
+                log.debug("Returned list of {} messages", messages.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         } else {
-            Chat chat = chatService.getChatByToken(chatToken);
-            messages = deleteAll ? messageRepository.findAllByChat(chat) : findAllByChat(chat, true);
+            log.debug("Getting list of messages to delete");
+            Chat chat;
+            try {
+                chat = chatService.getChatByToken(chatToken);
+                messages = deleteAll ? messageRepository.findAllByChat(chat) : findAllByChat(chat, true);
+                log.debug("Returned list of {} messages", messages.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         }
         List<String> images = new ArrayList<>();
-        messages.forEach(msg -> {
+        Objects.requireNonNull(messages).forEach(msg -> {
             images.add(msg.getOriginalImg());
             images.add(msg.getThumbnailImg());
         });
         deleteChatImages(images);
         messages.forEach(msg -> removeMessageById(msg.getId()));
+        log.debug("All messages successfully deleted");
     }
 }

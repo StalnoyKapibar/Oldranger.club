@@ -1,6 +1,10 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
@@ -11,21 +15,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@AllArgsConstructor
 public class SearchServiceImpl implements SearchService {
     private SearchRepository searchRepository;
 
-    public SearchServiceImpl(SearchRepository searchRepository) {
-        this.searchRepository = searchRepository;
-    }
-
     @Deprecated
     public List searchByTopicName(String queryString) {
+        log.debug("Searching by topic name {}", queryString);
         String[] targetFields = {"name"};
         return searchRepository.searchObjectsByName(queryString, null, targetFields, Topic.class);
     }
 
     public List searchByComment(String queryString, Integer page, Integer limit) {
+        log.debug("Searching in comments {}", queryString);
         String[] targetFields = {"commentText"};
         /*
          * В будущем если к CommentDto потребуются поля из Comment расскоментировать нижнию строку.
@@ -67,6 +71,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
+        log.debug("Searching topics by node {}, nodeValue = {}, finderTag = {}", node, nodeValue, finderTag);
         String[] fetchingFields = {"subsection", "subsection.section"};
         String[] targetFields = {"name"};
         List<Topic> topics = searchRepository.searchObjectsByName(finderTag, fetchingFields, targetFields, Topic.class);

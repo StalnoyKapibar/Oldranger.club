@@ -1,30 +1,41 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.MediaRepository;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor
 public class MediaServiceImpl implements MediaService {
     private MediaRepository repository;
 
-    @Autowired
-    public MediaServiceImpl(MediaRepository repository) {
-        this.repository = repository;
-    }
-
     @Override
     public Media save(Media media) {
-        return repository.save(media);
+        log.info("Saving media {}", media);
+        try {
+            media = repository.save(media);
+            log.info("Media saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return media;
     }
 
     @Override
     public Media findMediaByUser(User user) {
-        return repository.findMediaByUser(user);
+        log.debug("Getting media for user with id = {}", user.getId());
+        Media media = null;
+        try {
+            media = repository.findMediaByUser(user);
+            log.info("Media returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return media;
     }
-
-
 }

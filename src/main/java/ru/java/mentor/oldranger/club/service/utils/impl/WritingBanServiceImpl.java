@@ -1,7 +1,7 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.WritingBanRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -11,19 +11,35 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
+@AllArgsConstructor
 public class WritingBanServiceImpl implements WritingBanService {
-    @Autowired
+
     WritingBanRepository repository;
 
     @Override
     public WritingBan getByUserAndType(User user, BanType type) {
-        return repository.findByUserAndBanType(user, type);
+        log.debug("Getting writing ban for user with id = {}", user.getId());
+        WritingBan ban = null;
+        try {
+            ban = repository.findByUserAndBanType(user, type);
+            log.debug("Writing ban returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return ban;
     }
 
     @Override
     public void save(WritingBan writingBan) {
-        repository.save(writingBan);
+        log.info("Saving writing ban {}", writingBan);
+        try {
+            repository.save(writingBan);
+            log.info("Writing ban saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
