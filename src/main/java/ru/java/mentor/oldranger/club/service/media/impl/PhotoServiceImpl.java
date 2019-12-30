@@ -20,7 +20,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -87,19 +86,6 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return photo;
-    }
-
-    @Override
-    public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
-        log.debug("Getting photos of album {}", album);
-        List<Photo> photos = null;
-        try {
-            photos = photoRepository.findAllByAlbum(album);
-            log.debug("Returned list of {} photos", photos.size());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return photos;
     }
 
     @Override
