@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
+    @NonNull
     private PhotoAlbumRepository albumRepository;
+    @NonNull
     private UserService userService;
+    @NonNull
     private PhotoService photoService;
+    @NonNull
     private MediaService mediaService;
 
     @Value("${photoalbums.location}")

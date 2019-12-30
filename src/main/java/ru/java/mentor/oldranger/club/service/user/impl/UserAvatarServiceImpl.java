@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -34,7 +35,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     private int small;
 
 
+    @NonNull
     private UserAvatarRepository userAvatarRepository;
+    @NonNull
     private UserService userService;
 
     @Override

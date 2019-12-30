@@ -1,8 +1,8 @@
 package ru.java.mentor.oldranger.club.service.mail.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,8 +28,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
 
-
+    @NonNull
     private JavaMailSender mailSender;
+    @NonNull
     private SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
@@ -84,7 +85,7 @@ public class MailServiceImpl implements MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message,
                     MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                     StandardCharsets.UTF_8.name());
-            Map<String,Object> model = new HashMap<>();
+            Map<String, Object> model = new HashMap<>();
             model.put("content", mail.getMessage());
             Context context = new Context();
             context.setVariables(model);

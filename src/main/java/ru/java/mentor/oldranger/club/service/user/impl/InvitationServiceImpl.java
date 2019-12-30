@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class InvitationServiceImpl implements InvitationService {
+    @NonNull
     private InviteRepository repository;
 
     private static final Long MINUTE = 60000L;
@@ -90,60 +92,60 @@ public class InvitationServiceImpl implements InvitationService {
                 }
             }
             log.info("Current key = {}", key);
-        } catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-            return key;
-        }
+        return key;
+    }
 
-        @Override
-        public boolean checkShelfLife (InvitationToken token){
-            String key = token.getKey();
-            LocalDateTime date = getDateCreate(key);
-            Long elapsedTime = ChronoUnit.MILLIS.between(date, LocalDateTime.now());
-            if (elapsedTime >= shelfLife) {
-                return true;
+    @Override
+    public boolean checkShelfLife(InvitationToken token) {
+        String key = token.getKey();
+        LocalDateTime date = getDateCreate(key);
+        Long elapsedTime = ChronoUnit.MILLIS.between(date, LocalDateTime.now());
+        if (elapsedTime >= shelfLife) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void setShelfLife(Long time) {
+        shelfLife = time;
+    }
+
+    @Override
+    public String generateKey() {
+        log.debug("Generating key");
+        String key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
+        try {
+            while (repository.existsByKey(key)) {
+                key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
             }
-            return false;
+            log.info("Key {} generated", key);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
+        return key;
+    }
 
-        @Override
-        public void setShelfLife (Long time){
-            shelfLife = time;
-        }
-
-        @Override
-        public String generateKey () {
-            log.debug("Generating key");
-            String key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
-            try {
-                while (repository.existsByKey(key)) {
-                    key = Math.round((Math.random() * 10000000)) + "" + Math.round((Math.random() * 10000000));
-                }
-                log.info("Key {} generated", key);
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-            return key;
-        }
-
-        @Override
-        public LocalDateTime getDateCreate (String key){
-            log.debug("Getting creation date for key {}", key);
+    @Override
+    public LocalDateTime getDateCreate(String key) {
+        log.debug("Getting creation date for key {}", key);
         return getInvitationTokenByKey(key).getDate();
-        }
+    }
 
-        @Override
-        public void markInviteOnMailAsUsed (String mail){
-            log.info("Marking invite for email {} as used", mail);
-            try {
-                List<InvitationToken> tokens = repository.findAllByMailAndUsed(mail, false);
-                if (tokens.size() != 0) {
-                    tokens.get(0).setUsed(true);
-                }
-                log.info("Invite marked as used");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
+    @Override
+    public void markInviteOnMailAsUsed(String mail) {
+        log.info("Marking invite for email {} as used", mail);
+        try {
+            List<InvitationToken> tokens = repository.findAllByMailAndUsed(mail, false);
+            if (tokens.size() != 0) {
+                tokens.get(0).setUsed(true);
             }
+            log.info("Invite marked as used");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
+}

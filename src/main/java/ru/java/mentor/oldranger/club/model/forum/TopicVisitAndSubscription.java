@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
-@ToString
 @Entity
 @NoArgsConstructor
 @Table(name = "topic_visit_and_subscriptions")
