@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.service.article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ArticleTagService {
 
@@ -15,4 +16,6 @@ public interface ArticleTagService {
     void updateArticleTag(ArticleTag articleTag);
 
     void deleteArticleTag(ArticleTag articleTag);
+
+    Set<ArticleTag> addTagsToSet (List<Long> tags);
 }

@@ -49,13 +49,9 @@ public class ArticleRestController {
                                                  @RequestParam("text") String text,
                                                  @RequestParam List<Long> tagsId) {
         User user = securityUtilsService.getLoggedUser();
-        Set<ArticleTag> tagsArt = new HashSet<>();
-        for(Long tag : tagsId) {
-            ArticleTag articleTag = articleTagService.getTagById(tag);
-            if(articleTag == null) {
-                return ResponseEntity.noContent().build();
-            }
-            tagsArt.add(articleTag);
+        Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
+        if (tagsArt.size() == 0) {
+            return ResponseEntity.noContent().build();
         }
         Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text);
         articleService.addArticle(article);
@@ -73,17 +69,14 @@ public class ArticleRestController {
                                                      @RequestParam("text") String text,
                                                      @RequestParam(value="tagsId") List<Long> tagsId) {
         Article article = articleService.getArticleById(id);
-        if(article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
+        if (article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
           return ResponseEntity.noContent().build();
         }
         article.setTitle(title);
         article.setText(text);
-        Set<ArticleTag> tagsArt = new HashSet<>();
-        for(Long aLong : tagsId) {
-            ArticleTag articleTag = articleTagService.getTagById(aLong);
-            if(articleTag != null) {
-                tagsArt.add(articleTag);
-            } else return ResponseEntity.noContent().build();
+        Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
+        if (tagsArt.size() == 0) {
+            return ResponseEntity.noContent().build();
         }
         article.setArticleTags(tagsArt);
         articleService.addArticle(article);
