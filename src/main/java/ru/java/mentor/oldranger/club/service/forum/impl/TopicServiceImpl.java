@@ -117,6 +117,15 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    public List<Topic> getActualTopicsLimit10() {
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            return topicRepository.getActualTopicsLimit(10);
+        } else {
+            return topicRepository.getActualTopicsLimitForAnon(10);
+        }
+    }
+
+    @Override
     public List<Topic> getActualTopicsLimit10BySection() {
         log.debug("Getting actual topics with limit = 10");
         List<Topic> topics = null;
