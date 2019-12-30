@@ -31,7 +31,9 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     @Lazy
     private RoleHierarchy roleHierarchy;
 
-    @NonNull private UserService userService;
+    @NonNull
+    private UserService userService;
+    @NonNull
     private SessionRegistry sessionRegistry;
 
     @Override
@@ -39,7 +41,7 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
         log.debug("Getting users from session registry");
         List<Long> usersIds = new ArrayList<>();
         try {
-            for (Object principal: sessionRegistry.getAllPrincipals()) {
+            for (Object principal : sessionRegistry.getAllPrincipals()) {
                 if (principal instanceof User) {
                     usersIds.add(((User) principal).getId());
                 }

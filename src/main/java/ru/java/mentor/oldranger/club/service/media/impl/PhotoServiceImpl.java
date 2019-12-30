@@ -31,7 +31,6 @@ public class PhotoServiceImpl implements PhotoService {
     @NonNull
     private PhotoRepository photoRepository;
 
-    @NonNull
     private PhotoAlbumService albumService;
 
     @Value("${photoalbums.location}")
