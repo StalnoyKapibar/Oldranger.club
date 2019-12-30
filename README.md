@@ -17,7 +17,7 @@
     Выбираем Get from Version Control - Git  
     Клонируем репозиторий https://github.com/StalnoyKapibar/Oldranger.club  
     Проект должен начать скачиваться и подтягивать зависимости или в правом нижнем углу должна появиться плашка на которой нужно выбрать Enable auto import, и тогда начнется загрузка зависимостей.  
-    Пуллим себе ветку dev: VCS - Git - Pull - origin/dev (или через терминал) и снова ждем, когда подтянуться новые зависимости.  
+    Пуллим себе ветку dev: VCS - Git - Pull - origin/dev (или через терминал) и снова ждем, когда подтянутся новые зависимости.  
     Идем в File - Settings - Plugins - Набираем Lombok - Жмем install и перезагружаем IDE  
     В самом проекте идем в папку config (src/main/resources/config), где лежат 4 файла типа aplication.properties.sample    
     Копируем эти файлы и убираем расширение .sample  
