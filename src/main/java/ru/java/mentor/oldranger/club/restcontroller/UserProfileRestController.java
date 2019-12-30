@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -104,7 +105,7 @@ public class UserProfileRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @PostMapping("/updateProfile")
+    @PostMapping(value = "/updateProfile",consumes = {"application/json"})
     public ResponseEntity<ErrorDto> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
@@ -128,7 +129,6 @@ public class UserProfileRestController {
         userService.save(currentUser);
         profile.setUser(currentUser);
         userProfileService.editUserProfile(profile);
-
         return ResponseEntity.ok(new ErrorDto("OK"));
     }
 

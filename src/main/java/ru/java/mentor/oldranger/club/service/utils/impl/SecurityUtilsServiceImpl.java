@@ -71,8 +71,8 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
         User user = null;
         try {
             if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String) return null;
-            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            user = userService.getUserByNickName(username);
+            Long id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+            user = userService.findById(id);
             log.debug("Returned user {}", user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
