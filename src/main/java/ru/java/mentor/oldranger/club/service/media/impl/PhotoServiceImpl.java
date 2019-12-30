@@ -1,8 +1,9 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,13 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
 
+    @NonNull
     private PhotoRepository photoRepository;
 
+    @NonNull
     private PhotoAlbumService albumService;
 
     @Value("${photoalbums.location}")
@@ -38,16 +42,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Value("${upload.small}")
     private int small;
-
-    @Autowired
-    public void setPhotoAlbumService(PhotoAlbumService service) {
-        this.albumService = service;
-    }
-
-    @Autowired
-    public PhotoServiceImpl(PhotoRepository repository) {
-        this.photoRepository = repository;
-    }
 
     @Override
     public Photo save(Long albumId, MultipartFile file) {

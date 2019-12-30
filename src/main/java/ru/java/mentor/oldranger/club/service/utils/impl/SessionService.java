@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionService {
 
+    @NonNull
     private SessionRegistry sessionRegistry;
 
     @Value("${server.port}")
