@@ -47,10 +47,6 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
     @Override
     public Set<ArticleTag> addTagsToSet(List<Long> tagsId) {
-        Set<ArticleTag> articleTags = new HashSet<>();
-        for (Long tagId : tagsId) {
-            articleTagRepository.findById(tagId).ifPresent(articleTags::add);
-        }
-        return articleTags;
+        return articleTagRepository.findByIdIn(tagsId);
     }
 }
