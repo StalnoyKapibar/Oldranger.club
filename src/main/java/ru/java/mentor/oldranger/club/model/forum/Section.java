@@ -3,12 +3,10 @@ package ru.java.mentor.oldranger.club.model.forum;
 import lombok.*;
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@EqualsAndHashCode
 @Table(name = "sections")
 public class Section {
 
