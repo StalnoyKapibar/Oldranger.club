@@ -113,7 +113,7 @@ public class UserProfileRestController {
         currentUser.setEmail(updateProfileDto.getEmail());
 
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
-        if(profile == null){
+        if (profile == null) {
             profile = new UserProfile();
         }
         profile.setCity(updateProfileDto.getCity());
