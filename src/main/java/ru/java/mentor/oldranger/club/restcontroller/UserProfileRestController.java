@@ -99,59 +99,31 @@ public class UserProfileRestController {
             summary = "Update profile", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = ErrorDto.class))),
+                    content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/updateProfile")
-    public ResponseEntity<ErrorDto> updateProfile(@RequestParam(value = "nickName", required = false) String nickName,
-                                                  @RequestParam(value = "firstName", required = false) String firstName,
-                                                  @RequestParam(value = "lastName", required = false) String lastName,
-                                                  @RequestParam(value = "email", required = false) String email,
-                                                  @RequestParam(value = "city", required = false) String city,
-                                                  @RequestParam(value = "country", required = false) String country,
-                                                  @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                                  @RequestParam(value = "socialVk", required = false) String socialVk,
-                                                  @RequestParam(value = "socialFb", required = false) String socialFb,
-                                                  @RequestParam(value = "socialTw", required = false) String socialTw,
-                                                  @RequestParam(value = "aboutMe", required = false) String aboutMe) {
+    public ResponseEntity<ErrorDto> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
+        currentUser.setNickName(updateProfileDto.getNickName());
+        currentUser.setFirstName(updateProfileDto.getFirstName());
+        currentUser.setLastName(updateProfileDto.getLastName());
+        currentUser.setEmail(updateProfileDto.getEmail());
+
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
-
-        boolean isNickName = !nickName.isEmpty() && userService.getUserByNickName(nickName) == null;
-        if (isNickName) {
-            currentUser.setNickName(nickName);
-        } else if (!nickName.isEmpty()) {
-            ErrorDto errorDto = new ErrorDto("Неподходящий никнейм, либо используется другим пользователем.");
-            return ResponseEntity.status(406).body(errorDto);
+        if(profile == null){
+            profile = new UserProfile();
         }
-
-        if (!firstName.isEmpty()) currentUser.setFirstName(firstName);
-        if (!lastName.isEmpty()) currentUser.setLastName(lastName);
-
-        boolean isEmail = !email.isEmpty() && userService.getUserByEmail(email) == null;
-        if (isEmail) {
-            currentUser.setEmail(email);
-        } else if (!email.isEmpty()) {
-            ErrorDto errorDto = new ErrorDto("Неподходящий email, либо используется другим пользователем.");
-            return ResponseEntity.status(406).body(errorDto);
-        }
-        if (profile == null) profile = new UserProfile();
-        try {
-            profile.setUser(currentUser);
-            profile.setField("city", city);
-            profile.setField("country", country);
-            profile.setField("phoneNumber", phoneNumber);
-            profile.setField("socialVk", socialVk);
-            profile.setField("socialFb", socialFb);
-            profile.setField("socialTw", socialTw);
-            profile.setField("aboutMe", aboutMe);
-        } catch (NoSuchFieldException | IllegalAccessException e){
-            e.printStackTrace();
-        }
-
+        profile.setCity(updateProfileDto.getCity());
+        profile.setAboutMe(updateProfileDto.getAboutMe());
+        profile.setCountry(updateProfileDto.getCountry());
+        profile.setSocialFb(updateProfileDto.getSocialFb());
+        profile.setSocialTw(updateProfileDto.getSocialTw());
+        profile.setSocialVk(updateProfileDto.getSocialVk());
         userService.save(currentUser);
+        profile.setUser(currentUser);
         userProfileService.editUserProfile(profile);
 
         return ResponseEntity.ok(new ErrorDto("OK"));
