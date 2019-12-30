@@ -23,8 +23,10 @@ import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.mail.EmailDraftService;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
+import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,6 +46,8 @@ public class AdminRestController {
     private EmailDraftService emailDraftService;
     private MailService mailService;
     private UserService userService;
+    private SecurityUtilsService securityUtilsService;
+    private RoleService roleService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get UserStatisticDto list", tags = { "Admin" })
@@ -160,5 +164,51 @@ public class AdminRestController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "User edit", tags = {"Admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "400", description = "User edit error")})
+    @PutMapping(value = "/editUser/{userId}", produces = {"application/json"})
+    public ResponseEntity<User> editUserById(@PathVariable Long userId,
+                                             @RequestParam(value = "firstName") String firstName,
+                                             @RequestParam(value = "lastName") String lastName,
+                                             @RequestParam(value = "email") String email,
+                                             @RequestParam(value = "nickName") String nickName,
+                                             @RequestParam(value = "role") String role) {
+
+        User user = userService.findById(userId);
+        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setNickName(nickName);
+        user.setRole(roleService.getRoleByAuthority(role));
+
+        if (userId == null || !admin) {
+            return ResponseEntity.badRequest().build();
+        }
+        userService.save(user);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get user by id", tags = {"Admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")})
+    @GetMapping(value = "/getUser/{userId}", produces = {"application/json"})
+    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+        User user = userService.findById(userId);
+        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
+
+        if (userId == null || !admin) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(user);
     }
 }
