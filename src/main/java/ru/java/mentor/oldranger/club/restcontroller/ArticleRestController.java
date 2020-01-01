@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,14 +33,14 @@ public class ArticleRestController {
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
 
-    @GetMapping(value = "/tag/{tag_id}", produces = { "application/json" })
+    @GetMapping(value = "/tag/{tag_id}", produces = {"application/json"})
     public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
         List<Article> articles = articleService.getAllByTag(tag_id);
         return ResponseEntity.ok(articles);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Add article",description = "Add new article", tags = {"Article"})
+            summary = "Add article", description = "Add new article", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Article.class))),})
@@ -67,10 +67,10 @@ public class ArticleRestController {
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestParam("title") String title,
                                                      @RequestParam("text") String text,
-                                                     @RequestParam(value="tagsId") List<Long> tagsId) {
+                                                     @RequestParam(value = "tagsId") List<Long> tagsId) {
         Article article = articleService.getArticleById(id);
         if (article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
-          return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();
         }
         article.setTitle(title);
         article.setText(text);
@@ -81,5 +81,24 @@ public class ArticleRestController {
         article.setArticleTags(tagsArt);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete article", description = "Delete article", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Article.class))),
+            @ApiResponse(responseCode = "204",description = "Not found Article")})
+    @DeleteMapping("/deleteArticle")
+    public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
+        if (securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR)) {
+            try {
+                articleService.deleteArticle(idArticle);
+                return ResponseEntity.ok().build();
+            } catch (Exception e){
+                return ResponseEntity.noContent().build();
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 }

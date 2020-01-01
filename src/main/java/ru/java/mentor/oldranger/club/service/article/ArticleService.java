@@ -13,5 +13,7 @@ public interface ArticleService {
 
     void addArticle(Article article);
 
+    void deleteArticle(Long id);
+
     Article getArticleById(long id);
 }
