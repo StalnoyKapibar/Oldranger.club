@@ -15,5 +15,7 @@ public interface ArticleService {
 
     void deleteArticle(Long id);
 
+    void deleteArticles(List<Long> ids);
+
     Article getArticleById(long id);
 }

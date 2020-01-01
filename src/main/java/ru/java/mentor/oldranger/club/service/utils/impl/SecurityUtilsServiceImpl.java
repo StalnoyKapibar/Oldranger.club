@@ -64,11 +64,27 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     @Override
     public boolean isAuthorityReachableForLoggedUser(RoleType role) {
         Role userRole;
-        switch (role){
-            case ROLE_USER: userRole = new Role("ROLE_USER"); break;
-            case ROLE_MODERATOR: userRole = new Role("ROLE_MODERATOR"); break;
-            case ROLE_ADMIN: userRole = new Role("ROLE_ADMIN"); break;
-            default: userRole = new Role("ROLE_PROSPECT");
+        switch (role) {
+            case ROLE_USER: {
+                userRole = new Role("ROLE_USER");
+                userRole.setId(3L);
+            }
+            break;
+            case ROLE_MODERATOR:{
+                userRole = new Role("ROLE_MODERATOR");
+                userRole.setId(2L);
+                break;
+            }
+            case ROLE_ADMIN:{
+                userRole = new Role("ROLE_ADMIN");
+                userRole.setId(1L);
+                break;
+            }
+            default:{
+                userRole = new Role("ROLE_PROSPECT");
+                userRole.setId(4L);
+                break;
+            }
         }
 
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();

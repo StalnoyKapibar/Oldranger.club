@@ -86,19 +86,43 @@ public class ArticleRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete article", description = "Delete article", tags = {"Article"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Article.class))),
-            @ApiResponse(responseCode = "204",description = "Not found Article")})
+            @ApiResponse(responseCode = "200", description = "Delete successful"),
+            @ApiResponse(responseCode = "203", description = "Not have rule for delete article"),
+            @ApiResponse(responseCode = "204", description = "Not found Article")})
     @DeleteMapping("/deleteArticle")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
-        if (securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR)) {
+        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
+        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        if (isModer || isAdmin) {
             try {
                 articleService.deleteArticle(idArticle);
                 return ResponseEntity.ok().build();
-            } catch (Exception e){
+            } catch (Exception e) {
                 return ResponseEntity.noContent().build();
             }
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(203).build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete articles", description = "Delete articles", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Delete successful"),
+            @ApiResponse(responseCode = "203", description = "Not have rule for delete articles"),
+            @ApiResponse(responseCode = "204", description = "Not found Articles")})
+    @DeleteMapping("/deleteArticles")
+    public ResponseEntity deleteArticles(@RequestParam("articlesIds") List<Long> ids) {
+        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
+        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        if (isModer || isAdmin) {
+            try {
+                articleService.deleteArticles(ids);
+                return ResponseEntity.ok().build();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.noContent().build();
+            }
+        }
+        return ResponseEntity.status(203).build();
     }
 }
