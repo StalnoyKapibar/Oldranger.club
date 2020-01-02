@@ -12,4 +12,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByArticleTags_id(long id);
 
     Article findById(long id);
+
+    @Query(nativeQuery = true,
+            value = "select * from articles a where a.article_hide = false")
+    List<Article> getArticlesForAnon();
 }

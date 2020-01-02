@@ -33,6 +33,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> getArticlesForAnon() {
+        return articleRepository.getArticlesForAnon();
+    }
+
+    @Override
     public void addArticle(Article article) {
         articleRepository.save(article);
     }

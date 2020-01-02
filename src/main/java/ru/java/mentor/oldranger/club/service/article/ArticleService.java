@@ -14,4 +14,6 @@ public interface ArticleService {
     void addArticle(Article article);
 
     Article getArticleById(long id);
+
+    List<Article> getArticlesForAnon();
 }
