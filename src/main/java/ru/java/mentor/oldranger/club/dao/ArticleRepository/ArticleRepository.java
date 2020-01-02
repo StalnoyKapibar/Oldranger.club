@@ -11,4 +11,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findAllByArticleTags_id(long id);
 
+    Article findById(long id);
 }

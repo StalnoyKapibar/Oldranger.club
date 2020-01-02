@@ -7,7 +7,9 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagRepository;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -38,5 +40,10 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     @Override
     public void deleteArticleTag(ArticleTag articleTag) {
         articleTagRepository.delete(articleTag);
+    }
+
+    @Override
+    public Set<ArticleTag> addTagsToSet(List<Long> tagsId) {
+        return articleTagRepository.findByIdIn(tagsId);
     }
 }
