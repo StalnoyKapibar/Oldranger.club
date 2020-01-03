@@ -18,8 +18,8 @@ import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -61,16 +61,22 @@ public class ArticleRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Update article", description = "Update article", tags = {"Article"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Article.class))),})
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Article.class))),
+            @ApiResponse(responseCode = "203", description = "You have no rights to edit this article"),
+            @ApiResponse(responseCode = "204", description = "Article not found")})
     @PostMapping(value = "/update/{id}", produces = {"application/json"})
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestParam("title") String title,
                                                      @RequestParam("text") String text,
                                                      @RequestParam(value="tagsId") List<Long> tagsId) {
         Article article = articleService.getArticleById(id);
-        if (article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
+        if (article == null ) {
           return ResponseEntity.noContent().build();
+        }
+        int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
+        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_MODERATOR")) ||
+                !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
+            ResponseEntity.status(203).build();
         }
         article.setTitle(title);
         article.setText(text);
