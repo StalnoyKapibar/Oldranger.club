@@ -1,18 +1,12 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Entity
 @NoArgsConstructor
 @Table(name = "topic_visit_and_subscriptions")

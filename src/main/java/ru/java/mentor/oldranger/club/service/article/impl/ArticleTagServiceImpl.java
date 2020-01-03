@@ -1,22 +1,21 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagRepository;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class ArticleTagServiceImpl implements ArticleTagService {
 
     private ArticleTagRepository articleTagRepository;
-
-    @Autowired
-    public ArticleTagServiceImpl(ArticleTagRepository articleTagRepository) {
-        this.articleTagRepository = articleTagRepository;
-    }
 
     @Override
     public List<ArticleTag> getAllTags() {
@@ -41,5 +40,10 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     @Override
     public void deleteArticleTag(ArticleTag articleTag) {
         articleTagRepository.delete(articleTag);
+    }
+
+    @Override
+    public Set<ArticleTag> addTagsToSet(List<Long> tagsId) {
+        return articleTagRepository.findByIdIn(tagsId);
     }
 }

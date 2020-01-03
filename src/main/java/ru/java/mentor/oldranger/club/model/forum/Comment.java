@@ -1,20 +1,16 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Type;
+import lombok.*;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -60,35 +56,6 @@ public class Comment {
         this.answerTo = answerTo;
         this.dateTime = dateTime;
         this.commentText = commentText;
-    }
-
-    public Comment getAnswerTo() {
-        return answerTo;
-    }
-
-    public void setAnswerTo(Comment answerTo) {
-        this.answerTo = answerTo;
-    }
-
-    public boolean isPozition() {
-        return pozition;
-    }
-
-    public void setPozition(boolean pozition) {
-        this.pozition = pozition;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Comment comment = (Comment) o;
-        return Objects.equals(id, comment.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     @Override

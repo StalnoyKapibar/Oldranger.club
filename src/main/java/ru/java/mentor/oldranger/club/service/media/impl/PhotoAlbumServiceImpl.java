@@ -1,8 +1,8 @@
 package ru.java.mentor.oldranger.club.service.media.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,19 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PhotoAlbumServiceImpl.class);
+    @NonNull
+    private PhotoAlbumRepository albumRepository;
+    @NonNull
+    private UserService userService;
+    @NonNull
+    private PhotoService photoService;
+    @NonNull
+    private MediaService mediaService;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -34,41 +43,9 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Value("${upload.small}")
     private int small;
 
-    private PhotoAlbumRepository albumRepository;
-
-    private UserService userService;
-
-    private PhotoService photoService;
-
-    private MediaService mediaService;
-
-    @Autowired
-    public PhotoAlbumServiceImpl(PhotoAlbumRepository repository) {
-        this.albumRepository = repository;
-    }
-
-    public PhotoAlbumServiceImpl() {
-        super();
-    }
-
-    @Autowired
-    public void setMediaService(MediaService service) {
-        this.mediaService = service;
-    }
-
-    @Autowired
-    public void setPhotoService(PhotoService service) {
-        this.photoService = service;
-    }
-
-    @Autowired
-    public void setUserService(UserService service) {
-        this.userService = service;
-    }
-
     @Override
     public PhotoAlbum save(PhotoAlbum album) {
-        LOG.info("Saving album {}", album);
+        log.info("Saving album {}", album);
         PhotoAlbum savedAlbum = null;
         try {
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -80,22 +57,22 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
-            LOG.info("Album saved");
+            log.info("Album saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return savedAlbum;
     }
 
     @Override
     public List<PhotoAlbum> findAll() {
-        LOG.debug("Getting all albums");
+        log.debug("Getting all albums");
         List<PhotoAlbum> albums = null;
         try {
             albums = albumRepository.findAll();
-            LOG.debug("Returned list of {} albums", albums.size());
+            log.debug("Returned list of {} albums", albums.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return albums;
     }
@@ -103,66 +80,66 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Override
     @PostConstruct
     public void deleteAllAlbums() {
-        LOG.info("Deleting all albums");
+        log.info("Deleting all albums");
         try {
             File dir = new File(albumsdDir);
             FileSystemUtils.deleteRecursively(dir);
-            LOG.debug("Albums deleted");
+            log.debug("Albums deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteAlbum(Long id) {
-        LOG.info("Deleting album with id = {}", id);
+        log.info("Deleting album with id = {}", id);
         try {
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
             File dir = new File(albumsdDir + File.separator + userName
                     + File.separator + "photo_albums" + File.separator + id);
             FileSystemUtils.deleteRecursively(dir);
             albumRepository.deleteById(id);
-            LOG.debug("Album deleted");
+            log.debug("Album deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public PhotoAlbum findById(Long id) {
-        LOG.debug("Getting album with id = {}", id);
+        log.debug("Getting album with id = {}", id);
         PhotoAlbum album = null;
         try {
             album = albumRepository.findById(id).get();
-            LOG.debug("Album returned");
+            log.debug("Album returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return album;
     }
 
     @Override
     public PhotoAlbum update(PhotoAlbum album) {
-        LOG.info("Updating album with id = {}", album.getId());
+        log.info("Updating album with id = {}", album.getId());
         PhotoAlbum savedAlbum = null;
         try {
             savedAlbum = albumRepository.save(album);
-            LOG.info("Album updated");
+            log.info("Album updated");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return savedAlbum;
     }
 
     @Override
     public List<Photo> getAllPhotos(PhotoAlbum album) {
-        LOG.debug("Getting all photos of album {}", album);
+        log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
         try {
             photos = photoService.findPhotoByAlbum(album);
-            LOG.debug("Returned list of {} photos", photos.size());
+            log.debug("Returned list of {} photos", photos.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return photos;
     }

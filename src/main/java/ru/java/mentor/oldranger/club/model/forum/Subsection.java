@@ -3,11 +3,9 @@ package ru.java.mentor.oldranger.club.model.forum;
 import lombok.*;
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "subsections")
 public class Subsection {

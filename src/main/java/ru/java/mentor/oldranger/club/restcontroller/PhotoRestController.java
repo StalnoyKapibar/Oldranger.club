@@ -1,22 +1,18 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/photos")
 public class PhotoRestController {
 
     private PhotoService service;
-
-
-    @Autowired
-    public void setPhotoService(PhotoService service) {
-        this.service = service;
-    }
 
     @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
     public Photo savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {

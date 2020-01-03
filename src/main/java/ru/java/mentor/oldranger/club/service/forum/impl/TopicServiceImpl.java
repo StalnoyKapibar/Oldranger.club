@@ -1,8 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TopicServiceImpl implements TopicService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TopicServiceImpl.class);
     private TopicRepository topicRepository;
     private UserStatisticService userStatisticService;
     private SecurityUtilsService securityUtilsService;
@@ -37,115 +36,124 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void createTopic(Topic topic) {
-        LOG.info("Saving topic {}", topic);
+        log.info("Saving topic {}", topic);
         try {
             UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
             long topicCount = userStatistic.getTopicStartCount();
             userStatistic.setTopicStartCount(++topicCount);
             userStatisticService.saveUserStatic(userStatistic);
             topicRepository.save(topic);
-            LOG.info("Topic saved");
+            log.info("Topic saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void editTopicByName(Topic topic) {
-        LOG.info("Saving topic {}", topic);
+        log.info("Saving topic {}", topic);
         try {
             topicRepository.save(topic);
-            LOG.info("Topic saved");
+            log.info("Topic saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteTopicById(Long id) {
-        LOG.info("Deleting topic with id = {}", id);
+        log.info("Deleting topic with id = {}", id);
         try {
             topicRepository.deleteById(id);
-            LOG.info("Topic deleted");
+            log.info("Topic deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public Topic findById(Long id) {
-        LOG.debug("Getting topic by id = {}", id);
+        log.debug("Getting topic by id = {}", id);
         return topicRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Topic> findAll() {
-        LOG.debug("Getting all topics");
+        log.debug("Getting all topics");
         List<Topic> topics = null;
         try {
             topics = topicRepository.findAll();
-            LOG.debug("Returned list of {} topics", topics.size());
+            log.debug("Returned list of {} topics", topics.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return topics;
     }
 
     @Override
     public List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection) {
-        LOG.debug("Getting actual topics with limit = {}", limitTopicsBySection);
+        log.debug("Getting actual topics with limit = {}", limitTopicsBySection);
         List<Topic> topics = null;
         try {
             topics = topicRepository.getActualTopicsLimitAnyBySection(limitTopicsBySection);
-            LOG.debug("Returned list of {} topics", topics.size());
+            log.debug("Returned list of {} topics", topics.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return topics;
     }
 
     @Override
     public List<Topic> getActualTopicsLimitAnyBySectionForAnon(int expecting_topics_limit_less_or_equals) {
-        LOG.debug("Getting actual topics for anon with limit = {}", expecting_topics_limit_less_or_equals);
+        log.debug("Getting actual topics for anon with limit = {}", expecting_topics_limit_less_or_equals);
         List<Topic> topics = null;
         try {
             topics = topicRepository.getActualTopicsLimitAnyBySectionForAnon(expecting_topics_limit_less_or_equals);
-            LOG.debug("Returned list of {} topics", topics.size());
+            log.debug("Returned list of {} topics", topics.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return topics;
     }
 
     @Override
+    public List<Topic> getActualTopicsLimit10() {
+        if (securityUtilsService.isLoggedUserIsUser()) {
+            return topicRepository.getActualTopicsLimit(10);
+        } else {
+            return topicRepository.getActualTopicsLimitForAnon(10);
+        }
+    }
+
+    @Override
     public List<Topic> getActualTopicsLimit10BySection() {
-        LOG.debug("Getting actual topics with limit = 10");
+        log.debug("Getting actual topics with limit = 10");
         List<Topic> topics = null;
         try {
             topics = topicRepository.getActualTopicsLimitAnyBySection(10);
-            LOG.debug("Returned list of {} topics", topics.size());
+            log.debug("Returned list of {} topics", topics.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return topics;
     }
 
     @Override
     public List<Topic> getActualTopicsLimit10BySectionForAnon() {
-        LOG.debug("Getting actual topics for anon with limit = 10");
+        log.debug("Getting actual topics for anon with limit = 10");
         List<Topic> topics = null;
         try {
             topics = topicRepository.getActualTopicsLimitAnyBySectionForAnon(10);
-            LOG.debug("Returned list of {} topics", topics.size());
+            log.debug("Returned list of {} topics", topics.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return topics;
     }
 
     @Override
     public Page<Topic> getPageableBySubsection(Subsection subsection, Pageable pageable) {
-        LOG.debug("Getting page {} of topics for subsection with id = {}", pageable.getPageNumber(), subsection.getId());
+        log.debug("Getting page {} of topics for subsection with id = {}", pageable.getPageNumber(), subsection.getId());
         Page<Topic> page = null;
         try {
             if (securityUtilsService.isLoggedUserIsUser()) {
@@ -153,9 +161,9 @@ public class TopicServiceImpl implements TopicService {
             } else {
                 page = getPageableBySubsectionForAnon(subsection, pageable);
             }
-            LOG.debug("Page returned");
+            log.debug("Page returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return page;
     }
@@ -173,13 +181,13 @@ public class TopicServiceImpl implements TopicService {
     }
 
     public Page<Topic> getPageableBySubsectionForAnon(Subsection subsection, Pageable pageable) {
-        LOG.debug("Getting page {} of topics for subsection for anon with id = {}", pageable.getPageNumber(), subsection.getId());
+        log.debug("Getting page {} of topics for subsection for anon with id = {}", pageable.getPageNumber(), subsection.getId());
         Page<Topic> page = null;
         try {
             page = topicRepository.findBySubsectionAndIsHideToAnonIsFalseOrderByLastMessageTimeDesc(subsection, pageable);
-            LOG.debug("Page returned");
+            log.debug("Page returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return page;
     }
@@ -194,20 +202,20 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable) {
-        LOG.debug("Getting page {} of topics started by user with id = {}", pageable.getPageNumber(), user.getId());
+        log.debug("Getting page {} of topics started by user with id = {}", pageable.getPageNumber(), user.getId());
         Page<Topic> page = null;
         try {
             page = topicRepository.findAllBytopicStarter(user, pageable);
-            LOG.debug("Page returned");
+            log.debug("Page returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return page;
     }
 
     @Override
     public Page<Topic> getPageableBySubsectionForUser(User user, Subsection subsection, Pageable pageable) {
-        LOG.debug("Getting page {} of topics by subsection id = {} and user id = {}", pageable.getPageNumber(), subsection.getId(), user.getId());
+        log.debug("Getting page {} of topics by subsection id = {} and user id = {}", pageable.getPageNumber(), subsection.getId(), user.getId());
         PageImpl<Topic> page = null;
         try {
             int pageNumber = pageable.getPageNumber();
@@ -218,44 +226,44 @@ public class TopicServiceImpl implements TopicService {
                     pageable,
                     topicRepository.countForGetSliceListBySubsectionForUserOrderByLastMessageTimeDescAndSubscriptionsWithNewMessagesFirst(user.getId(), subsection.getId())
             );
-            LOG.debug("Page returned");
+            log.debug("Page returned");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return page;
     }
 
     @Override
     public List<IdAndNumberProjection> getMessagesCountForTopics(List<Topic> topics) {
-        LOG.debug("Getting messages count for topics");
+        log.debug("Getting messages count for topics");
         List<IdAndNumberProjection> projections = null;
         try {
             List<Long> list = topics.stream().map(Topic::getId).collect(Collectors.toList());
             projections = topicRepository.getPairsTopicIdAndTotalMessagesCount(list);
-            LOG.debug("Returned list of {} projections", projections.size());
+            log.debug("Returned list of {} projections", projections.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return projections;
     }
 
     @Override
     public List<IdAndNumberProjection> getNewMessagesCountForTopicsAndUser(List<Topic> topics, User user) {
-        LOG.debug("Getting new messages count for user with id = {}", user.getId());
+        log.debug("Getting new messages count for user with id = {}", user.getId());
         List<IdAndNumberProjection> projections = null;
         try {
             List<Long> list = topics.stream().map(Topic::getId).collect(Collectors.toList());
             projections = topicRepository.getPairsTopicIdAndNewMessagesCountForUserId(list, user.getId());
-            LOG.debug("Returned list of {} projections", projections.size());
+            log.debug("Returned list of {} projections", projections.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return projections;
     }
 
     @Override
     public List<TopicAndNewMessagesCountDto> getTopicsDto(List<Topic> topics) {
-        LOG.debug("Getting list of topic dtos");
+        log.debug("Getting list of topic dtos");
         boolean logged = false;
         List<IdAndNumberProjection> newMessagesCountForTopicsAndUser = null;
         List<TopicVisitAndSubscription> topicVisitAndSubscriptionForUser = null;
@@ -295,9 +303,9 @@ public class TopicServiceImpl implements TopicService {
                 }
                 dtos.add(dto);
             }
-            LOG.debug("Returned list of {} dtos", dtos.size());
+            log.debug("Returned list of {} dtos", dtos.size());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return dtos;
     }

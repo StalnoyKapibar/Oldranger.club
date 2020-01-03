@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -17,18 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
-
-    @Autowired
-    public ArticleServiceImpl(ArticleRepository articleRepository, ArticleCommentRepository articleCommentRepository, UserStatisticService userStatisticService) {
-        this.articleRepository = articleRepository;
-        this.articleCommentRepository = articleCommentRepository;
-        this.userStatisticService = userStatisticService;
-    }
 
     @Override
     public List<Article> getAllArticles() {
@@ -38,6 +33,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<Article> getAllByTag(long tagId) {
         return articleRepository.findAllByArticleTags_id(tagId);
+    }
+
+    @Override
+    public Article getArticleById(long id) {
+        return articleRepository.findById(id);
     }
 
     @Override

@@ -5,9 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,21 +25,18 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PasswordRecoveryServiceImpl.class);
-
-    @Autowired
+    @NonNull
     private MailService mailService;
-
-    @Autowired
+    @NonNull
     private UserService userService;
-
-    @Autowired
+    @NonNull
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
+    @NonNull
     private PasswordRecoveryTokenService passwordRecoveryTokenService;
 
     @Value("${server.protocol}")
@@ -64,7 +61,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     @Override
     public void sendRecoveryTokenToEmail(User user) throws PasswordRecoveryIntervalViolation {
-        LOG.info("Sending recovery token to user with id = {}", user.getId());
+        log.info("Sending recovery token to user with id = {}", user.getId());
         PasswordRecoveryToken token;
         PasswordRecoveryToken tokenPersist = passwordRecoveryTokenService.getByUserId(user.getId());
 
@@ -87,7 +84,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     @Override
     public PasswordRecoveryToken validateToken(String recoveryToken) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired {
-        LOG.debug("Validating token {}", recoveryToken);
+        log.debug("Validating token {}", recoveryToken);
         verifyToken(recoveryToken);
         Long userId = getUserIdFromToken(recoveryToken);
         return verifyTokenPersistCompare(recoveryToken, userId);
@@ -95,24 +92,24 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     @Override
     public void updatePassword(PasswordRecoveryToken recoveryToken, String password) {
-        LOG.info("Updating password");
+        log.info("Updating password");
         User user = recoveryToken.getUser();
         user.setPassword(passwordEncoder.encode(password));
         userService.save(user);
         passwordRecoveryTokenService.delete(recoveryToken);
-        LOG.info("Password updated");
+        log.info("Password updated");
     }
 
 
     private void composeAndSendTokenEmail(PasswordRecoveryToken token) {
-        LOG.info("Composing and sending email");
+        log.info("Composing and sending email");
         String msgSubject = "Восстановление пароля";
         String recoverURL = getFullHostName() + "/passwordrecovery/token/" + token.getToken();
         mailService.send(token.getUser().getEmail(), msgSubject, recoverURL);
     }
 
     private PasswordRecoveryToken verifyTokenPersistCompare(String token, long userId) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired {
-        LOG.debug("Verifying token");
+        log.debug("Verifying token");
         PasswordRecoveryToken dbToken = passwordRecoveryTokenService.getByUserId(userId);
         LocalDateTime now = LocalDateTime.now();
         if (dbToken == null) {
@@ -128,35 +125,35 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     private void verifyToken(String token) throws PasswordRecoveryInvalidToken, PasswordRecoveryTokenExpired {
-        LOG.debug("Verifying token {}", token);
+        log.debug("Verifying token {}", token);
         try {
             JWT.require(Algorithm.HMAC512(JWT_SECRET))
                     .build()
                     .verify(token);
         } catch (TokenExpiredException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new PasswordRecoveryTokenExpired();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new PasswordRecoveryInvalidToken();
         }
     }
 
     private Long getUserIdFromToken(String token) throws PasswordRecoveryInvalidToken {
-        LOG.debug("Getting user id from token {}", token);
+        log.debug("Getting user id from token {}", token);
         DecodedJWT decodedToken;
         try {
             decodedToken = JWT.decode(token);
         } catch (JWTDecodeException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new PasswordRecoveryInvalidToken();
         }
         Long userId = decodedToken.getClaim(TOKEN_CLAIM).asLong();
         if (userId == null) {
-            LOG.error("Invalid token");
+            log.error("Invalid token");
             throw new PasswordRecoveryInvalidToken();
         }
-        LOG.debug("Returned id {}", userId);
+        log.debug("Returned id {}", userId);
         return userId;
     }
 
@@ -166,7 +163,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     private PasswordRecoveryToken createTokenForUser(User user) {
-        LOG.debug("Creating token for user with id = {}", user.getId());
+        log.debug("Creating token for user with id = {}", user.getId());
         LocalDateTime issueTime = LocalDateTime.now();
         LocalDateTime expirationTime = calculateExpirationTime(issueTime);
         String jwtToken = createJwtToken(user.getId(), localDateTimeToDate(expirationTime));
@@ -174,7 +171,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     private void updateToken(PasswordRecoveryToken token) {
-        LOG.debug("Updating token");
+        log.debug("Updating token");
         LocalDateTime issueTime = LocalDateTime.now();
         LocalDateTime expirationTime = calculateExpirationTime(issueTime);
         String jwtToken = createJwtToken(token.getUser().getId(), localDateTimeToDate(expirationTime));
@@ -185,7 +182,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     }
 
     private String createJwtToken(long userId, Date expirationTime) {
-        LOG.info("Creating jwt token");
+        log.info("Creating jwt token");
         String token = null;
         try {
             token = JWT
@@ -193,9 +190,9 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     .withClaim(TOKEN_CLAIM, userId)
                     .withExpiresAt(expirationTime)
                     .sign(Algorithm.HMAC512(JWT_SECRET));
-            LOG.info("Created token {}", token);
+            log.info("Created token {}", token);
         } catch (JWTDecodeException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return token;
     }

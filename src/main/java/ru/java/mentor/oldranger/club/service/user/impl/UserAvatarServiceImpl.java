@@ -1,8 +1,9 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -21,10 +22,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class UserAvatarServiceImpl implements UserAvatarService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserAvatarServiceImpl.class);
     @Value("${upload.location:${user.home}}")
     private String uploadDir;
     @Value("${upload.medium}")
@@ -33,29 +35,25 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     private int small;
 
 
+    @NonNull
     private UserAvatarRepository userAvatarRepository;
+    @NonNull
     private UserService userService;
-
-    public UserAvatarServiceImpl(UserAvatarRepository userAvatarRepository,
-                                 UserService userService) {
-        this.userAvatarRepository = userAvatarRepository;
-        this.userService = userService;
-    }
 
     @Override
     public void save(UserAvatar avatar) {
-        LOG.info("Saving avatar {}", avatar);
+        log.info("Saving avatar {}", avatar);
         try {
             userAvatarRepository.save(avatar);
-            LOG.info("Avatar saved");
+            log.info("Avatar saved");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     @Override
     public String uploadImage(MultipartFile file) {
-        LOG.info("Uploading file {}", file.getOriginalFilename());
+        log.info("Uploading file {}", file.getOriginalFilename());
         File uploadPath = new File(uploadDir);
         String resultFileName = null;
         try {
@@ -66,15 +64,15 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             Path copyLocation = Paths
                     .get(uploadDir + File.separator + resultFileName);
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
-            LOG.info("File uploaded");
+            log.info("File uploaded");
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return resultFileName;
     }
 
     public String thumbnailImage(String imageName, int size, MultipartFile file) {
-        LOG.info("Thumbnailing image {} to size {}", file.getOriginalFilename(), size);
+        log.info("Thumbnailing image {} to size {}", file.getOriginalFilename(), size);
         String resultFileName = null;
         try {
             resultFileName = UUID.randomUUID().toString() + "__" +
@@ -84,15 +82,15 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             Thumbnails.of(uploadDir + File.separator + imageName)
                     .size(size, size)
                     .toFile(resultFileLocation);
-            LOG.info("Image thumbnailed");
+            log.info("Image thumbnailed");
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return resultFileName;
     }
 
     private UserAvatar createNewAvatar(MultipartFile file) {
-        LOG.debug("Creating new user avatar");
+        log.debug("Creating new user avatar");
         UserAvatar userAvatar = new UserAvatar();
         userAvatar.setOriginal(uploadImage(file));
         userAvatar.setMedium(thumbnailImage(userAvatar.getOriginal(), medium, file));
@@ -101,20 +99,20 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     }
 
     public void setAvatarToUser(User user, MultipartFile file) {
-        LOG.info("Setting avatar to user {}", user);
+        log.info("Setting avatar to user {}", user);
         try {
             UserAvatar userAvatar = createNewAvatar(file);
             save(userAvatar);
             user.setAvatar(userAvatar);
             userService.save(user);
-            LOG.info("Avatar set");
+            log.info("Avatar set");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     public void deleteUserAvatar(User user) {
-        LOG.info("Deleting avatar of user {}", user);
+        log.info("Deleting avatar of user {}", user);
         try {
             UserAvatar userAvatar = user.getAvatar();
             if (!userAvatar.getOriginal().equals("default.png")) {
@@ -125,16 +123,16 @@ public class UserAvatarServiceImpl implements UserAvatarService {
                 userService.save(user);
                 userAvatarRepository.delete(userAvatar);
             }
-            LOG.info("Avatar deleted");
+            log.info("Avatar deleted");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
     public void updateUserAvatar(User user, MultipartFile file) {
-        LOG.info("Updating user {} avatar", user);
+        log.info("Updating user {} avatar", user);
         deleteUserAvatar(user);
         setAvatarToUser(user, file);
-        LOG.info("Avatar updated");
+        log.info("Avatar updated");
     }
 }
