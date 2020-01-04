@@ -17,5 +17,7 @@ public interface ChatService {
 
     List<Chat> getAllPrivateChats(User user);
 
+    Chat getGroupChat();
+
     String generateToken(User first, User second);
 }

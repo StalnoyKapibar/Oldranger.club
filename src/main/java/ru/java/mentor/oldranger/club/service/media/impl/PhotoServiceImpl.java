@@ -20,6 +20,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,43 +32,45 @@ public class PhotoServiceImpl implements PhotoService {
     @NonNull
     private PhotoRepository photoRepository;
 
-    private PhotoAlbumService albumService;
-
     @Value("${photoalbums.location}")
     private String albumsdDir;
 
-    @Value("${upload.medium}")
+    @Value("${media.medium}")
     private int medium;
 
-    @Value("${upload.small}")
+    @Value("${media.small}")
     private int small;
 
     @Override
-    public Photo save(Long albumId, MultipartFile file) {
-        log.info("Saving photo to album with id = {}", albumId);
+    public Photo save(PhotoAlbum album, MultipartFile file) {
+        log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
         try {
-            PhotoAlbum album = albumService.findById(albumId);
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-            String resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
-            File uploadPath = new File(albumsdDir + File.separator + userName
-                    + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + resultFileName);
+            String pathToImg = userName + File.separator + "photo_albums" + File.separator + album.getId() + File.separator;
+            String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
+            String resultFileName = pathToImg + fileName;
+
+            File uploadPath = new File(albumsdDir + File.separator + resultFileName);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
-            Path copyLocation = Paths.get(uploadPath + File.separator + resultFileName);
+            Path copyLocation = Paths.get(uploadPath + File.separator + fileName);
 
             Files.copy(file.getInputStream(), copyLocation);
 
 
-            Thumbnails.of(uploadPath + File.separator + resultFileName)
-                    .size(medium, medium)
-                    .toFile(uploadPath + File.separator + "small_" + resultFileName);
+            Thumbnails.of(uploadPath + File.separator + fileName)
+                    .size(small, small)
+                    .toFile(uploadPath + File.separator + "small_" + fileName);
 
-            photo = new Photo(resultFileName, "small_" + resultFileName);
+            photo = new Photo(resultFileName + File.separator + fileName,
+                    resultFileName + File.separator + "small_" + fileName);
             photo.setAlbum(album);
+            photo.setUploadPhotoDate(LocalDateTime.now());
+
             photo = photoRepository.save(photo);
-            albumService.update(album);
+
             log.debug("Photo saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -99,6 +102,11 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return photos;
+    }
+
+    @Override
+    public List<Photo> findOldPhoto(PhotoAlbum album) {
+        return photoRepository.findAllByAlbumAndDate(album, LocalDateTime.now().minusMinutes(1L));
     }
 
     @Override

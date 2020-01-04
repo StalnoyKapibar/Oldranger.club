@@ -38,7 +38,7 @@ public class MessageServiceImpl implements MessageService {
     public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
-        uploadDir = "./uploads/chat";
+        uploadDir = "./media";
         olderThan = "week";
     }
 
@@ -219,7 +219,7 @@ public class MessageServiceImpl implements MessageService {
         if (!isPrivate) {
             log.debug("Getting list of group chat messages to delete");
             try {
-                messages = findAllByChat(chatService.getChatById(1L), false);
+                messages = findAllByChat(chatService.getGroupChat(), false);
                 log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

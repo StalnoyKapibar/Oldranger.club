@@ -20,10 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
@@ -38,6 +42,8 @@ import java.util.Map;
 public class ChatRestController {
 
     private ChatService chatService;
+    private PhotoService photoService;
+    private PhotoAlbumService albumService;
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
     private WritingBanService writingBanService;
@@ -75,7 +81,7 @@ public class ChatRestController {
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
     @GetMapping("/isForbidden")
     ResponseEntity<Boolean> isForbidden() {
-        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_PRIVATE_MESS);
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_CHAT);
         return ResponseEntity.ok(isForbidden);
     }
 
@@ -100,17 +106,46 @@ public class ChatRestController {
         }
     }
 
-
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Upload image", tags = {"Chat"})
+            summary = "Upload image", tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
                     content = @Content(schema = @Schema(implementation = Map.class)))})
     @PostMapping("/image")
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
-        Map<String, String> result = messageService.processImage(file);
+        Map<String, String> result = new HashMap<>();
+        PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
+        Photo photo = photoService.save(album, file);
+        result.put("originalImg", photo.getOriginal());
+        result.put("thumbnailImg", photo.getSmall());
         return ResponseEntity.ok(result);
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all photos from chat", tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class))))})
+    @GetMapping(value = "/photos")
+    ResponseEntity<List<Photo>> getChatPhotos() {
+        Chat chat = chatService.getGroupChat();
+        PhotoAlbum album = chat.getPhotoAlbum();
+        return ResponseEntity.ok(albumService.getAllPhotos(album));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete chat messages",
+            description = "Delete all chat messages if param all=true, or else delete messages older than month",
+            tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class)))})
+    @DeleteMapping(value = "/messages")
+    ResponseEntity<String> deleteMessages(@Parameter(description = "Delete all messages or messages that older than month", required = true)
+                                          @RequestParam(value = "all") Boolean all) {
+        messageService.deleteMessages(false, all, null);
+        albumService.deleteAlbumPhotos(all, chatService.getGroupChat().getPhotoAlbum());
+        return ResponseEntity.ok().build();
+    }
 }
