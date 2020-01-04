@@ -47,13 +47,14 @@ public class ArticleRestController {
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestParam("title") String title,
                                                  @RequestParam("text") String text,
-                                                 @RequestParam List<Long> tagsId) {
+                                                 @RequestParam("tagsId") List<Long> tagsId,
+                                                 @RequestParam("isHideToAnon") boolean isHideToAnon) {
         User user = securityUtilsService.getLoggedUser();
         Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
         if (tagsArt.size() == 0) {
             return ResponseEntity.noContent().build();
         }
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text);
+        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
@@ -67,7 +68,8 @@ public class ArticleRestController {
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestParam("title") String title,
                                                      @RequestParam("text") String text,
-                                                     @RequestParam(value="tagsId") List<Long> tagsId) {
+                                                     @RequestParam(value = "tagsId") List<Long> tagsId,
+                                                     @RequestParam("isHideToAnon") boolean isHideToAnon) {
         Article article = articleService.getArticleById(id);
         if (article == null || !securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
           return ResponseEntity.noContent().build();
@@ -79,6 +81,7 @@ public class ArticleRestController {
             return ResponseEntity.noContent().build();
         }
         article.setArticleTags(tagsArt);
+        article.setHideToAnon(isHideToAnon);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
