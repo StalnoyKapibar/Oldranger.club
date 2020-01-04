@@ -35,8 +35,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Page<Article> getArticlesForAnon(boolean isHide, Pageable pageable) {
-        return articleRepository.getArticlesForAnon(isHide, pageable);
+    public Page<Article> getArticles(boolean isHideToAnon, Pageable pageable) {
+        return articleRepository.getArticles(isHideToAnon, pageable);
     }
 
     @Override
