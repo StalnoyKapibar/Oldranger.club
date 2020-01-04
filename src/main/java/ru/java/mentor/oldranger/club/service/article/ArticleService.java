@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.article;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 
@@ -15,5 +17,5 @@ public interface ArticleService {
 
     Article getArticleById(long id);
 
-    List<Article> getArticlesForAnon();
+    Page<Article> getArticlesForAnon(boolean isHide, Pageable pageable);
 }

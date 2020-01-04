@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
@@ -33,8 +35,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getArticlesForAnon() {
-        return articleRepository.getArticlesForAnon();
+    public Page<Article> getArticlesForAnon(boolean isHide, Pageable pageable) {
+        return articleRepository.getArticlesForAnon(isHide, pageable);
     }
 
     @Override
