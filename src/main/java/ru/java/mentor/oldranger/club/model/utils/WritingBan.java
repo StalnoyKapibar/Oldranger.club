@@ -22,16 +22,12 @@ public class WritingBan {
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 
-    @Column(name = "banType")
+    @Column(name = "ban_Type")
     @Enumerated(EnumType.STRING)
     private BanType banType;
 
     @Column(name = "unlock_time", nullable = true)
     private LocalDateTime unlockTime;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id_ban", nullable = false)
-//    private Ban ban;
 
     public WritingBan(User user, BanType banType, LocalDateTime unlockTime) {
         this.user = user;

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
+import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -48,10 +49,15 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         log.info("Saving album {}", album);
         PhotoAlbum savedAlbum = null;
         try {
-            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-            User user = userService.getUserByNickName(userName);
-            Media media = mediaService.findMediaByUser(user);
-            album.setMedia(media);
+            String userName = null;
+            if (album.getMedia() == null) {
+                userName = SecurityContextHolder.getContext().getAuthentication().getName();
+                User user = userService.getUserByNickName(userName);
+                Media media = mediaService.findMediaByUser(user);
+                album.setMedia(media);
+            } else {
+                userName = album.getMedia().getUser().getNickName();
+            }
             savedAlbum = albumRepository.save(album);
             File uploadPath = new File(albumsdDir + File.separator + userName + File.separator + "photo_albums" + File.separator + savedAlbum.getId());
             if (!uploadPath.exists()) {
@@ -129,6 +135,20 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.error(e.getMessage(), e);
         }
         return savedAlbum;
+    }
+
+    @Override
+    public void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album) {
+        log.debug("Deleting photos from album", album);
+        List<Photo> photoList = null;
+        if (deleteAll) {
+            photoList = photoService.findPhotoByAlbum(album);
+        } else {
+            photoList = photoService.findOldPhoto(album);
+        }
+        for (Photo photo : photoList) {
+            photoService.findById(photo.getId());
+        }
     }
 
     @Override

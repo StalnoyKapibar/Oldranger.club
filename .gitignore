@@ -36,6 +36,9 @@ uploads/*
 !uploads/default-sm.png
 /src/main/resources/static/css/mystyle.css.map
 
+### Media folder ###
+media/*
+
 ## Credential and Environment  depended properties
 /src/main/resources/config/application.properties
 /src/main/resources/config/datasource.properties
