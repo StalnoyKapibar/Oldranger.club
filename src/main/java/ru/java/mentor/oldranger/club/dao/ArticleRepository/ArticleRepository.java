@@ -15,6 +15,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Article findById(long id);
 
     @Query(nativeQuery = true,
-            value = "select * from articles a where a.article_hide = :isHideToAnon")
-    Page<Article> getArticles(boolean isHideToAnon, Pageable pageable);
+            value = "select * from articles a where a.article_hide = false")
+    Page<Article> getArticlesForAnon(Pageable pageable);
 }

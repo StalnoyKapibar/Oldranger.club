@@ -17,5 +17,5 @@ public interface ArticleService {
 
     Article getArticleById(long id);
 
-    Page<Article> getArticles(boolean isHideToAnon, Pageable pageable);
+    Page<Article> getArticlesForAnon(Pageable pageable);
 }
