@@ -38,11 +38,15 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text) {
+    @Column(name = "article_hide", columnDefinition = "TINYINT")
+    private boolean isHideToAnon;
+
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
+        this.isHideToAnon = isHideToAnon;
     }
 }

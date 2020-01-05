@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -74,7 +75,7 @@ public class CommentAndTopicRestController {
             pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
         }
 
-        List<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable).getContent();
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
         TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 

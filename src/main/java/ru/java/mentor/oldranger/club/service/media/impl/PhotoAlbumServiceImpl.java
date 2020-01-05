@@ -15,7 +15,6 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
-import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.annotation.PostConstruct;
@@ -32,7 +31,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @NonNull
     private UserService userService;
     @NonNull
-    private PhotoService photoService;
+    private PhotoRepository photoRepository;
     @NonNull
     private MediaService mediaService;
 
@@ -156,7 +155,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
         try {
-            photos = photoService.findPhotoByAlbum(album);
+            photos = photoRepository.findAllByAlbum(album);
             log.debug("Returned list of {} photos", photos.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
