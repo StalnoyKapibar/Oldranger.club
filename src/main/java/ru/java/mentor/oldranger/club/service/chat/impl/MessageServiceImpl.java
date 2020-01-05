@@ -219,7 +219,8 @@ public class MessageServiceImpl implements MessageService {
         if (!isPrivate) {
             log.debug("Getting list of group chat messages to delete");
             try {
-                messages = findAllByChat(chatService.getGroupChat(), false);
+                Chat  chat = chatService.getGroupChat();
+                messages = messageRepository.findAllByChat(chat);
                 log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

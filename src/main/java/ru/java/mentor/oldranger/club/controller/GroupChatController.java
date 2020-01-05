@@ -38,6 +38,7 @@ public class GroupChatController {
     public Message sendMessage(@Payload Message chatMessage) {
         chatMessage.setMessageDate(LocalDateTime.now());
         chatMessage.setChat(chatService.getGroupChat());
+        messageService.addMessage(chatMessage);
         return chatMessage;
     }
 
