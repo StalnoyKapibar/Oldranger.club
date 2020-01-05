@@ -110,15 +110,32 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public void deletePhotoByName(String name) {
+        try {
+            log.debug("Getting photo by name {} to delete", name);
+            Photo photo = photoRepository.findByOriginal(name);
+            deletePhoto(photo.getId());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void deletePhoto(Long id) {
         log.info("Deleting photo with id = {}", id);
         try {
             Photo photo = findById(id);
-            PhotoAlbum album = photo.getAlbum();
-            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-            File file = new File(albumsdDir + File.separator + userName
-                    + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
+//            PhotoAlbum album = photo.getAlbum();
+//            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+//            File file = new File(albumsdDir + File.separator + userName
+//                    + File.separator + "photo_albums" + File.separator + album.getId() + File.separator + photo.getOriginal());
+            File file = new File(albumsdDir + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
+
+            file =  new File(albumsdDir + File.separator + photo.getSmall());
+            FileSystemUtils.deleteRecursively(file);
+
             photoRepository.delete(photo);
             log.debug("Photo deleted");
         } catch (Exception e) {

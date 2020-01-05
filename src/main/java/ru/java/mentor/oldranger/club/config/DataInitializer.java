@@ -145,7 +145,7 @@ public class DataInitializer implements CommandLineRunner {
         //Запрещаем пользователью отправлять личные сообщения
         writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
 
-        User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
+        User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleUser);
         andrew.setPassword(passwordEncoder.encode("developer"));
         userService.save(andrew);
 

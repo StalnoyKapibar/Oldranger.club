@@ -13,6 +13,8 @@ public interface PhotoService {
 
     void deletePhoto(Long id);
 
+    void deletePhotoByName(String name);
+
     Photo update(Photo photo);
 
     List<Photo> findOldPhoto(PhotoAlbum album);

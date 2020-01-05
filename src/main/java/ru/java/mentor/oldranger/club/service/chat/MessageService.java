@@ -12,8 +12,6 @@ public interface MessageService {
 
     void addMessage(Message message);
 
-    void removeMessageById(Long id);
-
     Page<Message> getPagebleMessages(Chat chat, Pageable pageable);
 
     Map<String,String> processImage(MultipartFile file);
@@ -25,4 +23,8 @@ public interface MessageService {
     Message findFirstMessageByChat(Chat chat);
 
     void deleteMessages(boolean isPrivate, boolean deleteAll, String chatToken);
+
+    Message findMessage(Long id);
+
+    void deleteMessage(Long id);
 }
