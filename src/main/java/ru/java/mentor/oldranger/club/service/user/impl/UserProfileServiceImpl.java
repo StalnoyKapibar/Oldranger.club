@@ -84,6 +84,9 @@ public class UserProfileServiceImpl implements UserProfileService {
                 isUser,
                 profile.getCity(),
                 profile.getCountry(),
+                profile.getSocialVk(),
+                profile.getSocialFb(),
+                profile.getSocialTw(),
                 profile.getAboutMe());
     }
 

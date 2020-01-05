@@ -24,5 +24,8 @@ public class ProfileDto {
     private boolean isUser;
     private String city;
     private String country;
+    private String socialVk;
+    private String socialFb;
+    private String socialTw;
     private String aboutMe;
 }
