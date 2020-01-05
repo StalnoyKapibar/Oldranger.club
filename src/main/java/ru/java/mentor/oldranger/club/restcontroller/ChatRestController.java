@@ -110,10 +110,13 @@ public class ChatRestController {
             summary = "Upload image", tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
-                    content = @Content(schema = @Schema(implementation = Map.class)))})
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/image")
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
         Map<String, String> result = new HashMap<>();
         PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
         Photo photo = photoService.save(album, file);
@@ -126,9 +129,12 @@ public class ChatRestController {
             summary = "Get all photos from chat", tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/photos")
     ResponseEntity<List<Photo>> getChatPhotos() {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
         Chat chat = chatService.getGroupChat();
         PhotoAlbum album = chat.getPhotoAlbum();
         return ResponseEntity.ok(albumService.getAllPhotos(album));
@@ -140,10 +146,13 @@ public class ChatRestController {
             tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = String.class)))})
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @DeleteMapping(value = "/messages")
     ResponseEntity<String> deleteMessages(@Parameter(description = "Delete all messages or messages that older than month", required = true)
                                           @RequestParam(value = "all") Boolean all) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
         messageService.deleteMessages(false, all, null);
         albumService.deleteAlbumPhotos(all, chatService.getGroupChat().getPhotoAlbum());
         return ResponseEntity.ok().build();
