@@ -72,7 +72,6 @@ public class MailServiceImpl implements MailService {
             log.debug("Message send");
             return "1";
         } catch (MailSendException | MessagingException e) {
-            e.printStackTrace();
             log.error(e.getMessage(), e);
             return "0";
         }
