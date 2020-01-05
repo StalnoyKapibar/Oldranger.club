@@ -59,6 +59,7 @@ public class MailServiceImpl implements MailService {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
             helper.setTo(to);
+            helper.setFrom(username);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String date = LocalDateTime.now().format(formatter);
             Context context = new Context();
@@ -71,6 +72,7 @@ public class MailServiceImpl implements MailService {
             log.debug("Message send");
             return "1";
         } catch (MailSendException | MessagingException e) {
+            e.printStackTrace();
             log.error(e.getMessage(), e);
             return "0";
         }
