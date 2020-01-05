@@ -14,7 +14,7 @@ public interface MessageService {
 
     Page<Message> getPagebleMessages(Chat chat, Pageable pageable);
 
-    Map<String,String> processImage(MultipartFile file);
+    Map<String, String> processImage(MultipartFile file);
 
     Map<String, Long> getOnlineUsers();
 

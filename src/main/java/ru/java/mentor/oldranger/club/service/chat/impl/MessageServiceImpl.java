@@ -157,13 +157,8 @@ public class MessageServiceImpl implements MessageService {
     private void deleteChatImages(List<String> images) {
         log.info("Deleting list of {} images", images.size());
         images.forEach(img -> {
-//            try {
-                //Files.deleteIfExists(Paths.get(uploadDir + File.separator + img));
-                photoService.deletePhotoByName(img);
-                log.debug("Image {} deleted", img);
-//            } catch (IOException e) {
-//                log.error(e.getMessage(), e);
-//            }
+            photoService.deletePhotoByName(img);
+            log.debug("Image {} deleted", img);
         });
         log.info("Images deleted");
     }
@@ -222,7 +217,7 @@ public class MessageServiceImpl implements MessageService {
         if (!isPrivate) {
             log.debug("Getting list of group chat messages to delete");
             try {
-                Chat  chat = chatService.getGroupChat();
+                Chat chat = chatService.getGroupChat();
                 messages = messageRepository.findAllByChat(chat);
                 log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
