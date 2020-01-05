@@ -81,7 +81,10 @@ public class UserProfileServiceImpl implements UserProfileService {
                 stat.getLastVizit(),
                 profile.getUser().getAvatar().getOriginal(),
                 owner,
-                isUser);
+                isUser,
+                profile.getCity(),
+                profile.getCountry(),
+                profile.getAboutMe());
     }
 
 }

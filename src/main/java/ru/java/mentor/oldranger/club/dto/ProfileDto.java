@@ -22,4 +22,7 @@ public class ProfileDto {
     private String avatar;
     private boolean owner;
     private boolean isUser;
+    private String city;
+    private String country;
+    private String aboutMe;
 }
