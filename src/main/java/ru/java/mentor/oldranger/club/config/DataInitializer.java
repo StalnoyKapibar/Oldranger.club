@@ -249,8 +249,13 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 1; i < 11; i++) {
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
+
+            PhotoAlbum articleAlbum = new PhotoAlbum("Album 'Text news!'");
+            articleAlbum.setMedia(mediaService.findMediaByUser(admin));
+            albumService.save(articleAlbum);
+
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!"));
+                    "Text news!", articleAlbum));
         }
     }
 }

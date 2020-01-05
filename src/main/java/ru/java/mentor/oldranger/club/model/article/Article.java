@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.model.article;
 
 import lombok.*;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -38,11 +39,15 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text) {
+    @OneToOne
+    private PhotoAlbum photoAlbum;
+
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, PhotoAlbum photoAlbum) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
+        this.photoAlbum = photoAlbum;
     }
 }
