@@ -11,6 +11,7 @@ import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -44,4 +45,14 @@ public class ArticleServiceImpl implements ArticleService {
         articleRepository.save(article);
     }
 
+    @Override
+    public void deleteArticle(Long id) {
+        articleRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteArticles(List<Long> ids) {
+        articleRepository.deleteAllByIdIn(ids);
+    }
 }

@@ -15,6 +15,10 @@ public interface ArticleService {
 
     void addArticle(Article article);
 
+    void deleteArticle(Long id);
+
+    void deleteArticles(List<Long> ids);
+
     Article getArticleById(long id);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
