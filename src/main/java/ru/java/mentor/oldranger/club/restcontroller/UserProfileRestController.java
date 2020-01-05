@@ -123,6 +123,7 @@ public class UserProfileRestController {
         profile.setCity(updateProfileDto.getCity());
         profile.setAboutMe(updateProfileDto.getAboutMe());
         profile.setCountry(updateProfileDto.getCountry());
+        profile.setPhoneNumber(updateProfileDto.getPhoneNumber());
         profile.setSocialFb(updateProfileDto.getSocialFb());
         profile.setSocialTw(updateProfileDto.getSocialTw());
         profile.setSocialVk(updateProfileDto.getSocialVk());
