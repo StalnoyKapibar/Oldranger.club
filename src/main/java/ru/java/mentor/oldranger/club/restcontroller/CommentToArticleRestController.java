@@ -58,7 +58,7 @@ public class CommentToArticleRestController {
             articleComment = new ArticleComment(article, user, null, localDateTime, receivedCommentDto.getCommentText());
         }
 
-        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
+        if (user == null || !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
         articleService.addCommentToArticle(articleComment);
@@ -103,7 +103,8 @@ public class CommentToArticleRestController {
             summary = "Delete comment from article", description = "Delete comment by id", tags = {"Article comment"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
-            @ApiResponse(responseCode = "404", description = "Error deleting comment")})
+            @ApiResponse(responseCode = "204", description = "Comment not found"),
+            @ApiResponse(responseCode = "403", description = "User is not logged")})
     @DeleteMapping(value = "/comment/delete/{id}", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> deleteArticleComment(@PathVariable(value = "id") Long id) {
         ArticleComment articleComment = articleService.getCommentById(id);
@@ -111,8 +112,12 @@ public class CommentToArticleRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
 
-        if (articleComment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin) {
-            return ResponseEntity.notFound().build();
+        if (articleComment.getId() == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        if (!currentUser.getId().equals(user.getId()) && !admin) {
+            return ResponseEntity.status(403).build();
         }
         articleService.deleteComment(id);
         return ResponseEntity.ok().build();
