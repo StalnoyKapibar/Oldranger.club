@@ -27,6 +27,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -93,8 +94,8 @@ public class ArticleRestController {
                                                      @RequestParam List<MultipartFile> photos,
                                                      @RequestParam("isHideToAnon") boolean isHideToAnon) {
         Article article = articleService.getArticleById(id);
-        if (article == null ) {
-          return ResponseEntity.noContent().build();
+        if (article == null) {
+            return ResponseEntity.noContent().build();
         }
         int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_MODERATOR")) ||
@@ -131,7 +132,9 @@ public class ArticleRestController {
         boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
         if (isModer || isAdmin) {
             try {
+                Article article = articleService.getArticleById(idArticle);
                 articleService.deleteArticle(idArticle);
+                albumService.deleteAlbum(article.getPhotoAlbum().getId());
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
                 return ResponseEntity.noContent().build();
@@ -152,7 +155,14 @@ public class ArticleRestController {
         boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
         if (isModer || isAdmin) {
             try {
+                List<Article> articles = new ArrayList<>();
+                for (Long id : ids) {
+                    articles.add(articleService.getArticleById(id));
+                }
                 articleService.deleteArticles(ids);
+                for (Article article : articles) {
+                    albumService.deleteAlbum(article.getPhotoAlbum().getId());
+                }
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
                 e.printStackTrace();
