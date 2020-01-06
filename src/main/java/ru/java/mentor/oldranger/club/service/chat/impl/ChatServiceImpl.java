@@ -7,8 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.ChatRepository;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 
 import java.util.List;
 import java.util.UUID;
@@ -68,6 +70,19 @@ public class ChatServiceImpl implements ChatService {
             log.error(e.getMessage(), e);
         }
         return chats;
+    }
+
+    @Override
+    public Chat getGroupChat() {
+        log.debug("Getting group chat");
+        Chat chat = null;
+        try {
+            chat = chatRepository.findGroupChat();
+            log.debug("Returned group chat");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return chat;
     }
 
     @Override

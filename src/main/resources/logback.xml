@@ -4,6 +4,14 @@
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>DENY</onMatch>
+        </filter>
     </appender>
     <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.home}/logs/Oldrangerclub.log</file>
@@ -13,10 +21,14 @@
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
-    <root level="INFO">
+    <appender name="Async-STASH" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STASH"/>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="STASH"/>
     </root>
-    <root level="WARN">
-        <appender-ref ref="STDOUT"/>
-    </root>
+    <logger name="ru.java.mentor.oldranger.club" level="debug" additivity="false">
+        <appender-ref ref="Async-STASH"/>
+    </logger>
 </configuration>

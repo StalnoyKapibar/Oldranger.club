@@ -44,7 +44,7 @@ $(document).ready(function () {
         }
     }
 
-    window.setInterval(function(){
+    window.setInterval(function () {
         checkOnline();
     }, 30000);
 
@@ -85,8 +85,8 @@ $(document).ready(function () {
                 alert("Отказано в доступе");
             }
         });
-        stompClient.subscribe('/channel/private/' + chatToken , onMessageReceived, {});
-        stompClient.send("/chat/add/"+ chatToken, {}, JSON.stringify({sender: username, type: 'JOIN'}));
+        stompClient.subscribe('/channel/private/' + chatToken, onMessageReceived, {});
+        stompClient.send("/chat/add/" + chatToken, {}, JSON.stringify({sender: username, type: 'JOIN'}));
         connecting.addClass('hidden');
         messageArea.empty();
         drawUserInfo();
@@ -111,7 +111,7 @@ $(document).ready(function () {
             $.ajax({
                 type: "POST",
                 async: false,
-                url: '/api/chat/image',
+                url: '/api/private/image/' + chatToken,
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -158,7 +158,7 @@ $(document).ready(function () {
                 break;
             case 'MESSAGE':
                 messageElement.addClass('chat-message');
-                if (message.replyTo === username){
+                if (message.replyTo === username) {
                     messageElement.addClass('reply');
                 }
                 let avatarElement = $('<i>');
@@ -205,7 +205,7 @@ $(document).ready(function () {
             page = 0;
         }
         $.ajax({
-            url: '/api/private/messages/'+ chatToken +'?page=' + page,
+            url: '/api/private/messages/' + chatToken + '?page=' + page,
             datatype: 'json',
             async: false,
             type: "get",
@@ -224,7 +224,7 @@ $(document).ready(function () {
                     }
                 }
 
-                if ($('#messageArea li').length > 19){
+                if ($('#messageArea li').length > 19) {
                     $("<button class='prev-msg'><span class='arrow up'></span></button>").prependTo(messageArea);
                 }
             },
@@ -234,7 +234,7 @@ $(document).ready(function () {
         });
     }
 
-    $(document).on('click','button.prev-msg',function (e) {
+    $(document).on('click', 'button.prev-msg', function (e) {
 
         let messageElement = $('#messageArea li'),
             firstMsg = $('#messageArea li:first');
@@ -244,7 +244,7 @@ $(document).ready(function () {
         messageArea.scrollTop(firstMsg.offset().top);
     });
 
-    function drawUserInfo(){
+    function drawUserInfo() {
         let header = $('.user');
         let nickName;
         let avatar;

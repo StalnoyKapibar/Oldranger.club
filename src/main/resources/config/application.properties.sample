@@ -60,3 +60,4 @@ springdoc.swagger-ui.path=/api/swagger-ui.html
 
 logging.level.org.springframework=WARN
 logging.level.org.hibernate=ERROR
+logging.level.ru.java.mentor.oldranger.club=DEBUG

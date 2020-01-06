@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -21,6 +22,8 @@ import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
@@ -47,6 +50,8 @@ public class DataInitializer implements CommandLineRunner {
     private DirectionRepository directionRepository;
     private ArticleTagService articleTagService;
     private ArticleService articleService;
+    private MediaService mediaService;
+    private PhotoAlbumService albumService;
 
     @Autowired
     @Lazy
@@ -65,7 +70,9 @@ public class DataInitializer implements CommandLineRunner {
                            WritingBanService writingBanService,
                            DirectionRepository directionRepository,
                            ArticleTagService articleTagService,
-                           ArticleService articleService) {
+                           ArticleService articleService,
+                           MediaService mediaService,
+                           PhotoAlbumService albumService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -79,13 +86,12 @@ public class DataInitializer implements CommandLineRunner {
         this.directionRepository = directionRepository;
         this.articleTagService = articleTagService;
         this.articleService = articleService;
+        this.mediaService = mediaService;
+        this.albumService = albumService;
     }
 
     @Override
     public void run(String... args) throws Exception {
-
-        // Общий чат
-        chatService.createChat(new Chat());
 
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
@@ -114,6 +120,14 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(user);
         userService.save(unverified);
 
+        // Общий чат
+        Chat chat = new Chat();
+        PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
+        photoAlbum.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
+        albumService.save(photoAlbum);
+        chat.setPhotoAlbum(photoAlbum);
+        chatService.createChat(chat);
+
         List<User> users = userService.findAll();
         LocalDateTime localDateTime = LocalDateTime.now();
         for (User iUser : users) {
@@ -129,9 +143,9 @@ public class DataInitializer implements CommandLineRunner {
         blackListService.save(blackList);
 
         //Запрещаем пользователью отправлять личные сообщения
-        writingBanService.save(new WritingBan(user, BanType.ON_PRIVATE_MESS, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
+        writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
 
-        User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleAdmin);
+        User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleUser);
         andrew.setPassword(passwordEncoder.encode("developer"));
         userService.save(andrew);
 
@@ -236,7 +250,7 @@ public class DataInitializer implements CommandLineRunner {
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!"));
+                    "Text news!", false));
         }
     }
 }
