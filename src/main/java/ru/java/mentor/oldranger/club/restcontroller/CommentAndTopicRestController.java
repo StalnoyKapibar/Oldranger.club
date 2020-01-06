@@ -15,13 +15,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -29,6 +32,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -43,6 +47,7 @@ public class CommentAndTopicRestController {
     private SecurityUtilsService securityUtilsService;
     private UserService userService;
     private RoleService roleService;
+    private ImageCommnetService imageCommnetService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -51,7 +56,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
             @ApiResponse(responseCode = "204", description = "invalid topic id")})
-    @GetMapping(value = "/topic/{topicId}", produces = { "application/json" })
+    @GetMapping(value = "/topic/{topicId}", produces = {"application/json"})
     public ResponseEntity<TopicAndCommentsDTO> getTopicAndPageableComments(@PathVariable(value = "topicId") Long topicId,
                                                                            @RequestParam(value = "page", required = false) Integer page,
                                                                            @RequestParam(value = "pos", required = false) Integer position,
@@ -104,13 +109,16 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = { "application/json" })
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments) {
+    @PostMapping(value = "/comment/add", produces = {"application/json"})
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments,
+                                                        @RequestBody(required = false) MultipartFile image1,
+                                                        @RequestBody(required = false) MultipartFile image2) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = userService.findById(messageComments.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
+        List<ImageComment> images = new ArrayList<>();
         if (messageComments.getAnswerID() != 0) {
             Comment answer = commentService.getCommentById(messageComments.getAnswerID());
             comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
@@ -118,9 +126,16 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
         }
 
-        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
-            return ResponseEntity.badRequest().build();
+        if (image1 != null) {
+            ImageComment imageComment = imageCommnetService.createNewImage(image1);
+            images.add(imageComment);
         }
+
+        if (image2 != null) {
+            ImageComment imageComment = imageCommnetService.createNewImage(image2);
+            images.add(imageComment);
+        }
+        comment.setImageComment(images);
         commentService.createComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
@@ -154,11 +169,14 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
     public ResponseEntity<CommentDto> updateComment(@RequestBody JsonSavedMessageComentsEntity messageComments,
-                                                    @RequestParam(value = "commentID") Long commentID) {
+                                                    @RequestParam(value = "commentID") Long commentID,
+                                                    @RequestBody(required = false) MultipartFile image1,
+                                                    @RequestBody(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
+        List<ImageComment> images = new ArrayList<>();
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
 
@@ -174,6 +192,17 @@ public class CommentAndTopicRestController {
         if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.badRequest().build();
         }
+
+        if (image1 != null) {
+            ImageComment imageComment = imageCommnetService.createNewImage(image1);
+            images.add(imageComment);
+        }
+
+        if (image2 != null) {
+            ImageComment imageComment = imageCommnetService.createNewImage(image2);
+            images.add(imageComment);
+        }
+        comment.setImageComment(images);
         commentService.updateComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
