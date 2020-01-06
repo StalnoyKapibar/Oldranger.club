@@ -175,7 +175,6 @@ public class CommentAndTopicRestController {
         if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator||!admin && !moderator && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
-        if (messageComments.getIdUser() == null)
         commentService.updateComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
