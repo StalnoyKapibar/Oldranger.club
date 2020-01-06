@@ -14,15 +14,21 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Value("${upload.location}")
     private String uploadDir;
 
+    @Value("${photoalbums.location}")
+    private String mediaDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // актуально для винды
-        String absolutePath = FileSystems.getDefault().getPath(uploadDir).normalize().toAbsolutePath().toString().replace('\\', '/');
-        String location = "file:///" + absolutePath + "/";
+        String absoluteUploadPath = FileSystems.getDefault().getPath(uploadDir).normalize().toAbsolutePath().toString().replace('\\', '/');
+        String uploadlocation = "file:///" + absoluteUploadPath + "/";
         registry.addResourceHandler("/img/**").
-                addResourceLocations(location);
+                addResourceLocations(uploadlocation);
+
+        String absoluteMediaPath = FileSystems.getDefault().getPath(mediaDir).normalize().toAbsolutePath().toString().replace('\\', '/');
+        String medialocation = "file:///" + absoluteMediaPath + "/";
         registry.addResourceHandler("/img/chat/**").
-                addResourceLocations(location + "chat/");
+                addResourceLocations(medialocation);
     }
 
 

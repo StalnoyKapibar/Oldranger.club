@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
@@ -13,7 +15,9 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
+
 import java.time.LocalDateTime;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,13 +45,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void addArticle(Article article) {
-        articleRepository.save(article);
+    public Page<Article> getArticlesForAnon(Pageable pageable) {
+        return articleRepository.getArticlesForAnon(pageable);
     }
 
     @Override
-    public Article getArticleById(long id) {
-        return articleRepository.findById(id).orElse(null);
+    public void addArticle(Article article) {
+        articleRepository.save(article);
     }
 
     @Override
@@ -104,5 +108,16 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
+      
+    @Override
+    public void deleteArticle(Long id) {
+        articleRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteArticles(List<Long> ids) {
+        articleRepository.deleteAllByIdIn(ids);
+
     }
 }

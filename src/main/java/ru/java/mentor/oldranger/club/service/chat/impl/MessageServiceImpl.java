@@ -16,6 +16,7 @@ import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,13 +33,15 @@ public class MessageServiceImpl implements MessageService {
 
     private MessageRepository messageRepository;
     private ChatService chatService;
+    private PhotoService photoService;
     private String uploadDir;
     private String olderThan;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService) {
+    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
-        uploadDir = "./uploads/chat";
+        this.photoService = photoService;
+        uploadDir = "./media";
         olderThan = "week";
     }
 
@@ -70,8 +73,7 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
-    @Override
-    public void removeMessageById(Long id) {
+    private void removeMessageById(Long id) {
         log.info("Deleting message with id = {}", id);
         try {
             messageRepository.deleteById(id);
@@ -155,12 +157,8 @@ public class MessageServiceImpl implements MessageService {
     private void deleteChatImages(List<String> images) {
         log.info("Deleting list of {} images", images.size());
         images.forEach(img -> {
-            try {
-                Files.deleteIfExists(Paths.get(uploadDir + File.separator + img));
-                log.debug("Image {} deleted", img);
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
+            photoService.deletePhotoByName(img);
+            log.debug("Image {} deleted", img);
         });
         log.info("Images deleted");
     }
@@ -219,7 +217,8 @@ public class MessageServiceImpl implements MessageService {
         if (!isPrivate) {
             log.debug("Getting list of group chat messages to delete");
             try {
-                messages = findAllByChat(chatService.getChatById(1L), false);
+                Chat chat = chatService.getGroupChat();
+                messages = messageRepository.findAllByChat(chat);
                 log.debug("Returned list of {} messages", messages.size());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -238,10 +237,25 @@ public class MessageServiceImpl implements MessageService {
         List<String> images = new ArrayList<>();
         Objects.requireNonNull(messages).forEach(msg -> {
             images.add(msg.getOriginalImg());
-            images.add(msg.getThumbnailImg());
         });
         deleteChatImages(images);
         messages.forEach(msg -> removeMessageById(msg.getId()));
         log.debug("All messages successfully deleted");
+    }
+
+    @Override
+    public void deleteMessage(Long id) {
+        log.debug("Getting message by id for delete");
+        Message message = findMessage(id);
+        List<String> images = new ArrayList<>();
+        images.add(message.getOriginalImg());
+        deleteChatImages(images);
+        removeMessageById(id);
+    }
+
+    @Override
+    public Message findMessage(Long id) {
+        log.debug("Getting message by id");
+        return messageRepository.findById(id).orElseThrow(() -> new RuntimeException("Did not find message by id - " + id));
     }
 }

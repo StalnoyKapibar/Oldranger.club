@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.utils;
 
 import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface SecurityUtilsService {
     boolean isLoggedUserIsUser();
     User getLoggedUser();
     List<Long> getUsersFromSessionRegistry();
+    boolean isAuthorityReachableForLoggedUser(RoleType role);
 }

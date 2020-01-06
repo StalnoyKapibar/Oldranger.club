@@ -7,13 +7,17 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import java.util.List;
 
 public interface PhotoService {
-    Photo save(Long albumId, MultipartFile file);
+    Photo save(PhotoAlbum album, MultipartFile file);
 
     Photo findById(Long id);
 
-    List<Photo> findPhotoByAlbum(PhotoAlbum album);
-
     void deletePhoto(Long id);
 
+    void deletePhotoByName(String name);
+
     Photo update(Photo photo);
+
+    List<Photo> findOldPhoto(PhotoAlbum album);
+
+    List<Photo> findPhotoByAlbum(PhotoAlbum album);
 }

@@ -8,21 +8,25 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 import java.time.LocalDateTime;
-@Deprecated
+
 @Controller
 @AllArgsConstructor
 public class PrivateChatController {
 
     private ChatService chatService;
     private MessageService messageService;
+    private PhotoService photoService;
 
 
     @GetMapping("/private/{id}")
-    public String getChatByUser(){
+    public String getChatByUser() {
         return "chat/privateChat";
     }
 
@@ -37,10 +41,14 @@ public class PrivateChatController {
 
     @MessageMapping("/add/{chatToken}")
     @SendTo("/channel/private/{chatToken}")
-    public Message addUser(@Payload Message chatMessage) { return chatMessage; }
+    public Message addUser(@Payload Message chatMessage) {
+        return chatMessage;
+    }
 
     @MessageMapping("/del/{chatToken}")
     @SendTo("/channel/private/{chatToken}")
-    public Message delUser(@Payload Message chatMessage) { return chatMessage; }
+    public Message delUser(@Payload Message chatMessage) {
+        return chatMessage;
+    }
 
 }
