@@ -1,8 +1,11 @@
 package ru.java.mentor.oldranger.club.model.media;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Data
@@ -22,6 +25,10 @@ public class Photo {
 
     @Column(name = "description")
     private String description;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
+    @Column(name = "upload_photo_date")
+    private LocalDateTime uploadPhotoDate;
 
     @ManyToOne
     PhotoAlbum album;

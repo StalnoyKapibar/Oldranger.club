@@ -15,6 +15,7 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +32,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @NonNull
     private UserService userService;
     @NonNull
-    private PhotoRepository photoRepository;
+    private PhotoService photoService;
     @NonNull
     private MediaService mediaService;
 
@@ -48,10 +49,15 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         log.info("Saving album {}", album);
         PhotoAlbum savedAlbum = null;
         try {
-            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-            User user = userService.getUserByNickName(userName);
-            Media media = mediaService.findMediaByUser(user);
-            album.setMedia(media);
+            String userName = null;
+            if (album.getMedia() == null) {
+                userName = SecurityContextHolder.getContext().getAuthentication().getName();
+                User user = userService.getUserByNickName(userName);
+                Media media = mediaService.findMediaByUser(user);
+                album.setMedia(media);
+            } else {
+                userName = album.getMedia().getUser().getNickName();
+            }
             savedAlbum = albumRepository.save(album);
             File uploadPath = new File(albumsdDir + File.separator + userName + File.separator + "photo_albums" + File.separator + savedAlbum.getId());
             if (!uploadPath.exists()) {
@@ -132,11 +138,25 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    public void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album) {
+        log.debug("Deleting photos from album", album);
+        List<Photo> photoList = null;
+        if (deleteAll) {
+            photoList = photoService.findPhotoByAlbum(album);
+        } else {
+            photoList = photoService.findOldPhoto(album);
+        }
+        for (Photo photo : photoList) {
+            photoService.findById(photo.getId());
+        }
+    }
+
+    @Override
     public List<Photo> getAllPhotos(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
         try {
-            photos = photoRepository.findAllByAlbum(album);
+            photos = photoService.findPhotoByAlbum(album);
             log.debug("Returned list of {} photos", photos.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);

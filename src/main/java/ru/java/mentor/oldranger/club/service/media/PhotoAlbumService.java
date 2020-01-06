@@ -21,4 +21,6 @@ public interface PhotoAlbumService {
 
     PhotoAlbum update(PhotoAlbum album);
 
+    void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album);
+
 }
