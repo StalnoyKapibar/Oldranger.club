@@ -123,7 +123,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         log.info("Updating album with id = {}", album.getId());
         PhotoAlbum savedAlbum = null;
         try {
-            savedAlbum = albumRepository.save(album);
+            savedAlbum = findById(album.getId());
+            savedAlbum.setMedia(album.getMedia());
+            savedAlbum.setTitle(album.getTitle());
+            albumRepository.save(savedAlbum);
             log.info("Album updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
