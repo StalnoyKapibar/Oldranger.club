@@ -2,7 +2,9 @@ package ru.java.mentor.oldranger.club.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.java.mentor.oldranger.club.model.user.Gender;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,6 +22,8 @@ public class ProfileDto {
     private LocalDateTime lastComment;
     private LocalDateTime lastVizit;
     private String avatar;
+    private LocalDate birthday;
+    private Gender gender;
     private boolean owner;
     private boolean isUser;
 }
