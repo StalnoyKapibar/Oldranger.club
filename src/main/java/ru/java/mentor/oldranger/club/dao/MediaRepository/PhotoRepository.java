@@ -13,4 +13,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     @Query(nativeQuery = true, value = "select * from photos where album_id = 1? and upload_photo_date <= 2?")
     List<Photo> findAllByAlbumAndDate(PhotoAlbum album, LocalDateTime date);
+
+    Photo findByOriginal(String original);
 }

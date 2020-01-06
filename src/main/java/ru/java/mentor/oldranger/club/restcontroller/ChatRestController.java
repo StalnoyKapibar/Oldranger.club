@@ -15,13 +15,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
@@ -31,6 +37,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +117,13 @@ public class ChatRestController {
             summary = "Upload image", tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
-                    content = @Content(schema = @Schema(implementation = Map.class)))})
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/image")
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
         Map<String, String> result = new HashMap<>();
         PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
         Photo photo = photoService.save(album, file);
@@ -152,6 +162,29 @@ public class ChatRestController {
         if (user == null) return ResponseEntity.noContent().build();
         messageService.deleteMessages(false, all, null);
         albumService.deleteAlbumPhotos(all, chatService.getGroupChat().getPhotoAlbum());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete chat message",
+            tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "403", description = "User is not logged in")})
+    @DeleteMapping(value = "/messages/{id}")
+    ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
+                                         @PathVariable Long id) {
+        User user = securityUtilsService.getLoggedUser();
+        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR) ||
+                securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
+        if (user == null || !isSender) {
+            if (!isModer) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        }
+        messageService.deleteMessage(id);
         return ResponseEntity.ok().build();
     }
 }

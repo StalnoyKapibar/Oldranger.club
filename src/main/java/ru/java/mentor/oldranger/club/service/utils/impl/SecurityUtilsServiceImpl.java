@@ -14,6 +14,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -58,6 +59,37 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         Collection<? extends GrantedAuthority> reachableGrantedAuthorities = roleHierarchy.getReachableGrantedAuthorities(authorities);
         return reachableGrantedAuthorities.contains(role);
+    }
+
+    @Override
+    public boolean isAuthorityReachableForLoggedUser(RoleType role) {
+        Role userRole;
+        switch (role) {
+            case ROLE_USER: {
+                userRole = new Role("ROLE_USER");
+                userRole.setId(3L);
+            }
+            break;
+            case ROLE_MODERATOR:{
+                userRole = new Role("ROLE_MODERATOR");
+                userRole.setId(2L);
+                break;
+            }
+            case ROLE_ADMIN:{
+                userRole = new Role("ROLE_ADMIN");
+                userRole.setId(1L);
+                break;
+            }
+            default:{
+                userRole = new Role("ROLE_PROSPECT");
+                userRole.setId(4L);
+                break;
+            }
+        }
+
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        Collection<? extends GrantedAuthority> reachableGrantedAuthorities = roleHierarchy.getReachableGrantedAuthorities(authorities);
+        return reachableGrantedAuthorities.contains(userRole);
     }
 
     @Override

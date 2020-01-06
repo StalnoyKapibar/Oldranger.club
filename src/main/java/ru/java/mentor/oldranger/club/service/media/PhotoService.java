@@ -11,11 +11,13 @@ public interface PhotoService {
 
     Photo findById(Long id);
 
-    List<Photo> findPhotoByAlbum(PhotoAlbum album);
-
     void deletePhoto(Long id);
+
+    void deletePhotoByName(String name);
 
     Photo update(Photo photo);
 
     List<Photo> findOldPhoto(PhotoAlbum album);
+
+    List<Photo> findPhotoByAlbum(PhotoAlbum album);
 }

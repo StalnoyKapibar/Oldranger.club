@@ -42,12 +42,16 @@ public class Article {
     @OneToOne
     private PhotoAlbum photoAlbum;
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, PhotoAlbum photoAlbum) {
+    @Column(name = "article_hide", columnDefinition = "TINYINT")
+    private boolean isHideToAnon;
+
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, PhotoAlbum photoAlbum) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
         this.photoAlbum = photoAlbum;
+        this.isHideToAnon = isHideToAnon;
     }
 }
