@@ -126,6 +126,10 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
         }
 
+        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
         if (image1 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image1);
             images.add(imageComment);
