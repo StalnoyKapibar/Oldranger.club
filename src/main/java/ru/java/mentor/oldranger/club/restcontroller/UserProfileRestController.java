@@ -127,6 +127,8 @@ public class UserProfileRestController {
         profile.setSocialFb(updateProfileDto.getSocialFb());
         profile.setSocialTw(updateProfileDto.getSocialTw());
         profile.setSocialVk(updateProfileDto.getSocialVk());
+        profile.setBirthday(updateProfileDto.getBirthday());
+        profile.setGender(updateProfileDto.getGender());
         userService.save(currentUser);
         profile.setUser(currentUser);
         userProfileService.editUserProfile(profile);
