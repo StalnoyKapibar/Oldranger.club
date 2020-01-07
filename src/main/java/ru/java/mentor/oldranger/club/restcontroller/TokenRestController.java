@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,13 +34,12 @@ import java.util.Base64;
 @Tag(name = "Registration token")
 public class TokenRestController {
 
-    private InvitationService invitationService;
-    private UserService userService;
-    private MailService mailService;
-    private SecurityUtilsService securityUtilsService;
-    private PasswordEncoder passwordEncoder;
-    private PasswordsService passwordsService;
-    private RoleService roleService;
+    @NonNull private InvitationService invitationService;
+    @NonNull private UserService userService;
+    @NonNull private MailService mailService;
+    @NonNull private SecurityUtilsService securityUtilsService;
+    @NonNull private PasswordEncoder passwordEncoder;
+    @NonNull private PasswordsService passwordsService;
 
 
     @Value("${server.protocol}")
