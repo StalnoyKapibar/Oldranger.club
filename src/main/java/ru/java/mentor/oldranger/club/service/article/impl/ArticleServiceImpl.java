@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +12,7 @@ import ru.java.mentor.oldranger.club.service.article.ArticleService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -26,8 +26,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllByTag(long tagId) {
-        return articleRepository.findAllByArticleTags_id(tagId);
+    public Page<Article> getAllByTag(long tagId, Pageable pageable) {
+        return articleRepository.findAllByArticleTags_id(tagId, pageable);
     }
 
     @Override

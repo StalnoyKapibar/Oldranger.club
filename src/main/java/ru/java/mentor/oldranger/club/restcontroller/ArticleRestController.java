@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
@@ -21,8 +23,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -34,10 +35,25 @@ public class ArticleRestController {
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
 
-    @GetMapping(value = "/tag/{tag_id}", produces = {"application/json"})
-    public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
-        List<Article> articles = articleService.getAllByTag(tag_id);
-        return ResponseEntity.ok(articles);
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+    @GetMapping(value = "/tag", produces = {"application/json"})
+    public ResponseEntity<Page<Set<Article>>> getAllNewsByTagId(@RequestParam List<Long> tag_id,
+                                                           @RequestParam(value = "page", required = false) Integer page) {
+
+        if (page == null) {
+            page = 0;
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
+        Set<Article> articles = new HashSet<>();
+        for (Long tag : tag_id) {
+            articles.addAll(articleService.getAllByTag(tag, pageable).toSet());
+        }
+        Page<Set<Article>> articlePage = new PageImpl<>(Collections.singletonList(articles), pageable, articles.size());
+        return ResponseEntity.ok(articlePage);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

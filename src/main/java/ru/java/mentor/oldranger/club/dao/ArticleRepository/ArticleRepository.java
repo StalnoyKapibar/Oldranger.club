@@ -1,6 +1,5 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
-import org.hibernate.annotations.Parameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    List<Article> findAllByArticleTags_id(long id);
+    Page<Article> findAllByArticleTags_id(long id, Pageable pageable);
 
     Article findById(long id);
 
