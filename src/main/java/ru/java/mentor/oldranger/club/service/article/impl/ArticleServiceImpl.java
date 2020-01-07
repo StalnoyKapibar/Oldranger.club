@@ -70,7 +70,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleCommentDto conversionCommentToDto(ArticleComment articleComment) {
-        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
+        ArticleCommentDto articleCommentDto;
 
         LocalDateTime replyTime = null;
         String replyNick = null;
@@ -81,15 +81,14 @@ public class ArticleServiceImpl implements ArticleService {
             replyText = articleComment.getAnswerTo().getCommentText();
         }
 
-        articleCommentDto.setArticleId(articleComment.getArticle().getId());
-        articleCommentDto.setAuthor(articleComment.getUser());
-        articleCommentDto.setCommentText(articleComment.getCommentText());
-        articleCommentDto.setPositionInArticle(articleComment.getPositionInArticle());
-        articleCommentDto.setCommentDateTime(articleComment.getDateTime());
-        articleCommentDto.setMessageCount(userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount());
-        articleCommentDto.setReplyDateTime(replyTime);
-        articleCommentDto.setReplyNick(replyNick);
-        articleCommentDto.setReplyText(replyText);
+        articleCommentDto = new ArticleCommentDto(
+                articleComment.getPositionInArticle(),
+                articleComment.getArticle().getId(),
+                articleComment.getUser(),
+                articleComment.getDateTime(),
+                userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount(),
+                replyTime, replyNick, replyText,
+                articleComment.getCommentText());
 
         return articleCommentDto;
     }
