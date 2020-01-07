@@ -1,9 +1,11 @@
 package ru.java.mentor.oldranger.club.dto;
 
 import lombok.*;
+import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,4 +20,5 @@ public class CommentDto {
     private String replyNick;
     private String replyText;
     private String commentText;
+    private List<ImageComment> imageComment;
 }

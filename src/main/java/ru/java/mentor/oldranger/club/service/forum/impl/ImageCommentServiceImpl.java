@@ -28,8 +28,6 @@ public class ImageCommentServiceImpl implements ImageCommnetService {
 
     @NonNull
     private ImageCommentRepository imageCommentRepository;
-    @NonNull
-    private CommentService commentService;
 
     private String uploadDir = "./uploads/imageComment";
 
@@ -41,6 +39,11 @@ public class ImageCommentServiceImpl implements ImageCommnetService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<ImageComment> findAllByCommentId(Long commentId) {
+        return imageCommentRepository.findAllByCommentId(commentId);
     }
 
     public String uploadImage(MultipartFile file) throws IOException {
@@ -71,7 +74,6 @@ public class ImageCommentServiceImpl implements ImageCommnetService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        save(imageComment);
         return imageComment;
     }
 

@@ -46,10 +46,6 @@ public class Comment {
     @Column(name = "text_comment")
     private String commentText;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_imageComment")
-    private List<ImageComment> imageComment;
-
     @Transient
     private boolean pozition;
 

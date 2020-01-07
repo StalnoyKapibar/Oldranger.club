@@ -118,7 +118,6 @@ public class CommentAndTopicRestController {
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = userService.findById(messageComments.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
-        List<ImageComment> images = new ArrayList<>();
         if (messageComments.getAnswerID() != 0) {
             Comment answer = commentService.getCommentById(messageComments.getAnswerID());
             comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
@@ -132,14 +131,15 @@ public class CommentAndTopicRestController {
 
         if (image1 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image1);
-            images.add(imageComment);
+            imageComment.setComment(comment);
+            imageCommnetService.save(imageComment);
         }
 
         if (image2 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image2);
-            images.add(imageComment);
+            imageComment.setComment(comment);
+            imageCommnetService.save(imageComment);
         }
-        comment.setImageComment(images);
         commentService.createComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
@@ -196,18 +196,19 @@ public class CommentAndTopicRestController {
         if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.badRequest().build();
         }
+        commentService.updateComment(comment);
 
         if (image1 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image1);
-            images.add(imageComment);
+            imageComment.setComment(comment);
+            imageCommnetService.save(imageComment);
         }
 
         if (image2 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image2);
-            images.add(imageComment);
+            imageComment.setComment(comment);
+            imageCommnetService.save(imageComment);
         }
-        comment.setImageComment(images);
-        commentService.updateComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
     }
