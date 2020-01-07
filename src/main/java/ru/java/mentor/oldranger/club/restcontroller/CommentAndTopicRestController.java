@@ -28,6 +28,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -105,8 +106,9 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = { "application/json" })
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments) {
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody @Valid JsonSavedMessageComentsEntity messageComments) {
         Comment comment;
+        //CommentService.validateComment(comment.commentText);
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = userService.findById(messageComments.getIdUser());
