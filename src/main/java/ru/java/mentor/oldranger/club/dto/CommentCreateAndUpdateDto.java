@@ -1,9 +1,9 @@
-package ru.java.mentor.oldranger.club.model.jsonEntity;
+package ru.java.mentor.oldranger.club.dto;
 
 import lombok.Data;
 
 @Data
-public class JsonSavedMessageComentsEntity {
+public class CommentCreateAndUpdateDto {
 
     private Long idTopic;
     private Long  idUser ;

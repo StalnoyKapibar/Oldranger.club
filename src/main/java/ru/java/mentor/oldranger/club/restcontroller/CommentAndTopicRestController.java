@@ -21,7 +21,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
+import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -110,7 +110,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody CommentCreateAndUpdateDto messageComments,
                                                         @RequestBody(required = false) MultipartFile image1,
                                                         @RequestBody(required = false) MultipartFile image2) {
         Comment comment;
@@ -172,7 +172,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
-    public ResponseEntity<CommentDto> updateComment(@RequestBody JsonSavedMessageComentsEntity messageComments,
+    public ResponseEntity<CommentDto> updateComment(@RequestBody CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestBody(required = false) MultipartFile image1,
                                                     @RequestBody(required = false) MultipartFile image2) {
