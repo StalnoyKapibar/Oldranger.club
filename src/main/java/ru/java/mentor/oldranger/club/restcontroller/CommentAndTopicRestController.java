@@ -110,9 +110,9 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody CommentCreateAndUpdateDto messageComments,
-                                                        @RequestBody(required = false) MultipartFile image1,
-                                                        @RequestBody(required = false) MultipartFile image2) {
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody(required = false) MultipartFile image1,
+                                                        @RequestBody(required = false) MultipartFile image2,
+                                                        @RequestBody CommentCreateAndUpdateDto messageComments) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
@@ -172,10 +172,10 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
-    public ResponseEntity<CommentDto> updateComment(@RequestBody CommentCreateAndUpdateDto messageComments,
-                                                    @RequestParam(value = "commentID") Long commentID,
-                                                    @RequestBody(required = false) MultipartFile image1,
-                                                    @RequestBody(required = false) MultipartFile image2) {
+    public ResponseEntity<CommentDto> updateComment(@RequestBody(required = false) MultipartFile image1,
+                                                    @RequestBody(required = false) MultipartFile image2,
+                                                    @RequestBody CommentCreateAndUpdateDto messageComments,
+                                                    @RequestParam(value = "commentID") Long commentID) {
 
         Comment comment = commentService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();

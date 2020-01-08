@@ -63,7 +63,7 @@ public class Comment {
                 "id=" + id +
                 ", topic=" + topic +
                 ", user=" + user +
-                ", answerTo=" + answerTo +
+                ", answerTo=" + ((answerTo == null) ? "NULL" : answerTo) +
                 ", dateTime=" + dateTime +
                 ", commentText='" + commentText + '\'' +
                 ", pozition=" + pozition +
