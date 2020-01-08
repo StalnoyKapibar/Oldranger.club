@@ -35,6 +35,9 @@ public class Article {
     @Column(name = "article_date")
     private LocalDateTime date;
 
+    @Column(name = "comment_count")
+    private long commentCount;
+
     @Column(name = "article_text")
     private String text;
 
