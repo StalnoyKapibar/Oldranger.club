@@ -39,21 +39,22 @@ public class ArticleRestController {
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "204", description = "Articles not found")})
     @GetMapping(value = "/tag", produces = {"application/json"})
-    public ResponseEntity<Page<Set<Article>>> getAllNewsByTagId(@RequestParam List<Long> tag_id,
-                                                           @RequestParam(value = "page", required = false) Integer page) {
+    public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
+                                                               @RequestParam(value = "page", required = false) Integer page) {
 
         if (page == null) {
             page = 0;
         }
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
-        Set<Article> articles = new HashSet<>();
-        for (Long tag : tag_id) {
-            articles.addAll(articleService.getAllByTag(tag, pageable).toSet());
+
+        if (tag_id.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
-        Page<Set<Article>> articlePage = new PageImpl<>(Collections.singletonList(articles), pageable, articles.size());
-        return ResponseEntity.ok(articlePage);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+        Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
+        return ResponseEntity.ok(articles);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

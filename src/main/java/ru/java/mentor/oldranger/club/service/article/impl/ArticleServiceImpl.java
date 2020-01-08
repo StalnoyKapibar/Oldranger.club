@@ -26,8 +26,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Page<Article> getAllByTag(long tagId, Pageable pageable) {
-        return articleRepository.findAllByArticleTags_id(tagId, pageable);
+    public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
+        return articleRepository.findDistinctByArticleTagsIn(tagId, pageable);
     }
 
     @Override
