@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.model.chat;
 
 import lombok.*;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -23,6 +24,9 @@ public class Chat {
 
     @Column(name = "token")
     private String token;
+
+    @OneToOne
+    private PhotoAlbum photoAlbum;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "chat_user",

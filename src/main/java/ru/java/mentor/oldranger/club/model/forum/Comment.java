@@ -4,9 +4,11 @@ import lombok.*;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -42,6 +44,7 @@ public class Comment {
     private LocalDateTime dateTime;
 
     @Field
+    @Type(type = "materialized_clob")
     @Column(name = "text_comment")
     private String commentText;
 

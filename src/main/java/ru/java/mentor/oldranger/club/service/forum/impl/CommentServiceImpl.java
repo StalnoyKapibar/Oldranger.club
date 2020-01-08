@@ -13,6 +13,7 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
+import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -30,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
+    private ImageCommnetService imageCommnetService;
 
     @Override
     public void createComment(Comment comment) {
@@ -135,6 +137,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setReplyNick(replyNick);
             commentDto.setReplyText(replyText);
             commentDto.setCommentText(comment.getCommentText());
+            commentDto.setImageComment(imageCommnetService.findAllByCommentId(comment.getId()));
             log.debug("Comment dto assembled");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,14 +34,13 @@ import java.util.Base64;
 @Tag(name = "Registration token")
 public class TokenRestController {
 
-    private InvitationService invitationService;
-    private UserService userService;
-    private MailService mailService;
-    private SecurityUtilsService securityUtilsService;
-    private PasswordEncoder passwordEncoder;
-    private PasswordsService passwordsService;
-    private RoleService roleService;
 
+    @NonNull private InvitationService invitationService;
+    @NonNull private UserService userService;
+    @NonNull private MailService mailService;
+    @NonNull private SecurityUtilsService securityUtilsService;
+    @NonNull private PasswordEncoder passwordEncoder;
+    @NonNull private PasswordsService passwordsService;
 
     @Value("${server.protocol}")
     private String protocol;
@@ -52,12 +52,12 @@ public class TokenRestController {
     private String port;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Save invitation token", tags = { "Registration token" })
+            summary = "Save invitation token", tags = {"Registration token"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Invitation key",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "403", description = "User is not logged in")})
-    @PostMapping(value = "/invite", produces = { "application/json" })
+    @PostMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<String> saveInvitationToken() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
@@ -74,13 +74,13 @@ public class TokenRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Send invite by mail", tags = { "Registration token" })
+            summary = "Send invite by mail", tags = {"Registration token"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Status, 1 - success, 0 - failed",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "403", description = "User is not logged in")})
-    @PostMapping(value = "/invite/bymail", produces = { "application/json" })
-    public ResponseEntity<String> sendInviteByMail(@Parameter(description="Email")
+    @PostMapping(value = "/invite/bymail", produces = {"application/json"})
+    public ResponseEntity<String> sendInviteByMail(@Parameter(description = "Email")
                                                    @RequestBody String mail) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
@@ -97,12 +97,12 @@ public class TokenRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Send confirm by mail", tags = { "Registration token" })
+            summary = "Send confirm by mail", tags = {"Registration token"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Status, 1 - success, 0 - failed",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "User with this login or email already exists")})
-    @PostMapping(value = "/confirm/bymail", produces = { "application/json" })
+    @PostMapping(value = "/confirm/bymail", produces = {"application/json"})
     public ResponseEntity<String> sendConfirmByMail(@Parameter(description = "New user data") @RequestBody RegistrationUserDto registrationUserDto) {
         if (userService.getUserByEmail(registrationUserDto.getEmail()) != null ||
                 userService.getUserByNickName(registrationUserDto.getNickName()) != null) {

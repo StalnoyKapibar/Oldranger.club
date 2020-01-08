@@ -15,18 +15,29 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +49,8 @@ import java.util.Map;
 public class ChatRestController {
 
     private ChatService chatService;
+    private PhotoService photoService;
+    private PhotoAlbumService albumService;
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
     private WritingBanService writingBanService;
@@ -75,7 +88,7 @@ public class ChatRestController {
                     content = @Content(schema = @Schema(implementation = Boolean.class)))})
     @GetMapping("/isForbidden")
     ResponseEntity<Boolean> isForbidden() {
-        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_PRIVATE_MESS);
+        boolean isForbidden = writingBanService.isForbidden(securityUtilsService.getLoggedUser(), BanType.ON_CHAT);
         return ResponseEntity.ok(isForbidden);
     }
 
@@ -100,17 +113,78 @@ public class ChatRestController {
         }
     }
 
-
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Upload image", tags = {"Chat"})
+            summary = "Upload image", tags = {"Group Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
-                    content = @Content(schema = @Schema(implementation = Map.class)))})
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/image")
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
-        Map<String, String> result = messageService.processImage(file);
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
+        Map<String, String> result = new HashMap<>();
+        PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
+        Photo photo = photoService.save(album, file);
+        result.put("originalImg", photo.getOriginal());
+        result.put("thumbnailImg", photo.getSmall());
         return ResponseEntity.ok(result);
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all photos from chat", tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @GetMapping(value = "/photos")
+    ResponseEntity<List<Photo>> getChatPhotos() {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
+        Chat chat = chatService.getGroupChat();
+        PhotoAlbum album = chat.getPhotoAlbum();
+        return ResponseEntity.ok(albumService.getAllPhotos(album));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete chat messages",
+            description = "Delete all chat messages if param all=true, or else delete messages older than month",
+            tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @DeleteMapping(value = "/messages")
+    ResponseEntity<String> deleteMessages(@Parameter(description = "Delete all messages or messages that older than month", required = true)
+                                          @RequestParam(value = "all") Boolean all) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) return ResponseEntity.noContent().build();
+        messageService.deleteMessages(false, all, null);
+        albumService.deleteAlbumPhotos(all, chatService.getGroupChat().getPhotoAlbum());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete chat message",
+            tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "403", description = "User is not logged in")})
+    @DeleteMapping(value = "/messages/{id}")
+    ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
+                                         @PathVariable Long id) {
+        User user = securityUtilsService.getLoggedUser();
+        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR) ||
+                securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
+        if (user == null || !isSender) {
+            if (!isModer) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        }
+        messageService.deleteMessage(id);
+        return ResponseEntity.ok().build();
+    }
 }

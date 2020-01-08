@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 @AllArgsConstructor
@@ -12,10 +13,11 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 public class PhotoRestController {
 
     private PhotoService service;
+    private PhotoAlbumService albumService;
 
     @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
     public Photo savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {
-        return service.save(Long.parseLong(albumId), photo);
+        return service.save(albumService.findById(Long.parseLong(albumId)), photo);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
