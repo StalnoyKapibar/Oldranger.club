@@ -12,7 +12,7 @@ public class CommentCreateAndUpdateDto {
 
     @Override
     public String toString() {
-        return "JsonSavedMessageComentsEntity{" +
+        return "CommentCreateAndUpdateDto{" +
                 "idTopic=" + idTopic +
                 ", text='" + text + '\'' +
                 ", answerID='" + answerID + '\'' +
