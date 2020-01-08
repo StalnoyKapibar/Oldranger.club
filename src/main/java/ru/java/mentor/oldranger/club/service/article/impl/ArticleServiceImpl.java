@@ -107,6 +107,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
+    }
       
     @Override
     public void deleteArticle(Long id) {
