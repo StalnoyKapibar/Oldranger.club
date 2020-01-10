@@ -108,11 +108,11 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                   description = "Error adding comment")})
+                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments,
-                                                        @RequestBody(required = false) MultipartFile image1,
-                                                        @RequestBody(required = false) MultipartFile image2) {
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart JsonSavedMessageComentsEntity messageComments,
+                                                        @RequestPart(required = false) MultipartFile image1,
+                                                        @RequestPart(required = false) MultipartFile image2) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
@@ -128,6 +128,7 @@ public class CommentAndTopicRestController {
         if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
+        commentService.createComment(comment);
 
         if (image1 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image1);
@@ -140,7 +141,6 @@ public class CommentAndTopicRestController {
             imageComment.setComment(comment);
             imageCommnetService.save(imageComment);
         }
-        commentService.createComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
     }
@@ -172,10 +172,10 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
-    public ResponseEntity<CommentDto> updateComment(@RequestBody JsonSavedMessageComentsEntity messageComments,
+    public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
-                                                    @RequestBody(required = false) MultipartFile image1,
-                                                    @RequestBody(required = false) MultipartFile image2) {
+                                                    @RequestPart(required = false) MultipartFile image1,
+                                                    @RequestPart(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
