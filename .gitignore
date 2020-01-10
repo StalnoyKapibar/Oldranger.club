@@ -50,3 +50,4 @@ media/*
 ### Indices ###
 /data/index/**
 /sqldata/**
+/data01/**
