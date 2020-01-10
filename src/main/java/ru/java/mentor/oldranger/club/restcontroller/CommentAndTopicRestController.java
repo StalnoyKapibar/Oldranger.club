@@ -125,7 +125,7 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
         }
 
-        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
+        if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -178,6 +178,7 @@ public class CommentAndTopicRestController {
                                                     @RequestBody(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
+        Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
         List<ImageComment> images = new ArrayList<>();
@@ -193,7 +194,7 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
