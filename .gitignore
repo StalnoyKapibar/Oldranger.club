@@ -49,3 +49,4 @@ media/*
 
 ### Indices ###
 /data/index/**
+/sqldata/**
