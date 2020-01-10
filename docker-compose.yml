@@ -12,4 +12,34 @@ services:
     volumes:
       - ./sqldata:/var/lib/mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
+  Kibana:
+    image: kibana:7.5.1
+    ports:
+    - "5601:5601"
+    environment:
+      - "ELASTICSEARCH_URL=http://es01:9200"
+    networks:
+      - dock-log
+    depends_on:
+      - elasticsearch
+  elasticsearch:
+    image: elasticsearch:7.5.1
+    restart: always
+    container_name: es01
+    environment:
+     - discovery.type=single-node
+    ulimits:
+     memlock:
+        soft: -1
+        hard: -1
+    volumes:
+        - ./data01:/usr/share/elasticsearch/data
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    networks:
+      - dock-log
+networks:
+  dock-log:
+    driver: bridge
