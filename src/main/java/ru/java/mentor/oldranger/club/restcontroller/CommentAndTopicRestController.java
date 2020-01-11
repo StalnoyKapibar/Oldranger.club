@@ -31,6 +31,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,9 +109,9 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Error adding comment")})
+                   description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart JsonSavedMessageComentsEntity messageComments,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
         Comment comment;
@@ -128,7 +129,6 @@ public class CommentAndTopicRestController {
         if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
-        commentService.createComment(comment);
 
         if (image1 != null) {
             ImageComment imageComment = imageCommnetService.createNewImage(image1);
@@ -141,6 +141,7 @@ public class CommentAndTopicRestController {
             imageComment.setComment(comment);
             imageCommnetService.save(imageComment);
         }
+        commentService.createComment(comment);
         CommentDto commentDto = commentService.assembleCommentDto(comment);
         return ResponseEntity.ok(commentDto);
     }
