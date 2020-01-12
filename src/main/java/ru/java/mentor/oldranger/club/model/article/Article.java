@@ -5,6 +5,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -44,12 +45,22 @@ public class Article {
     @Column(name = "article_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon) {
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.EAGER)
+    @JoinTable(name = "like_users",
+            joinColumns = { @JoinColumn(name = "article_id") },
+            inverseJoinColumns = { @JoinColumn(name = "user_id") })
+    private Set<User> likes;
+
+
+
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, Set<User> likes) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
         this.isHideToAnon = isHideToAnon;
+        this.likes = likes;
     }
+
 }

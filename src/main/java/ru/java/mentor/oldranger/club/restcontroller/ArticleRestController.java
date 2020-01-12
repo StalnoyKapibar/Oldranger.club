@@ -21,6 +21,8 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +42,13 @@ public class ArticleRestController {
         return ResponseEntity.ok(articles);
     }
 
+    ////////////////
+    @GetMapping(value = "/getAll", produces = {"application/json"})
+    public ResponseEntity<List<Article>> getAllArticle() {
+        List<Article> articles = articleService.getAllArticles();
+        return ResponseEntity.ok(articles);
+    }
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add article", description = "Add new article", tags = {"Article"})
     @ApiResponses(value = {
@@ -55,7 +64,8 @@ public class ArticleRestController {
         if (tagsArt.size() == 0) {
             return ResponseEntity.noContent().build();
         }
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon);
+        Set<User> like = new HashSet<>();
+        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon, like);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }

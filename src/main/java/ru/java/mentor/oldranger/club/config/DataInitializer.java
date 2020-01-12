@@ -231,6 +231,7 @@ public class DataInitializer implements CommandLineRunner {
                     "Тестовое сообщение " + i));
         }
 
+        Set<User> like = new HashSet<>();
         for (int i = 1; i < 12; i++) {
             User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
@@ -245,12 +246,15 @@ public class DataInitializer implements CommandLineRunner {
         articleTagService.addTag(newsTag2);
         articleTagService.addTag(newsTag3);
 
+
+
         ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
         for (int i = 1; i < 11; i++) {
+
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!", false));
+                    "Text news!", false, like));
         }
     }
 }
