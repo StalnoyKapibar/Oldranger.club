@@ -45,7 +45,7 @@ public class Article {
     @Column(name = "article_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.LAZY)
     @JoinTable(name = "like_users",
             joinColumns = { @JoinColumn(name = "article_id") },
             inverseJoinColumns = { @JoinColumn(name = "user_id") })
