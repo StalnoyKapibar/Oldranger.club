@@ -47,7 +47,7 @@ public class ArticleLikeUsersRestController {
             article.setLikes(likes);
             articleService.addArticle(article);
         }
-        return ResponseEntity.ok(article.getLikes());
+        return ResponseEntity.ok(likes);
     }
 
 }
