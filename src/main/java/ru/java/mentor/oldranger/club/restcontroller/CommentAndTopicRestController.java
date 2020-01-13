@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +70,10 @@ public class CommentAndTopicRestController {
             return ResponseEntity.noContent().build();
         }
 
+        if (currentUser == null && (topic.isHideToAnon() || topic.getSubsection().isHideToAnon())) {
+            return ResponseEntity.badRequest().build();
+        }
+
         if (limit == null) {
             limit = 10;
         }
@@ -76,12 +81,11 @@ public class CommentAndTopicRestController {
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
 
-        if (position != null) {
-            page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
-            pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
+        if (position == null) {
+            position = 0;
         }
 
-        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position);
         TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 
