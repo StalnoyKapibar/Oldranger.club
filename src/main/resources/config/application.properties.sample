@@ -57,6 +57,8 @@ upload.small=100
 # photo sizes
 media.medium=500
 media.small=250
+#articleComment
+articleComment.length=4000
 
 springdoc.api-docs.path=/api/api-docs
 springdoc.swagger-ui.path=/api/swagger-ui.html
