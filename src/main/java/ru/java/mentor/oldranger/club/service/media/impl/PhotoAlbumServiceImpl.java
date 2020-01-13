@@ -104,6 +104,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             File dir = new File(albumsdDir + File.separator + userName
                     + File.separator + "photo_albums" + File.separator + id);
             FileSystemUtils.deleteRecursively(dir);
+            deleteAlbumPhotos(true, albumRepository.findById(id).orElseThrow(() -> new RuntimeException("Did not find album by id - " + id)));
             albumRepository.deleteById(id);
             log.debug("Album deleted");
         } catch (Exception e) {

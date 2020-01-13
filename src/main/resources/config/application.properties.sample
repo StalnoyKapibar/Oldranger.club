@@ -51,6 +51,7 @@ spring.servlet.multipart.max-request-size=10MB
 upload.location=./uploads
 # photoalbums create location
 photoalbums.location=./media/
+
 # avatar sizes
 upload.medium=500
 upload.small=100
