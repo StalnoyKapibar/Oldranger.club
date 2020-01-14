@@ -184,6 +184,7 @@ public class CommentAndTopicRestController {
         List<ImageComment> images = new ArrayList<>();
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7))>=0;
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(messageComments.getText());
@@ -194,7 +195,7 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
