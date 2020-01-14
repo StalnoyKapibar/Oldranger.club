@@ -110,7 +110,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = {"application/json"})
+    @PostMapping(value = "/comment/add", produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
@@ -172,7 +172,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
-    @PutMapping(value = "/comment/update")
+    @PutMapping(value = "/comment/update" ,produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
