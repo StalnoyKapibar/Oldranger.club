@@ -115,7 +115,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody JsonSavedMessageComentsEntity messageComments,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
         Comment comment;
