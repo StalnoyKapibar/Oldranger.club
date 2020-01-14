@@ -110,7 +110,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = {"application/json"})
+    @PostMapping(value = "/comment/add", produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
@@ -126,7 +126,7 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
         }
 
-        if (user.getId() == null && !currentUser.getId().equals(user.getId())) {
+        if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -172,13 +172,14 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
-    @PutMapping(value = "/comment/update")
+    @PutMapping(value = "/comment/update" ,produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
+        Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
         List<ImageComment> images = new ArrayList<>();
@@ -195,7 +196,8 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator||!admin && !moderator && !allowedEditingTime) {
+
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
