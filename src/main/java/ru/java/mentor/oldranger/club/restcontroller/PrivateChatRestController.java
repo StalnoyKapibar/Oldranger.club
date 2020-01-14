@@ -213,18 +213,16 @@ public class PrivateChatRestController {
     public ResponseEntity<Message> editMessage(@PathVariable("chatToken") String chatToken,
                                                @RequestBody Message chatMessage) {
 
-        Chat chat = chatService.getChatByToken(chatToken);
         Message message = messageService.findMessage(chatMessage.getId());
         User user = userService.getUserByNickName(message.getSender());
         User currentUser = securityUtilsService.getLoggedUser();
         long hours = message.getMessageDate().until(LocalDateTime.now(), ChronoUnit.HOURS);
 
-        message.setChat(chat);
         message.setReplyTo(chatMessage.getReplyTo());
         message.setText(chatMessage.getText());
         message.setEditMessageDate(LocalDateTime.now());
 
-        if (hours > 23 || !currentUser.equals(user)) {
+        if (!chatToken.equals(message.getChat().getToken()) || hours > 23 || !currentUser.equals(user)) {
             return ResponseEntity.badRequest().build();
         }
         messageService.editMessage(message);
