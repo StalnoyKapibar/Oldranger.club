@@ -114,7 +114,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                     description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = {"multipart/form-data"})
+    @PostMapping(value = "/comment/add")
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestParam("idTopic") Long idTopic,
                                                         @RequestParam("idUser") Long idUser,
                                                         @RequestParam("answerId") Long answerID,
