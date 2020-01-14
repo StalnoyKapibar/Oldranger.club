@@ -114,28 +114,20 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                     description = "Error adding comment")})
-    @PostMapping(value = "/comment/add")
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestParam("idTopic") Long idTopic,
-                                                        @RequestParam("idUser") Long idUser,
-                                                        @RequestParam("answerId") Long answerID,
-                                                        @RequestParam(value = "image1", required = false) MultipartFile image1,
-                                                        @RequestParam(value = "image2", required = false) MultipartFile image2,
-                                                        @RequestBody String message) {
+    @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid JsonSavedMessageComentsEntity messageComentsEntity,
+                                                        @RequestPart(required = false) MultipartFile image1,
+                                                        @RequestPart(required = false) MultipartFile image2)   {
         Comment comment;
-        JsonSavedMessageComentsEntity messageComments = new JsonSavedMessageComentsEntity();
-        messageComments.setAnswerID(answerID);
-        messageComments.setIdTopic(idTopic);
-        messageComments.setIdUser(idUser);
-        messageComments.setText(message);
         User currentUser = securityUtilsService.getLoggedUser();
-        Topic topic = topicService.findById(messageComments.getIdTopic());
-        User user = userService.findById(messageComments.getIdUser());
+        Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
+        User user = userService.findById(messageComentsEntity.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
-        if (messageComments.getAnswerID() != 0) {
-            Comment answer = commentService.getCommentById(messageComments.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
+        if (messageComentsEntity.getAnswerID() != 0) {
+            Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, messageComentsEntity.getText());
         } else {
-            comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
+            comment = new Comment(topic, user, null, localDateTime, messageComentsEntity.getText());
         }
 
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId())) {
