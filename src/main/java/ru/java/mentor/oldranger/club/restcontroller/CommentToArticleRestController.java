@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
-import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
@@ -44,7 +43,11 @@ public class CommentToArticleRestController {
             @ApiResponse(responseCode = "400",
                     description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestBody ReceivedCommentArticleDto receivedCommentDto) {
+    public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
+                                                                 @RequestParam("idUser") Long idUser,
+                                                                 @RequestParam("answerId") Long answerId,
+                                                                 @RequestBody String commentText) {
+        ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);
         ArticleComment articleComment;
 
         User currentUser = securityUtilsService.getLoggedUser();
@@ -73,13 +76,20 @@ public class CommentToArticleRestController {
                     content = @Content(schema = @Schema(implementation = ArticleCommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", produces = {"application/json"})
-    public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestBody ReceivedCommentArticleDto commentArticleDto,
-                                                                  @RequestParam(value = "commentID") Long id) {
+    public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestParam("commentID") Long commentID,
+                                                                  @RequestParam("idArticle") Long idArticle,
+                                                                  @RequestParam("idUser") Long idUser,
+                                                                  @RequestParam("answerId") Long answerId,
+                                                                  @RequestBody String commentText) {
 
-        ArticleComment articleComment = articleService.getCommentById(id);
+        ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);
+        ArticleComment articleComment = articleService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
+
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
+        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(articleComment.getDateTime().plusDays(7)) >= 0;
 
         articleComment.setArticle(articleService.getArticleById(commentArticleDto.getIdArticle()));
         articleComment.setCommentText(commentArticleDto.getCommentText());
@@ -90,7 +100,7 @@ public class CommentToArticleRestController {
             articleComment.setAnswerTo(null);
         }
 
-        if (commentArticleDto.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin) {
+        if (commentArticleDto.getIdUser() == null || !currentUser.getId().equals(user.getId()) && (!admin || !moderator) || (!admin || !moderator) && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
 
