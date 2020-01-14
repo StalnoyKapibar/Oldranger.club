@@ -54,11 +54,11 @@ public class ArticleTagRestController {
     @PostMapping(value = "")
     public ResponseEntity<ArticleTag> createTag(@RequestParam("id") long id,
                                                 @RequestParam("name") String name) {
-        ArticleTag articleTag = new ArticleTag(id, name);
-        articleTagService.addTag(articleTag);
         if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
             return ResponseEntity.noContent().build();
         }
+        ArticleTag articleTag = new ArticleTag(id, name);
+        articleTagService.addTag(articleTag);
         return ResponseEntity.ok(articleTag);
     }
 
