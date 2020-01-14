@@ -27,12 +27,12 @@ public class Subsection {
     private Section section;
 
     @Column(name = "is_hide", columnDefinition = "TINYINT")
-    private boolean isHideToAnon;
+    private boolean hideToAnon;
 
-    public Subsection(String name, int position, Section section, boolean isHideToAnon) {
+    public Subsection(String name, int position, Section section, boolean hideToAnon) {
         this.name = name;
         this.position = position;
         this.section = section;
-        this.isHideToAnon = isHideToAnon;
+        this.hideToAnon = hideToAnon;
     }
 }

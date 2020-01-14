@@ -40,7 +40,7 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
     }
 
     @Override
-    public void swapSubsectons(Map<Long, List<String>> sectionsAndSubsectionsIds) {
+    public void swapSubsections(Map<Long, List<String>> sectionsAndSubsectionsIds) {
         // клиент посылает это: {"1":["3.7","1.1","1.2"],"3":["3.5","3.6"]}
         // {"section_id":["section_id.subsection_id","section_id.subsection_id" ......
         for (Map.Entry<Long, List<String>> pair : sectionsAndSubsectionsIds.entrySet()) {
@@ -55,12 +55,6 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
                 subsectionRepository.save(subsection);
             }
         }
-    }
-
-    @Override
-    public Subsection getSubsectionById(Long id) {
-        Subsection subsection = subsectionRepository.findById(id).get();
-        return subsection;
     }
 
     private List<SectionsAndSubsectionsDto> combineListOfSectionsAndSubsections(List<Section> sections, List<Subsection> subsections) {

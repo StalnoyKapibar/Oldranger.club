@@ -24,11 +24,11 @@ public class Section {
     private int position;
 
     @Column(name = "is_hide", columnDefinition = "TINYINT")
-    private boolean isHideToAnon;
+    private boolean hideToAnon;
 
-    public Section(String name, int position, boolean isHideToAnon) {
+    public Section(String name, int position, boolean hideToAnon) {
         this.name = name;
         this.position = position;
-        this.isHideToAnon = isHideToAnon;
+        this.hideToAnon = hideToAnon;
     }
 }

@@ -9,9 +9,17 @@ public interface SectionService {
 
     void addSection(Section section);
 
-    Optional<Section> getById(long id);
+    Optional<Section> findById(long id);
 
-    List<Section> getAllSections();
+    List<Section> getAll();
 
-    List<Section> getAllSectionsForAnon();
+    List<Section> getAllForAnon();
+
+    void delete(Section section);
+
+    Section update(Section section);
+
+    long countAllByName(String name);
+
+    long countAllByPosition(int position);
 }

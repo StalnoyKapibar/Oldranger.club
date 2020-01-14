@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
+import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -26,6 +28,7 @@ import java.util.Map;
 public class SectionsAndSubsectionsRestController {
 
     private SectionsAndSubsectionsService sectionsAndSubsectionsService;
+    private SubsectionService subsectionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get all SectionsAndSubsectionsDto", tags = { "Sections and subsections" })
@@ -55,23 +58,7 @@ public class SectionsAndSubsectionsRestController {
     @ApiResponses(value = { @ApiResponse(responseCode = "200") })
     @PatchMapping(value = "/swapsubsections", produces = { "application/json" })
     public ResponseEntity swapSubsections(@Parameter(description = "Each section contains several subsections (sectionId:subsectionIdList)")  @RequestBody Map<Long, List<String>> sectionsAndSubsectionsIds) {
-        sectionsAndSubsectionsService.swapSubsectons(sectionsAndSubsectionsIds);
+        sectionsAndSubsectionsService.swapSubsections(sectionsAndSubsectionsIds);
         return ResponseEntity.ok().build();
     }
-
-    @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get a subsection by Id", tags = { "Sections and subsections" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Subsection.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @GetMapping(value = "/getsubsection/{subsectionId}", produces = { "application/json" })
-    public ResponseEntity<Subsection> getSubsectionById(@Parameter(description = "id of subsection ", example = "1") @PathVariable Long subsectionId) {
-        Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
-        if ((subsection == null && subsection.getId() == null) ||subsection.isHideToAnon()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(subsection);
-    }
-
 }

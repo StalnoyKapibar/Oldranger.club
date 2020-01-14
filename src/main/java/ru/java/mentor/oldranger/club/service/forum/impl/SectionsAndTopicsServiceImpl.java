@@ -41,9 +41,9 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         Collection<? extends GrantedAuthority> reachableGrantedAuthorities = roleHierarchy.getReachableGrantedAuthorities(authorities);
         if (reachableGrantedAuthorities.contains(new Role("ROLE_USER"))) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAllSections(), topicService.getActualTopicsLimit10BySection(), user);
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAll(), topicService.getActualTopicsLimit10BySection(), user);
         } else {
-            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllSectionsForAnon(), topicService.getActualTopicsLimit10BySectionForAnon());
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllForAnon(), topicService.getActualTopicsLimit10BySectionForAnon());
         }
         return sectionsAndTopicsDtos;
     }
@@ -109,14 +109,14 @@ public class SectionsAndTopicsServiceImpl implements SectionsAndTopicsService {
         List<Topic> topics = getTopicsByQuery(query, searchBy);
         if (reachableGrantedAuthorities.contains(new Role("ROLE_USER"))) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAllSections(), topics, user);
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopicsSortSubscriptionsFirst(sectionService.getAll(), topics, user);
         } else {
             List<Topic> topicsForAnon = new ArrayList<>();
             for (Topic topic : topics) {
                 if (!topic.isHideToAnon())
                     topicsForAnon.add(topic);
             }
-            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllSectionsForAnon(), topicsForAnon);
+            sectionsAndTopicsDtos = combineListOfSectionsAndTopics(sectionService.getAllForAnon(), topicsForAnon);
         }
         sectionsAndTopicsDtos.removeIf(sectionsAndTopicsDto -> sectionsAndTopicsDto.getTopics().isEmpty());
         return sectionsAndTopicsDtos;

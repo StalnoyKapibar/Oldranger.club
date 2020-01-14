@@ -8,5 +8,9 @@ import java.util.List;
 
 public interface SectionRepository extends JpaRepository<Section, Long> {
 
-    List<Section> getAllByIsHideToAnonIsFalse();
+    List<Section> getAllByHideToAnonIsFalse();
+
+    long countAllByPosition(int position);
+
+    long countAllByName(String name);
 }
