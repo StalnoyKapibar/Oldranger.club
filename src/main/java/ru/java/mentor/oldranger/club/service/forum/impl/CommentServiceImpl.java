@@ -107,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
             if (list.size() != 0) {
                  dtoList = list.subList(
                         Math.min(position, list.size() - 1),
-                        Math.min((position + pageable.getPageSize()), list.size()))
+                        Math.min((position + pageable.getPageSize()), list.size() - 1))
                         .stream().map(this::assembleCommentDto).collect(Collectors.toList());
             } else {
                 dtoList = Collections.emptyList();
