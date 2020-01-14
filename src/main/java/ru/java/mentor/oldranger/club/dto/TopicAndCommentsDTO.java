@@ -4,8 +4,6 @@ import lombok.*;
 import org.springframework.data.domain.Page;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

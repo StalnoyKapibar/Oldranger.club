@@ -21,7 +21,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
+import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -31,6 +31,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,9 +111,9 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestBody(required = false) MultipartFile image1,
-                                                        @RequestBody(required = false) MultipartFile image2,
-                                                        @RequestBody CommentCreateAndUpdateDto messageComments) {
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
+                                                        @RequestPart(required = false) MultipartFile image1,
+                                                        @RequestPart(required = false) MultipartFile image2) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
@@ -172,10 +173,10 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
-    public ResponseEntity<CommentDto> updateComment(@RequestBody(required = false) MultipartFile image1,
-                                                    @RequestBody(required = false) MultipartFile image2,
-                                                    @RequestBody CommentCreateAndUpdateDto messageComments,
-                                                    @RequestParam(value = "commentID") Long commentID) {
+    public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
+                                                    @RequestParam(value = "commentID") Long commentID,
+                                                    @RequestPart(required = false) MultipartFile image1,
+                                                    @RequestPart(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
@@ -183,6 +184,7 @@ public class CommentAndTopicRestController {
         List<ImageComment> images = new ArrayList<>();
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7))>=0;
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(messageComments.getText());
@@ -193,7 +195,7 @@ public class CommentAndTopicRestController {
         }
         comment.setDateTime(comment.getDateTime());
 
-        if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
+        if (messageComments.getIdUser() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator||!admin && !moderator && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
