@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,7 +53,7 @@ public class CommentAndTopicRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = { "Topic and comments" })
+            summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
@@ -61,12 +62,16 @@ public class CommentAndTopicRestController {
     public ResponseEntity<TopicAndCommentsDTO> getTopicAndPageableComments(@PathVariable(value = "topicId") Long topicId,
                                                                            @RequestParam(value = "page", required = false) Integer page,
                                                                            @RequestParam(value = "pos", required = false) Integer position,
-                                                                           @RequestParam(value = "limit", required =  false) Integer limit) {
+                                                                           @RequestParam(value = "limit", required = false) Integer limit) {
 
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
             return ResponseEntity.noContent().build();
+        }
+
+        if (currentUser == null && (topic.isHideToAnon() || topic.getSubsection().isHideToAnon())) {
+            return ResponseEntity.badRequest().build();
         }
 
         if (limit == null) {
@@ -76,12 +81,11 @@ public class CommentAndTopicRestController {
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
 
-        if (position != null) {
-            page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
-            pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
+        if (position == null) {
+            position = 0;
         }
 
-        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable);
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position);
         TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 
@@ -89,13 +93,13 @@ public class CommentAndTopicRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Topic ", description = "Get topic by topic id", tags = { "Topic and comments" })
+            summary = "Get Topic ", description = "Get topic by topic id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Topic.class)))),
             @ApiResponse(responseCode = "204", description = "invalid topic id")})
-    @GetMapping(value = "/getTopic/{topicId}", produces = { "application/json" })
-    public ResponseEntity<Topic> getTopicById (@PathVariable(value = "topicId") Long topicId){
+    @GetMapping(value = "/getTopic/{topicId}", produces = {"application/json"})
+    public ResponseEntity<Topic> getTopicById(@PathVariable(value = "topicId") Long topicId) {
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
             return ResponseEntity.noContent().build();
@@ -104,26 +108,26 @@ public class CommentAndTopicRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Add a comment on topic", tags = { "Topic and comments" })
+            summary = "Add a comment on topic", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                   description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
+                    description = "Error adding comment")})
+    @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid JsonSavedMessageComentsEntity messageComentsEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
-                                                        @RequestPart(required = false) MultipartFile image2) {
+                                                        @RequestPart(required = false) MultipartFile image2)   {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
-        Topic topic = topicService.findById(messageComments.getIdTopic());
-        User user = userService.findById(messageComments.getIdUser());
+        Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
+        User user = userService.findById(messageComentsEntity.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
-        if (messageComments.getAnswerID() != 0) {
-            Comment answer = commentService.getCommentById(messageComments.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, messageComments.getText());
+        if (messageComentsEntity.getAnswerID() != 0) {
+            Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, messageComentsEntity.getText());
         } else {
-            comment = new Comment(topic, user, null, localDateTime, messageComments.getText());
+            comment = new Comment(topic, user, null, localDateTime, messageComentsEntity.getText());
         }
 
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId())) {
@@ -147,11 +151,11 @@ public class CommentAndTopicRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete comment from topic", description = "Delete comment by id", tags = { "Topic and comments" })
+            summary = "Delete comment from topic", description = "Delete comment by id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
             @ApiResponse(responseCode = "404", description = "Error deleting comment")})
-    @DeleteMapping(value = "/comment/delete/{commentId}", produces = { "application/json" })
+    @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
     public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
@@ -167,12 +171,12 @@ public class CommentAndTopicRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Update a comment", tags = { "Topic and comments" })
+            summary = "Update a comment", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
-    @PutMapping(value = "/comment/update" ,produces = {"multipart/form-data"})
+    @PutMapping(value = "/comment/update", produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
@@ -185,7 +189,7 @@ public class CommentAndTopicRestController {
         List<ImageComment> images = new ArrayList<>();
         boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
-        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7))>=0;
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(messageComments.getText());
