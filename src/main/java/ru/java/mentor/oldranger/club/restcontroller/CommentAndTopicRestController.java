@@ -117,7 +117,7 @@ public class CommentAndTopicRestController {
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2,
-                                                        @RequestPart @Valid CommentCreateAndUpdateDto messageComentsEntity
+                                                        @ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity
                                                         ) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
@@ -177,7 +177,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
-    @PutMapping(value = "/comment/update" )
+    @PutMapping(value = "/comment/update", produces = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2,
