@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -211,7 +212,8 @@ public class PrivateChatRestController {
             @ApiResponse(responseCode = "400", description = "Error editing message")})
     @PutMapping(value = "/message/edit/{chatToken}", produces = { "application/json" })
     public ResponseEntity<Message> editMessage(@PathVariable("chatToken") String chatToken,
-                                               @RequestBody Message chatMessage) {
+                                               @RequestBody Message chatMessage,
+                                               @Value("${privateMessage.allowedEditingTime}") Long allowedTime) {
 
         Message message = messageService.findMessage(chatMessage.getId());
         User user = userService.getUserByNickName(message.getSender());
@@ -222,7 +224,7 @@ public class PrivateChatRestController {
         message.setText(chatMessage.getText());
         message.setEditMessageDate(LocalDateTime.now());
 
-        if (!chatToken.equals(message.getChat().getToken()) || hours > 23 || !currentUser.equals(user)) {
+        if (!chatToken.equals(message.getChat().getToken()) || hours > allowedTime || !currentUser.equals(user)) {
             return ResponseEntity.badRequest().build();
         }
         messageService.editMessage(message);
