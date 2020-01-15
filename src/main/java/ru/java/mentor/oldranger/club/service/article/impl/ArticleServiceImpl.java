@@ -11,6 +11,7 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -35,8 +37,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllByTag(long tagId) {
-        return articleRepository.findAllByArticleTags_id(tagId);
+    public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
+        return articleRepository.findDistinctByArticleTagsIn(tagId, pageable);
     }
 
     @Override

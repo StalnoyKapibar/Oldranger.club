@@ -10,12 +10,13 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface ArticleService {
 
     List<Article> getAllArticles();
 
-    List<Article> getAllByTag(long tagId);
+    Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable);
 
     void addArticle(Article article);
 
