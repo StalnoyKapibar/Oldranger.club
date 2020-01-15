@@ -117,7 +117,7 @@ public class CommentAndTopicRestController {
     @PostMapping(value = "/comment/add")
     public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2,
-                                                        @RequestPart @Valid CommentCreateAndUpdateDto messageComentsEntity
+                                                        @ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity
                                                         ) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
