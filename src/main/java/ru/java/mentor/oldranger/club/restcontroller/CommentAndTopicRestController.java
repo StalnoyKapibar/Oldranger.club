@@ -22,7 +22,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
+import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -113,11 +113,13 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Error adding comment")})
+                   description = "Error adding comment")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid JsonSavedMessageComentsEntity messageComentsEntity,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
-                                                        @RequestPart(required = false) MultipartFile image2)   {
+                                                        @RequestPart(required = false) MultipartFile image2
+
+                                                        ) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
@@ -177,10 +179,10 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", produces = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
-                                                    @RequestParam(value = "commentID") Long commentID,
+    public ResponseEntity<CommentDto> updateComment(@RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
-                                                    @RequestPart(required = false) MultipartFile image2) {
+                                                    @RequestPart(required = false) MultipartFile image2,
+                                                    @RequestPart CommentCreateAndUpdateDto messageComments) {
 
         Comment comment = commentService.getCommentById(commentID);
         Topic topic = topicService.findById(messageComments.getIdTopic());
