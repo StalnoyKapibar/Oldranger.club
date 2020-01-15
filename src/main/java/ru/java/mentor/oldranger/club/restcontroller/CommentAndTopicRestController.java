@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,7 +22,7 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.jsonEntity.JsonSavedMessageComentsEntity;
+import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -103,6 +104,7 @@ public class CommentAndTopicRestController {
         return ResponseEntity.ok(topic);
     }
 
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add a comment on topic", tags = { "Topic and comments" })
     @ApiResponses(value = {
@@ -110,10 +112,11 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
-    @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart @Valid JsonSavedMessageComentsEntity messageComments,
-                                                        @RequestPart(required = false) MultipartFile image1,
-                                                        @RequestPart(required = false) MultipartFile image2) {
+    @PostMapping(value = "/comment/add")
+    public ResponseEntity<CommentDto> addMessageOnTopic(@RequestPart(required = false) MultipartFile image1,
+                                                        @RequestPart(required = false) MultipartFile image2,
+                                                        @RequestPart @Valid CommentCreateAndUpdateDto messageComments
+                                                        ) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComments.getIdTopic());
@@ -173,10 +176,10 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update")
-    public ResponseEntity<CommentDto> updateComment(@RequestPart JsonSavedMessageComentsEntity messageComments,
-                                                    @RequestParam(value = "commentID") Long commentID,
+    public ResponseEntity<CommentDto> updateComment(@RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
-                                                    @RequestPart(required = false) MultipartFile image2) {
+                                                    @RequestPart(required = false) MultipartFile image2,
+                                                    @RequestPart CommentCreateAndUpdateDto messageComments) {
 
         Comment comment = commentService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
