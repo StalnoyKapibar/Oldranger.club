@@ -177,7 +177,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
-    @PutMapping(value = "/comment/update", produces = {"multipart/form-data"})
+    @PutMapping(value = "/comment/update" )
     public ResponseEntity<CommentDto> updateComment(@RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2,
