@@ -73,6 +73,17 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    @Override
+    public void editMessage(Message message) {
+        log.info("Editing message {}", message);
+        try {
+            messageRepository.save(message);
+            log.info("Message edited");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
     private void removeMessageById(Long id) {
         log.info("Deleting message with id = {}", id);
         try {

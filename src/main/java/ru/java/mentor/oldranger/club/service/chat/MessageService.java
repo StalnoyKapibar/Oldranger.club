@@ -12,6 +12,8 @@ public interface MessageService {
 
     void addMessage(Message message);
 
+    void editMessage(Message message);
+
     Page<Message> getPagebleMessages(Chat chat, Pageable pageable);
 
     Map<String, String> processImage(MultipartFile file);

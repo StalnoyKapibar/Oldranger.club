@@ -23,6 +23,7 @@ spring.jackson.serialization.fail-on-empty-beans=false
 
 # Project properties
 commentEditTime=5
+privateMessage.allowedEditingTime=23
 
 spring.thymeleaf.cache=false
 
