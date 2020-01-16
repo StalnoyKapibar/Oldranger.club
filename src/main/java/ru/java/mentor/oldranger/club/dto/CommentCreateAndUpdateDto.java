@@ -20,6 +20,8 @@ public class CommentCreateAndUpdateDto {
     @Pattern(regexp = "^(?=\\s*\\S).*$")
     private String text;
     private Long answerID;
+    private String replyNick;
+    private String replyText;
 
     @Override
     public String toString() {

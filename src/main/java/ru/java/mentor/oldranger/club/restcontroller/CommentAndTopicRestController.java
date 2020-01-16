@@ -113,13 +113,12 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                   description = "Error adding comment")})
+                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2
-
-                                                        ) {
+    ) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
