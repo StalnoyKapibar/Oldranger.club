@@ -120,10 +120,10 @@ public class DataInitializer implements CommandLineRunner {
         Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", 2, sectionForUnverified, true);
         Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, false);
         Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей", 2, sectionForUsers, true);
-        subsectionService.createSubsection(subsection);
-        subsectionService.createSubsection(subsection2);
-        subsectionService.createSubsection(subsection3);
-        subsectionService.createSubsection(subsection4);
+        subsectionService.add(subsection);
+        subsectionService.add(subsection2);
+        subsectionService.add(subsection3);
+        subsectionService.add(subsection4);
 
 
         Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false);
