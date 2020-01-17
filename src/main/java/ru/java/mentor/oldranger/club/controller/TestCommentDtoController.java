@@ -27,7 +27,7 @@ public class TestCommentDtoController {
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
-
+    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог в REST http://localhost:8888/api/topic/{topicId} вместо текущего    http://localhost:8888/topic/{topicId}
     @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
     public String getPageableComments(@PathVariable(value = "topicId") Long topicId,
                                       @SessionAttribute User currentUser,
