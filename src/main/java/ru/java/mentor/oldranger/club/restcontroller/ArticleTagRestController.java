@@ -38,7 +38,7 @@ public class ArticleTagRestController {
             @ApiResponse(responseCode = "204", description = "admin role required")})
     @GetMapping(value = "", produces = {"application/json"})
     public ResponseEntity<List<ArticleTag>> getTag() {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
+        if (!securityUtilsService.isAdmin())
             return ResponseEntity.noContent().build();
 
         List<ArticleTag> tags = articleTagService.getAllTags();
@@ -54,7 +54,7 @@ public class ArticleTagRestController {
     @PostMapping(value = "")
     public ResponseEntity<ArticleTag> createTag(@RequestParam("id") long id,
                                                 @RequestParam("name") String name) {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN"))) {
+        if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
         }
         ArticleTag articleTag = new ArticleTag(id, name);
@@ -71,7 +71,7 @@ public class ArticleTagRestController {
     @PutMapping(value = "/{tag_id}")
     public ResponseEntity<ArticleTag> updateTag(@PathVariable long tag_id,
                                                 @RequestParam String tagName) {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
+        if (!securityUtilsService.isAdmin())
             return ResponseEntity.noContent().build();
         ArticleTag articleTag = new ArticleTag(tag_id, tagName);
         articleTagService.updateArticleTag(articleTag);
@@ -83,8 +83,9 @@ public class ArticleTagRestController {
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "admin role required")})
     @DeleteMapping("/{tag_id}")
     ResponseEntity deleteUser(@PathVariable("tag_id") long id) {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_ADMIN")))
+        if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
+        }
 
         ArticleTag articleTag = articleTagService.getTagById(id);
         articleTagService.deleteArticleTag(articleTag);
