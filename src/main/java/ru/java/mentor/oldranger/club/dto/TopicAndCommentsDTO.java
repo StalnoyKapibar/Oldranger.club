@@ -1,10 +1,10 @@
 package ru.java.mentor.oldranger.club.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor

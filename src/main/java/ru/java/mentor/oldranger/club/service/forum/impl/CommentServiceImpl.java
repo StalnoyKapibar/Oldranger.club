@@ -2,8 +2,9 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
@@ -20,8 +21,11 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -90,11 +94,24 @@ public class CommentServiceImpl implements CommentService {
         return page;
     }
 
-    public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable) {
+    public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable, int position) {
         log.debug("Getting page {} of comment dtos for topic with id = {}", pageable.getPageNumber(), topic.getId());
         Page<CommentDto> page = null;
+        List<Comment> list = new ArrayList<>();
         try {
-            page = commentRepository.findByTopic(topic, pageable).map(this::assembleCommentDto);
+            commentRepository.findByTopic(topic,
+                    PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
+                    .map(list::add);
+            List<CommentDto> dtoList = null;
+            if (list.size() != 0) {
+                dtoList = list.subList(
+                        Math.min(position, list.size() - 1),
+                        Math.min(position + pageable.getPageSize(), list.size()))
+                        .stream().map(this::assembleCommentDto).collect(Collectors.toList());
+            } else {
+                dtoList = Collections.emptyList();
+            }
+            page = new PageImpl<CommentDto>(dtoList, pageable, dtoList.size());
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

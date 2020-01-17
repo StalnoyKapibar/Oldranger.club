@@ -107,6 +107,9 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
     @Override
     @Transactional
     public TopicVisitAndSubscription updateVisitTime(User user, Topic topic) {
+        if (user == null || topic == null) {
+            return null;
+        }
         log.info("Updating last visit time for user with id = {} and topic with id = {}", user.getId(), topic.getId());
         TopicVisitAndSubscription subscription = getByUserAndTopic(user, topic);
         if (subscription != null) {

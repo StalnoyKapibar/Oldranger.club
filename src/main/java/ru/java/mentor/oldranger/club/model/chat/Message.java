@@ -2,7 +2,9 @@ package ru.java.mentor.oldranger.club.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -55,4 +57,7 @@ public class Message {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
     @Column(name = "message_date")
     private LocalDateTime messageDate;
+
+    @Column(name = "edit_message_date")
+    private LocalDateTime editMessageDate;
 }

@@ -30,8 +30,8 @@ import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -169,14 +169,14 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection4);
 
 
-        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false);
-        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true);
-        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false);
-        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true);
-        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false);
-        Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true);
-        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false);
-        Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true);
+        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
+        Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
+        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
+        Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true, false);
+        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false, false);
+        Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true, false);
+        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false, true);
+        Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true, false);
         topicService.createTopic(topic);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
@@ -190,7 +190,7 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 0; i < 100; i++) {
             b = !b;
             Random random = new Random();
-            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b);
+            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
             topicService.createTopic(topicX);
             for (int j = 0; j < 10; j++) {
                 Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);

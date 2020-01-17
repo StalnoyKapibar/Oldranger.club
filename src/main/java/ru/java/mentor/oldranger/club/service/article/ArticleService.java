@@ -1,16 +1,13 @@
 package ru.java.mentor.oldranger.club.service.article;
 
 
-import org.springframework.data.jpa.repository.Query;
-import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
-import ru.java.mentor.oldranger.club.model.user.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +15,7 @@ public interface ArticleService {
 
     List<Article> getAllArticles();
 
-    List<Article> getAllByTag(long tagId);
+    Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable);
 
     void addArticle(Article article);
 

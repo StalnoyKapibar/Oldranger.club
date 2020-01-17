@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -48,7 +50,10 @@ public class Topic {
     @Column(name = "is_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
+    @Column(name = "forbid_add_update_comment", columnDefinition = "TINYINT")
+    private boolean isForbidComment;
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon, boolean isForbidComment) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
@@ -56,9 +61,10 @@ public class Topic {
         this.subsection = subsection;
         this.isHideToAnon = isHideToAnon;
         this.startMessage = "Default start message";
+        this.isForbidComment = isForbidComment;
     }
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon) {
+    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon, boolean isForbidComment) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
@@ -66,6 +72,7 @@ public class Topic {
         this.subsection = subsection;
         this.isHideToAnon = isHideToAnon;
         this.startMessage = startMessage;
+        this.isForbidComment = isForbidComment;
     }
 
     public Section getSection() {
@@ -78,9 +85,13 @@ public class Topic {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", topicStarter=" + topicStarter +
+                ", messageCount=" + messageCount +
                 ", startTime=" + startTime +
                 ", lastMessageTime=" + lastMessageTime +
+                ", startMessage='" + startMessage + '\'' +
+                ", subsection=" + subsection +
                 ", isHideToAnon=" + isHideToAnon +
+                ", isForbidComment=" + isForbidComment +
                 '}';
     }
 

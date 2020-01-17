@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,16 +12,15 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
-import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
-
-import java.time.LocalDateTime;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,8 +41,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllByTag(long tagId) {
-        return articleRepository.findAllByArticleTags_id(tagId);
+    public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
+        return articleRepository.findDistinctByArticleTagsIn(tagId, pageable);
     }
 
     @Override

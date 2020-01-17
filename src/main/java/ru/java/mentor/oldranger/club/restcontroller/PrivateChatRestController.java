@@ -9,13 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
@@ -25,13 +25,13 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
-import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -202,5 +202,32 @@ public class PrivateChatRestController {
         result.put("originalImg", photo.getOriginal());
         result.put("thumbnailImg", photo.getSmall());
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Edit message", tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Message.class))),
+            @ApiResponse(responseCode = "400", description = "Error editing message")})
+    @PutMapping(value = "/message/edit/{chatToken}", produces = {"application/json"})
+    public ResponseEntity<Message> editMessage(@PathVariable("chatToken") String chatToken,
+                                               @RequestBody Message chatMessage,
+                                               @Value("${privateMessage.allowedEditingTime}") Long allowedTime) {
+
+        Message message = messageService.findMessage(chatMessage.getId());
+        User user = userService.getUserByNickName(message.getSender());
+        User currentUser = securityUtilsService.getLoggedUser();
+        long hours = message.getMessageDate().until(LocalDateTime.now(), ChronoUnit.HOURS);
+
+        message.setReplyTo(chatMessage.getReplyTo());
+        message.setText(chatMessage.getText());
+        message.setEditMessageDate(LocalDateTime.now());
+
+        if (!chatToken.equals(message.getChat().getToken()) || hours > allowedTime || !currentUser.equals(user)) {
+            return ResponseEntity.badRequest().build();
+        }
+        messageService.editMessage(message);
+        return ResponseEntity.ok(message);
     }
 }
