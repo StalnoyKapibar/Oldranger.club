@@ -29,25 +29,28 @@ public class ArticleLikeUsersRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Set likes users or dislikes users", tags = { "Admin" })
+            summary = "Set likes users or dislikes users", tags = {"Admin"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))) })
-    @PostMapping(value = "/{articles_id}/like")
-    public ResponseEntity<Set<User>> getLikeUsersByArticlesId(@PathVariable long articles_id) {
-        Article article = articleService.getArticleById(articles_id);
+            @ApiResponse(responseCode = "200")})
+    @PostMapping(value = "/{articleId}/like")
+    public void makeLike(@PathVariable long articleId) {
         User user = securityUtilsService.getLoggedUser();
-        Set<User> likes = article.getLikes();
-        if (likes.contains(user)) {
-            likes.remove(user);
-            article.setLikes(likes);
-            articleService.addArticle(article);
+        if (!articleService.isUserLikedtest(articleId, user.getId()).isEmpty()) {
+            articleService.removeUser(articleId, user.getId());
         } else {
-            likes.add(user);
-            article.setLikes(likes);
-            articleService.addArticle(article);
+            articleService.addUser(articleId, user.getId());
         }
-        return ResponseEntity.ok(likes);
+
+    }
+
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get likes users article", tags = {"Admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200")})
+    @GetMapping(value = "/{articleId}/likes")
+    public long getLikeUsersByArticlesId(@PathVariable long articleId) {
+        return articleService.countLikes(articleId);
     }
 
 }

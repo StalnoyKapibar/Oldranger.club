@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.article;
 
 import lombok.*;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -45,6 +47,7 @@ public class Article {
     @Column(name = "article_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
+    @LazyCollection(LazyCollectionOption.EXTRA)
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.LAZY)
     @JoinTable(name = "like_users",
             joinColumns = { @JoinColumn(name = "article_id") },

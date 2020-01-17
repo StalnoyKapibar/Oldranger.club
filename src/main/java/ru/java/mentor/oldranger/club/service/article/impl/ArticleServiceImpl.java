@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,15 +13,19 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 
 import java.time.LocalDateTime;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +34,8 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public List<Article> getAllArticles() {
@@ -108,7 +116,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
     }
-      
+
     @Override
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
@@ -120,4 +128,34 @@ public class ArticleServiceImpl implements ArticleService {
         articleRepository.deleteAllByIdIn(ids);
 
     }
+
+    @Override
+    public Set isUserLikedtest(long articleId, long userId) {
+        return articleRepository.isUserLikedtest(articleId, userId);
+    }
+
+
+    @Override
+    public void addUser(long articleId, long userId) {
+        Session session = (Session) entityManager.getDelegate();
+        Transaction transaction = session.beginTransaction();
+        session.createSQLQuery("insert into like_users(article_id, user_id) values(" + articleId + "," + userId + ")").executeUpdate();
+        transaction.commit();
+        session.close();
+    }
+
+    @Override
+    public void removeUser(long articleId, long userId) {
+        Session session = (Session) entityManager.getDelegate();
+        Transaction transaction = session.beginTransaction();
+        session.createSQLQuery("delete from like_users where article_id = " + articleId + " and user_id = " + userId ).executeUpdate();
+        transaction.commit();
+        session.close();
+    }
+
+    @Override
+    public long countLikes(long articleId) {
+        return articleRepository.countLikes(articleId);
+    }
+
 }
