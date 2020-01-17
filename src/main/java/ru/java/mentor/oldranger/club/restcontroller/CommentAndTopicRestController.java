@@ -117,21 +117,21 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                    description = "Error adding comment")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentDto commentDtoEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
         Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
-        Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
-        User user = userService.findById(messageComentsEntity.getIdUser());
+        Topic topic = topicService.findById(commentDtoEntity.getTopicId());
+        User user = userService.findById(commentDtoEntity.getUserId());
         LocalDateTime localDateTime = LocalDateTime.now();
         boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-        if (messageComentsEntity.getAnswerID() != 0) {
-            Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, messageComentsEntity.getText());
+        if (commentDtoEntity.getAnswerID() != 0) {
+            Comment answer = commentService.getCommentById(commentDtoEntity.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, commentDtoEntity.getCommentText());
         } else {
-            comment = new Comment(topic, user, null, localDateTime, messageComentsEntity.getText());
+            comment = new Comment(topic, user, null, localDateTime, commentDtoEntity.getCommentText());
         }
 
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId()) || !checkFirstImage || !checkSecondImage) {
