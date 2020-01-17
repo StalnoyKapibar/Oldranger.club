@@ -1,13 +1,12 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
+import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleLikeRepositoryEntityManager;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
@@ -17,8 +16,6 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,8 +29,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
-    @PersistenceContext
-    private EntityManager entityManager;
+    private ArticleLikeRepositoryEntityManager articleLikeRepositoryEntityManager;
 
     @Override
     public List<Article> getAllArticles() {
@@ -124,7 +120,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
-
     }
 
     @Override
@@ -135,20 +130,12 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void addUser(long articleId, long userId) {
-        Session session = (Session) entityManager.getDelegate();
-        Transaction transaction = session.beginTransaction();
-        session.createSQLQuery("insert into like_users(article_id, user_id) values(" + articleId + "," + userId + ")").executeUpdate();
-        transaction.commit();
-        session.close();
+        articleLikeRepositoryEntityManager.addUser(articleId, userId);
     }
 
     @Override
     public void removeUser(long articleId, long userId) {
-        Session session = (Session) entityManager.getDelegate();
-        Transaction transaction = session.beginTransaction();
-        session.createSQLQuery("delete from like_users where article_id = " + articleId + " and user_id = " + userId ).executeUpdate();
-        transaction.commit();
-        session.close();
+        articleLikeRepositoryEntityManager.removeUser(articleId, userId);
     }
 
     @Override
