@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "This is CommentCreateAndUpdateDto, \n where answerID - ID of comment on which answer was given ",
+@Schema(description = "This is CommentDTO, \n where answerID - ID of comment on which answer was given ",
         requiredProperties = {"author", "topicId"})
 public class CommentDto {
     private Long positionInTopic;

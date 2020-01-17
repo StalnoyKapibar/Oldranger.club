@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +21,6 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -181,13 +179,13 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
+    public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentDto commentDtoEntity,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
-        Topic topic = topicService.findById(messageComments.getIdTopic());
+        Topic topic = topicService.findById(commentDtoEntity.getTopicId());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
         List<ImageComment> images = new ArrayList<>();
@@ -197,17 +195,17 @@ public class CommentAndTopicRestController {
         boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
 
-        comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setCommentText(messageComments.getText());
-        if (messageComments.getAnswerID() != 0) {
-            comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
+        comment.setTopic(topicService.findById(commentDtoEntity.getTopicId()));
+        comment.setCommentText(commentDtoEntity.getCommentText());
+        if (commentDtoEntity.getAnswerID() != 0) {
+            comment.setAnswerTo(commentService.getCommentById(commentDtoEntity.getAnswerID()));
         } else {
             comment.setAnswerTo(null);
         }
         comment.setDateTime(comment.getDateTime());
 
 
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
+        if (commentDtoEntity.getUserId() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);

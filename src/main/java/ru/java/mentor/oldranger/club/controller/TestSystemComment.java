@@ -6,9 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.forum.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
@@ -63,16 +63,16 @@ public class TestSystemComment {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "/com/save")
     public @ResponseBody
-    String messageSave(@RequestBody CommentCreateAndUpdateDto message) {
+    String messageSave(@RequestBody CommentDto message) {
         Comment comment = null;
-        Topic topic = topicService.findById(message.getIdTopic());
-        User user = userService.findById(message.getIdUser());
+        Topic topic = topicService.findById(message.getTopicId());
+        User user = userService.findById(message.getUserId());
         LocalDateTime localDateTime = LocalDateTime.now();
         if (message.getAnswerID() != 0) {
             Comment answerComment = commentService.getCommentById(message.getAnswerID());
-            comment = new Comment(topic, user, answerComment, localDateTime, message.getText());
+            comment = new Comment(topic, user, answerComment, localDateTime, message.getCommentText());
         } else {
-            comment = new Comment(topic, user, null, localDateTime, message.getText());
+            comment = new Comment(topic, user, null, localDateTime, message.getCommentText());
         }
         commentService.createComment(comment);
         return "ok";
