@@ -27,12 +27,18 @@ public class TestCommentDtoController {
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
-    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог в REST http://localhost:8888/api/topic/{topicId} вместо текущего    http://localhost:8888/topic/{topicId}
+    /*
+        ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог
+          в REST http://localhost:8888/api/topic/{topicId}
+          вместо текущего
+          http://localhost:8888/topic/{topicId}
+
+     */
     @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
     public String getPageableComments(@PathVariable(value = "topicId") Long topicId,
                                       @SessionAttribute User currentUser,
                                       @RequestAttribute(value = "page", required = false) Integer page,
-                                      @RequestParam(value = "pos",required = false) Integer position,
+                                      @RequestParam(value = "pos", required = false) Integer position,
                                       @PageableDefault(size = 10, sort = "dateTime") Pageable pageable,
                                       Model model) {
         Topic topic = topicService.findById(topicId);
@@ -53,7 +59,7 @@ public class TestCommentDtoController {
                 cd.getAuthor().getAvatar().setSmall("default-sm.png");
             }
         }
-        topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
+        topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", dtos.getTotalPages());
         model.addAttribute("commentList", dtos.getContent());
