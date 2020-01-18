@@ -14,9 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.article.ArticlesSection;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.service.article.ArticleSectionService;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -34,6 +36,7 @@ public class ArticleRestController {
     private ArticleService articleService;
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
+    private ArticleSectionService articleSectionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
@@ -66,13 +69,15 @@ public class ArticleRestController {
     public ResponseEntity<Article> addNewArticle(@RequestParam("title") String title,
                                                  @RequestParam("text") String text,
                                                  @RequestParam("tagsId") List<Long> tagsId,
+                                                 @RequestParam("sectionId") List<Long> sectionId,
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon) {
         User user = securityUtilsService.getLoggedUser();
         Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
+        Set<ArticlesSection> sections = articleSectionService.addSectionToSet(sectionId);
         if (tagsArt.size() == 0) {
             return ResponseEntity.noContent().build();
         }
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon);
+        Article article = new Article(title, user, tagsArt, sections, LocalDateTime.now(), text, isHideToAnon);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
