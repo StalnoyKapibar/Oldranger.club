@@ -14,6 +14,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,6 +108,9 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
     @Override
     @Transactional
     public TopicVisitAndSubscription updateVisitTime(User user, Topic topic) {
+        if (user == null || topic == null) {
+            return null;
+        }
         log.info("Updating last visit time for user with id = {} and topic with id = {}", user.getId(), topic.getId());
         TopicVisitAndSubscription subscription = getByUserAndTopic(user, topic);
         if (subscription != null) {
@@ -156,6 +160,22 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
             log.error(e.getMessage(), e);
         }
         return list;
+    }
+
+    @Override
+    public Page<Topic> getPagebleSubscribedTopicsForUser(User user, Pageable pageable) {
+        log.debug("Getting page {} of subscriptions for user with id = {}", pageable.getPageNumber(), user.getId());
+        Page<Topic> page = null;
+        try {
+            List<Topic>  topics = topicVisitAndSubscriptionRepository.getSubscribedTopicsByUser(user);
+            int start = (int) pageable.getOffset();
+            int end = (start + pageable.getPageSize()) > topics.size() ? topics.size() : (start + pageable.getPageSize());
+            page = new PageImpl<Topic>(start < end ? topics.subList(start, end) : Collections.emptyList(), pageable, topics.size());
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
     }
 
     @Override

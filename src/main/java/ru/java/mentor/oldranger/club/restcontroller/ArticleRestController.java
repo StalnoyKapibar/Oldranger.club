@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
@@ -21,8 +23,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -34,9 +35,25 @@ public class ArticleRestController {
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
 
-    @GetMapping(value = "/tag/{tag_id}", produces = {"application/json"})
-    public ResponseEntity<List<Article>> getAllNewsByTagId(@PathVariable long tag_id) {
-        List<Article> articles = articleService.getAllByTag(tag_id);
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "204", description = "Articles not found")})
+    @GetMapping(value = "/tag", produces = {"application/json"})
+    public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
+                                                               @RequestParam(value = "page", required = false) Integer page) {
+
+        if (page == null) {
+            page = 0;
+        }
+
+        if (tag_id.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+        Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
         return ResponseEntity.ok(articles);
     }
 
@@ -77,8 +94,7 @@ public class ArticleRestController {
           return ResponseEntity.noContent().build();
         }
         int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_MODERATOR")) ||
-                !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
+        if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
             ResponseEntity.status(203).build();
         }
         article.setTitle(title);
@@ -101,9 +117,7 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "204", description = "Not found Article")})
     @DeleteMapping("/deleteArticle")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
-        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
-        if (isModer || isAdmin) {
+        if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
             try {
                 articleService.deleteArticle(idArticle);
                 return ResponseEntity.ok().build();
@@ -122,9 +136,7 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "204", description = "Not found Articles")})
     @DeleteMapping("/deleteArticles")
     public ResponseEntity deleteArticles(@RequestParam("articlesIds") List<Long> ids) {
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
-        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
-        if (isModer || isAdmin) {
+        if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
             try {
                 articleService.deleteArticles(ids);
                 return ResponseEntity.ok().build();
