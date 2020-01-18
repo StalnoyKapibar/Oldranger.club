@@ -182,9 +182,9 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
-            @ApiResponse(responseCode = "204", description = "Error adding theme to subscription")})
+            @ApiResponse(responseCode = "204", description = "Error adding topic to subscription")})
     @PostMapping(value = "/subscriptions", produces = {"application/json"})
-    public ResponseEntity<TopicVisitAndSubscription> addTopic(@RequestParam(value = "topicId", required = true) Long topicId) {
+    public ResponseEntity<TopicVisitAndSubscription> addTopicToSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(204).build();
@@ -203,12 +203,12 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete topic from subscription", description = "Delete article", tags = {"User profile"})
+            summary = "Delete topic from subscription", description = "Delete topic from subscription", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
-            @ApiResponse(responseCode = "204", description = "Error delete theme from subscription")})
+            @ApiResponse(responseCode = "204", description = "Error delete topic from subscription")})
     @DeleteMapping("/subscriptions")
-    public ResponseEntity deleteArticle(@RequestParam(value = "topicId", required = true) Long topicId) {
+    public ResponseEntity deleteTopicFromSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(204).build();
