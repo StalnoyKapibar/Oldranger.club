@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 
@@ -23,6 +24,7 @@ public class CommentDto {
     private User author;
     private LocalDateTime commentDateTime;
     private Long messageCount;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime replyDateTime;
     private String replyNick;
     private String replyText;
