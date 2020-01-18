@@ -98,6 +98,16 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     }
 
     @Override
+    public boolean isAdmin() {
+        return isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+    }
+
+    @Override
+    public boolean isModerator() {
+        return isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
+    }
+
+    @Override
     public User getLoggedUser() {
         log.debug("Getting logged user");
         User user = null;

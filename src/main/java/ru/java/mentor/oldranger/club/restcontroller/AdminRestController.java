@@ -181,14 +181,13 @@ public class AdminRestController {
                                              @RequestParam(value = "role") String role) {
 
         User user = userService.findById(userId);
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
         user.setNickName(nickName);
         user.setRole(roleService.getRoleByAuthority(role));
 
-        if (userId == null || !admin) {
+        if (userId == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
         userService.save(user);
@@ -204,9 +203,8 @@ public class AdminRestController {
     @GetMapping(value = "/getUser/{userId}", produces = {"application/json"})
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         User user = userService.findById(userId);
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
 
-        if (userId == null || !admin) {
+        if (userId == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(user);

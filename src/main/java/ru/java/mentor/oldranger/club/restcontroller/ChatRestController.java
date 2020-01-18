@@ -176,8 +176,7 @@ public class ChatRestController {
     ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
                                          @PathVariable Long id) {
         User user = securityUtilsService.getLoggedUser();
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR) ||
-                securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
         if (user == null || !isSender) {
             if (!isModer) {

@@ -87,8 +87,8 @@ public class CommentToArticleRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
 
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
-        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean admin = securityUtilsService.isAdmin();
+        boolean moderator = securityUtilsService.isModerator();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(articleComment.getDateTime().plusDays(7)) >= 0;
 
         articleComment.setArticle(articleService.getArticleById(commentArticleDto.getIdArticle()));
@@ -118,7 +118,6 @@ public class CommentToArticleRestController {
     @DeleteMapping(value = "/comment/delete/{id}", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> deleteArticleComment(@PathVariable(value = "id") Long id) {
         ArticleComment articleComment = articleService.getCommentById(id);
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
 
@@ -126,7 +125,7 @@ public class CommentToArticleRestController {
             return ResponseEntity.noContent().build();
         }
 
-        if (!currentUser.getId().equals(user.getId()) && !admin) {
+        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
             return ResponseEntity.status(403).build();
         }
         articleService.deleteComment(id);

@@ -12,6 +12,8 @@ public interface SecurityUtilsService {
      * Авторизованный пользователь не ниже ROLE_USER
      */
     boolean isLoggedUserIsUser();
+    boolean isAdmin();
+    boolean isModerator();
     User getLoggedUser();
     List<Long> getUsersFromSessionRegistry();
     boolean isAuthorityReachableForLoggedUser(RoleType role);
