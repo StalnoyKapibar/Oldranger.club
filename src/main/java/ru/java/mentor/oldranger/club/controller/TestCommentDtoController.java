@@ -29,9 +29,9 @@ public class TestCommentDtoController {
 
     /*
         ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог
-          в REST http://localhost:8888/api/topic/{topicId}
+          в REST http://localhost:8888/api/topic/1
           вместо текущего
-          http://localhost:8888/topic/{topicId}
+          http://localhost:8888/topic/1
 
      */
     @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
