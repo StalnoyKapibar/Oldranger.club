@@ -2,7 +2,8 @@
 ## Запуск проекта (бэк)
 
 ###Прежде всего для развертывания backend можно использовать Docker
-для этого в папке проекта запускаем docker-compose up -d
+для этого в папке проекта запускаем `docker-compose up -d`
+
 После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash
 
 Пароль для базы и имя пользователя test/test
@@ -79,10 +80,16 @@
 ### Установка
 
 Прежде всего можно использовать Docker
-для этого в папке проекта запускаем docker-compose up -d
+
+Для этого в папке проекта запускаем `docker-compose up -d`
+
 После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash
+
 Пароль для базы и имя пользователя test/test
-пароль для входа kibana - elastic/changeme
+
+Пароль для входа kibana - elastic/changeme
+
+Другой способ ниже...
 
 1. _Скачиваем elasticsearch, logstash, kibana_  
 
