@@ -1,8 +1,12 @@
 package ru.java.mentor.oldranger.club.model.user;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -26,5 +30,22 @@ public class Role implements GrantedAuthority {
     @Override
     public String getAuthority() {
         return getRole();
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GrantedAuthority)) return false;
+        GrantedAuthority role1 = (GrantedAuthority) o;
+        return getAuthority().equals(role1.getAuthority());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(role);
     }
 }

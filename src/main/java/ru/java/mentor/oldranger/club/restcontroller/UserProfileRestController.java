@@ -157,27 +157,75 @@ public class UserProfileRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get TopicVisitAndSubscription list for current user", tags = {"User profile"})
+            summary = "Get subscriptions for current user", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/subscriptions", produces = {"application/json"})
-    public ResponseEntity<List<TopicVisitAndSubscription>> getSubscriptions(
-            @RequestAttribute(value = "page", required = false) Integer page,
-            @Parameter(description = "Not required, by default size: 10")
-            @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<List<Topic>> getSubscriptions(
+            @Parameter(description = "Page") @RequestParam(value = "page") Integer page,
+            @PageableDefault(size = 10) @RequestParam(required = false) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-
         if (page != null) {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         }
+        List<Topic> topics = topicVisitAndSubscriptionService.getPagebleSubscribedTopicsForUser(currentUser, pageable).getContent();
+        return ResponseEntity.ok(topics);
+    }
 
-        List<TopicVisitAndSubscription> dtos = topicVisitAndSubscriptionService.getPagebleTopicVisitAndSubscriptionForUser(currentUser, pageable).getContent();
-        return ResponseEntity.ok(dtos);
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Add topic to subscriptions", tags = {"User profile"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
+            @ApiResponse(responseCode = "204", description = "Error adding topic to subscription")})
+    @PostMapping(value = "/subscriptions", produces = {"application/json"})
+    public ResponseEntity<TopicVisitAndSubscription> addTopicToSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(204).build();
+        }
+        Topic topic = topicService.findById(topicId);
+        if (topic == null) {
+            return ResponseEntity.status(204).build();
+        }
+        TopicVisitAndSubscription topicVisitAndSubscription = topicVisitAndSubscriptionService.getByUserAndTopic(user, topic);
+        if ((topicVisitAndSubscription != null) && (topicVisitAndSubscription.isSubscribed())) {
+            return ResponseEntity.status(204).build();
+        } else {
+            topicVisitAndSubscription = topicVisitAndSubscriptionService.subscribeUserOnTopic(user, topic);
+            return ResponseEntity.ok(topicVisitAndSubscription);
+        }
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete topic from subscription", description = "Delete topic from subscription", tags = {"User profile"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Delete successful"),
+            @ApiResponse(responseCode = "204", description = "Error delete topic from subscription")})
+    @DeleteMapping("/subscriptions")
+    public ResponseEntity deleteTopicFromSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(204).build();
+        }
+        Topic topic = topicService.findById(topicId);
+        if (topic == null) {
+            return ResponseEntity.status(204).build();
+        }
+        TopicVisitAndSubscription topicVisitAndSubscription = topicVisitAndSubscriptionService.getByUserAndTopic(user, topic);
+        if (topicVisitAndSubscription == null) {
+            return ResponseEntity.status(204).build();
+        }
+        if (topicVisitAndSubscription.isSubscribed() == false) {
+            return ResponseEntity.status(204).build();
+        }
+        topicVisitAndSubscriptionService.unsubscribe(topicVisitAndSubscription);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

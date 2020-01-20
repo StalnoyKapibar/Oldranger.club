@@ -161,8 +161,8 @@ public class CommentAndTopicRestController {
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
     public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
-        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean admin = securityUtilsService.isAdmin();
+        boolean moderator = securityUtilsService.isModerator();
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
 
@@ -190,8 +190,8 @@ public class CommentAndTopicRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
         List<ImageComment> images = new ArrayList<>();
-        boolean admin = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"));
-        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+        boolean admin = securityUtilsService.isAdmin();
+        boolean moderator = securityUtilsService.isModerator();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
         boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);

@@ -17,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
-import ru.java.mentor.oldranger.club.model.user.Role;
-import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
@@ -107,8 +105,7 @@ public class ArticleRestController {
           return ResponseEntity.noContent().build();
         }
         int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(new Role("ROLE_MODERATOR")) ||
-                !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
+        if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
             ResponseEntity.status(203).build();
         }
         article.setTitle(title);
@@ -131,9 +128,7 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "204", description = "Not found Article")})
     @DeleteMapping("/deleteArticle")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
-        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
-        if (isModer || isAdmin) {
+        if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
             try {
                 articleService.deleteArticle(idArticle);
                 return ResponseEntity.ok().build();
@@ -152,9 +147,7 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "204", description = "Not found Articles")})
     @DeleteMapping("/deleteArticles")
     public ResponseEntity deleteArticles(@RequestParam("articlesIds") List<Long> ids) {
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR);
-        boolean isAdmin = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
-        if (isModer || isAdmin) {
+        if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
             try {
                 articleService.deleteArticles(ids);
                 return ResponseEntity.ok().build();

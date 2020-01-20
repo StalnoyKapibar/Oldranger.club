@@ -17,17 +17,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
-import ru.java.mentor.oldranger.club.model.user.Role;
-import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
@@ -37,7 +32,6 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,8 +170,7 @@ public class ChatRestController {
     ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
                                          @PathVariable Long id) {
         User user = securityUtilsService.getLoggedUser();
-        boolean isModer = securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_MODERATOR) ||
-                securityUtilsService.isAuthorityReachableForLoggedUser(RoleType.ROLE_ADMIN);
+        boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
         if (user == null || !isSender) {
             if (!isModer) {
