@@ -37,7 +37,7 @@ public class RequestInvitationRestController {
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @GetMapping(produces = { "application/json" })
     public ResponseEntity<List<RequestInvitation>> getRequestInvitation() {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"))) {
+        if (!securityUtilsService.isAdmin()) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(requestInvitationService.findAll());
@@ -51,7 +51,7 @@ public class RequestInvitationRestController {
             @ApiResponse(responseCode = "403", description = "User does not have enough rights")})
     @DeleteMapping(value = "/delete", produces = { "application/json" })
     public ResponseEntity<String> delRequestInvitation(@Parameter(description = "request invitation") @RequestBody RequestInvitation requestInvitation) {
-        if (!securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_ADMIN"))) {
+        if (!securityUtilsService.isAdmin()) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         requestInvitationService.deleteById(requestInvitation.getId());

@@ -26,6 +26,8 @@ public interface TopicVisitAndSubscriptionService {
 
     List<TopicVisitAndSubscription> getTopicVisitAndSubscriptionForUser(User user);
 
+    Page<Topic> getPagebleSubscribedTopicsForUser(User user, Pageable pageable);
+
     Page<TopicVisitAndSubscription> getPagebleTopicVisitAndSubscriptionForUser(User user, Pageable pageable);
 
     List<TopicVisitAndSubscription> getTopicVisitAndSubscriptionForTopic(Topic topic);
