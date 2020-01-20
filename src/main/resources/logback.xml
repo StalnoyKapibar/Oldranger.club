@@ -14,9 +14,9 @@
         </filter>
     </appender>
     <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.home}/logs/Oldrangerclub.log</file>
+        <file>./logstash/pipeline/logs/Oldrangerclub.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.home}/logs/Oldrangerclub.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>./logstash/pipeline/logs/Oldrangerclub.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
