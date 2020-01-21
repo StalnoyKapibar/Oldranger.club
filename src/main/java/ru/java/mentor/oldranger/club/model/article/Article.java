@@ -32,7 +32,7 @@ public class Article {
             inverseJoinColumns = { @JoinColumn(name = "tag_id") })
     private Set<ArticleTag> articleTags;
 
-    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(name = "article_sections",
             joinColumns = { @JoinColumn(name = "article_id") },
             inverseJoinColumns = { @JoinColumn(name = "section_id") })

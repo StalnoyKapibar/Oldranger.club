@@ -17,6 +17,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findAllByArticlesSections(ArticlesSection articlesSections, Pageable pageable);
 
+    Page<Article> findDistinctByArticlesSectionsIn(Set<ArticlesSection> articlesSections, Pageable pageable);
+
     Article findById(long id);
 
     void deleteAllByIdIn(List<Long> ids);

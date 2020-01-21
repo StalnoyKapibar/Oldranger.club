@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.article.ArticlesSection;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,8 @@ public interface ArticleService {
     List<Article> getAllArticles();
 
     Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable);
+
+    Page<Article> getAllBySections(Set<ArticlesSection> articlesSections, Pageable pageable);
 
     void addArticle(Article article);
 

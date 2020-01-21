@@ -19,9 +19,4 @@ public class ArticlesSection {
     @Column(name = "article_section_name", nullable = false)
     private String name;
 
-    public ArticlesSection(String name) {
-        this.name = name;
-    }
-
-
 }

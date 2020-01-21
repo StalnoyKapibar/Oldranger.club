@@ -61,6 +61,28 @@ public class ArticleRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get articles by sections", description = "Get articles by sections", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "204", description = "Articles not found")})
+    @GetMapping(value = "/section", produces = {"application/json"})
+    public ResponseEntity<Page<Article>> getAllArticlesBySectionsId(@RequestParam("sections_id") Set<ArticlesSection> articlesSections,
+                                                                  @RequestParam(value = "page", required = false) Integer page) {
+
+        if (page == null) {
+            page = 0;
+        }
+
+        if (articlesSections.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+        Page<Article> articles = articleService.getAllBySections(articlesSections, pageable);
+        return ResponseEntity.ok(articles);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add article", description = "Add new article", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
