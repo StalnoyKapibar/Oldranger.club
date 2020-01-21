@@ -29,7 +29,7 @@ public class TestAdminController {
     EmailDraftService emailDraftService;
     MailService mailService;
     UserService userService;
-
+    // ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть rest аналог  http://localhost:8888/api/admin/users  &   http://localhost:8888/users   ВМЕСТО текущего http://localhost:8888/admin/users
     @GetMapping("/users")
     public String getAllUsers(Model model,
                               @RequestAttribute(value = "page", required = false) Integer page,
@@ -56,23 +56,29 @@ public class TestAdminController {
         return "admin/users";
     }
 
+
     // в админке получить список сеций и подсекций с возможностью сортировки
     @GetMapping("/sectionsandsubsections")
+    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог в REST http://localhost:8888/api/allsectionsandsubsections вместо текущего    http://localhost:8888/admin/sectionsandsubsections
     public String getPageSections() {
         return "testSortableSectionsAndSubsections";
     }
 
+
+    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог в REST http://localhost:8888/api/chat/users вместо текущего:  http://localhost:8888/admin/chat
     @GetMapping("/chat")
     public String getChatSettings() {
         return "admin/chatSettings";
     }
 
+    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод НО  в REST точного аналога не нашел хотя похожие есть http://localhost:8888/api/chat/image ( место текущего:  http://localhost:8888/admin/chat?cleanChat=1  )
     @PostMapping("/chat")
     public String setChatSettings(@RequestParam String cleanChat) {
         messageService.setOlderThan(cleanChat);
         return "redirect:/admin/chatSettings";
     }
 
+    //ToDo DELETE ПОДУМАТЬ удалить ли этот метод НО  в REST точного аналога не нашел
     @GetMapping("/mail")
     public String getMailPage(){
         return "admin/mail";

@@ -49,3 +49,6 @@ media/*
 
 ### Indices ###
 /data/index/**
+/sqldata/**
+/data01/**
+/logstash/pipeline/logs/**
