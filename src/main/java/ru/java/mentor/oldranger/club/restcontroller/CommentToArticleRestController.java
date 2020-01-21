@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -45,7 +45,7 @@ public class CommentToArticleRestController {
     @PostMapping(value = "/comment/add", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
                                                                  @RequestParam("idUser") Long idUser,
-                                                                 @RequestParam("answerId") Long answerId,
+                                                                 @RequestParam(value="answerId", required = false) Long answerId,
                                                                  @RequestBody String commentText) {
         ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);
         ArticleComment articleComment;
@@ -79,7 +79,7 @@ public class CommentToArticleRestController {
     public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestParam("commentID") Long commentID,
                                                                   @RequestParam("idArticle") Long idArticle,
                                                                   @RequestParam("idUser") Long idUser,
-                                                                  @RequestParam("answerId") Long answerId,
+                                                                  @RequestParam(value="answerId", required = false) Long answerId,
                                                                   @RequestBody String commentText) {
 
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);

@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
-import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -45,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
             Topic topic = comment.getTopic();
             topic.setLastMessageTime(comment.getDateTime());
             long messages = topic.getMessageCount();
-            comment.setPositionInTopic(++messages);
+            comment.setPosition(++messages);
             topic.setMessageCount(messages);
             topicService.editTopicByName(topic);
             commentRepository.save(comment);
@@ -146,7 +145,7 @@ public class CommentServiceImpl implements CommentService {
                 replyNick = comment.getAnswerTo().getUser().getNickName();
                 replyText = comment.getAnswerTo().getCommentText();
             }
-            commentDto.setPositionInTopic(comment.getPositionInTopic());
+            commentDto.setPositionInTopic(comment.getPosition());
             commentDto.setTopicId(comment.getTopic().getId());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());

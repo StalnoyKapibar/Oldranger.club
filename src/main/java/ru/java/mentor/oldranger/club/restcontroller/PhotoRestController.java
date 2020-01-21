@@ -1,35 +1,90 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.CommentDto;
+import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
+import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/photos")
+@Tag(name = "Photo")
 public class PhotoRestController {
 
     private PhotoService service;
     private PhotoAlbumService albumService;
+    private SecurityUtilsService securityUtilsService;
 
+
+    @Operation(summary = "Save photo in album", tags = {"Photo"})
     @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
     public Photo savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {
         return service.save(albumService.findById(Long.parseLong(albumId)), photo);
     }
 
+    @Operation(summary = "Get photo and a list of comments DTO by id", tags = {"Photo"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoCommentDto.class)))),
+            @ApiResponse(responseCode = "204", description = "invalid topic id")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Photo getPhoto(@PathVariable("id") String id) {
-        return service.findById(Long.parseLong(id));
+    public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
+                                                    @RequestParam(value = "page", required = false) Integer page,
+                                                    @RequestParam(value = "pos", required = false) Integer position,
+                                                    @RequestParam(value = "limit", required = false) Integer limit) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        Photo photo = service.findById(Long.parseLong(id));
+        if (photo == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        if (limit == null) {
+            limit = 10;
+        }
+
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
+
+        if (position == null) {
+            position = 0;
+        }
+
+        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
+        PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
+
+        return ResponseEntity.ok(photoCommentsDto);
     }
 
+    @Operation(summary = "Update photo", tags = {"Photo"})
     @PutMapping
     public Photo updatePhoto(@RequestBody Photo photo) {
         return service.update(photo);
     }
 
+    @Operation(summary = "Delete photo", tags = {"Photo"})
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public void deletePhoto(@PathVariable("id") String id) {
         service.deletePhoto(Long.parseLong(id));
