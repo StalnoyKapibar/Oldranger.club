@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.springframework.beans.factory.annotation.Value;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -45,6 +46,7 @@ public class ArticleComment {
     private LocalDateTime dateTime;
 
     @Field
+    @Value("${articleComment.length}")
     @Type(type = "materialized_clob")
     @Column(name = "text_comment")
     private String commentText;
