@@ -4,6 +4,7 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.InviteRepository;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
@@ -127,6 +128,12 @@ public class InvitationServiceImpl implements InvitationService {
             log.error(e.getMessage(), e);
         }
         return key;
+    }
+
+    @Override
+    public String generateMD5Key(String email) {
+        String hex = DigestUtils.md5Hex(email);
+        return hex;
     }
 
     @Override

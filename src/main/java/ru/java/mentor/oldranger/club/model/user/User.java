@@ -43,6 +43,9 @@ public class User implements UserDetails{
     @Column(name = "registered")
     private LocalDateTime regDate;
 
+    @Column(name = "invite_key")
+    private String invite;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

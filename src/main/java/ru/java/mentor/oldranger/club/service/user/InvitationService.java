@@ -18,6 +18,7 @@ public interface InvitationService {
     String getCurrentKey(User user);
 
     String generateKey();
+    String generateMD5Key(String email);
 
     LocalDateTime getDateCreate(String key);
 
@@ -26,4 +27,5 @@ public interface InvitationService {
     void setShelfLife(Long time);
 
     boolean checkShelfLife(InvitationToken token);
+
 }
