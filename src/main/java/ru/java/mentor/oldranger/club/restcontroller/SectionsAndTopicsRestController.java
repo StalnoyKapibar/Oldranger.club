@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
@@ -86,6 +87,8 @@ public class SectionsAndTopicsRestController {
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
 
         Topic topic = new Topic();
+        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by '" + topicDetails.getName());
+        topic.setPhotoAlbum(photoAlbum);
 
         topic.setName(topicDetails.getName());
         topic.setTopicStarter(securityUtilsService.getLoggedUser());
