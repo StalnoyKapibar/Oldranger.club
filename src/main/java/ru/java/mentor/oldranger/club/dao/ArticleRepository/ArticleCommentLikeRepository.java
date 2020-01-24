@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.model.article.Article;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.Set;
 
 public interface ArticleCommentLikeRepository extends JpaRepository<Article, Long> {
 
     @Query(nativeQuery = true, value = "select * from like_users where article_id = ?1 and user_id = ?2")
-    Set isUserLiked(long articleId, long userId);
+    Set<User> isUserLiked(long articleId, long userId);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(article_id) FROM like_users WHERE article_id = :articleId")
     long countLikes(long articleId);
