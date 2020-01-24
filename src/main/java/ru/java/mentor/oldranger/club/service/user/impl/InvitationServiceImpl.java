@@ -132,8 +132,7 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public String generateMD5Key(String email) {
-        String hex = DigestUtils.md5Hex(email);
-        return hex;
+        return DigestUtils.md5Hex(email);
     }
 
     @Override
