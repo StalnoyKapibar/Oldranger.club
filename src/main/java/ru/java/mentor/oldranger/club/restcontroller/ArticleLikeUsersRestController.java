@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.article.ArticleLikeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 @RestController
@@ -18,7 +18,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 public class ArticleLikeUsersRestController {
 
 
-    private ArticleService articleService;
+    private ArticleLikeService articleLikeService;
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -28,10 +28,10 @@ public class ArticleLikeUsersRestController {
     @PostMapping(value = "/{articleId}/like")
     public void makeLike(@PathVariable long articleId) {
         User user = securityUtilsService.getLoggedUser();
-        if (!articleService.isUserLiked(articleId, user.getId()).isEmpty()) {
-            articleService.deleteLike(articleId, user.getId());
+        if (!articleLikeService.isUserLiked(articleId, user.getId()).isEmpty()) {
+            articleLikeService.deleteLike(articleId, user.getId());
         } else {
-            articleService.saveLike(articleId, user.getId());
+            articleLikeService.saveLike(articleId, user.getId());
         }
 
     }
@@ -43,7 +43,7 @@ public class ArticleLikeUsersRestController {
             @ApiResponse(responseCode = "200")})
     @GetMapping(value = "/{articleId}/likes")
     public long getLikeUsersByArticlesId(@PathVariable long articleId) {
-        return articleService.countLikes(articleId);
+        return articleLikeService.countLikes(articleId);
     }
 
 }

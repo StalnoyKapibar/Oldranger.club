@@ -38,12 +38,4 @@ public interface ArticleService {
     Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
-
-    long countLikes(long articleId);
-
-    Set isUserLiked(long articleId, long userId);
-
-    void saveLike(long articleId, long userId);
-
-    void deleteLike(long articleId, long userId);
 }

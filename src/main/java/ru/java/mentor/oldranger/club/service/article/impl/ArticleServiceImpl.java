@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Transactional
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -145,23 +145,4 @@ public class ArticleServiceImpl implements ArticleService {
         articleRepository.deleteAllByIdIn(ids);
     }
 
-    @Override
-    public Set isUserLiked(long articleId, long userId) {
-        return articleRepository.isUserLiked(articleId, userId);
-    }
-
-    @Override
-    public long countLikes(long articleId) {
-        return articleRepository.countLikes(articleId);
-    }
-
-    @Override
-    public void saveLike(long articleId, long userId) {
-        articleRepository.saveLike(articleId, userId);
-    }
-
-    @Override
-    public void deleteLike(long articleId, long userId) {
-        articleRepository.deleteLike(articleId, userId);
-    }
 }
