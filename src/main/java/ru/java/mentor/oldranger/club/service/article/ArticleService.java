@@ -37,15 +37,11 @@ public interface ArticleService {
 
     Page<Article> getArticlesForAnon(Pageable pageable);
 
+    long countLikes(long articleId);
 
-    long countLikes (long articleId);
+    Set isUserLiked(long articleId, long userId);
 
+    void saveLike(long articleId, long userId);
 
-    Set isUserLikedtest (long articleId, long userId);
-
-
-    void addUser(long articleId, long userId);
-
-    void removeUser(long articleId, long userId);
-
+    void deleteLike(long articleId, long userId);
 }

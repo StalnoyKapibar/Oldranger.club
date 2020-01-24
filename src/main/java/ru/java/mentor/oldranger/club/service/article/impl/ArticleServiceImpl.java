@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
-import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleLikeRepositoryEntityManager;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Transactional
 @Service
 @AllArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
@@ -29,7 +29,6 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
-    private ArticleLikeRepositoryEntityManager articleLikeRepositoryEntityManager;
 
     @Override
     public List<Article> getAllArticles() {
@@ -123,19 +122,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Set isUserLikedtest(long articleId, long userId) {
-        return articleRepository.isUserLikedtest(articleId, userId);
-    }
-
-
-    @Override
-    public void addUser(long articleId, long userId) {
-        articleLikeRepositoryEntityManager.addUser(articleId, userId);
-    }
-
-    @Override
-    public void removeUser(long articleId, long userId) {
-        articleLikeRepositoryEntityManager.removeUser(articleId, userId);
+    public Set isUserLiked(long articleId, long userId) {
+        return articleRepository.isUserLiked(articleId, userId);
     }
 
     @Override
@@ -143,4 +131,13 @@ public class ArticleServiceImpl implements ArticleService {
         return articleRepository.countLikes(articleId);
     }
 
+    @Override
+    public void saveLike(long articleId, long userId) {
+        articleRepository.saveLike(articleId, userId);
+    }
+
+    @Override
+    public void deleteLike(long articleId, long userId) {
+        articleRepository.deleteLike(articleId, userId);
+    }
 }

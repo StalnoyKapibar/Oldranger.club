@@ -187,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic8);
 
         boolean b = false;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 2; i++) {
             b = !b;
             Random random = new Random();
             Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
