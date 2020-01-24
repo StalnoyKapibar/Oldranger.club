@@ -20,4 +20,6 @@ public interface UserService {
     User getUserByEmail(String email);
 
     User getUserByEmailOrNickName(String login);
+
+    User getUserByInviteKey(String key);
 }
