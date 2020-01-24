@@ -1,9 +1,9 @@
 package ru.java.mentor.oldranger.club.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -45,6 +44,9 @@ public class User implements UserDetails{
 
     @Column(name = "registered")
     private LocalDateTime regDate;
+
+    @Column(name = "invite_key")
+    private String invite;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

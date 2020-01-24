@@ -51,3 +51,4 @@ media/*
 /data/index/**
 /sqldata/**
 /data01/**
+/logstash/pipeline/logs/**

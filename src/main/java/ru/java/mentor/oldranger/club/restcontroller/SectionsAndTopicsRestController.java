@@ -82,7 +82,7 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
-    @PostMapping(value = "/topic/new", produces = {"application/json"})
+    @PostMapping(value = "/topic/new", consumes = {"application/json"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
 
         Topic topic = new Topic();

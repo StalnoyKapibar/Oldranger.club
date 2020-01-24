@@ -1,5 +1,19 @@
 # Oldranger.club
 ## Запуск проекта (бэк)
+
+###Прежде всего для развертывания backend можно использовать Docker
+для этого в папке проекта запускаем `docker-compose up -d`
+
+После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash
+
+Пароль для базы и имя пользователя test/test
+
+Пароль для входа kibana - elastic/changeme
+
+При данном способе предварительно нужно установить только JDK 8 и IDEA
+
+###Длинный способ ниже
+
 1. Устанавливаем JDK 8  
     [Идем на страницу Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  
     Кликаем на Accept License Agreement и выбираем версию под свою ОС. Для Win10x64 нужный файл будет иметь вид типа jdk-8u231-windows-x64.exe  
@@ -64,6 +78,19 @@
    В случае, если бы над классом контроллера был бы указан какой-то RequestMapping, например @RequestMapping("/test"), то полный путь бы складывался из RequestMapping + GetMapping т.е http://localhost:8888/test/chat  
 ## Просмотр логов через Kibana
 ### Установка
+
+Прежде всего можно использовать Docker
+
+Для этого в папке проекта запускаем `docker-compose up -d`
+
+После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash
+
+Пароль для базы и имя пользователя test/test
+
+Пароль для входа kibana - elastic/changeme
+
+Другой способ ниже...
+
 1. _Скачиваем elasticsearch, logstash, kibana_  
 
    Для винды:  

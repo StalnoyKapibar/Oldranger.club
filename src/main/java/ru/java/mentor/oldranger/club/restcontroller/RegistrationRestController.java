@@ -11,7 +11,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -43,9 +46,10 @@ public class RegistrationRestController {
                 .replaceAll("%3D", "=").replaceAll("%26", "&")
                 .replaceAll("%2523", "#").replaceAll(" ", "+");
         String dec = null;
-        User user = new User();
+        User user = null;
         try {
             dec = new String(Base64.getDecoder().decode(enc));
+            user = userService.getUserByInviteKey(dec.split(" ")[5]);
             user.setNickName(dec.split(" ")[0]);
             user.setFirstName(dec.split(" ")[1]);
             user.setLastName(dec.split(" ")[2]);
@@ -56,6 +60,7 @@ public class RegistrationRestController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
         userService.save(user);
         invitationService.getInvitationTokenByKey(dec.split(" ")[5]).setVisitor(user);
         invitationService.markAsUsed(dec.split(" ")[5]);

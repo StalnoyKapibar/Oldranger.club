@@ -122,4 +122,10 @@ public class UserServiceImpl implements UserService {
         Optional<User> result = userRepository.findUserByEmailOrNickName(login);
         return result.orElseThrow(() -> new UsernameNotFoundException("There is no such user."));
     }
+
+    @Override
+    public User getUserByInviteKey(String key) {
+        log.debug("Get user by inviti key ={}", key);
+        return userRepository.findUserByInviteKey(key).orElseThrow(() -> new UsernameNotFoundException("There is no such invite key"));
+    }
 }
