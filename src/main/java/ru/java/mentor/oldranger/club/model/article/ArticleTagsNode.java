@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.model.article;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "article_tags_tree")
 public class ArticleTagsNode {
     @Id
@@ -17,12 +19,12 @@ public class ArticleTagsNode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent")
     private ArticleTagsNode parent;
 
-    @Column(name = "order")
-    private Integer order;
+    @Column(name = "position")
+    private Integer position;
 
     @OneToOne(fetch = FetchType.EAGER)
     private ArticleTag tag;
