@@ -79,9 +79,9 @@ public class ArticleRestController {
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon) {
         User user = securityUtilsService.getLoggedUser();
         Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
-//        if (tagsArt.size() == 0) {
-//            return ResponseEntity.noContent().build();
-//        }
+        if (tagsArt.size() == 0) {
+            return ResponseEntity.noContent().build();
+        }
         Set<User> like = new HashSet<>();
         Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon, like);
         articleService.addArticle(article);
