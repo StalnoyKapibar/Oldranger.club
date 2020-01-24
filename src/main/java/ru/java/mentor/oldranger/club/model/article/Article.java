@@ -1,13 +1,15 @@
 package ru.java.mentor.oldranger.club.model.article;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -29,10 +31,10 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(name = "article_tags",
-            joinColumns = { @JoinColumn(name = "article_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tag_id") })
+            joinColumns = {@JoinColumn(name = "article_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     private Set<ArticleTag> articleTags;
 
     @Column(name = "article_date")
@@ -48,22 +50,19 @@ public class Article {
     private boolean isHideToAnon;
 
     @LazyCollection(LazyCollectionOption.EXTRA)
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch=FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "like_users",
-            joinColumns = { @JoinColumn(name = "article_id") },
-            inverseJoinColumns = { @JoinColumn(name = "user_id") })
-    private Set<User> likes;
+            joinColumns = {@JoinColumn(name = "article_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")})
+    private Set<User> likes = new HashSet<>();
 
-
-
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, Set<User> likes) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
         this.isHideToAnon = isHideToAnon;
-        this.likes = likes;
     }
 
 }

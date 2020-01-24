@@ -13,7 +13,6 @@ public interface ArticleCommentLikeRepository extends JpaRepository<Article, Lon
     @Query(nativeQuery = true, value = "select * from like_users where article_id = ?1 and user_id = ?2")
     Set isUserLiked(long articleId, long userId);
 
-
     @Query(nativeQuery = true, value = "SELECT COUNT(article_id) FROM like_users WHERE article_id = :articleId")
     long countLikes(long articleId);
 

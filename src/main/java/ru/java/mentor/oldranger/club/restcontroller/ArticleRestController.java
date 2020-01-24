@@ -24,7 +24,6 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -60,13 +59,6 @@ public class ArticleRestController {
         return ResponseEntity.ok(articles);
     }
 
-    ////////////////
-    @GetMapping(value = "/getAll", produces = {"application/json"})
-    public ResponseEntity<List<Article>> getAllArticle() {
-        List<Article> articles = articleService.getAllArticles();
-        return ResponseEntity.ok(articles);
-    }
-
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add article", description = "Add new article", tags = {"Article"})
     @ApiResponses(value = {
@@ -82,8 +74,7 @@ public class ArticleRestController {
         if (tagsArt.size() == 0) {
             return ResponseEntity.noContent().build();
         }
-        Set<User> like = new HashSet<>();
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon, like);
+        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
@@ -101,8 +92,8 @@ public class ArticleRestController {
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
                                                      @RequestParam("isHideToAnon") boolean isHideToAnon) {
         Article article = articleService.getArticleById(id);
-        if (article == null ) {
-          return ResponseEntity.noContent().build();
+        if (article == null) {
+            return ResponseEntity.noContent().build();
         }
         int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
         if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {

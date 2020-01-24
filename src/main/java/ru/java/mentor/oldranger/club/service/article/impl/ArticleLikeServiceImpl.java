@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentLikeRepository;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleLikeService;
 
 import java.util.Set;
@@ -14,7 +15,7 @@ public class ArticleLikeServiceImpl implements ArticleLikeService {
     private ArticleCommentLikeRepository articleCommentLikeRepository;
 
     @Override
-    public Set isUserLiked(long articleId, long userId) {
+    public Set<User> isUserLiked(long articleId, long userId) {
         return articleCommentLikeRepository.isUserLiked(articleId, userId);
     }
 
