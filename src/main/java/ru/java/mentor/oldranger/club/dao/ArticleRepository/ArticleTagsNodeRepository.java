@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import java.util.List;
