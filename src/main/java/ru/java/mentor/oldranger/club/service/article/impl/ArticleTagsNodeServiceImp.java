@@ -21,6 +21,12 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    public List<ArticleTagsNode> getAllTagsNodesTree() {
+        //ToDo
+        return null;
+    }
+
+    @Override
     public ArticleTagsNode getTagsNodeById(Long id) {
         return tagsNodeRepository.findById(id).orElse(null);
     }

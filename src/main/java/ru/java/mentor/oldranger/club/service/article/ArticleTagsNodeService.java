@@ -9,6 +9,8 @@ public interface ArticleTagsNodeService {
 
     List<ArticleTagsNode> getAllTagsNodes();
 
+    List<ArticleTagsNode> getAllTagsNodesTree();
+
     ArticleTagsNode getTagsNodeById(Long id);
 
     void addTagsNode(ArticleTagsNode tagsNode);

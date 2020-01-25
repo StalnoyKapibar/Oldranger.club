@@ -44,6 +44,7 @@ public class ArticleTagsNodeRestController {
         return ResponseEntity.ok(tagsNodes);
     }
 
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Create new tags node", tags = {"Article Tags Node"})
     @ApiResponses(value = {
@@ -62,5 +63,29 @@ public class ArticleTagsNodeRestController {
         articleTagsNodeService.addTagsNode(articleTagsNode);
         return ResponseEntity.ok(articleTagsNode);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ArticleTagsNode> getTagsNodeById(@PathVariable("id") long id) {
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(articleTagsNodeService.getTagsNodeById(id));
+    }
+
+    //    @Operation(security = @SecurityRequirement(name = "security"),
+//            summary = "Get all article tags nodes tree", tags = {"Article Tags Node Tree"})
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
+//            @ApiResponse(responseCode = "204", description = "admin role required")})
+//    @GetMapping(value = "", produces = {"application/json"})
+//    public ResponseEntity<List<ArticleTagsNode>> getAllTagsNodesTree() {
+//        if (!securityUtilsService.isAdmin())
+//            return ResponseEntity.noContent().build();
+//
+//        List<ArticleTagsNode> tagsNodes = articleTagsNodeService.getAllTagsNodes();
+//        return ResponseEntity.ok(tagsNodes);
+//    }
+
 
 }
