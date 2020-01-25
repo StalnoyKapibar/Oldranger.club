@@ -8,15 +8,15 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@AllArgsConstructor
 @ToString
+@Entity
 @Table(name = "article_tags_tree")
 public class ArticleTagsNode {
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,4 +28,10 @@ public class ArticleTagsNode {
 
     @OneToOne(fetch = FetchType.EAGER)
     private ArticleTag tag;
+
+    public ArticleTagsNode(ArticleTagsNode parent, int position, ArticleTag tag) {
+        this.parent = parent;
+        this.position = position;
+        this.tag = tag;
+    }
 }
