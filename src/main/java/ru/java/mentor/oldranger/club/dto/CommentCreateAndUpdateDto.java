@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 @Data
-@Schema(description = "This is CommentCreateAndUpdateDto, \n where answerID - ID of comment on which answer was given ",
+@Schema(description = "This is CommentCreateAndUpdateDto,  where answerID - ID of comment on which answer was given ",
         requiredProperties = {"idUser", "idTopic"})
 public class CommentCreateAndUpdateDto {
 

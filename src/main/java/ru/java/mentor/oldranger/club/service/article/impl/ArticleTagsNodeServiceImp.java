@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
@@ -22,8 +23,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNode> getAllTagsNodesTree() {
-        //ToDo
-        return null;
+        return tagsNodeRepository.getAllTagsNodesTree();
     }
 
     @Override

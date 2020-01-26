@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +27,8 @@ public class ArticleTagsNode {
     @Column(name = "position")
     private Integer position;
 
+    private String name;
+
     @OneToOne(fetch = FetchType.EAGER)
     private ArticleTag tag;
 
@@ -33,5 +36,6 @@ public class ArticleTagsNode {
         this.parent = parent;
         this.position = position;
         this.tag = tag;
+        this.name = UUID.randomUUID().toString();
     }
 }

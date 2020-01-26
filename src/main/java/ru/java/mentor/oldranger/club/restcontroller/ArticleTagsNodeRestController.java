@@ -78,14 +78,13 @@ public class ArticleTagsNodeRestController {
 //            @ApiResponse(responseCode = "200",
 //                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
 //            @ApiResponse(responseCode = "204", description = "admin role required")})
-//    @GetMapping(value = "", produces = {"application/json"})
-//    public ResponseEntity<List<ArticleTagsNode>> getAllTagsNodesTree() {
-//        if (!securityUtilsService.isAdmin())
-//            return ResponseEntity.noContent().build();
-//
-//        List<ArticleTagsNode> tagsNodes = articleTagsNodeService.getAllTagsNodes();
-//        return ResponseEntity.ok(tagsNodes);
-//    }
+    @GetMapping(value = "/tree", produces = {"application/json"})
+    public ResponseEntity<List<ArticleTagsNode>> getAllTagsNodesTree() {
+        if (!securityUtilsService.isAdmin())
+            return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(articleTagsNodeService.getAllTagsNodesTree());
+    }
 
 
 }
