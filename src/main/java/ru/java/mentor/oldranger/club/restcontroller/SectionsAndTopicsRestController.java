@@ -11,17 +11,22 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import ru.java.mentor.oldranger.club.service.user.RoleService;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +41,10 @@ public class SectionsAndTopicsRestController {
     private TopicService topicService;
     private SectionsAndTopicsService sectionsAndTopicsService;
     private WritingBanService writingBanService;
-    private RoleService roleService;
+    private PhotoService photoService;
+    private MediaService mediaService;
+    private PhotoAlbumService albumService;
+
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
@@ -82,10 +90,20 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
-    @PostMapping(value = "/topic/new", consumes = {"application/json"})
-    public ResponseEntity<Topic> getSectionsAndTopicsDto(@RequestBody Topic topicDetails) {
+    @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
+    public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails
+            , @RequestParam List<MultipartFile> photos) {
+        User user = securityUtilsService.getLoggedUser();
+
 
         Topic topic = new Topic();
+        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        albumService.save(photoAlbum);
+
+        for (MultipartFile file : photos) {
+            photoService.save(photoAlbum, file);
+        }
 
         topic.setName(topicDetails.getName());
         topic.setTopicStarter(securityUtilsService.getLoggedUser());
@@ -94,7 +112,7 @@ public class SectionsAndTopicsRestController {
         topic.setSubsection(topicDetails.getSubsection());
         topic.setStartMessage(topicDetails.getStartMessage());
 
-        topic.setHideToAnon(topic.getSubsection().isHideToAnon() | topicDetails.isHideToAnon());
+        topic.setHideToAnon(topicDetails.isHideToAnon() || topic.getSubsection().isHideToAnon());
         topic.setForbidComment(false);
 
         topicService.createTopic(topic);
