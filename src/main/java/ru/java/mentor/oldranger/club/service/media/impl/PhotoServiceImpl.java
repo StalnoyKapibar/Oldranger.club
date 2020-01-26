@@ -175,21 +175,13 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoCommentDto conversionCommentToDto(PhotoComment photoComment) {
-        LocalDateTime replyTime = null;
-        String replyNick = null;
-        String replyText = null;
-        if (photoComment.getAnswerTo() != null) {
-            replyTime = photoComment.getAnswerTo().getDateTime();
-            replyNick = photoComment.getAnswerTo().getUser().getNickName();
-            replyText = photoComment.getAnswerTo().getCommentText();
-        }
         return new PhotoCommentDto(
                 photoComment.getPosition(),
                 photoComment.getPhoto().getId(),
                 photoComment.getUser(),
                 photoComment.getDateTime(),
                 userStatisticService.getUserStaticById(photoComment.getUser().getId()).getMessageCount(),
-                replyTime, replyNick, replyText, photoComment.getCommentText());
+                photoComment.getCommentText());
     }
 
     @Override
@@ -244,22 +236,11 @@ public class PhotoServiceImpl implements PhotoService {
         log.debug("Assembling photo comment {} dto", comment);
         PhotoCommentDto commentDto = new PhotoCommentDto();
         try {
-            LocalDateTime replyTime = null;
-            String replyNick = null;
-            String replyText = null;
-            if (comment.getAnswerTo() != null) {
-                replyTime = comment.getAnswerTo().getDateTime();
-                replyNick = comment.getAnswerTo().getUser().getNickName();
-                replyText = comment.getAnswerTo().getCommentText();
-            }
             commentDto.setPositionInPhoto(comment.getPosition());
             commentDto.setPhotoId(comment.getPhoto().getId());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());
             commentDto.setCommentCount(comment.getPhoto().getCommentCount());
-            commentDto.setReplyDateTime(replyTime);
-            commentDto.setReplyNick(replyNick);
-            commentDto.setReplyText(replyText);
             commentDto.setCommentText(comment.getCommentText());
             log.debug("Comment dto assembled");
         } catch (Exception e) {

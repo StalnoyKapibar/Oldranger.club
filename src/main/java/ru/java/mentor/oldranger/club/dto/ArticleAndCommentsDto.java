@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.article.Article;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PhotoAndCommentsDTO {
+public class ArticleAndCommentsDto {
 
-    private Photo photo;
-    private Page<PhotoCommentDto> commentDto;
+    private Article article;
+    private Page<ArticleCommentDto> articleCommentDto;
 }

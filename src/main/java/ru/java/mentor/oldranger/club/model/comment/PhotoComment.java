@@ -23,13 +23,8 @@ public class PhotoComment extends BaseComment {
     @JoinColumn(name = "id_photo")
     private Photo photo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_comment")
-    private PhotoComment answerTo;
-
-    public PhotoComment(Photo photo, User user, PhotoComment answerTo, LocalDateTime dateTime, String commentText) {
+    public PhotoComment(Photo photo, User user, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);
         this.photo = photo;
-        this.answerTo = answerTo;
     }
 }

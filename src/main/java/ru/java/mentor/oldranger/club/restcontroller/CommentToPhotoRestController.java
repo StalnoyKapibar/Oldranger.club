@@ -18,12 +18,14 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @RestController
@@ -45,21 +47,20 @@ public class CommentToPhotoRestController {
                     description = "Error adding comment")})
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<PhotoCommentDto> addNewComment(@RequestParam("idPhoto") Long idPhoto,
-                                                         @RequestParam("idUser") Long idUser,
-                                                         @RequestParam(value="answerId", required = false) Long answerId,
-                                                         @RequestBody String commentText) {
+                                                         @RequestParam("commentText") String commentText) {
         User currentUser = securityUtilsService.getLoggedUser();
-        Photo photo = photoService.findById(idPhoto);
-        User user = userService.findById(idUser);
-        PhotoComment photoComment;
-        LocalDateTime localDateTime = LocalDateTime.now();
-        if(answerId != null) {
-            PhotoComment answer = photoService.getCommentById(answerId);
-            photoComment = new PhotoComment(photo, user, answer, localDateTime, commentText);
-        } else {
-            photoComment = new PhotoComment(photo, user, null, localDateTime, commentText);
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
         }
-        if (user == null || !currentUser.getId().equals(user.getId())) {
+        Photo photo = photoService.findById(idPhoto);
+        if(photo == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        LocalDateTime localDateTime = LocalDateTime.now();
+        PhotoComment photoComment = new PhotoComment(photo, currentUser,localDateTime, commentText);
+        PhotoAlbum photoAlbum = photo.getAlbum();
+        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
         photoService.addCommentToPhoto(photoComment);
@@ -70,20 +71,20 @@ public class CommentToPhotoRestController {
             summary = "Delete comment from photo", description = "Delete comment by id", tags = {"Comment to photo"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
-            @ApiResponse(responseCode = "204", description = "Comment not found"),
-            @ApiResponse(responseCode = "403", description = "User is not logged")})
+            @ApiResponse(responseCode = "400", description = "Error delete comment")})
     @DeleteMapping(value = "/delete/{id}", produces = {"application/json"})
     public ResponseEntity deletePhotoComment(@PathVariable(value = "id") Long id) {
         PhotoComment photoComment = photoService.getCommentById(id);
-        User currentUser = securityUtilsService.getLoggedUser();
-        User user = photoComment.getUser();
-
-        if (photoComment.getId() == null) {
-            return ResponseEntity.noContent().build();
+        if (photoComment == null) {
+            return ResponseEntity.badRequest().build();
         }
-
-        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
-            return ResponseEntity.status(403).build();
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        User user = photoComment.getUser();
+        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {
+            return ResponseEntity.badRequest().build();
         }
         photoService.deleteComment(id);
         return ResponseEntity.ok().build();
@@ -97,31 +98,25 @@ public class CommentToPhotoRestController {
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/update", produces = {"application/json"})
     public ResponseEntity<PhotoCommentDto> updatePhotoComment(@RequestParam("commentID") Long commentID,
-                                                                  @RequestParam("idPhoto") Long idPhoto,
-                                                                  @RequestParam("idUser") Long idUser,
-                                                                  @RequestParam(value="answerId", required = false) Long answerId,
-                                                                  @RequestBody String commentText) {
+                                                              @RequestParam("commentText") String commentText) {
         PhotoComment photoComment = photoService.getCommentById(commentID);
-        User currentUser = securityUtilsService.getLoggedUser();
-        User user = photoComment.getUser();
-
-        boolean admin = securityUtilsService.isAdmin();
-        boolean moderator = securityUtilsService.isModerator();
-        boolean allowedEditingTime = LocalDateTime.now().compareTo(photoComment.getDateTime().plusDays(7)) >= 0;
-
-        photoComment.setPhoto(photoService.findById(idPhoto));
-        photoComment.setCommentText(commentText);
-        photoComment.setDateTime(photoComment.getDateTime());
-        if (answerId != null) {
-            photoComment.setAnswerTo(photoService.getCommentById(answerId));
-        } else {
-            photoComment.setAnswerTo(null);
-        }
-
-        if (idPhoto == null || !currentUser.getId().equals(user.getId()) && (!admin || !moderator) || (!admin || !moderator) && !allowedEditingTime) {
+        if (photoComment == null) {
             return ResponseEntity.badRequest().build();
         }
-
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        User user = photoComment.getUser();
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(photoComment.getDateTime().plusDays(7)) >= 0;
+        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(!securityUtilsService.isAdmin() && !securityUtilsService.isModerator() && allowedEditingTime) {
+            return ResponseEntity.badRequest().build();
+        }
+        photoComment.setCommentText(commentText);
+        photoComment.setDateTime(photoComment.getDateTime());
         photoService.updatePhotoComment(photoComment);
         PhotoCommentDto photoCommentDto = photoService.conversionCommentToDto(photoComment);
         return ResponseEntity.ok(photoCommentDto);

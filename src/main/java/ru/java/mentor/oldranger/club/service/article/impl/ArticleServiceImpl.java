@@ -1,7 +1,9 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,10 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
@@ -109,7 +111,29 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
     }
-      
+
+    @Override
+    public Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable) {
+        log.debug("Getting page {} of comment dtos for article with id = {}", pageable.getPageNumber(), article.getId());
+        Page<ArticleCommentDto> articleCommentDto = null;
+        List<ArticleComment> articleComments = new ArrayList<>();
+        try {
+            articleCommentRepository.findByArticle(article, pageable).map(articleComments::add);
+            List<ArticleCommentDto> list;
+            if (articleComments.size() != 0) {
+                list = articleComments.subList(0, articleComments.size()).
+                        stream().map(this::conversionCommentToDto).collect(Collectors.toList());
+            } else {
+                list = Collections.emptyList();
+            }
+            articleCommentDto = new PageImpl<>(list, pageable, list.size());
+            log.debug("Page returned");
+        } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        return articleCommentDto;
+    }
+
     @Override
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);

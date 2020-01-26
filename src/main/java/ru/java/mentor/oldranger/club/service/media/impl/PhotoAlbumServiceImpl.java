@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,6 +84,29 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.debug("Returned list of {} albums", albums.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+        return albums;
+    }
+
+    @Override
+    public List<PhotoAlbum> findAllByUser(User user) {
+        List<PhotoAlbum> albums = null;
+        log.debug("Getting all albums for anon");
+        try {
+            albums = albumRepository.findAllViewedByAnon();
+            log.debug("Returned list of {} albums", albums.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        if(user != null) {
+            log.debug("Getting all albums for {} user", user.getUsername());
+            try {
+                albums.addAll(albumRepository.findAllViewedByUser(user));
+                albums.stream().distinct().collect(Collectors.toList());
+                log.debug("Returned list of {} albums", albums.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         }
         return albums;
     }

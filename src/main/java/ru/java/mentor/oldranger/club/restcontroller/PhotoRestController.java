@@ -23,10 +23,13 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import java.util.Set;
+
 
 @AllArgsConstructor
 @RestController
@@ -39,17 +42,32 @@ public class PhotoRestController {
     private SecurityUtilsService securityUtilsService;
 
 
-    @Operation(summary = "Save photo in album", tags = {"Photo"})
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Save photo in album", tags = {"Photo"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights error")})
     @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
-    public Photo savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {
-        return service.save(albumService.findById(Long.parseLong(albumId)), photo);
+    public ResponseEntity<Photo> savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(service.save(photoAlbum, photo));
     }
 
-    @Operation(summary = "Get photo and a list of comments DTO by id", tags = {"Photo"})
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get photo and a list of comments DTO by id", tags = {"Photo"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoCommentDto.class)))),
-            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+            @ApiResponse(responseCode = "400", description = "Error id or rights error")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
                                                     @RequestParam(value = "page", required = false) Integer page,
@@ -58,35 +76,73 @@ public class PhotoRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.badRequest().build();
         }
-
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        PhotoAlbum photoAlbum = photo.getAlbum();
+        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
+            return ResponseEntity.badRequest().build();
+        }
         if (limit == null) {
             limit = 10;
         }
-
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
-
         if (position == null) {
             position = 0;
         }
-
         Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
         PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
-
         return ResponseEntity.ok(photoCommentsDto);
     }
 
-    @Operation(summary = "Update photo", tags = {"Photo"})
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Update photo", tags = {"Photo"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights error")})
     @PutMapping
-    public Photo updatePhoto(@RequestBody Photo photo) {
-        return service.update(photo);
+    public ResponseEntity<Photo> updatePhoto(@RequestBody Photo photo) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (photo == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        PhotoAlbum photoAlbum = photo.getAlbum();
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(service.update(photo));
     }
 
-    @Operation(summary = "Delete photo", tags = {"Photo"})
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete photo", tags = {"Photo"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "Error id or rights error")})
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void deletePhoto(@PathVariable("id") String id) {
+    public ResponseEntity deletePhoto(@PathVariable("id") String id) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        Photo photo = service.findById(Long.parseLong(id));
+        if (photo == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        PhotoAlbum photoAlbum = photo.getAlbum();
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+            return ResponseEntity.badRequest().build();
+        }
         service.deletePhoto(Long.parseLong(id));
+        return ResponseEntity.ok("delete ok");
     }
 }

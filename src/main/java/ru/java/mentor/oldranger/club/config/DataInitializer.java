@@ -124,6 +124,8 @@ public class DataInitializer implements CommandLineRunner {
         Chat chat = new Chat();
         PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
         photoAlbum.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
+        photoAlbum.addWriter(userService.getUserByNickName("Admin"));
+        photoAlbum.addViewer(userService.getUserByNickName("Admin"));
         albumService.save(photoAlbum);
         chat.setPhotoAlbum(photoAlbum);
         chatService.createChat(chat);

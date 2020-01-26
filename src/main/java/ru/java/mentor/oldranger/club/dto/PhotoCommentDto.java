@@ -17,9 +17,6 @@ public class PhotoCommentDto {
     private User author;
     private LocalDateTime commentDateTime;
     private Long commentCount;
-    private LocalDateTime replyDateTime;
-    private String replyNick;
-    private String replyText;
     private String commentText;
 
 }
