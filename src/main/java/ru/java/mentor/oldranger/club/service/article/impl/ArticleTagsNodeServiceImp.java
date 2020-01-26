@@ -4,11 +4,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
+import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -19,11 +22,17 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     @Override
     public List<ArticleTagsNode> getAllTagsNodes() {
         return tagsNodeRepository.findAll();
+//        return tagsNodeRepository.findAll().stream().map(e ->  new ArticleTagsNodeDto(
+//             e.getId(), e.getParent(),e.getPosition(), e.getTag())
+//        ).collect(Collectors.toList());
     }
 
     @Override
-    public List<ArticleTagsNode> getAllTagsNodesTree() {
-        return tagsNodeRepository.getAllTagsNodesTree();
+    public List<ArticleTagsNodeDto> getAllTagsNodesTree() {
+//        return tagsNodeRepository.getAllTagsNodesTree();
+        return tagsNodeRepository.getAllTagsNodesTree().stream().map(e ->  new ArticleTagsNodeDto(
+                e.getId(), e.getParent() == null ? -1L : e.getParent().getId(),e.getPosition(), e.getTag())
+        ).collect(Collectors.toList());
     }
 
     @Override

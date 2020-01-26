@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.service.article;
 
 import org.springframework.http.ResponseEntity;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
+import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import java.util.List;
@@ -10,7 +12,7 @@ public interface ArticleTagsNodeService {
 
     List<ArticleTagsNode> getAllTagsNodes();
 
-    List<ArticleTagsNode> getAllTagsNodesTree();
+    List<ArticleTagsNodeDto> getAllTagsNodesTree();
 
     ArticleTagsNode getTagsNodeById(Long id);
 
