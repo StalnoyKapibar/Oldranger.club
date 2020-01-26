@@ -95,6 +95,7 @@ public class SectionsAndTopicsRestController {
             , @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
 
+
         Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
         photoAlbum.setMedia(mediaService.findMediaByUser(user));
