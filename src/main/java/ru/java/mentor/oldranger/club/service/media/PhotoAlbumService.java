@@ -12,8 +12,6 @@ public interface PhotoAlbumService {
 
     List<PhotoAlbum> findAll();
 
-    List<PhotoAlbum> findAllByUser(User user);
-
     List<Photo> getAllPhotos(PhotoAlbum album);
 
     void deleteAllAlbums();
@@ -25,5 +23,7 @@ public interface PhotoAlbumService {
     PhotoAlbum update(PhotoAlbum album);
 
     void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album);
+
+    public List<PhotoAlbum> findAllByUser(User user);
 
 }

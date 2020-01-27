@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.model.forum;
 import lombok.*;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -51,7 +52,19 @@ public class Topic {
     @Column(name = "forbid_add_update_comment", columnDefinition = "TINYINT")
     private boolean isForbidComment;
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon, boolean isForbidComment) {
+    @OneToOne
+    private PhotoAlbum photoAlbum;
+
+    public PhotoAlbum getPhotoAlbum() {
+        return photoAlbum;
+    }
+
+    public void setPhotoAlbum(PhotoAlbum photoAlbum) {
+        this.photoAlbum = photoAlbum;
+    }
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime
+            , Subsection subsection, boolean isHideToAnon, boolean isForbidComment) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
@@ -62,7 +75,9 @@ public class Topic {
         this.isForbidComment = isForbidComment;
     }
 
-    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage, LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon, boolean isForbidComment) {
+    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage
+            , LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon
+            , boolean isForbidComment) {
         this.name = name;
         this.topicStarter = topicStarter;
         this.startTime = startTime;
@@ -71,6 +86,33 @@ public class Topic {
         this.isHideToAnon = isHideToAnon;
         this.startMessage = startMessage;
         this.isForbidComment = isForbidComment;
+    }
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, LocalDateTime lastMessageTime
+            , Subsection subsection, boolean isHideToAnon, boolean isForbidComment, PhotoAlbum photoAlbum) {
+        this.name = name;
+        this.topicStarter = topicStarter;
+        this.startTime = startTime;
+        this.lastMessageTime = lastMessageTime;
+        this.subsection = subsection;
+        this.isHideToAnon = isHideToAnon;
+        this.startMessage = "Default start message";
+        this.isForbidComment = isForbidComment;
+        this.photoAlbum = photoAlbum;
+    }
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage
+            , LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon
+            , boolean isForbidComment, PhotoAlbum photoAlbum) {
+        this.name = name;
+        this.topicStarter = topicStarter;
+        this.startTime = startTime;
+        this.lastMessageTime = lastMessageTime;
+        this.subsection = subsection;
+        this.isHideToAnon = isHideToAnon;
+        this.startMessage = startMessage;
+        this.isForbidComment = isForbidComment;
+        this.photoAlbum = photoAlbum;
     }
 
     public Section getSection() {

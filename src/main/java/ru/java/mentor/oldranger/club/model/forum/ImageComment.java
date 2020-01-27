@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @NoArgsConstructor

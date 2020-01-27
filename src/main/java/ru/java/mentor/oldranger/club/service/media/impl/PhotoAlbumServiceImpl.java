@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
-import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
-import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -19,11 +17,9 @@ import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +44,30 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private int medium;
     @Value("${upload.small}")
     private int small;
+
+    @Override
+    public List<PhotoAlbum> findAllByUser(User user) {
+        List<PhotoAlbum> albums = null;
+        log.debug("Getting all albums for anon");
+        try {
+            albums = albumRepository.findAllViewedByAnon();
+            log.debug("Returned list of {} albums", albums.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        if(user != null) {
+            log.debug("Getting all albums for {} user", user.getUsername());
+            try {
+                albums.addAll(albumRepository.findAllViewedByUser(user));
+                albums.stream().distinct().collect(Collectors.toList());
+                log.debug("Returned list of {} albums", albums.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return albums;
+    }
+
 
     @Override
     public PhotoAlbum save(PhotoAlbum album) {
@@ -84,29 +104,6 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.debug("Returned list of {} albums", albums.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-        }
-        return albums;
-    }
-
-    @Override
-    public List<PhotoAlbum> findAllByUser(User user) {
-        List<PhotoAlbum> albums = null;
-        log.debug("Getting all albums for anon");
-        try {
-            albums = albumRepository.findAllViewedByAnon();
-            log.debug("Returned list of {} albums", albums.size());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        if(user != null) {
-            log.debug("Getting all albums for {} user", user.getUsername());
-            try {
-                albums.addAll(albumRepository.findAllViewedByUser(user));
-                albums.stream().distinct().collect(Collectors.toList());
-                log.debug("Returned list of {} albums", albums.size());
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
         }
         return albums;
     }
