@@ -17,8 +17,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Article findById(long id);
 
     void deleteAllByIdIn(List<Long> ids);
-  
+
     @Query(nativeQuery = true,
             value = "select * from articles a where a.article_hide = false")
     Page<Article> getArticlesForAnon(Pageable pageable);
+
 }

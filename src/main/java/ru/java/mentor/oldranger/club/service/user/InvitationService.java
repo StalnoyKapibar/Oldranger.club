@@ -18,6 +18,7 @@ public interface InvitationService {
     String getCurrentKey(User user);
 
     String generateKey();
+
     String generateMD5Key(String email);
 
     LocalDateTime getDateCreate(String key);

@@ -1,7 +1,10 @@
 package ru.java.mentor.oldranger.club.model.user;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
 import java.util.Objects;
 

@@ -21,7 +21,6 @@ import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
-import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -118,8 +117,7 @@ public class TokenRestController {
                                                     @RequestBody RegistrationUserDto registrationUserDto) {
 
 
-
-        if (userService.getUserByInviteKey(registrationUserDto.getKey()) == null ) {
+        if (userService.getUserByInviteKey(registrationUserDto.getKey()) == null) {
             return ResponseEntity.badRequest().build();
         }
         try {

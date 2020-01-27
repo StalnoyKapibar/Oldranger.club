@@ -30,8 +30,8 @@ import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -168,7 +168,6 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-
         Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
         Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
@@ -187,7 +186,7 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic8);
 
         boolean b = false;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 2; i++) {
             b = !b;
             Random random = new Random();
             Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
@@ -247,6 +246,7 @@ public class DataInitializer implements CommandLineRunner {
 
         ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
         for (int i = 1; i < 11; i++) {
+
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),

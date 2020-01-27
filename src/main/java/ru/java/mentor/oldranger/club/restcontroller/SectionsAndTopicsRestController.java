@@ -133,6 +133,7 @@ public class SectionsAndTopicsRestController {
     public ResponseEntity<Topic> editTopic(@RequestBody Topic topicDetails) {
 
         Topic topic = topicService.findById(topicDetails.getId());
+        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
         User user = topicDetails.getTopicStarter();
         User currentUser = securityUtilsService.getLoggedUser();
 
@@ -147,7 +148,7 @@ public class SectionsAndTopicsRestController {
             topic.setForbidComment(false);
         }
 
-        if (topicDetails.getId() == null  || !currentUser.getId().equals(user.getId()) && !securityUtilsService.isModerator()) {
+        if (topicDetails.getId() == null || !currentUser.getId().equals(user.getId()) && !securityUtilsService.isModerator()) {
             return ResponseEntity.badRequest().build();
         }
         topicService.editTopicByName(topic);

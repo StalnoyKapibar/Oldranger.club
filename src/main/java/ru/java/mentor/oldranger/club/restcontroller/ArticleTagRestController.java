@@ -10,12 +10,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.CommentDto;
-import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
-import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 

@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.forum;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
