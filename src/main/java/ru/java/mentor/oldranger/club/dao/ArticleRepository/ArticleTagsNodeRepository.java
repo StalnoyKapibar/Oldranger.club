@@ -45,6 +45,27 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "order by path")
     List<ArticleTagsNode>  getAllTagsNodesTree();
 
+    @Query(nativeQuery = true,
+    value = "WITH RECURSIVE CTE AS   " +
+            "                   (   " +
+            "                       SELECT parent,   " +
+            "                              article_tags_tree.id   " +
+            "                       FROM article_tags_tree   " +
+            "                       WHERE parent = 1   " +
+            "                       UNION ALL   " +
+            "                       SELECT c.parent,   " +
+            "                              c.id   " +
+            "                       FROM CTE AS sc   " +
+            "                                JOIN article_tags_tree AS c ON sc.id = c.parent   " +
+            "                   )   " +
+            "SELECT *   " +
+            "FROM CTE   " +
+            "union all   " +
+            "select null,   " +
+            "       1;")
+    void deleteAllByIdIn(List<Long> ids);
+
+
 //    @Query(nativeQuery = true,
 //            value = "WITH RECURSIVE CTE AS " +
 //                    "                   ( " +

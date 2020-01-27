@@ -26,9 +26,8 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNodeDto> getAllTagsNodesTree() {
-        return tagsNodeRepository.getAllTagsNodesTree().stream().map(e -> new ArticleTagsNodeDto(
+        return tagsNodeRepository.getAllTagsNodesTree().stream().map(e -> new ArticleTagsNodeDto(e.getId(),
                 e.getParent() == null ? -1L : e.getParent().getId(),
-                e.getPosition(),
                 e.getTag(),
                 e.getTagsHierarchy())
         ).collect(Collectors.toList());
@@ -49,10 +48,10 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
         tagsNodeRepository.save(tagsNode);
     }
 
-    @Override
-    public void deleteArticleTagsNode(ArticleTagsNode tagsNode) {
-        tagsNodeRepository.delete(tagsNode);
-    }
+//    @Override
+//    public void deleteArticleTagsNode(ArticleTagsNode tagsNode) {
+//        tagsNodeRepository.delete(tagsNode);
+//    }
 
     @Override
     public Set<ArticleTagsNode> addArticleTagsNodeToSet(List<Long> tagsNodes) {

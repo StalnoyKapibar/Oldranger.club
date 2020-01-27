@@ -85,7 +85,19 @@ public class ArticleTagsNodeRestController {
         return ResponseEntity.ok(articleTagsNodeService.getTagsNodeById(id));
     }
 
-
+//    @Operation(security = @SecurityRequirement(name = "security"),
+//            summary = "Delete node", description = "Delete node with all child", tags = {"Article TagsNode"})
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "204", description = "Error deleting node")})
+//    @DeleteMapping(value = "/delete")
+//    public ResponseEntity deleteNode(@RequestParam("id") Long id) {
+//
+//        if (id == null || !securityUtilsService.isAdmin()) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//        articleTagsNodeService.delete(id);
+//        return ResponseEntity.ok().build();
+//    }
 
 
 }

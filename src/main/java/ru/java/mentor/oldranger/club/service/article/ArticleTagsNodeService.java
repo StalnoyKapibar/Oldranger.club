@@ -20,7 +20,7 @@ public interface ArticleTagsNodeService {
 
     void updateArticleTagsNode(ArticleTagsNode tagsNode);
 
-    void deleteArticleTagsNode(ArticleTagsNode tagsNode);
+//    void deleteArticleTagsNode(ArticleTagsNode tagsNode);
 
     Set<ArticleTagsNode> addArticleTagsNodeToSet(List<Long> tagsNodes);
 }
