@@ -51,6 +51,8 @@ public class TokenRestController {
     @Value("${server.port}")
     private String port;
 
+    private String clientport = "3000";
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save invitation token", tags = {"Registration token"})
     @ApiResponses(value = {
@@ -99,7 +101,7 @@ public class TokenRestController {
         newInviteUser.setEmail(mail);
         newInviteUser.setInvite(key);
         userService.save(newInviteUser);
-        String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
+        String link = protocol + "://" + host + ":" + clientport + "/registration/" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, user.getFirstName(), "letterToInvite.html", link);
         invitationService.markInviteOnMailAsUsed(mail);
