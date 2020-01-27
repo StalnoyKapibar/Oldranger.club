@@ -27,7 +27,8 @@ public class ArticleTagsNode {
     @Column(name = "position")
     private Integer position;
 
-    private String name;
+    @Column(name = "tags_hierarchy")
+    private String tagsHierarchy;
 
     @OneToOne(fetch = FetchType.EAGER)
     private ArticleTag tag;
@@ -36,6 +37,5 @@ public class ArticleTagsNode {
         this.parent = parent;
         this.position = position;
         this.tag = tag;
-        this.name = UUID.randomUUID().toString();
     }
 }
