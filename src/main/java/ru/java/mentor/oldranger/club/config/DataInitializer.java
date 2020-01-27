@@ -168,7 +168,6 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-
         Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
         Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
@@ -244,8 +243,6 @@ public class DataInitializer implements CommandLineRunner {
         articleTagService.addTag(newsTag1);
         articleTagService.addTag(newsTag2);
         articleTagService.addTag(newsTag3);
-
-
 
         ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
         for (int i = 1; i < 11; i++) {
