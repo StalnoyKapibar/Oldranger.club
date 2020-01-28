@@ -105,10 +105,11 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
-    @PutMapping
-    public ResponseEntity<Photo> updatePhoto(@RequestBody Photo photo) {
+    @RequestMapping(value = "/{photoId}", method = RequestMethod.PUT)
+    public ResponseEntity<Photo> updatePhoto(@RequestBody MultipartFile newPhoto, @PathVariable("photoId") String photoId) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (photo == null) {
+        Photo photo = service.findById(Long.valueOf(photoId));
+        if (photo == null || newPhoto == null) {
             return ResponseEntity.badRequest().build();
         }
         if(currentUser == null) {
@@ -119,7 +120,7 @@ public class PhotoRestController {
                 !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(service.update(photo));
+        return ResponseEntity.ok(service.update(newPhoto, photo));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

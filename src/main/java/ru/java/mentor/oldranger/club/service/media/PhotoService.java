@@ -19,7 +19,7 @@ public interface PhotoService {
 
     void deletePhotoByName(String name);
 
-    Photo update(Photo photo);
+    Photo update(MultipartFile newPhoto, Photo photo);
 
     List<Photo> findOldPhoto(PhotoAlbum album);
 

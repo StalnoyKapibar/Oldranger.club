@@ -229,12 +229,33 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public Photo update(Photo photo) {
+    public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
         Photo updatedPhoto = null;
         try {
-            updatedPhoto = photoRepository.save(photo);
-            log.debug("Photo saved");
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            String pathToImg = userName + File.separator + "photo_albums" + File.separator + photo.getAlbum().getId() + File.separator;
+            String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(newPhoto.getOriginalFilename());
+            String resultFileName = pathToImg + fileName;
+
+            File uploadPath = new File(albumsdDir + File.separator + resultFileName);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+            Path copyLocation = Paths.get(uploadPath + File.separator + fileName);
+
+            Files.copy(newPhoto.getInputStream(), copyLocation);
+
+
+            Thumbnails.of(uploadPath + File.separator + fileName)
+                    .size(small, small)
+                    .toFile(uploadPath + File.separator + "small_" + fileName);
+
+            photo.setOriginal(resultFileName + File.separator + fileName);
+            photo.setSmall(resultFileName + File.separator + fileName);
+            photo.setUploadPhotoDate(LocalDateTime.now());
+            photo = photoRepository.save(photo);
+            log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
