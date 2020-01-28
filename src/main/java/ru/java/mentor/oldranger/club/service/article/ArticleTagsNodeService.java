@@ -10,17 +10,17 @@ import java.util.Set;
 
 public interface ArticleTagsNodeService {
 
-    List<ArticleTagsNode> getAllTagsNodes();
+    List<ArticleTagsNode> findAll();
 
-    List<ArticleTagsNodeDto> getAllTagsNodesTree();
+    List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes();
 
-    ArticleTagsNode getTagsNodeById(Long id);
+    ArticleTagsNode findById(Long id);
 
-    void addTagsNode(ArticleTagsNode tagsNode);
+    void save(ArticleTagsNode tagsNode);
 
-    void updateArticleTagsNode(ArticleTagsNode tagsNode);
+    void delete(ArticleTagsNode tagsNode);
 
-//    void deleteArticleTagsNode(ArticleTagsNode tagsNode);
+    void deleteById(Long id);
 
-    Set<ArticleTagsNode> addArticleTagsNodeToSet(List<Long> tagsNodes);
+    Set<ArticleTagsNode> findByIdIn(List<Long> tagsNodes);
 }

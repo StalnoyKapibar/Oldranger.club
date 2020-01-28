@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
@@ -41,7 +40,7 @@ public class ArticleTagsNodeRestController {
         if (!securityUtilsService.isAdmin())
             return ResponseEntity.noContent().build();
 
-        return ResponseEntity.ok(articleTagsNodeService.getAllTagsNodesTree());
+        return ResponseEntity.ok(articleTagsNodeService.findHierarchyTreeOfAllTagsNodes());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -55,7 +54,7 @@ public class ArticleTagsNodeRestController {
         if (!securityUtilsService.isAdmin())
             return ResponseEntity.noContent().build();
 
-        return ResponseEntity.ok(articleTagsNodeService.getAllTagsNodes());
+        return ResponseEntity.ok(articleTagsNodeService.findAll());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -70,10 +69,10 @@ public class ArticleTagsNodeRestController {
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
         }
-        ArticleTagsNode articleTagsNode = new ArticleTagsNode(articleTagsNodeService.getTagsNodeById(parentId),
+        ArticleTagsNode articleTagsNode = new ArticleTagsNode(articleTagsNodeService.findById(parentId),
                 position, articleTagService.getTagById(tagId));
 
-        articleTagsNodeService.addTagsNode(articleTagsNode);
+        articleTagsNodeService.save(articleTagsNode);
         return ResponseEntity.ok(articleTagsNode);
     }
 
@@ -82,7 +81,7 @@ public class ArticleTagsNodeRestController {
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(articleTagsNodeService.getTagsNodeById(id));
+        return ResponseEntity.ok(articleTagsNodeService.findById(id));
     }
 
 //    @Operation(security = @SecurityRequirement(name = "security"),

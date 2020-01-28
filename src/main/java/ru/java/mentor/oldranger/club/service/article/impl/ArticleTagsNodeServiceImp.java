@@ -20,12 +20,12 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     private ArticleTagsNodeRepository tagsNodeRepository;
 
     @Override
-    public List<ArticleTagsNode> getAllTagsNodes() {
+    public List<ArticleTagsNode> findAll() {
         return tagsNodeRepository.findAll();
     }
 
     @Override
-    public List<ArticleTagsNodeDto> getAllTagsNodesTree() {
+    public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
         return tagsNodeRepository.getAllTagsNodesTree().stream().map(e -> new ArticleTagsNodeDto(e.getId(),
                 e.getParent() == null ? -1L : e.getParent().getId(),
                 e.getTag(),
@@ -34,27 +34,27 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
-    public ArticleTagsNode getTagsNodeById(Long id) {
+    public ArticleTagsNode findById(Long id) {
         return tagsNodeRepository.findById(id).orElse(null);
     }
 
     @Override
-    public void addTagsNode(ArticleTagsNode tagsNode) {
+    public void save(ArticleTagsNode tagsNode) {
         tagsNodeRepository.save(tagsNode);
     }
 
     @Override
-    public void updateArticleTagsNode(ArticleTagsNode tagsNode) {
-        tagsNodeRepository.save(tagsNode);
+    public void delete(ArticleTagsNode tagsNode) {
+        tagsNodeRepository.delete(tagsNode);
     }
 
-//    @Override
-//    public void deleteArticleTagsNode(ArticleTagsNode tagsNode) {
-//        tagsNodeRepository.delete(tagsNode);
-//    }
+    @Override
+    public void deleteById(Long id) {
+        tagsNodeRepository.deleteById(id);
+    }
 
     @Override
-    public Set<ArticleTagsNode> addArticleTagsNodeToSet(List<Long> tagsNodes) {
+    public Set<ArticleTagsNode> findByIdIn(List<Long> tagsNodes) {
         return tagsNodeRepository.findByIdIn(tagsNodes);
     }
 }
