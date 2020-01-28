@@ -50,20 +50,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
         try {
-            albums = albumRepository.findAllViewedByAnon();
+            albums = albumRepository.findPhotoAlbumByViewersContainsOrViewersIsNull(user);
             log.debug("Returned list of {} albums", albums.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-        }
-        if(user != null) {
-            log.debug("Getting all albums for {} user", user.getUsername());
-            try {
-                albums.addAll(albumRepository.findAllViewedByUser(user));
-                albums.stream().distinct().collect(Collectors.toList());
-                log.debug("Returned list of {} albums", albums.size());
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
         }
         return albums;
     }

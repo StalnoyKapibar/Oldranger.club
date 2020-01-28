@@ -9,9 +9,6 @@ import java.util.List;
 
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
-    @Query("select distinct pht from PhotoAlbum pht join pht.viewers vws where vws=:user")
-    public List<PhotoAlbum> findAllViewedByUser(User user);
+    public List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 
-    @Query("select distinct pht from PhotoAlbum pht join pht.viewers vws where vws is null")
-    public List<PhotoAlbum> findAllViewedByAnon();
 }
