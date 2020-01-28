@@ -20,7 +20,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;

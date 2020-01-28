@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
-import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
 
