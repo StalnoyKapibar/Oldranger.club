@@ -63,21 +63,9 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
             "FROM CTE   " +
             "union all   " +
             "select  ?1;")
-    void deleteAllByIdIn(Long id);
+    List<Long> findAllChildrenIdsByParentId(Long id);
 
-
-//    @Query(nativeQuery = true,
-//            value = "WITH RECURSIVE CTE AS " +
-//                    "                   ( " +
-//                    "                       SELECT tag_id , CONCAT('', tag_id) as tags_hierarchy , CONCAT('', COALESCE(parent,'null')) as tags_node_hierarchy ,parent, position,  id,   1 AS depth, name, CONCAT(position,'=',name) AS path, position as pos " +
-//                    "                       FROM  article_tags_tree " +
-//                    "                       WHERE parent IS NULL " +
-//                    "                       UNION ALL " +
-//                    "                       SELECT  c.tag_id, CONCAT(sc.tags_hierarchy,'=', c.tag_id),  CONCAT(sc.tags_node_hierarchy,'=', COALESCE(c.parent,'')), c.parent,  c. position,c.id,  sc.depth + 1, c.name,  CONCAT( sc.path, ' > ', c.position,'=' , c.name), sc.pos " +
-//                    "                       FROM CTE AS sc " +
-//                    "                                JOIN  article_tags_tree AS c ON sc.id = c.parent " +
-//                    "                   ) " +
-//                    "SELECT *FROM CTE left join  tags as t on CTE.tag_id = t.id order by path;")
+    void deleteByIdIn(List<Long> ids);
 
 
 }
