@@ -101,7 +101,6 @@ public class ArticleTagsNodeRestControllerTEMP_DeleteThisControllerAfter2020_02 
         if (id == null || id < 0 || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        //
         articleTagsNodeService.deleteById(id);
         return ResponseEntity.ok().build();
     }
