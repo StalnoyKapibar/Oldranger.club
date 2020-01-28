@@ -8,8 +8,10 @@ import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -24,11 +26,11 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
-        return tagsNodeRepository.findAllChildrenTree().stream().map(e -> new ArticleTagsNodeDto(e.getId(),
+        return tagsNodeRepository.findAllChildrenTree().stream().map(e -> new ArticleTagsNodeDto(
+                e.getId(),
                 e.getParent() == null ? -1L : e.getParent().getId(),
                 e.getTag(),
-                e.getTagsHierarchy())
-        ).collect(Collectors.toList());
+                Stream.of(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList()));
     }
 
     @Override
