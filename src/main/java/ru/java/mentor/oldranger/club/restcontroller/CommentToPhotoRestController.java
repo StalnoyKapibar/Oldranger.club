@@ -64,7 +64,7 @@ public class CommentToPhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         photoService.addCommentToPhoto(photoComment);
-        return ResponseEntity.ok(photoService.conversionCommentToDto(photoComment));
+        return ResponseEntity.ok(photoService.assembleCommentDto(photoComment));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -118,7 +118,7 @@ public class CommentToPhotoRestController {
         photoComment.setCommentText(commentText);
         photoComment.setDateTime(photoComment.getDateTime());
         photoService.updatePhotoComment(photoComment);
-        PhotoCommentDto photoCommentDto = photoService.conversionCommentToDto(photoComment);
+        PhotoCommentDto photoCommentDto = photoService.assembleCommentDto(photoComment);
         return ResponseEntity.ok(photoCommentDto);
     }
 }

@@ -125,11 +125,6 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public PhotoCommentDto conversionCommentToDto(PhotoComment photoComment) {
-        return null;
-    }
-
-    @Override
     public void deleteComment(long id) {
         photoCommentRepository.deleteById(id);
     }

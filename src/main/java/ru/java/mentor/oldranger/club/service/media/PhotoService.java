@@ -27,8 +27,6 @@ public interface PhotoService {
 
     PhotoComment getCommentById(Long id);
 
-    PhotoCommentDto conversionCommentToDto(PhotoComment photoComment);
-
     public void deleteComment(long id);
 
     public void addCommentToPhoto(PhotoComment photoComment);
