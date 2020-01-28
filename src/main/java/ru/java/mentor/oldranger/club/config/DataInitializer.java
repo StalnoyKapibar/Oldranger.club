@@ -168,7 +168,6 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-
         Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
         Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
