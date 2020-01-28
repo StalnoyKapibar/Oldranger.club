@@ -126,6 +126,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByInviteKey(String key) {
         log.debug("Get user by inviti key ={}", key);
-        return userRepository.findUserByInviteKey(key).orElseThrow(()-> new UsernameNotFoundException("There is no such invite key"));
+        return userRepository.findUserByInviteKey(key).orElseThrow(() -> new UsernameNotFoundException("There is no such invite key"));
     }
 }

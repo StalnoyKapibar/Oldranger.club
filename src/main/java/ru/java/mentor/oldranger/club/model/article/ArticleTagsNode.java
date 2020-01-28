@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.model.article;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
 

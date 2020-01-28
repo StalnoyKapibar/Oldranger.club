@@ -104,10 +104,7 @@ public class InvitationServiceImpl implements InvitationService {
         String key = token.getKey();
         LocalDateTime date = getDateCreate(key);
         Long elapsedTime = ChronoUnit.MILLIS.between(date, LocalDateTime.now());
-        if (elapsedTime >= shelfLife) {
-            return true;
-        }
-        return false;
+        return elapsedTime >= shelfLife;
     }
 
     @Override

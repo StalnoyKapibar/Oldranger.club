@@ -9,13 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
-import ru.java.mentor.oldranger.club.model.user.Role;
-import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
@@ -23,7 +24,8 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -90,8 +92,8 @@ public class ArticleRestController {
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
                                                      @RequestParam("isHideToAnon") boolean isHideToAnon) {
         Article article = articleService.getArticleById(id);
-        if (article == null ) {
-          return ResponseEntity.noContent().build();
+        if (article == null) {
+            return ResponseEntity.noContent().build();
         }
         int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
         if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {

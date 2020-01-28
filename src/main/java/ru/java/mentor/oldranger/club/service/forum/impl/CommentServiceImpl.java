@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -105,7 +104,7 @@ public class CommentServiceImpl implements CommentService {
                     .map(list::add);
             List<CommentDto> dtoList = null;
             if (list.size() != 0) {
-                 dtoList = list.subList(
+                dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
                         .stream().map(this::assembleCommentDto).collect(Collectors.toList());

@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +17,11 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
-
-import java.time.LocalDateTime;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -130,8 +129,8 @@ public class ArticleServiceImpl implements ArticleService {
             articleCommentDto = new PageImpl<>(list, pageable, list.size());
             log.debug("Page returned");
         } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
+        }
         return articleCommentDto;
     }
 
@@ -144,6 +143,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
-
     }
+
 }

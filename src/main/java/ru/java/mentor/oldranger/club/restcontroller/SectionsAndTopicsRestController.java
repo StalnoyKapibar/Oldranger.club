@@ -147,7 +147,7 @@ public class SectionsAndTopicsRestController {
             topic.setForbidComment(false);
         }
 
-        if (topicDetails.getId() == null  || !currentUser.getId().equals(user.getId()) && !securityUtilsService.isModerator()) {
+        if (topicDetails.getId() == null || !currentUser.getId().equals(user.getId()) && !securityUtilsService.isModerator()) {
             return ResponseEntity.badRequest().build();
         }
         topicService.editTopicByName(topic);
