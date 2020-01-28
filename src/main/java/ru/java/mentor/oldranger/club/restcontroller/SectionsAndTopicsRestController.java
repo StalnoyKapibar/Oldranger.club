@@ -133,7 +133,6 @@ public class SectionsAndTopicsRestController {
     public ResponseEntity<Topic> editTopic(@RequestBody Topic topicDetails) {
 
         Topic topic = topicService.findById(topicDetails.getId());
-        boolean moderator = securityUtilsService.isAuthorityReachableForLoggedUser(roleService.getRoleByAuthority("ROLE_MODERATOR"));
         User user = topicDetails.getTopicStarter();
         User currentUser = securityUtilsService.getLoggedUser();
 
