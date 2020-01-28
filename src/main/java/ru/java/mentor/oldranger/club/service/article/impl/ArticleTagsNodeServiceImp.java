@@ -1,10 +1,8 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
-import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
@@ -26,7 +24,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
-        return tagsNodeRepository.getAllTagsNodesTree().stream().map(e -> new ArticleTagsNodeDto(e.getId(),
+        return tagsNodeRepository.findAllChildrenTree().stream().map(e -> new ArticleTagsNodeDto(e.getId(),
                 e.getParent() == null ? -1L : e.getParent().getId(),
                 e.getTag(),
                 e.getTagsHierarchy())

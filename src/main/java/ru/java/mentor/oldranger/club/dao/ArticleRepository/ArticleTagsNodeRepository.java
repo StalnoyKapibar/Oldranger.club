@@ -44,7 +44,7 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
     "                                left join tags as tt2 on c.tag_id = tt2.id  " +
     "                   )  " +
                     "SELECT * FROM CTE left join tags as t on CTE.tag_id = t.id order by path;")
-    List<ArticleTagsNode>  getAllTagsNodesTree();
+    List<ArticleTagsNode> findAllChildrenTree();
 
     @Query(nativeQuery = true,
     value = "WITH RECURSIVE CTE AS   " +
@@ -63,7 +63,7 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
             "FROM CTE   " +
             "union all   " +
             "select  ?1;")
-    List<Long> findAllChildrenIdsByParentId(Long id);
+    List<Long> findDescendantsAndParentIdsByParentId(Long id);
 
     void deleteByIdIn(List<Long> ids);
 
