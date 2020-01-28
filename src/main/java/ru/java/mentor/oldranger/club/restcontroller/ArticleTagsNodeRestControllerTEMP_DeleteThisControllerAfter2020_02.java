@@ -98,10 +98,10 @@ public class ArticleTagsNodeRestControllerTEMP_DeleteThisControllerAfter2020_02 
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteNode(@PathVariable(value = "id") Long id) {
-
         if (id == null || id < 0 || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
+        //
         articleTagsNodeService.deleteById(id);
         return ResponseEntity.ok().build();
     }
