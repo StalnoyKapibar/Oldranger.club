@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -27,25 +26,13 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
-        int[] numbers = Arrays.stream("1,2".split(",")).mapToInt(Integer::parseInt).toArray();
-//        return tagsNodeRepository.findAllChildrenTree().stream()
-//                .map(e -> new ArticleTagsNodeDto(e.getId(),
-//                        e.getParent() == null ? -1L : e.getParent().getId(),
-//                        e.getTag(),
-//                        Arrays.stream(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).toArray()))
-//                .collect(Collectors.toList());
         return tagsNodeRepository.findAllChildrenTree().stream()
                 .map(e -> new ArticleTagsNodeDto(e.getId(),
                         e.getParent() == null ? -1L : e.getParent().getId(),
                         e.getTag(),
-                        new ArrayList<Integer>(Arrays.asList(e.getTagsHierarchy().split(",")).stream()
-                                .map(s->Integer.parseInt(s))
-                                .collect(Collectors.toList()))))
+                        Arrays.stream(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).toArray()))
                 .collect(Collectors.toList());
-    }
-
-//        ArrayList<Integer> a = (ArrayList) Arrays.asList("1,2".split(",")).stream().map(s->Integer.parseInt(s)).collect(Collectors.toList());
-//    Arrays.asList(e.getTagsHierarchy().split(",")).stream().map(s->Integer.parseInt(s)).collect(Collectors.toList())
+     }
 
     @Override
     public ArticleTagsNode findById(Long id) {
