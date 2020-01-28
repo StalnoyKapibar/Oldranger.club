@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,12 +27,25 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
-        return tagsNodeRepository.findAllChildrenTree().stream().map(e -> new ArticleTagsNodeDto(
-                e.getId(),
-                e.getParent() == null ? -1L : e.getParent().getId(),
-                e.getTag(),
-                Stream.of(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList()));
+        int[] numbers = Arrays.stream("1,2".split(",")).mapToInt(Integer::parseInt).toArray();
+        return tagsNodeRepository.findAllChildrenTree().stream()
+                .map(e -> new ArticleTagsNodeDto(e.getId(),
+                        e.getParent() == null ? -1L : e.getParent().getId(),
+                        e.getTag(),
+                        Arrays.stream(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).toArray()))
+                .collect(Collectors.toList());
+//        return tagsNodeRepository.findAllChildrenTree().stream()
+//                .map(e -> new ArticleTagsNodeDto(e.getId(),
+//                        e.getParent() == null ? -1L : e.getParent().getId(),
+//                        e.getTag(),
+//                        new ArrayList<Integer>(Arrays.asList(e.getTagsHierarchy().split(",")).stream()
+//                                .map(s->Integer.parseInt(s))
+//                                .collect(Collectors.toList()))))
+//                .collect(Collectors.toList());
     }
+
+//        ArrayList<Integer> a = (ArrayList) Arrays.asList("1,2".split(",")).stream().map(s->Integer.parseInt(s)).collect(Collectors.toList());
+//    Arrays.asList(e.getTagsHierarchy().split(",")).stream().map(s->Integer.parseInt(s)).collect(Collectors.toList())
 
     @Override
     public ArticleTagsNode findById(Long id) {
