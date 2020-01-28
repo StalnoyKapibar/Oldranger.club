@@ -30,8 +30,8 @@ import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -187,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic8);
 
         boolean b = false;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             b = !b;
             Random random = new Random();
             Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
@@ -225,13 +225,13 @@ public class DataInitializer implements CommandLineRunner {
         /**
          * 20 messages for Pageable test (topic 3)
          */
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < 21; i++) {
             commentService.createComment(new Comment(topic3, user, null,
                     LocalDateTime.of(2019, 11, 1, 21, 30 + i, 35),
                     "Тестовое сообщение " + i));
         }
 
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < 12; i++) {
             User newuser = new User("User", "User", "user" + i + "@javamentor.com", "User" + i, roleUser);
             newuser.setRegDate(LocalDateTime.of(2019, 8, 10 + i, 11, 10, 35));
             userService.save(newuser);
@@ -246,7 +246,8 @@ public class DataInitializer implements CommandLineRunner {
         articleTagService.addTag(newsTag3);
 
         ArticleTag[] newsTags = {newsTag1, newsTag2, newsTag3};
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < 11; i++) {
+
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),

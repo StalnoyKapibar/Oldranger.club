@@ -21,7 +21,6 @@ import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
-import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.PasswordsService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -60,6 +59,10 @@ public class TokenRestController {
     @PostMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<String> saveInvitationToken() {
         User user = securityUtilsService.getLoggedUser();
+        User newInviteUser = new User();
+        newInviteUser.setEmail("null");
+        newInviteUser.setNickName("null");
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -70,6 +73,8 @@ public class TokenRestController {
             InvitationToken invitationToken = new InvitationToken(key, user);
             invitationService.save(invitationToken);
         }
+        newInviteUser.setInvite(key);
+        userService.save(newInviteUser);
         return ResponseEntity.ok(key);
     }
 
@@ -81,13 +86,18 @@ public class TokenRestController {
             @ApiResponse(responseCode = "403", description = "User is not logged in")})
     @PostMapping(value = "/invite/bymail", produces = {"application/json"})
     public ResponseEntity<String> sendInviteByMail(@Parameter(description = "Email")
-                                                   @RequestBody String mail) {
+                                                   @RequestParam String mail) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        String key = invitationService.generateKey();
+        String key = invitationService.generateMD5Key(mail);
+        User newInviteUser = new User();
+        newInviteUser.setNickName(mail);
+        newInviteUser.setEmail(mail);
+        newInviteUser.setInvite(key);
+        userService.save(newInviteUser);
         String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, user.getFirstName(), "letterToInvite.html", link);
@@ -102,10 +112,12 @@ public class TokenRestController {
             @ApiResponse(responseCode = "200", description = "Status, 1 - success, 0 - failed",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "User with this login or email already exists")})
-    @PostMapping(value = "/confirm/bymail", produces = {"application/json"})
-    public ResponseEntity<String> sendConfirmByMail(@Parameter(description = "New user data") @RequestBody RegistrationUserDto registrationUserDto) {
-        if (userService.getUserByEmail(registrationUserDto.getEmail()) != null ||
-                userService.getUserByNickName(registrationUserDto.getNickName()) != null) {
+    @PostMapping(value = "/confirm/bymail", consumes = {"application/json"})
+    public ResponseEntity<String> sendConfirmByMail(@Parameter(description = "New user data")
+                                                    @RequestBody RegistrationUserDto registrationUserDto) {
+
+
+        if (userService.getUserByInviteKey(registrationUserDto.getKey()) == null) {
             return ResponseEntity.badRequest().build();
         }
         try {

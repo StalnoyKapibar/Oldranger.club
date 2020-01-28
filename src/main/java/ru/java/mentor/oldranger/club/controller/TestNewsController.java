@@ -10,7 +10,6 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
-import java.util.List;
 import java.util.Set;
 
 @Controller

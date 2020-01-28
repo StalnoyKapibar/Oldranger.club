@@ -210,7 +210,7 @@ public class PrivateChatRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Message.class))),
             @ApiResponse(responseCode = "400", description = "Error editing message")})
-    @PutMapping(value = "/message/edit/{chatToken}", produces = { "application/json" })
+    @PutMapping(value = "/message/edit/{chatToken}", produces = {"application/json"})
     public ResponseEntity<Message> editMessage(@PathVariable("chatToken") String chatToken,
                                                @RequestBody Message chatMessage,
                                                @Value("${privateMessage.allowedEditingTime}") Long allowedTime) {

@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.service.user;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
@@ -20,4 +19,6 @@ public interface UserService {
     User getUserByEmail(String email);
 
     User getUserByEmailOrNickName(String login);
+
+    User getUserByInviteKey(String key);
 }

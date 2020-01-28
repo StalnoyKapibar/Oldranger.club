@@ -1,8 +1,5 @@
 package ru.java.mentor.oldranger.club.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -15,7 +12,7 @@ import javax.validation.constraints.Pattern;
 public class CommentCreateAndUpdateDto {
 
     private Long idTopic;
-    private Long  idUser ;
+    private Long idUser;
     @NotEmpty
     @Pattern(regexp = "^(?=\\s*\\S).*$")
     private String text;

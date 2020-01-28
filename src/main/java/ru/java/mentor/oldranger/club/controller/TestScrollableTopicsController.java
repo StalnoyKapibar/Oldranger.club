@@ -16,6 +16,7 @@ import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+
 import java.util.Optional;
 
 @Deprecated
@@ -28,6 +29,7 @@ public class TestScrollableTopicsController {
     private TopicService topicService;
 
     private SubsectionService subsectionService;
+
     /*
      *  ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог
      *   в REST http://localhost:8888/api/subsection/{subsectionId}

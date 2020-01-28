@@ -164,7 +164,7 @@ public class UserProfileRestController {
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/subscriptions", produces = {"application/json"})
     public ResponseEntity<List<Topic>> getSubscriptions(
-            @Parameter(description="Page") @RequestParam(value = "page") Integer page,
+            @Parameter(description = "Page") @RequestParam(value = "page") Integer page,
             @PageableDefault(size = 10) @RequestParam(required = false) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
@@ -194,7 +194,7 @@ public class UserProfileRestController {
             return ResponseEntity.status(204).build();
         }
         TopicVisitAndSubscription topicVisitAndSubscription = topicVisitAndSubscriptionService.getByUserAndTopic(user, topic);
-        if((topicVisitAndSubscription != null) && (topicVisitAndSubscription.isSubscribed())) {
+        if ((topicVisitAndSubscription != null) && (topicVisitAndSubscription.isSubscribed())) {
             return ResponseEntity.status(204).build();
         } else {
             topicVisitAndSubscription = topicVisitAndSubscriptionService.subscribeUserOnTopic(user, topic);
@@ -218,10 +218,10 @@ public class UserProfileRestController {
             return ResponseEntity.status(204).build();
         }
         TopicVisitAndSubscription topicVisitAndSubscription = topicVisitAndSubscriptionService.getByUserAndTopic(user, topic);
-        if(topicVisitAndSubscription == null) {
+        if (topicVisitAndSubscription == null) {
             return ResponseEntity.status(204).build();
         }
-        if(topicVisitAndSubscription.isSubscribed() == false) {
+        if (topicVisitAndSubscription.isSubscribed() == false) {
             return ResponseEntity.status(204).build();
         }
         topicVisitAndSubscriptionService.unsubscribe(topicVisitAndSubscription);

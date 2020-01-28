@@ -167,7 +167,7 @@ public class TopicVisitAndSubscriptionServiceImpl implements TopicVisitAndSubscr
         log.debug("Getting page {} of subscriptions for user with id = {}", pageable.getPageNumber(), user.getId());
         Page<Topic> page = null;
         try {
-            List<Topic>  topics = topicVisitAndSubscriptionRepository.getSubscribedTopicsByUser(user);
+            List<Topic> topics = topicVisitAndSubscriptionRepository.getSubscribedTopicsByUser(user);
             int start = (int) pageable.getOffset();
             int end = (start + pageable.getPageSize()) > topics.size() ? topics.size() : (start + pageable.getPageSize());
             page = new PageImpl<Topic>(start < end ? topics.subList(start, end) : Collections.emptyList(), pageable, topics.size());

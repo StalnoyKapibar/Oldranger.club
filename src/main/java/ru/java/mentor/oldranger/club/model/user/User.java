@@ -1,7 +1,9 @@
 package ru.java.mentor.oldranger.club.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
@@ -43,6 +45,9 @@ public class User implements UserDetails{
     @Column(name = "registered")
     private LocalDateTime regDate;
 
+    @Column(name = "invite_key")
+    private String invite;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
@@ -54,6 +59,7 @@ public class User implements UserDetails{
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordRecoveryToken passwordRecoveryToken;
+
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;
