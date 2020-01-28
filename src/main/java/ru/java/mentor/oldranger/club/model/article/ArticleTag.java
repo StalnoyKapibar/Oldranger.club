@@ -16,7 +16,7 @@ public class ArticleTag {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "tag_name", nullable = false)
+    @Column(name = "tag_name", unique = true, nullable = false)
     private String name;
 
     public ArticleTag(String name) {

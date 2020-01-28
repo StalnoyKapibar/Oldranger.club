@@ -21,20 +21,14 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/articleTagsNode")
+@RequestMapping("/api/temp/articleTagsNode")
 @Tag(name = "Article Tags Node")
-public class ArticleTagsNodeRestController {
+public class ArticleTagsNodeRestControllerTEMP_DeleteThisControllerAfter2020_02 {
 
     private ArticleTagsNodeService articleTagsNodeService;
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
 
-    //    @Operation(security = @SecurityRequirement(name = "security"),
-//            summary = "Get all article tags nodes tree", tags = {"Article Tags Node Tree"})
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200",
-//                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
-//            @ApiResponse(responseCode = "204", description = "admin role required")})
     @GetMapping(value = "/tree", produces = {"application/json"})
     public ResponseEntity<List<ArticleTagsNodeDto>> getAllTagsNodesTree() {
         if (!securityUtilsService.isAdmin())
@@ -84,19 +78,33 @@ public class ArticleTagsNodeRestController {
         return ResponseEntity.ok(articleTagsNodeService.findById(id));
     }
 
-//    @Operation(security = @SecurityRequirement(name = "security"),
-//            summary = "Delete node", description = "Delete node with all child", tags = {"Article TagsNode"})
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "204", description = "Error deleting node")})
-//    @DeleteMapping(value = "/delete")
-//    public ResponseEntity deleteNode(@RequestParam("id") Long id) {
-//
-//        if (id == null || !securityUtilsService.isAdmin()) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//        articleTagsNodeService.delete(id);
-//        return ResponseEntity.ok().build();
-//    }
+    @PostMapping(value = "/update")
+    public ResponseEntity udateNode(@RequestParam("id") Long id,
+                                    @RequestParam("parentId") Long parent_id,
+                                    @RequestParam("tagId") Long tagId,
+                                    @RequestParam("position") Integer position) {
+
+        if (id == null || !securityUtilsService.isAdmin()) {
+            return ResponseEntity.badRequest().build();
+        }
+        ArticleTagsNode node = articleTagsNodeService.findById(id);
+        node.setPosition(position);
+        node.setParent(articleTagsNodeService.findById(parent_id));
+        node.setTag(articleTagService.getTagById(tagId));
+        articleTagsNodeService.save(node);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity deleteNode(@RequestParam("id") Long id) {
+
+        if (id == null || !securityUtilsService.isAdmin()) {
+            return ResponseEntity.badRequest().build();
+        }
+        articleTagsNodeService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 
 
 }

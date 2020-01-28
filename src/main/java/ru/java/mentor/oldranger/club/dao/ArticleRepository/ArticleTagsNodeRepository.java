@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
-    Set<ArticleTagsNode> findByIdIn(List<Long> id);
 
     @Query(nativeQuery = true,
             value = "WITH RECURSIVE CTE AS  " +
@@ -44,6 +44,7 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
     "                                left join tags as tt2 on c.tag_id = tt2.id  " +
     "                   )  " +
                     "SELECT * FROM CTE left join tags as t on CTE.tag_id = t.id order by path;")
+
     List<ArticleTagsNode> findAllChildrenTree();
 
     @Query(nativeQuery = true,
@@ -59,10 +60,10 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
             "                       FROM CTE AS sc   " +
             "                                JOIN article_tags_tree AS c ON sc.id = c.parent   " +
             "                   )   " +
-            "SELECT *   " +
+            "SELECT id   " +
             "FROM CTE   " +
             "union all   " +
-            "select  ?1;")
+            "select ?1")
     List<Long> findDescendantsAndParentIdsByParentId(Long id);
 
     void deleteByIdIn(List<Long> ids);

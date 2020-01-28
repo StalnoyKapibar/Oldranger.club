@@ -8,13 +8,11 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
-
     private ArticleTagsNodeRepository tagsNodeRepository;
 
     @Override
@@ -42,17 +40,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
-    public void delete(ArticleTagsNode tagsNode) {
-        tagsNodeRepository.delete(tagsNode);
-    }
-
-    @Override
     public void deleteById(Long id) {
-        tagsNodeRepository.deleteById(id);
-    }
-
-    @Override
-    public Set<ArticleTagsNode> findByIdIn(List<Long> tagsNodes) {
-        return tagsNodeRepository.findByIdIn(tagsNodes);
+        tagsNodeRepository.deleteByIdIn(tagsNodeRepository.findDescendantsAndParentIdsByParentId(id));
     }
 }
