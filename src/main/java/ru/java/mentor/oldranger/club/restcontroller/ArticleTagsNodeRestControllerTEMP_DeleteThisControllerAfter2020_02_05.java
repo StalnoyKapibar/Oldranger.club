@@ -23,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/temp/articleTagsNode")
 @Tag(name = "Article Tags Node")
-public class ArticleTagsNodeRestControllerTEMP_DeleteThisControllerAfter2020_02 {
+public class ArticleTagsNodeRestControllerTEMP_DeleteThisControllerAfter2020_02_05 {
 
     private ArticleTagsNodeService articleTagsNodeService;
     private SecurityUtilsService securityUtilsService;
