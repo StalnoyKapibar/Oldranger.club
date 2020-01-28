@@ -28,20 +28,20 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     @Override
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
         int[] numbers = Arrays.stream("1,2".split(",")).mapToInt(Integer::parseInt).toArray();
-        return tagsNodeRepository.findAllChildrenTree().stream()
-                .map(e -> new ArticleTagsNodeDto(e.getId(),
-                        e.getParent() == null ? -1L : e.getParent().getId(),
-                        e.getTag(),
-                        Arrays.stream(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).toArray()))
-                .collect(Collectors.toList());
 //        return tagsNodeRepository.findAllChildrenTree().stream()
 //                .map(e -> new ArticleTagsNodeDto(e.getId(),
 //                        e.getParent() == null ? -1L : e.getParent().getId(),
 //                        e.getTag(),
-//                        new ArrayList<Integer>(Arrays.asList(e.getTagsHierarchy().split(",")).stream()
-//                                .map(s->Integer.parseInt(s))
-//                                .collect(Collectors.toList()))))
+//                        Arrays.stream(e.getTagsHierarchy().split(",")).mapToInt(Integer::parseInt).toArray()))
 //                .collect(Collectors.toList());
+        return tagsNodeRepository.findAllChildrenTree().stream()
+                .map(e -> new ArticleTagsNodeDto(e.getId(),
+                        e.getParent() == null ? -1L : e.getParent().getId(),
+                        e.getTag(),
+                        new ArrayList<Integer>(Arrays.asList(e.getTagsHierarchy().split(",")).stream()
+                                .map(s->Integer.parseInt(s))
+                                .collect(Collectors.toList()))))
+                .collect(Collectors.toList());
     }
 
 //        ArrayList<Integer> a = (ArrayList) Arrays.asList("1,2".split(",")).stream().map(s->Integer.parseInt(s)).collect(Collectors.toList());

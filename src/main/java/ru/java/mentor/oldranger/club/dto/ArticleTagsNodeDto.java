@@ -19,9 +19,9 @@ public class ArticleTagsNodeDto {
     private Long id;
     private Long parentId;
     private String  tag;
-    private int[] tagsHierarchy;
+    private ArrayList<Integer> tagsHierarchy;
 
-    public ArticleTagsNodeDto(Long id, Long parentId,  Object tag, int[] tagsHierarchy) {
+    public ArticleTagsNodeDto(Long id, Long parentId,  Object tag, ArrayList<Integer> tagsHierarchy) {
         this.id = id;
         this.parentId = parentId;
         this.tag = tag == null ? "NULL" : tag.toString();
