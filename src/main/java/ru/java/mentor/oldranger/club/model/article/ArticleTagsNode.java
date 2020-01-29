@@ -26,9 +26,6 @@ public class ArticleTagsNode {
     @Column(name = "position")
     private Integer position;
 
-//    @Column(name = "tagsHierarchy", length = 0)
-//    private String tagsHierarchy;
-
     @OneToOne(fetch = FetchType.EAGER)
     private ArticleTag tag;
 
