@@ -20,7 +20,6 @@ import java.util.Arrays;
         " обеспечивается взаимосвязью реквизитов id и parentId." +
         "tagsHierarchy следует вернуть на БЭКЕНД - в случае выбора конкретного тега на дереве. ",
         requiredProperties = {"tag", "tagsHierarchy"})
-@Setter
 public class ArticleTagsNodeDto {
     private Long id;
     private Long parentId;
