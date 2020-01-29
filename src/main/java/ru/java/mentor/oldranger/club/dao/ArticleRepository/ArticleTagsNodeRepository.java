@@ -1,16 +1,11 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.http.ResponseEntity;
-import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import javax.persistence.Tuple;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
 
@@ -45,10 +40,6 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                   ) " +
                     "SELECT * FROM CTE left join (select tag_name, id as t_tag_id  from tags) as t on CTE.tag_id = t.t_tag_id  order by path;")
     List<Tuple> findAllChildrenTree();
-    //    @Query( "select new ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto(t.id,t.parent, t.position, t.tag) from ArticleTagsNode  t")
-
-//    List<Tuple> findAllChildrenTree();
-//    List<ArticleTagsNodeDto> findAllChildrenTree();
 
     @Query(nativeQuery = true,
     value = "WITH RECURSIVE CTE AS   " +
