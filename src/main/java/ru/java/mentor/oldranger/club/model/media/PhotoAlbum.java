@@ -44,7 +44,6 @@ public class PhotoAlbum {
     private Media media;
 
     public PhotoAlbum(String title) {
-
         allowView = false;
         this.title = title;
     }

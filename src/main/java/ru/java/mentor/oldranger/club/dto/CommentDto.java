@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
+    private long commentId;
     private long positionInTopic;
     private long topicId;
     private User author;

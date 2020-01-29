@@ -145,6 +145,7 @@ public class CommentServiceImpl implements CommentService {
                 replyNick = comment.getAnswerTo().getUser().getNickName();
                 replyText = comment.getAnswerTo().getCommentText();
             }
+            commentDto.setCommentId(comment.getId());
             commentDto.setPositionInTopic(comment.getPosition());
             commentDto.setTopicId(comment.getTopic().getId());
             commentDto.setAuthor(comment.getUser());
