@@ -16,13 +16,9 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                              parent, " +
                     "                              position, " +
                     "                              article_tags_tree.id, " +
-                    "                              1                                AS depth, " +
-                    "                              CONCAT(position, '=', tag_id)    AS path, " +
-                    "                              CASE " +
-                    "                                  WHEN parent not in (select id from article_tags_tree) " +
-                    "                                      THEN CONCAT('parent or s " +
-                    "one of the progenitors  with id=', parent, ' doesn''t exist') " +
-                    "                                  ELSE CONCAT(tag_id) END AS tags_hierarchy " +
+                    "                              1                             AS depth, " +
+                    "                              CONCAT(position, '=', tag_id) AS path, " +
+                    "                              CONCAT(tag_id)                AS tags_hierarchy " +
                     "                       FROM article_tags_tree " +
                     "                       WHERE parent IS NULL " +
                     "                          or parent not in (select id from article_tags_tree) " +
@@ -36,9 +32,23 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                              CONCAT(sc.tags_hierarchy, ',', c.tag_id) AS tags_hierarchy " +
                     "                       FROM CTE AS sc " +
                     "                                JOIN article_tags_tree AS c ON sc.id = c.parent " +
-                    " " +
                     "                   ) " +
-                    "SELECT * FROM CTE left join (select tag_name, id as t_tag_id  from tags) as t on CTE.tag_id = t.t_tag_id  order by path;")
+                    "SELECT tag_id, " +
+                    "       parent, " +
+                    "       position, " +
+                    "       id, " +
+                    "       depth, " +
+                    "       path, " +
+                    "       tags_hierarchy, " +
+                    "       CASE " +
+                    "           WHEN parent not in (select id from article_tags_tree) " +
+                    "               THEN CONCAT(tag_name, ' - for this tag - some of the ancestors with id=', parent, " +
+                    "                           ' doesn''t exist') " +
+                    "           ELSE tag_name END as tag_name, " +
+                    "       t_tag_id " +
+                    "FROM CTE " +
+                    "         left join (select tag_name, id as t_tag_id from tags) as t on CTE.tag_id = t.t_tag_id " +
+                    "order by path;")
     List<Tuple> findAllChildrenTree();
 
     @Query(nativeQuery = true,
