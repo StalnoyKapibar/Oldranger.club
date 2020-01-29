@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
+import javax.persistence.Tuple;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -39,11 +41,14 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                              CONCAT(sc.tags_hierarchy, ',', c.tag_id) AS tags_hierarchy " +
                     "                       FROM CTE AS sc " +
                     "                                JOIN article_tags_tree AS c ON sc.id = c.parent " +
-                    "                                 " +
+                    " " +
                     "                   ) " +
-                    "SELECT * FROM CTE left join tags as t on CTE.tag_id = t.id order by path")
+                    "SELECT * FROM CTE left join (select tag_name, id as t_tag_id  from tags) as t on CTE.tag_id = t.t_tag_id  order by path;")
+    List<Tuple> findAllChildrenTree();
+    //    @Query( "select new ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto(t.id,t.parent, t.position, t.tag) from ArticleTagsNode  t")
 
-    List<ArticleTagsNode> findAllChildrenTree();
+//    List<Tuple> findAllChildrenTree();
+//    List<ArticleTagsNodeDto> findAllChildrenTree();
 
     @Query(nativeQuery = true,
     value = "WITH RECURSIVE CTE AS   " +
