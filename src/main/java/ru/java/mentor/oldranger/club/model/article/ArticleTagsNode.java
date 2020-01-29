@@ -26,7 +26,7 @@ public class ArticleTagsNode {
     @Column(name = "position")
     private Integer position;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     private ArticleTag tag;
 
     public ArticleTagsNode(ArticleTagsNode parent, int position, ArticleTag tag) {
