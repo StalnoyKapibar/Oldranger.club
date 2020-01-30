@@ -47,8 +47,10 @@ public class TokenRestController {
     @Value("${server.name}")
     private String host;
 
-    @Value("${server.port}")
+    @Value("${client.port}")
     private String port;
+
+
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save invitation token", tags = {"Registration token"})
@@ -129,7 +131,7 @@ public class TokenRestController {
         String key = Base64.getEncoder().encodeToString(registrationUserDto.toString().getBytes());
 
         String mail = registrationUserDto.getEmail();
-        String link = protocol + "://" + host + ":" + port + "/confirm?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "registration-accept?key=" + key;
 
         String status = mailService.sendHtmlEmail(mail, registrationUserDto.getNickName(), "letterToConfirm.html", link);
 

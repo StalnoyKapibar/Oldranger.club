@@ -5,6 +5,7 @@
 server.protocol=http
 server.name=localhost
 server.port=8888
+client.port=3000
 server.tomcat.remote-ip-header=X-Forwarded-For
 server.tomcat.port-header=X-Forwarded-Port
 server.tomcat.protocol-header=X-Forwarded-Proto
