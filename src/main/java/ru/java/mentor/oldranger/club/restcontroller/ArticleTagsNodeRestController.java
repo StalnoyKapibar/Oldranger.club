@@ -82,13 +82,12 @@ public class ArticleTagsNodeRestController {
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("position") Integer position,
                                                       @RequestParam("tag") ArticleTag tag,
-                                                      @RequestParam("parentId") Long nodeId) {
+                                                      @RequestParam("parentId") Long parentId) {
 
-        ArticleTagsNode parent = tagsNodeService.findById(nodeId);
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        ArticleTagsNode tagsNode = new ArticleTagsNode(parent, position, tag);
+        ArticleTagsNode tagsNode = new ArticleTagsNode(tagsNodeService.findById(parentId), position, tag);
         tagsNodeService.save(tagsNode);
         return ResponseEntity.ok(tagsNode);
     }
