@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.UsersTreeService;
 
 import java.util.List;
+import java.util.TreeMap;
 
 @Service
 @AllArgsConstructor
@@ -17,8 +18,14 @@ public class UsersTreeServiceImpl implements UsersTreeService {
     private UserRepository userRepository;
 
     @Override
-    public List<User> getInvitedUsersTreeById(String nameUser, long deepTree) {
-        User user= userRepository.findUserByNickName(nameUser);
-        return usersTreeRepository.getInvitedUsersTreeById(user.getId());
+    public TreeMap<String, List<User>> getInvitedUsersTreeById(String nameUser, long deepTree) {
+        User user = userRepository.findUserByNickName(nameUser);
+        List<User> list = usersTreeRepository.getInvitedUsersTreeById(user.getId());
+        TreeMap<String, List<User>> treeMap = new TreeMap<>();
+        treeMap.put(user.getUsername(), list);
+        //return usersTreeRepository.getInvitedUsersTreeById(user.getId());
+        return treeMap;
     }
+
+
 }

@@ -14,6 +14,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.UsersTreeService;
 
 import java.util.List;
+import java.util.TreeMap;
 
 @RestController
 @AllArgsConstructor
@@ -27,8 +28,9 @@ public class UsersTreeRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")})
     @GetMapping(value = "/user/{nameUser}")
-    public ResponseEntity<List<User>> getInvitedUsersTreeById(@PathVariable String nameUser) {
-        List<User> userList = usersTreeService.getInvitedUsersTreeById(nameUser, 0);
-        return ResponseEntity.ok(userList);
-        }
+    public ResponseEntity<TreeMap<String, List<User>>> getInvitedUsersTreeById(@PathVariable String nameUser) {
+        //List<User> userList = usersTreeService.getInvitedUsersTreeById(nameUser, 0);
+        TreeMap<String, List<User>> treeMap = usersTreeService.getInvitedUsersTreeById(nameUser, 0);
+        return ResponseEntity.ok(treeMap);
+    }
     }
