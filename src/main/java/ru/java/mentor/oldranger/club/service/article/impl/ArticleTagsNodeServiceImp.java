@@ -30,7 +30,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
                         Long.valueOf(e.get("id").toString()),
                         e.get("parent") == null ? null :  Long.valueOf(e.get("parent").toString()),
                         e.get("tag_name", String.class),
-                        Arrays.stream( e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
+                        Arrays.stream(e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
     }
 
     @Override
