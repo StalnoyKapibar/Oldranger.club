@@ -94,9 +94,11 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Edit node", description = "Edit node", tags = {"Article TagsNode"})
+            summary = "Edit node", tags = {"Article TagsNode"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Error editing node")})
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
+            @ApiResponse(responseCode = "400", description = "Error editing node")})
     @PutMapping(value = "/update", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> updateNode(@RequestParam("id") Long id,
                                                       @RequestParam("parentId") Long parentId,
