@@ -6,13 +6,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
 import java.util.Set;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    Page<Article> findDistinctByArticleTagsIn(Set<ArticleTag> tags, Pageable pageable);
+    Page<Article> findDistinctByDraftIsFalseAndArticleTagsIn(Set<ArticleTag> tags, Pageable pageable);
+
+    Page<Article> findAllByDraftIsFalse(Pageable pageable);
+
+    Page<Article> findAllByDraftIsTrueAndUser(User user, Pageable pageable);
 
     Article findById(long id);
 

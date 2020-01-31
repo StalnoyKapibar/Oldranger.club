@@ -49,6 +49,9 @@ public class Article {
     @Column(name = "article_hide", columnDefinition = "TINYINT")
     private boolean isHideToAnon;
 
+    @Column(name = "draft", columnDefinition = "TINYINT")
+    private boolean draft;
+
     @LazyCollection(LazyCollectionOption.EXTRA)
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "like_users",
@@ -56,13 +59,14 @@ public class Article {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, boolean draft) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
         this.isHideToAnon = isHideToAnon;
+        this.draft = draft;
     }
 
 }

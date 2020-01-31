@@ -27,7 +27,7 @@ public class TestNewsController {
     @GetMapping
     public String getNews(Model model) {
         model.addAttribute("tagList", articleTagService.getAllTags());
-        model.addAttribute("newsList", articleService.getAllArticles());
+        model.addAttribute("newsList", articleService.getAllArticles(Pageable.unpaged()));
         return "testNews";
     }
 
