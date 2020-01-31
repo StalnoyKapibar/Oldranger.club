@@ -26,12 +26,8 @@ public class UsersTreeRestController {
             summary = "Get invited users tree by id user inviting", tags = {"Admin"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200")})
-    @GetMapping(value = "/user/{userId}")
-    public ResponseEntity<List<UsersTreeDto>> getInvitedUsersTreeById(@PathVariable long userId) {
-        //List<User> userList = usersTreeService.getInvitedUsersTreeById(nameUser, 0);
-//        List<List<User>> treeMap = usersTreeService.getInvitedUsersTreeById(nameUser, 0);
-//        return ResponseEntity.ok(treeMap);
-        //Map<String, List<UsersTreeDto>> treeMap = usersTreeService.getInvitedUsersTreeById(nameUser, deepTree);
-        return ResponseEntity.ok(usersTreeService.getInvitedUsersTreeById(userId));
+    @GetMapping(value = "/user/{userId}/{deepTree}")
+    public ResponseEntity<List<UsersTreeDto>> getInvitedUsersTreeById(@PathVariable long userId, @PathVariable long deepTree) {
+        return ResponseEntity.ok(usersTreeService.getInvitedUsersTreeById(userId, deepTree));
     }
 }

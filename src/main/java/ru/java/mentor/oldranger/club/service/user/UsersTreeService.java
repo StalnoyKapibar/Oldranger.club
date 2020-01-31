@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface UsersTreeService {
 
-    List<UsersTreeDto> getInvitedUsersTreeById(long userId);
+    List<UsersTreeDto> getInvitedUsersTreeById(long userIdm, long deepTree);
 }

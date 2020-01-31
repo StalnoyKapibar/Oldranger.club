@@ -2,20 +2,15 @@ package ru.java.mentor.oldranger.club.dao.UserRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.java.mentor.oldranger.club.dto.UsersTreeDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.Tuple;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface UsersTreeRepository extends JpaRepository<User, Long> {
 
-    // where id_user in (select new_user from invitation_token where user = 1)
-//    @Query(nativeQuery = true, value = "select u.nick_name, u.invite_key, t.user from users u left join invitation_token t on u.id_user = t.new_user")
-//    @Query(nativeQuery = true, value = "select u.id_user, u.nick_name, u.invite_key, t.user  " +
-//            "from users u  " +
-//            "         inner join invitation_token t  " +
-//            "                    on u.id_user = t.new_user  " +
-//            "where id_user in (select new_user from invitation_token where user = ?1)")
     @Query(nativeQuery = true, value = "WITH RECURSIVE " +
             " " +
             "    descendantCategories AS (SELECT k.id_invite, k.user, k.new_user, 0 AS depth " +
@@ -45,6 +40,16 @@ public interface UsersTreeRepository extends JpaRepository<User, Long> {
             "       d.depth " +
             "FROM descendantCategories as d " +
             "         left join users as U on d.new_user = U.id_user " +
+            "where d.depth <= :deepTree " +
             "ORDER BY depth;")
-    List<Tuple> getInvitedUsersTreeById(long userId);
+    List<Tuple> getInvitedUsersTreeById(long userId, long deepTree);
+
+    default List<UsersTreeDto> getInvitedUsersTreeByIdUserDto(long userId, long deepTree) {
+        return getInvitedUsersTreeById(userId, deepTree).stream().map(e -> new UsersTreeDto(
+                e.get("parent") == null ? null : Long.parseLong(e.get("parent").toString()),
+                e.get("nick_name").toString(),
+                Long.parseLong(e.get("NEW_USER").toString()),
+                Long.parseLong(e.get("depth").toString())
+        )).collect(Collectors.toList());
+    }
 }
