@@ -41,8 +41,7 @@ public class ArticleRestController {
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
-            @ApiResponse(responseCode = "204", description = "Articles not found")})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
     @GetMapping(value = "/tag", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
                                                                @RequestParam(value = "page", required = false) Integer page) {
@@ -51,12 +50,36 @@ public class ArticleRestController {
             page = 0;
         }
 
+        Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
+        Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
         if (tag_id.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(searchWithoutTag);
         }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
         Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
         return ResponseEntity.ok(articles);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get article drafts", description = "Get all article drafts for current user", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "400", description = "User is not logged in")})
+    @GetMapping(value = "/drafts", produces = {"application/json"})
+    public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam(value = "page", required = false) Integer page) {
+
+        User user = securityUtilsService.getLoggedUser();
+        if (page == null) {
+            page = 0;
+        }
+
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
+        Page<Article> draftsPage = articleService.getArticleDraftByUser(user, pageable);
+        return ResponseEntity.ok(draftsPage);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -68,13 +91,14 @@ public class ArticleRestController {
     public ResponseEntity<Article> addNewArticle(@RequestParam("title") String title,
                                                  @RequestParam("text") String text,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isHideToAnon") boolean isHideToAnon) {
+                                                 @RequestParam("isHideToAnon") boolean isHideToAnon,
+                                                 @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
         if (tagsArt.size() == 0) {
             return ResponseEntity.noContent().build();
         }
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon);
+        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon, isDraft);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
@@ -90,7 +114,8 @@ public class ArticleRestController {
                                                      @RequestParam("title") String title,
                                                      @RequestParam("text") String text,
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
-                                                     @RequestParam("isHideToAnon") boolean isHideToAnon) {
+                                                     @RequestParam("isHideToAnon") boolean isHideToAnon,
+                                                     @RequestParam("isDraft") boolean isDraft) {
         Article article = articleService.getArticleById(id);
         if (article == null) {
             return ResponseEntity.noContent().build();
@@ -107,6 +132,7 @@ public class ArticleRestController {
         }
         article.setArticleTags(tagsArt);
         article.setHideToAnon(isHideToAnon);
+        article.setDraft(isDraft);
         articleService.addArticle(article);
         return ResponseEntity.ok(article);
     }
@@ -117,7 +143,7 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
             @ApiResponse(responseCode = "203", description = "Not have rule for delete article"),
             @ApiResponse(responseCode = "204", description = "Not found Article")})
-    @DeleteMapping("/deleteArticle")
+    @DeleteMapping("/delete")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
         if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
             try {

@@ -38,12 +38,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
         log.info("Getting list of all nodes DTO");
         List<ArticleTagsNodeDto> tagsNodeDto = null;
         try {
-            tagsNodeDto = tagsNodeRepository.findAllChildrenTree().stream()
-                    .map(e -> new ArticleTagsNodeDto(
-                            Long.valueOf(e.get("id").toString()),
-                            e.get("parent") == null ? null :  Long.valueOf(e.get("parent").toString()),
-                            e.get("tag_name", String.class),
-                            Arrays.stream(e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
+            tagsNodeDto = tagsNodeRepository.findHierarchyTreeOfAllTagsNodes();
             log.debug("List of all DTO returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

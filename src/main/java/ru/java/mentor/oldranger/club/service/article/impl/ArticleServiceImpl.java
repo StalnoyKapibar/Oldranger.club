@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
@@ -13,6 +12,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
@@ -33,13 +33,18 @@ public class ArticleServiceImpl implements ArticleService {
     private UserStatisticService userStatisticService;
 
     @Override
-    public List<Article> getAllArticles() {
-        return articleRepository.findAll(Sort.by("date").descending());
+    public Page<Article> getAllArticles(Pageable pageable) {
+        return articleRepository.findAllByDraftIsFalse(pageable);
     }
 
     @Override
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
-        return articleRepository.findDistinctByArticleTagsIn(tagId, pageable);
+        return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
+    }
+
+    @Override
+    public Page<Article> getArticleDraftByUser(User user, Pageable pageable) {
+        return articleRepository.findAllByDraftIsTrueAndUser(user, pageable);
     }
 
     @Override
