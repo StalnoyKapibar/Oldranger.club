@@ -11,7 +11,7 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentReposit
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
@@ -61,7 +61,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void addCommentToArticle(ArticleComment articleComment) {
         Article article = articleComment.getArticle();
         long comments = article.getCommentCount();
-        articleComment.setPositionInArticle(++comments);
+        articleComment.setPosition(++comments);
         article.setCommentCount(comments);
         articleCommentRepository.save(articleComment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(articleComment.getUser());
@@ -85,7 +85,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         articleCommentDto = new ArticleCommentDto(
-                articleComment.getPositionInArticle(),
+                articleComment.getPosition(),
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),

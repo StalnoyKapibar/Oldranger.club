@@ -33,6 +33,9 @@ public class Photo {
     @ManyToOne
     PhotoAlbum album;
 
+    @Column(name = "comment_count")
+    private long commentCount;
+
     public Photo(String original, String small) {
         this.original = original;
         this.small = small;

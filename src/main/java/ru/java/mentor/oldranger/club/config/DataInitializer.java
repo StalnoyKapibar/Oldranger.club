@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.forum.*;
+import ru.java.mentor.oldranger.club.model.comment.*;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -125,7 +126,9 @@ public class DataInitializer implements CommandLineRunner {
         PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
         photoAlbum.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         albumService.save(photoAlbum);
+
         chat.setPhotoAlbum(photoAlbum);
+
         chatService.createChat(chat);
 
         List<User> users = userService.findAll();

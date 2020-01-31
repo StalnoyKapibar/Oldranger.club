@@ -21,6 +21,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,6 +44,20 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private int medium;
     @Value("${upload.small}")
     private int small;
+
+    @Override
+    public List<PhotoAlbum> findAllByUser(User user) {
+        List<PhotoAlbum> albums = null;
+        log.debug("Getting all albums for anon");
+        try {
+            albums = albumRepository.findPhotoAlbumByViewersContainsOrViewersIsNull(user);
+            log.debug("Returned list of {} albums", albums.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return albums;
+    }
+
 
     @Override
     public PhotoAlbum save(PhotoAlbum album) {
