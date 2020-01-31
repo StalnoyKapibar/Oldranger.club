@@ -8,9 +8,11 @@ import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import javax.persistence.Tuple;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
 
@@ -21,13 +23,9 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                              parent, " +
                     "                              position, " +
                     "                              article_tags_tree.id, " +
-                    "                              1                                AS depth, " +
-                    "                              CONCAT(position, '=', tag_id)    AS path, " +
-                    "                              CASE " +
-                    "                                  WHEN parent not in (select id from article_tags_tree) " +
-                    "                                      THEN CONCAT('parent or s " +
-                    "one of the progenitors  with id=', parent, ' doesn''t exist') " +
-                    "                                  ELSE CONCAT(tag_id) END AS tags_hierarchy " +
+                    "                              1                             AS depth, " +
+                    "                              CONCAT(position, '=', tag_id) AS path, " +
+                    "                              CONCAT(tag_id)                AS tags_hierarchy " +
                     "                       FROM article_tags_tree " +
                     "                       WHERE parent IS NULL " +
                     "                          or parent not in (select id from article_tags_tree) " +
@@ -41,14 +39,34 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                     "                              CONCAT(sc.tags_hierarchy, ',', c.tag_id) AS tags_hierarchy " +
                     "                       FROM CTE AS sc " +
                     "                                JOIN article_tags_tree AS c ON sc.id = c.parent " +
-                    " " +
                     "                   ) " +
-                    "SELECT * FROM CTE left join (select tag_name, id as t_tag_id  from tags) as t on CTE.tag_id = t.t_tag_id  order by path;")
+                    "SELECT tag_id, " +
+                    "       parent, " +
+                    "       position, " +
+                    "       id, " +
+                    "       depth, " +
+                    "       path, " +
+                    "       tags_hierarchy, " +
+                    "       CASE " +
+                    "           WHEN parent not in (select id from article_tags_tree) " +
+                    "               THEN CONCAT(tag_name, ' - for this tag - some of the ancestors with id=', parent, " +
+                    "                           ' doesn''t exist') " +
+                    "           ELSE tag_name END as tag_name, " +
+                    "       t_tag_id " +
+                    "FROM CTE " +
+                    "         left join (select tag_name, id as t_tag_id from tags) as t on CTE.tag_id = t.t_tag_id " +
+                    "order by path;")
     List<Tuple> findAllChildrenTree();
-    //    @Query( "select new ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto(t.id,t.parent, t.position, t.tag) from ArticleTagsNode  t")
 
-//    List<Tuple> findAllChildrenTree();
-//    List<ArticleTagsNodeDto> findAllChildrenTree();
+    default List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
+        return findAllChildrenTree().stream()
+                .map(e -> new ArticleTagsNodeDto(
+                        Long.valueOf(e.get("id").toString()),
+                        e.get("parent") == null ? null :  Long.valueOf(e.get("parent").toString()),
+                        e.get("tag_name", String.class),
+                        Arrays.stream( e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
+    }
+
 
     @Query(nativeQuery = true,
     value = "WITH RECURSIVE CTE AS   " +
