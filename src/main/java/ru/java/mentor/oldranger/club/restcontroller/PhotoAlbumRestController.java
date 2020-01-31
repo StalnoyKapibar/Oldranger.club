@@ -50,15 +50,14 @@ public class PhotoAlbumRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
             @ApiResponse(responseCode = "400", description = "Login or rights error")})
     @PostMapping
-    public ResponseEntity<PhotoAlbum> savePhotoAlbum(@RequestBody PhotoAlbum album) {
+    public ResponseEntity<PhotoAlbum> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if(currentUser == null) {
+        if(currentUser == null || albumTitle.equals("")) {
             return ResponseEntity.badRequest().build();
         }
-        if(album.getWriters().size() != 0 && !album.getWriters().contains(currentUser)
-                && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {
-            return ResponseEntity.badRequest().build();
-        }
+        PhotoAlbum album = new PhotoAlbum(albumTitle);
+        album.addWriter(currentUser);
+        album.setAllowView(true);
         return ResponseEntity.ok(service.save(album));
     }
 
@@ -91,7 +90,7 @@ public class PhotoAlbumRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights or id error")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/getPhotos/{id}", method = RequestMethod.GET)
     public ResponseEntity<List<Photo>> getPhotosByAlbum(@PathVariable("id") String id) {
         PhotoAlbum photoAlbum = service.findById(Long.parseLong(id));
         User currentUser = securityUtilsService.getLoggedUser();

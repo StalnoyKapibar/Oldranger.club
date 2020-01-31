@@ -1,14 +1,17 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.ResponseEntity;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import javax.persistence.Tuple;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
 
