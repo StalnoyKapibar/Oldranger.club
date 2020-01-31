@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UsersTreeServiceImpl implements UsersTreeService {
 
-    private UsersTreeRepository usersTreeRepository;
+    private final UsersTreeRepository usersTreeRepository;
 
     @Override
     public List<UsersTreeDto> getInvitedUsersTreeById(long userId, long deepTree) {
