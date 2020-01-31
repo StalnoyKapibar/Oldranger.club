@@ -28,6 +28,9 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -49,7 +52,7 @@ public class PhotoRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
     @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
-    public ResponseEntity<Photo> savePhoto(@RequestBody MultipartFile photo, @PathVariable("albumId") String albumId) {
+    public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
         User currentUser = securityUtilsService.getLoggedUser();
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
         if(currentUser == null) {
@@ -59,7 +62,9 @@ public class PhotoRestController {
                 !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(service.save(photoAlbum, photo));
+        List<Photo> savedPhotos = new ArrayList<>();
+        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
+        return ResponseEntity.ok(savedPhotos);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
