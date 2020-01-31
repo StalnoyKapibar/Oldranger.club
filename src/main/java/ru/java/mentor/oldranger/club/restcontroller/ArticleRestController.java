@@ -67,7 +67,7 @@ public class ArticleRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
             @ApiResponse(responseCode = "400", description = "User is not logged in")})
     @GetMapping(value = "/drafts", produces = {"application/json"})
-    public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam("page") Integer page) {
+    public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam(value = "page", required = false) Integer page) {
 
         User user = securityUtilsService.getLoggedUser();
         if (page == null) {
