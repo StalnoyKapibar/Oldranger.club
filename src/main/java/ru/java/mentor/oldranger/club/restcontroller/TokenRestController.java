@@ -131,7 +131,7 @@ public class TokenRestController {
         String key = Base64.getEncoder().encodeToString(registrationUserDto.toString().getBytes());
 
         String mail = registrationUserDto.getEmail();
-        String link = protocol + "://" + host + ":" + port + "registration-accept?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "/registration-accept?key=" + key;
 
         String status = mailService.sendHtmlEmail(mail, registrationUserDto.getNickName(), "letterToConfirm.html", link);
 
