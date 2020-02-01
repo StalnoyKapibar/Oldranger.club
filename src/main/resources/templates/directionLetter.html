@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p th:text="'Привет, за последнее время у тебя накопилось '+ ${unreadTopics} + ' непрочитаных сообщений на форуме.'"></p>
+<p th:text="'А также ' + ${activeChats} + ' кол-во активных чатов'"></p>
+<p th:text="'Заходи, может там действительно что то интересное? :)'"></p>
+</body>
+</html>

@@ -29,3 +29,26 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Upload folder ###
+uploads/*
+!uploads/default.png
+!uploads/default-sm.png
+/src/main/resources/static/css/mystyle.css.map
+
+### Media folder ###
+media/*
+
+## Credential and Environment  depended properties
+/src/main/resources/config/application.properties
+/src/main/resources/config/datasource.properties
+/src/main/resources/config/jpa.properties
+/src/main/resources/config/mail.properties
+/ru.java.mentor.oldranger.club.model.forum.Comment/**
+/ru.java.mentor.oldranger.club.model.forum.Topic/**
+
+### Indices ###
+/data/index/**
+/sqldata/**
+/data01/**
+/logstash/pipeline/logs/**

@@ -1,0 +1,268 @@
+*{
+    margin:0;
+    padding:0;
+}
+body {
+    font-family: "Open Sans, sans-serif";
+    font-size: 16px;
+    line-height: 22px;
+    color: #363636;
+}
+
+.content{
+    min-width:200px;
+    max-width:500px;
+    background: #1c1c1c;
+    margin: 0 auto;
+}
+
+.comment-block{
+    font-family: "Open Sans, sans-serif";
+    font-size: 16px;
+    line-height: 22px;
+    color: #363636;
+    width:99.4%;
+    background: #fff;
+    margin: 0 auto;
+    border: 1px solid #1c1c1c;
+}
+.block-content{
+    width:100%;
+}
+.pozition{
+    margin: 8px 8px 0 8px;
+}
+.app-custom-ava {
+    float: left;
+}
+.small {
+    display: inline-block;
+    cursor: pointer;
+}
+.ava-p {
+    position: relative;
+    text-align: center;
+    padding: 8px;
+}
+.ava-img {
+    background: rgb(121,72,176);
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    line-height: 36px;
+    color: #fff;
+    text-transform: uppercase;
+    vertical-align: top;
+    border-radius: 200px;
+    outline:0;
+}
+.ava-online {
+    background: rgb(79,183,186);
+}
+
+.desc {
+    margin: 0 0 0 44px;
+    overflow: hidden;
+}
+.desc-right {
+    margin: 0 44px 0 40px;
+    overflow: hidden;
+}
+.desc-r {
+    background: rgb(200,232,233);
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    transition: 3s;
+}
+.desc-p {
+    padding: 10px 15px 6px 15px;
+    position: relative;
+}
+.datetime{
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    font-size: 13px;
+    line-height: 13px;
+    color: #a6dadc;
+    cursor: pointer;
+}
+.datetime span {
+    color: rgb(79,183,186);
+}
+.author {
+    color: rgb(79,183,186);
+    height: 22px;
+    margin: 0 60px 5px 0;
+    overflow:hidden;
+    font-weight: 700;
+    word-break: break-word;
+    cursor: pointer;
+}
+.text-author{
+    margin: 0 0 4px;
+    color: #363636;
+    word-break: break-word;
+}
+.action {
+    padding: 8px 0;
+    overflow:hidden;
+}
+
+.answer{
+    float:left;
+    color: #4db6ba;
+    cursor: pointer;
+}
+.answer span.icon{
+    position: relative;
+    top: 2px;
+}
+.action span.a{
+    color: hsl(193, 44%, 52%);
+    text-decoration: none;
+    padding-left: 25px;
+}
+.action span.a:hover{
+    color: hsl(193, 44%, 52%);
+    cursor: pointer;
+    text-decoration: underline;
+}
+.raiting-view{
+    float: right;
+}
+.app-comment-rating{
+
+}
+.app-comment-rating span{
+    color: rgb(167,219,221);
+}
+.comment-footer{
+    height: 0;
+}
+.editor-border{
+    border: 1px solid #c4c4c4;
+    position: relative;
+    background: #ebebeb;
+}
+.block-top{
+    padding: 4px 10px 0 70px;
+    height:20px;
+}
+.answer{
+    position: relative;
+    top: 3px;
+    font-size: 16px;
+    line-height: 22px;
+}
+.answer-desc{
+    display: block;
+    max-width: 200px;
+    overflow: hidden;
+    color: grey;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.icon-close{
+}
+.center-editor{
+    position: relative;
+}
+.text{
+    position: relative;
+    padding: 4px 10px 8px 50px;
+}
+.text-bg{
+    position: relative;
+    padding: 4px 40px 6px 10px;
+    margin: 4px 0 0;
+    /*background: #fff;*/
+    border: 1px solid #ebebeb;
+    /*border-radius: 16px;*/
+    height: 34px;
+}
+.textarea{
+    height:22px;
+    display: block;
+    width: 100%;
+    min-height:22px;
+    max-height:110px;
+    padding: 0;
+    margin: 0;
+    line-height:22px;
+    resize: none;
+    background: #fff;
+    border: 0;
+    outline:0;
+}
+.button-send{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+    line-height: 50px;
+    color: #fff;
+    border-radius: 100px;
+    cursor: pointer;
+}
+.circle{
+    background: rgb(79,163,186);
+    position: absolute;
+    top: 12px;
+    left: 9px;
+    width: 26px;
+    height: 26px;
+    border-radius: 100px;
+}
+.icon-send{
+    position: absolute;
+    top: 20px;
+    left: 14px;
+    width: 16px;
+    height: 16px;
+    font-size: 26px;
+    line-height: 16px;
+    text-align: center;
+}
+.append{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    line-height: 50px;
+    color: #c3c3c3;
+    text-align: center;
+    cursor: pointer;
+}
+.app-upload-component{
+    position: relative;
+    overflow:hidden;
+}
+.app-upload-component input{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    font-size: 0;
+    line-height: 0;
+    opacity: 0;
+}
+.app-upload-component label{
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0;
+}
+.icon-append{
+}
