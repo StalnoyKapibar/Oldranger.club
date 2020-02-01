@@ -9,10 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.IOUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +33,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -46,27 +51,24 @@ public class PhotoRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Save photo in album", tags = {"Photo"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
-            @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
-    public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
+            summary = "Test metod for secured get photo", tags = {"Photo"})
+    @GetMapping(value = "/testPhoto")
+    public ResponseEntity<byte[]> getImageAsResponseEntity() throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        //InputStream in = servletContext.getResourceAsStream("/WEB-INF/images/image-example.jpg");
         User currentUser = securityUtilsService.getLoggedUser();
-        PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
+        File as = null;
         if(currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            as = new File("/home/xaver/1.png");
+        } else {
+            as = new File("/home/xaver/1.png");
         }
-        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
-            return ResponseEntity.badRequest().build();
-        }
-        List<Photo> savedPhotos = new ArrayList<>();
-        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
-        return ResponseEntity.ok(savedPhotos);
+        InputStream in = new DataInputStream(new FileInputStream(as));
+        byte[] media = IOUtils.toByteArray(in);
+        headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+        ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(media, headers, HttpStatus.OK);
+        return responseEntity;
     }
-
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get photo and a list of comments DTO by id", tags = {"Photo"})
     @ApiResponses(value = {
