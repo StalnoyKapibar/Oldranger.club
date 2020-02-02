@@ -7,15 +7,18 @@ import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
 import java.util.Set;
 
 public interface ArticleService {
 
-    List<Article> getAllArticles();
+    Page<Article> getAllArticles(Pageable pageable);
 
     Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable);
+
+    Page<Article> getArticleDraftByUser(User user, Pageable pageable);
 
     void addArticle(Article article);
 

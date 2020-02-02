@@ -45,7 +45,6 @@ public class SectionsAndTopicsRestController {
     private MediaService mediaService;
     private PhotoAlbumService albumService;
 
-
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
     @Deprecated
