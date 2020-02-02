@@ -60,14 +60,14 @@ public class AdminRestController {
             allowEmptyValue = true,
             schema = @Schema(
                     type = "Integer",
-                    example = "/api/admin/users?page=1"))
+                    example = "http://localhost:8888/api/admin/users?page=1"))
     @Parameter(in = ParameterIn.QUERY, name = "query",
             required = false, description = "значение для фильтрации только тех строк таблицы 'users', в которых данное значение " +
             "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
             allowEmptyValue = true, allowReserved = true,
             schema = @Schema(
                     type = "string",
-                    example = "/api/admin/users?query=moderator@javamentor.com  или /api/admin/users?query=Admin"))
+                    example = "http://localhost:8888/api/admin/users?query=moderator@javamentor.com  или http://localhost:8888/api/admin/users?query=Admin"))
 
     @GetMapping(value = "/users", produces = { "application/json" })
     public ResponseEntity<List<UserStatisticDto>> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
