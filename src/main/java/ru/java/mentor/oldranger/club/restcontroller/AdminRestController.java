@@ -56,24 +56,23 @@ public class AdminRestController {
             @ApiResponse(responseCode = "200",
                          content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserStatisticDto.class)))) })
     @Parameter(in = ParameterIn.QUERY, name = "page",
-            required = true, description = "номер страницы",
+            required = false, description = "номер страницы",
             allowEmptyValue = true,
             schema = @Schema(
                     type = "Integer",
-                    example = "1",
-                    description = "the generated UUID",
-                    accessMode = Schema.AccessMode.READ_ONLY))
+                    example = "1"))
+    @Parameter(in = ParameterIn.QUERY, name = "subscriptionId",
+            required = false, description = "значение для фильтрации только тех строк" +
+            "таблицы 'users' данное значение " +
+            "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
+            allowEmptyValue = true, allowReserved = true,
+            schema = @Schema(
+                    type = "string",
+                    example = "my_email@gmail.com"))
 
     @GetMapping(value = "/users", produces = { "application/json" })
     public ResponseEntity<List<UserStatisticDto>> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
-                                                              @Parameter(in = ParameterIn.QUERY, name = "subscriptionId",
-                                                                      required = true, description = "значение для фильтрации только тех строк" +
-                                                                      "таблицы 'users' данное значение " +
-                                                                      "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
-                                                                      allowEmptyValue = true, allowReserved = true,
-                                                                      schema = @Schema(
-                                                                              type = "string",
-                                                                              example = "my_email@gmail.com")) @RequestParam(value = "query", required = false) String query) {
+                                                              @RequestParam(value = "query", required = false) String query) {
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 5, Sort.by("user_id"));
 
