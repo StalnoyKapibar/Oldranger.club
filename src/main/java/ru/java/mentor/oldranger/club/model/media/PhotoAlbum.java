@@ -13,10 +13,9 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "photoAlbum")
+@Table(name = "photo_album")
 @DynamicUpdate
 public class PhotoAlbum {
-
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
