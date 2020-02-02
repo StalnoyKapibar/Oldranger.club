@@ -62,8 +62,7 @@ public class AdminRestController {
                     type = "Integer",
                     example = "1"))
     @Parameter(in = ParameterIn.QUERY, name = "subscriptionId",
-            required = false, description = "значение для фильтрации только тех строк" +
-            "таблицы 'users', в которых данное значение " +
+            required = false, description = "значение для фильтрации только тех строк таблицы 'users', в которых данное значение " +
             "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
             allowEmptyValue = true, allowReserved = true,
             schema = @Schema(
