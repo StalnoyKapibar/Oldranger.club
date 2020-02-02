@@ -69,6 +69,29 @@ public class PhotoRestController {
         ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(media, headers, HttpStatus.OK);
         return responseEntity;
     }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Save photo in album", tags = {"Photo"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights error")})
+    @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
+    public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Photo> savedPhotos = new ArrayList<>();
+        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
+        return ResponseEntity.ok(savedPhotos);
+    }
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get photo and a list of comments DTO by id", tags = {"Photo"})
     @ApiResponses(value = {
