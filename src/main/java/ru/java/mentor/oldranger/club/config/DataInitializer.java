@@ -266,7 +266,6 @@ public class DataInitializer implements CommandLineRunner {
         ArticleTagsNode articleTagsNode5 = new ArticleTagsNode(5L,articleTagsNode3, 1, newsTag2);
         ArticleTagsNode articleTagsNode6 = new ArticleTagsNode(6L,articleTagsNode5, 1, newsTag2);
 
-
         articleTagsNodeService.save(articleTagsNode1);
         articleTagsNodeService.save(articleTagsNode2);
         articleTagsNodeService.save(articleTagsNode3);
