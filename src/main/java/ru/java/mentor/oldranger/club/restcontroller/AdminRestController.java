@@ -67,7 +67,7 @@ public class AdminRestController {
             allowEmptyValue = true, allowReserved = true,
             schema = @Schema(
                     type = "string",
-                    example = "/api/admin/users?query=\"moderator@javamentor.com\"  или /api/admin/users?query=\"Admin\""))
+                    example = "/api/admin/users?query=moderator@javamentor.com  или /api/admin/users?query=Admin"))
 
     @GetMapping(value = "/users", produces = { "application/json" })
     public ResponseEntity<List<UserStatisticDto>> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
