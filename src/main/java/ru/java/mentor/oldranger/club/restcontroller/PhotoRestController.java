@@ -10,14 +10,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
@@ -34,6 +32,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -53,21 +52,15 @@ public class PhotoRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Test metod for secured get photo", tags = {"Photo"})
     @GetMapping(value = "/testPhoto")
-    public ResponseEntity<byte[]> getImageAsResponseEntity() throws IOException {
-        HttpHeaders headers = new HttpHeaders();
-        //InputStream in = servletContext.getResourceAsStream("/WEB-INF/images/image-example.jpg");
+    public byte[] getImageAsResponseEntity() throws IOException {
         User currentUser = securityUtilsService.getLoggedUser();
-        File as = null;
+        File serveFile = null;
         if(currentUser == null) {
-            as = new File("/home/xaver/1.png");
+            serveFile = new File("/home/xaver/1.jpeg");
         } else {
-            as = new File("/home/xaver/1.png");
+            serveFile = new File("/home/xaver/1.jpeg");
         }
-        InputStream in = new DataInputStream(new FileInputStream(as));
-        byte[] media = IOUtils.toByteArray(in);
-        headers.setCacheControl(CacheControl.noCache().getHeaderValue());
-        ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(media, headers, HttpStatus.OK);
-        return responseEntity;
+        return Files.readAllBytes(serveFile.toPath());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
