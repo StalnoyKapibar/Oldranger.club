@@ -39,39 +39,56 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                ph.album_id as photo_album_id " +
             "         from photo_album as pa " +
             "                  left join photos as ph on ph.album_id = pa.id " +
-            "         where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = :userId) " +
+            "         where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
             "           and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL)) as t1 " +
             "         inner join (SELECT album_id               as oldest_photos_album_id, " +
-            "                            MIN(upload_photo_date) as min_date " +
+            "                            MIN(upload_photo_date) as max_date " +
             "                     from (select pa.id as album_id, " +
             "                                  ph.upload_photo_date " +
             "                           from photo_album as pa " +
             "                                    left join photos as ph on ph.album_id = pa.id " +
-            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = :userId) " +
-            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL) " +
-            "                           order by pa.id, ph.upload_photo_date) as oldest_photos_dates_by_album " +
+            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL)) as oldest_photos_dates_by_album " +
             "                     group by album_id) opdba " +
-            "                    on t1.album_id = opdba.oldest_photos_album_id and t1.upload_photo_date = opdba.min_date " +
+            "                    on t1.album_id = opdba.oldest_photos_album_id and t1.upload_photo_date = opdba.max_date " +
             "         inner join (SELECT album_id        as photo_counts_album_id, " +
             "                            COUNT(photo_id) as photo_counts " +
             "                     from (select ph.id as photo_id, " +
             "                                  pa.id as album_id " +
             "                           from photo_album as pa " +
             "                                    left join photos as ph on ph.album_id = pa.id " +
-            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = :userId) " +
-            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL) " +
-            "                           order by pa.id, ph.upload_photo_date) as photo_counts_by_album " +
-            "                     group by album_id) as pcba on t1.album_id = pcba.photo_counts_album_id;")
-    List<Tuple>  findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId);
+            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL)) as photo_counts_by_album " +
+            "                     group by album_id) as pcba on t1.album_id = pcba.photo_counts_album_id " +
+            " " +
+            "UNION ALL" +
+            " " +
+            "select id, " +
+            "       title, " +
+            "       media_id, " +
+            "       null, " +
+            "       null, " +
+            "       0, " +
+            "       null, " +
+            "       ?2, " +
+            "       ?2 " +
+            "from photo_album as album_without_photos " +
+            "where album_without_photos.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "and id not in (select pa.id  as album_id " +
+            "                           from photo_album as pa " +
+            "                                    left join photos as ph on ph.album_id = pa.id " +
+            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL));")
+    List<Tuple>  findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
 
     default List<PhotoAlbumDto> findPhotoAlbumsByUser( User user) {
-        return findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(user.getId()).stream()
+        return findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(user.getId(), "photo_album_placeholder").stream()
                 .map(e -> new PhotoAlbumDto(
                         e.get("album_id") == null ? null :  Long.valueOf(e.get("album_id").toString()),
                         e.get("title", String.class),
                         e.get("original_img", String.class),
                         e.get("small_img", String.class),
-                        e.get("photo_counts") == null ? null :  Integer.valueOf(e.get("album_id").toString()))).collect(Collectors.toList());
+                        e.get("photo_counts") == null ? 0 :  Integer.valueOf(e.get("photo_counts").toString()))).collect(Collectors.toList());
     }
 
 }
