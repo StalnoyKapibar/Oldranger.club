@@ -8,13 +8,12 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 
 @Data
 @AllArgsConstructor
-//ToDo дописать description и requiredProperties
-@Schema(description = "...ToDo... ",
-        requiredProperties = {".ToDo..", ".ToDo.."})
+@Schema(description = "DTO для передачи фото по умолчанию (самая первая фотография по дате загрузки), а так же общего количества фото и",
+        requiredProperties = {"albumId", "albumTitle"})
 public class PhotoAlbumDto {
-    private Long photosAlbumId;
-    private String photosAlbumTitle;
-    private String photosAlbumOriginalThumbImage;
-    private String photosAlbumSmallThumbImage;
-    private int photosAlbumCounter;
+    private Long id;
+    private String title;
+    private String originalThumbImage;
+    private String smallThumbImage;
+    private int photosCounter;
 }
