@@ -12,6 +12,9 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 @Schema(description = "...ToDo... ",
         requiredProperties = {".ToDo..", ".ToDo.."})
 public class PhotoAlbumDto {
-    private PhotoAlbum album;
-    private Photo mainPhoto;
+    private Long photosAlbumId;
+    private String photosAlbumTitle;
+    private String photosAlbumOriginalThumbImage;
+    private String photosAlbumSmallThumbImage;
+    private int photosAlbumCounter;
 }

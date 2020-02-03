@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
+import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @NonNull
@@ -180,5 +183,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.error(e.getMessage(), e);
         }
         return photos;
+    }
+
+    @Override
+    public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
+        return albumRepository.findPhotoAlbumsByUser(user);
     }
 }
