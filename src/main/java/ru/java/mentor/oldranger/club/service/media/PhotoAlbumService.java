@@ -25,8 +25,6 @@ public interface PhotoAlbumService {
 
     void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album);
 
-    public List<PhotoAlbum> findAllByUser(User user);
-
-    public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user);
+    List<PhotoAlbumDto> findPhotoAlbumsByUser(User user);
 
 }
