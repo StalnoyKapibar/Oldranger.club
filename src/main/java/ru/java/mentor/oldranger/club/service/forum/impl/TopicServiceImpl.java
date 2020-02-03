@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
+@CacheConfig(cacheNames = {"topic"})
 public class TopicServiceImpl implements TopicService {
 
     private TopicRepository topicRepository;
@@ -35,6 +37,7 @@ public class TopicServiceImpl implements TopicService {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
     public void createTopic(Topic topic) {
         log.info("Saving topic {}", topic);
         try {
@@ -50,6 +53,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @CachePut(key = "topic.id")
     public void editTopicByName(Topic topic) {
         log.info("Saving topic {}", topic);
         try {
@@ -61,6 +65,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
     public void deleteTopicById(Long id) {
         log.info("Deleting topic with id = {}", id);
         try {
@@ -72,12 +77,14 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Cacheable
     public Topic findById(Long id) {
         log.debug("Getting topic by id = {}", id);
         return topicRepository.findById(id).orElse(null);
     }
 
     @Override
+    @Cacheable(cacheNames = {"allTopic"})
     public List<Topic> findAll() {
         log.debug("Getting all topics");
         List<Topic> topics = null;
@@ -117,6 +124,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Cacheable(cacheNames = {"allTopic"})
     public List<Topic> getActualTopicsLimit10() {
         if (securityUtilsService.isLoggedUserIsUser()) {
             return topicRepository.getActualTopicsLimit(10);
@@ -126,6 +134,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Cacheable(cacheNames = {"allTopic"})
     public List<Topic> getActualTopicsLimit10BySection() {
         log.debug("Getting actual topics with limit = 10");
         List<Topic> topics = null;
@@ -201,6 +210,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Cacheable(cacheNames = {"allTopic"})
     public Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable) {
         log.debug("Getting page {} of topics started by user with id = {}", pageable.getPageNumber(), user.getId());
         Page<Topic> page = null;

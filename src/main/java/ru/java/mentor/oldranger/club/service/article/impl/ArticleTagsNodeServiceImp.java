@@ -2,6 +2,10 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
@@ -17,10 +21,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 @Transactional
+@CacheConfig(cacheNames = {"tagNode"})
 public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     private ArticleTagsNodeRepository tagsNodeRepository;
 
     @Override
+    @Cacheable(cacheNames = {"allTagNode"})
     public List<ArticleTagsNode> findAll() {
         log.info("Getting list of all nodes");
         List<ArticleTagsNode> tagsNodes = null;
@@ -34,6 +40,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    @Cacheable(cacheNames = {"allTagNode"})
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
         log.info("Getting list of all nodes DTO");
         List<ArticleTagsNodeDto> tagsNodeDto = null;
@@ -47,6 +54,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    @Cacheable
     public ArticleTagsNode findById(Long id) {
         log.info("Getting node by id = {}", id);
         ArticleTagsNode tagsNode = null;
@@ -60,6 +68,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "tagNode", allEntries = true), @CacheEvict(value = "allTagNode", allEntries = true)})
     public void save(ArticleTagsNode tagsNode) {
         log.info("Saving node {} or editing node by id = {}", tagsNode, tagsNode.getId());
         try {
@@ -71,6 +80,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "tagNode", allEntries = true), @CacheEvict(value = "allTagNode", allEntries = true)})
     public void deleteById(Long id) {
         log.info("Deleting node with id = {}", id);
         try {
