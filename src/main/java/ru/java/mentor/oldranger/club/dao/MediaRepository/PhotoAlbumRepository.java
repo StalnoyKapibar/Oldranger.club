@@ -2,15 +2,11 @@ package ru.java.mentor.oldranger.club.dao.MediaRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
-import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.Tuple;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,23 +16,15 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
     @Query(nativeQuery = true, value = "SELECT album_id, " +
             "       title, " +
-            "       media_id, " +
-            "       photo_id, " +
-            "       description, " +
             "       photo_counts, " +
-            "       upload_photo_date, " +
             "       small_img, " +
             "       original_img " +
             "from ( " +
             "         select pa.id       as album_id, " +
             "                pa.title, " +
-            "                pa.media_id, " +
-            "                ph.id       as photo_id, " +
-            "                ph.description, " +
             "                ph.original_img, " +
             "                ph.small_img, " +
-            "                ph.upload_photo_date, " +
-            "                ph.album_id as photo_album_id " +
+            "                ph.upload_photo_date " +
             "         from photo_album as pa " +
             "                  left join photos as ph on ph.album_id = pa.id " +
             "         where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
@@ -61,24 +49,20 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL)) as photo_counts_by_album " +
             "                     group by album_id) as pcba on t1.album_id = pcba.photo_counts_album_id " +
             " " +
-            "UNION ALL" +
+            "UNION ALL " +
             " " +
             "select id, " +
             "       title, " +
-            "       media_id, " +
-            "       null, " +
-            "       null, " +
             "       0, " +
-            "       null, " +
             "       ?2, " +
             "       ?2 " +
             "from photo_album as album_without_photos " +
             "where album_without_photos.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
-            "and id not in (select pa.id  as album_id " +
-            "                           from photo_album as pa " +
-            "                                    left join photos as ph on ph.album_id = pa.id " +
-            "                           where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
-            "                             and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL));")
+            "  and id not in (select pa.id as album_id " +
+            "                 from photo_album as pa " +
+            "                          left join photos as ph on ph.album_id = pa.id " +
+            "                 where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "                   and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL));")
     List<Tuple>  findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
 
     default List<PhotoAlbumDto> findPhotoAlbumsByUser( User user) {
