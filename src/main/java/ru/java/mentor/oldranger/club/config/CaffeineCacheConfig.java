@@ -28,7 +28,8 @@ public class CaffeineCacheConfig {
                 "tagNode",
                 "allTagNode",
                 "topic",
-                "allTopic");
+                "allTopic",
+                "allTagNodeHierarchy");
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;
     }
