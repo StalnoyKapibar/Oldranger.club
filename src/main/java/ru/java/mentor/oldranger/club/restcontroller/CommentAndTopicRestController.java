@@ -126,7 +126,7 @@ public class CommentAndTopicRestController {
         LocalDateTime localDateTime = LocalDateTime.now();
         boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-        if (messageComentsEntity.getAnswerID() != null) {
+        if (messageComentsEntity.getAnswerID() != 0) {
             Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
             comment = new Comment(topic, user, answer, localDateTime, messageComentsEntity.getText());
         } else {
