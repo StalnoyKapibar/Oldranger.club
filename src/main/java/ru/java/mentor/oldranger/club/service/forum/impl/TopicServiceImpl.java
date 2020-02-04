@@ -53,7 +53,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @CachePut(key = "topic.id")
+    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
     public void editTopicByName(Topic topic) {
         log.info("Saving topic {}", topic);
         try {
