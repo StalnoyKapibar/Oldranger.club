@@ -2,6 +2,10 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +14,8 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentReposit
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
+@CacheConfig(cacheNames = {"article"})
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
@@ -33,11 +38,13 @@ public class ArticleServiceImpl implements ArticleService {
     private UserStatisticService userStatisticService;
 
     @Override
+    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
     }
 
     @Override
+    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
         return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
     }
@@ -48,6 +55,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Cacheable
     public Article getArticleById(long id) {
         return articleRepository.findById(id);
     }
@@ -58,6 +66,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "alllArticle", allEntries = true)})
     public void addArticle(Article article) {
         articleRepository.save(article);
     }
@@ -140,12 +149,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
     }
 
     @Override
     @Transactional
+    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
     }

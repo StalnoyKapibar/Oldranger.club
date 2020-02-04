@@ -19,8 +19,10 @@ import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 public class SearchRestController {
     private SearchService searchService;
     private CommentService commentService;
+    private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get found topics", tags = {"Search API"})
@@ -50,13 +53,23 @@ public class SearchRestController {
                                                               @RequestParam(value = "node", required = false) Integer node,
                                                               @Parameter(description = "Значение узла(ид - раздела, подраздела).")
                                                               @RequestParam(value = "nodeValue", required = false) Long nodeValue) {
+        User currentUser = securityUtilsService.getLoggedUser();
         List<Topic> topics = searchService.searchTopicsByPageAndLimits(finderTag, page, limit, node, nodeValue);
-
-        try {
-            SectionsAndTopicsDto sectionsAndTopicsDto = new SectionsAndTopicsDto(topics.get(0).getSection(), topics);
-            return ResponseEntity.ok(sectionsAndTopicsDto);
-        } catch (IndexOutOfBoundsException e) {
-            return ResponseEntity.noContent().build();
+        if(currentUser == null) {
+            topics = topics.stream().filter(x -> !x.isHideToAnon()).collect(Collectors.toList());
+            try {
+                SectionsAndTopicsDto sectionsAndTopicsDto = new SectionsAndTopicsDto(topics.get(0).getSection(), topics);
+                return ResponseEntity.ok(sectionsAndTopicsDto);
+            } catch (IndexOutOfBoundsException e) {
+                return ResponseEntity.noContent().build();
+            }
+        } else {
+            try {
+                SectionsAndTopicsDto sectionsAndTopicsDto = new SectionsAndTopicsDto(topics.get(0).getSection(), topics);
+                return ResponseEntity.ok(sectionsAndTopicsDto);
+            } catch (IndexOutOfBoundsException e) {
+                return ResponseEntity.noContent().build();
+            }
         }
     }
 

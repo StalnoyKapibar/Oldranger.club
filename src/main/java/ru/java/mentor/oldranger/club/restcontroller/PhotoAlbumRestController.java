@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -36,11 +37,11 @@ public class PhotoAlbumRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
             @ApiResponse(responseCode = "400", description = "Login error")})
     @GetMapping
-    public ResponseEntity<List<PhotoAlbum>>  getPhotoAlbums() {
+    public ResponseEntity<List<PhotoAlbumDto>>  getPhotoAlbums() {
         if(securityUtilsService.getLoggedUser() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(service.findAllByUser(securityUtilsService.getLoggedUser()));
+        return ResponseEntity.ok(service.findPhotoAlbumsByUser(securityUtilsService.getLoggedUser()));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

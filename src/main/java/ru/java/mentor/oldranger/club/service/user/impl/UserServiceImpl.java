@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
-import ru.java.mentor.oldranger.club.dto.ProfileDto;
-import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserAvatar;
@@ -17,7 +15,6 @@ import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,19 +127,5 @@ public class UserServiceImpl implements UserService {
     public User getUserByInviteKey(String key) {
         log.debug("Get user by inviti key ={}", key);
         return userRepository.findUserByInviteKey(key).orElseThrow(() -> new UsernameNotFoundException("There is no such invite key"));
-    }
-
-    @Override
-    public UserAuthDTO buildUserDtoByUser(User user, boolean currentUser) {
-        log.debug("Building current user dto");
-        return new UserAuthDTO(user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getNickName(),
-                user.getRole().getRole(),
-                user.getPassword(),
-                LocalDateTime.now(),
-                currentUser);
     }
 }
