@@ -33,9 +33,9 @@
     Проект должен начать скачиваться и подтягивать зависимости или в правом нижнем углу должна появиться плашка на которой нужно выбрать Enable auto import, и тогда начнется загрузка зависимостей.  
     Пуллим себе ветку dev: VCS - Git - Pull - origin/dev (или через терминал) и снова ждем, когда подтянутся новые зависимости.  
     Идем в File - Settings - Plugins - Набираем Lombok - Жмем install и перезагружаем IDE  
-    В самом проекте идем в папку config (src/main/resources/config), где лежат 4 файла типа aplication.properties.sample    
+    В самом проекте идем в папку config (src/main/resources/config), где лежат 5 файлов типа aplication.properties.sample    
     Копируем эти файлы и убираем расширение .sample  
-    В итоге в папке config должны лежать 8 файлов:
+    В итоге в папке config должны лежать 10 файлов:
     application.properties  
     application.properties.sample  
     datasource.properties  

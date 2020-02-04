@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource({
         "classpath:config/datasource.properties",
         "classpath:config/jpa.properties",
-        "classpath:config/mail.properties"/*,
-        "classpath:config/cache.properties"*/
+        "classpath:config/mail.properties",
+        "classpath:config/cache.properties"
 })
 @EnableAsync
 @EnableTransactionManagement

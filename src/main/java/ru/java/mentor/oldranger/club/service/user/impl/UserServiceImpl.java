@@ -2,6 +2,10 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
@@ -24,6 +28,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @AllArgsConstructor
+@CacheConfig(cacheNames = {"users"})
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
@@ -32,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private MediaService mediaService;
 
     @Override
+    @Cacheable(cacheNames = {"allUsers"})
     public List<User> findAll() {
         log.debug("Getting all users");
         List<User> users = null;
@@ -45,6 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#theId")
     public User findById(Long theId) {
         log.debug("Getting user with id = {}", theId);
         Optional<User> result = userRepository.findById(theId);
@@ -52,6 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "allUsers", allEntries = true)})
     public void save(User user) {
         log.info("Saving user");
         try {
@@ -75,6 +83,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "users", key = "#theId"), @CacheEvict(value = "allUsers", allEntries = true)})
     public void deleteById(Long theId) {
         log.info("Deleting user with id = {}", theId);
         try {
@@ -86,6 +95,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#name")
     public User getUserByNickName(String name) {
         log.debug("Getting user with nickname = {}", name);
         User user = null;
@@ -107,6 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#email")
     public User getUserByEmail(String email) {
         log.debug("Getting user with email = {}", email);
         User user = null;
@@ -120,6 +131,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#login")
     public User getUserByEmailOrNickName(String login) {
         log.debug("Getting user with email or nickname = {}", login);
         Optional<User> result = userRepository.findUserByEmailOrNickName(login);
