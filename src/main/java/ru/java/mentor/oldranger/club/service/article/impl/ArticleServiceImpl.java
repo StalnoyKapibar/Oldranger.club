@@ -38,13 +38,13 @@ public class ArticleServiceImpl implements ArticleService {
     private UserStatisticService userStatisticService;
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"})
+    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
     }
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"})
+    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
         return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
     }

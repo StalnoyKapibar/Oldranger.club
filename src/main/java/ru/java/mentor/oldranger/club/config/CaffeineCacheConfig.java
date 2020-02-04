@@ -5,8 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -28,8 +32,8 @@ public class CaffeineCacheConfig {
                 "tagNode",
                 "allTagNode",
                 "topic",
-                "allTopic",
-                "allTagNodeHierarchy");
+                "allTopic"
+                );
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;
     }
@@ -41,5 +45,17 @@ public class CaffeineCacheConfig {
                 .expireAfterAccess(LIVE_TIME, TimeUnit.MINUTES)
                 .weakKeys()
                 .recordStats();
+    }
+    public class CustomKeyGenerator implements KeyGenerator {
+
+        public Object generate(Object target, Method method, Object... params) {
+            return target.getClass().getSimpleName() + "_"
+                    + method.getName() + "_"
+                    + StringUtils.arrayToDelimitedString(params, "_");
+        }
+    }
+    @Bean("customKeyGenerator")
+    public KeyGenerator keyGenerator() {
+        return new CustomKeyGenerator();
     }
 }

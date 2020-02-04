@@ -40,7 +40,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTagNodeHierarchy"})
+    @Cacheable(cacheNames = {"allTagNodeHierarchy"}, keyGenerator = "customKeyGenerator")
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
         log.info("Getting list of all nodes DTO");
         List<ArticleTagsNodeDto> tagsNodeDto = null;
@@ -70,8 +70,8 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "tagNode", allEntries = true),
-            @CacheEvict(value = "allTagNode", allEntries = true),
-            @CacheEvict(value = "allTagNodeHierarchy", allEntries = true)})
+            @CacheEvict(value = "allTagNode", allEntries = true)
+            })
     public void save(ArticleTagsNode tagsNode) {
         log.info("Saving node {} or editing node by id = {}", tagsNode, tagsNode.getId());
         try {
@@ -85,8 +85,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "tagNode", allEntries = true),
-            @CacheEvict(value = "allTagNode", allEntries = true),
-            @CacheEvict(value = "allTagNodeHierarchy", allEntries = true)})
+            @CacheEvict(value = "allTagNode", allEntries = true)})
     public void deleteById(Long id) {
         log.info("Deleting node with id = {}", id);
         try {

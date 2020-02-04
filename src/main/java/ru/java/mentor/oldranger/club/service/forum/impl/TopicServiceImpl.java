@@ -84,8 +84,10 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"})
+    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> findAll() {
+        System.out.println("findAll");
+
         log.debug("Getting all topics");
         List<Topic> topics = null;
         try {
@@ -124,8 +126,9 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"})
+    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10() {
+        System.out.println("limit10");
         if (securityUtilsService.isLoggedUserIsUser()) {
             return topicRepository.getActualTopicsLimit(10);
         } else {
@@ -134,9 +137,10 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"})
+    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10BySection() {
         log.debug("Getting actual topics with limit = 10");
+        System.out.println("get 10");
         List<Topic> topics = null;
         try {
             topics = topicRepository.getActualTopicsLimitAnyBySection(10);
@@ -210,7 +214,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"})
+    @Cacheable(cacheNames = {"allTopic"}, key = "#user")
     public Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable) {
         log.debug("Getting page {} of topics started by user with id = {}", pageable.getPageNumber(), user.getId());
         Page<Topic> page = null;
