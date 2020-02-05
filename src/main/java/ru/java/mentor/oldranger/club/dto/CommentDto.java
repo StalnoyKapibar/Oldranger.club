@@ -22,4 +22,5 @@ public class CommentDto {
     private String replyText;
     private String commentText;
     private List<ImageComment> imageComment;
+    private boolean updatable;
 }
