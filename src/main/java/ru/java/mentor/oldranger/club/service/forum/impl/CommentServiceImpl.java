@@ -94,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
         return page;
     }
 
-    public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable, int position) {
+    public Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable, int position, User user) {
         log.debug("Getting page {} of comment dtos for topic with id = {}", pageable.getPageNumber(), topic.getId());
         Page<CommentDto> page = null;
         List<Comment> list = new ArrayList<>();
@@ -107,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
-                        .stream().map(this::assembleCommentDto).collect(Collectors.toList());
+                        .stream().map(a->assembleCommentDto(a, user)).collect(Collectors.toList());
             } else {
                 dtoList = Collections.emptyList();
             }
@@ -124,7 +124,7 @@ public class CommentServiceImpl implements CommentService {
         log.debug("Getting page {} of comment dtos for user with id = {}", pageable.getPageNumber(), user.getId());
         Page<CommentDto> page = null;
         try {
-            page = commentRepository.findByUser(user, pageable).map(this::assembleCommentDto);
+            page = commentRepository.findByUser(user, pageable).map(a->assembleCommentDto(a, user));
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -133,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
 
-    public CommentDto assembleCommentDto(Comment comment) {
+    public CommentDto assembleCommentDto(Comment comment, User user) {
         log.debug("Assembling comment {} dto", comment);
         CommentDto commentDto = new CommentDto();
         try {
@@ -156,6 +156,14 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setReplyText(replyText);
             commentDto.setCommentText(comment.getCommentText());
             commentDto.setImageComment(imageCommnetService.findAllByCommentId(comment.getId()));
+            boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
+            if(user == null) {
+                commentDto.setUpdatable(false);
+            } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
+                commentDto.setUpdatable(true);
+            } else {
+                commentDto.setUpdatable(false);
+            }
             log.debug("Comment dto assembled");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

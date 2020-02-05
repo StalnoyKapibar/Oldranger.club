@@ -53,7 +53,7 @@ public class TestCommentDtoController {
             page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
-        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, 0);
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, 0, currentUser);
         if (currentUser.getRole().getRole().equals("ROLE_PROSPECT")) {
             for (CommentDto cd : dtos.getContent()) {
                 cd.getAuthor().getAvatar().setSmall("default-sm.png");
