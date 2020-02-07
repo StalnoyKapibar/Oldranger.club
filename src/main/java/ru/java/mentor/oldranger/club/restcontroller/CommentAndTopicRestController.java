@@ -86,7 +86,7 @@ public class CommentAndTopicRestController {
             position = 0;
         }
 
-        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position);
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position, currentUser);
         TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 
@@ -149,7 +149,7 @@ public class CommentAndTopicRestController {
             imageComment.setComment(comment);
             imageCommnetService.save(imageComment);
         }
-        CommentDto commentDto = commentService.assembleCommentDto(comment);
+        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);
     }
 
@@ -222,7 +222,7 @@ public class CommentAndTopicRestController {
             imageComment.setComment(comment);
             imageCommnetService.save(imageComment);
         }
-        CommentDto commentDto = commentService.assembleCommentDto(comment);
+        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);
     }
 }

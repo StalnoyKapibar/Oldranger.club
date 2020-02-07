@@ -18,9 +18,9 @@ public interface CommentService {
 
     Page<Comment> getPageableCommentByTopic(Topic topic, Pageable pageable);
 
-    CommentDto assembleCommentDto(Comment comment);
+    CommentDto assembleCommentDto(Comment comment, User user);
 
-    Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable, int position);
+    Page<CommentDto> getPageableCommentDtoByTopic(Topic topic, Pageable pageable, int position, User user);
 
     Page<CommentDto> getPageableCommentDtoByUser(User user, Pageable pageable);
 
