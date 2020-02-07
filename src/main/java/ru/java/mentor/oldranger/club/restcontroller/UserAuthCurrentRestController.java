@@ -31,7 +31,9 @@ public class UserAuthCurrentRestController {
     @GetMapping(value = "/currentUser", produces = {"application/json"})
     public ResponseEntity<UserAuthDTO> getCurrentUser() {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
         UserAuthDTO dto = userService.buildUserDtoByUser(currentUser, securityUtilsService.isLoggedUserIsUser());
         return ResponseEntity.ok(dto);
     }
