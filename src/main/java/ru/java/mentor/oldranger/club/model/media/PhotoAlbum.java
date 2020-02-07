@@ -5,10 +5,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import ru.java.mentor.oldranger.club.model.user.User;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.*;
 
 @NoArgsConstructor
 @Data
@@ -24,12 +23,20 @@ public class PhotoAlbum {
     @Column(name = "title")
     private String title;
 
+    /*
+    ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
+     дополнительную модель WritersWriters unidirectional связью ManyToOne
+     */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "photo_album_writers",
             joinColumns = {@JoinColumn(name = "album_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> writers;
 
+    /*
+    ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
+     дополнительную модель WritersWriters unidirectional связью ManyToOne
+     */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "photo_album_viewers",
             joinColumns = {@JoinColumn(name = "album_id")},

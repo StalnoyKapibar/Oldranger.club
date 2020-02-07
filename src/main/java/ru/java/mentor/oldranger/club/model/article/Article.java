@@ -31,6 +31,7 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
+    //ToDo Cartesian Prodact problem analysis -желательно поменять на LAZY
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
@@ -46,22 +47,27 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
+    @Column(name = "article_hide", columnDefinition = "TINYINT")
+    private boolean isHideToAnon;
+
     @Column(name = "draft", columnDefinition = "TINYINT")
     private boolean draft;
 
     @LazyCollection(LazyCollectionOption.EXTRA)
+    //ToDo N+1 problem analysis
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "like_users",
             joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean draft) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, boolean draft) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
+        this.isHideToAnon = isHideToAnon;
         this.draft = draft;
     }
 

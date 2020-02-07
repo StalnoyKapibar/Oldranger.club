@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.chat;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
@@ -28,6 +30,7 @@ public class Chat {
     @OneToOne
     private PhotoAlbum photoAlbum;
 
+    //ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},
