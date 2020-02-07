@@ -5,9 +5,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import ru.java.mentor.oldranger.club.model.user.User;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.*;
 
 
 @NoArgsConstructor
