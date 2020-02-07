@@ -67,7 +67,7 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                   and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL));")
     List<Tuple>  findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
 
-    default List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
+    default List<PhotoAlbumDto> findPhotoAlbumsByUser( User user) {
         return findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(user.getId(), "photo_album_placeholder").stream()
                 .map(e -> new PhotoAlbumDto(
                         e.get("album_id") == null ? null :  Long.valueOf(e.get("album_id").toString()),
