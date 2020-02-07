@@ -13,4 +13,5 @@ public interface ImageCommnetService {
     void save(ImageComment imageComment);
 
     List<ImageComment> findAllByCommentId(Long commentId);
+
 }

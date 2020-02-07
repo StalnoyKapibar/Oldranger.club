@@ -159,7 +159,7 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
             @ApiResponse(responseCode = "404", description = "Error deleting comment")})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
-    public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
+    public ResponseEntity deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
@@ -169,6 +169,11 @@ public class CommentAndTopicRestController {
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
+        Long deletedPosition = comment.getPosition();
+        Topic topic = comment.getTopic();
+        topic.setMessageCount(topic.getMessageCount() - 1 );
+        topicService.editTopicByName(topic);
+        commentService.updatePostion(topic.getId(), deletedPosition);
         commentService.deleteComment(id);
         return ResponseEntity.ok().build();
     }
@@ -180,7 +185,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
+        public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
@@ -198,7 +203,7 @@ public class CommentAndTopicRestController {
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(messageComments.getText());
-        if (messageComments.getAnswerID() != 0) {
+        if (messageComments.getAnswerID() != null) {
             comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
         } else {
             comment.setAnswerTo(null);
