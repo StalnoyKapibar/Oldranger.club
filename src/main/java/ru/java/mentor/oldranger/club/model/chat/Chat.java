@@ -30,7 +30,7 @@ public class Chat {
     @OneToOne
     private PhotoAlbum photoAlbum;
 
-    //ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY
+    //ToDo Cartesian Product problem analysis -  Желательно заменить на LAZY
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},

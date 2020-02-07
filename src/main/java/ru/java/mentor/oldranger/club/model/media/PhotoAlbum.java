@@ -24,7 +24,7 @@ public class PhotoAlbum {
     private String title;
 
     /*
-    ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
+    ToDo Cartesian Product problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
      дополнительную модель WritersWriters unidirectional связью ManyToOne
      */
     @ManyToMany(fetch = FetchType.EAGER)
@@ -34,7 +34,7 @@ public class PhotoAlbum {
     private Set<User> writers;
 
     /*
-    ToDo Cartesian Prodact problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
+    ToDo Cartesian Product problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
      дополнительную модель WritersWriters unidirectional связью ManyToOne
      */
     @ManyToMany(fetch = FetchType.EAGER)

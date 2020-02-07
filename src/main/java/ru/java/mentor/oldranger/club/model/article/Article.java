@@ -31,7 +31,7 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
-    //ToDo Cartesian Prodact problem analysis -желательно поменять на LAZY
+    //ToDo Cartesian Product problem analysis -желательно поменять на LAZY
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
