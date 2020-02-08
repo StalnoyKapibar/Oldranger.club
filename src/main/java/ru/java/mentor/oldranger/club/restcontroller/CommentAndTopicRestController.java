@@ -165,15 +165,12 @@ public class CommentAndTopicRestController {
         boolean moderator = securityUtilsService.isModerator();
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
-
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
-        Long deletedPosition = comment.getPosition();
-        Topic topic = comment.getTopic();
-        topic.setMessageCount(topic.getMessageCount() - 1 );
-        topicService.editTopicByName(topic);
-        commentService.updatePostion(topic.getId(), deletedPosition);
+        comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1 );
+        topicService.editTopicByName(comment.getTopic());
+        commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
         commentService.deleteComment(id);
         return ResponseEntity.ok().build();
     }
@@ -185,7 +182,7 @@ public class CommentAndTopicRestController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
-        public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
+    public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {

@@ -85,8 +85,6 @@ public class SecurePhoto {
         if(type.equals("small")) {
             path = photo.getSmall();
         }
-        File file = new File(albumsdDir + File.separator + path);
-        InputStream in = new FileInputStream(file);
-        return ResponseEntity.ok(IOUtils.toByteArray(in));
+        return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(new File(albumsdDir + File.separator + path))));
     }
 }
