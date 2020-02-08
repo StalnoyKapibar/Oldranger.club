@@ -31,7 +31,7 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
-    //ToDo N+1 problem analysis
+    //ToDo N+1 problem
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
@@ -51,7 +51,7 @@ public class Article {
     private boolean draft;
 
     @LazyCollection(LazyCollectionOption.EXTRA)
-    //ToDo N+1 problem analysis
+    //ToDo N+1 problem
     @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "like_users",
             joinColumns = {@JoinColumn(name = "article_id")},

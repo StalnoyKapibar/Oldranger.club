@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
-    //ToDo N+1 problem analysis
+    //ToDo N+1 problem
     @Deprecated
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 

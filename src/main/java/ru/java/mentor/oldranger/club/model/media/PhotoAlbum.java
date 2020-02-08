@@ -24,14 +24,14 @@ public class PhotoAlbum {
     @Column(name = "title")
     private String title;
 
-    //ToDo N+1 problem analysis
+    //ToDo N+1 problem
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "photo_album_writers",
             joinColumns = {@JoinColumn(name = "album_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> writers;
 
-    //ToDo N+1 problem analysis
+    //ToDo N+1 problem
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "photo_album_viewers",
             joinColumns = {@JoinColumn(name = "album_id")},
