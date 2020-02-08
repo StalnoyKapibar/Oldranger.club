@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
-    //ToDo Cartesian Product problem analysis - ЖЕЛАТЕЛЬНО УДАЛИТЬ ЭТОТ МЕТОД
+    //ToDo N+1 problem analysis
     @Deprecated
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 

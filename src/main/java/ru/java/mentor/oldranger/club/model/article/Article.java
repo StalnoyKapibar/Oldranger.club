@@ -31,8 +31,8 @@ public class Article {
     @JoinColumn(name = "user_id")
     private User user;
 
-    //ToDo Cartesian Product problem analysis -желательно поменять на LAZY
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    //ToDo N+1 problem analysis
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})

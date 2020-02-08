@@ -24,21 +24,15 @@ public class PhotoAlbum {
     @Column(name = "title")
     private String title;
 
-    /*
-    ToDo Cartesian Product problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
-     дополнительную модель WritersWriters unidirectional связью ManyToOne
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
+    //ToDo N+1 problem analysis
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "photo_album_writers",
             joinColumns = {@JoinColumn(name = "album_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> writers;
 
-    /*
-    ToDo Cartesian Product problem analysis -  Желательно заменить на LAZY или (например) эту сзвязь убрать создав
-     дополнительную модель WritersWriters unidirectional связью ManyToOne
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
+    //ToDo N+1 problem analysis
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "photo_album_viewers",
             joinColumns = {@JoinColumn(name = "album_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
