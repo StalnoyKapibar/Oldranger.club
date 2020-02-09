@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
@@ -19,11 +17,9 @@ import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -144,17 +140,13 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Override
     public PhotoAlbum update(PhotoAlbum album) {
         log.info("Updating album with id = {}", album.getId());
-        PhotoAlbum savedAlbum = null;
         try {
-            savedAlbum = findById(album.getId());
-            savedAlbum.setMedia(album.getMedia());
-            savedAlbum.setTitle(album.getTitle());
-            albumRepository.save(savedAlbum);
+            albumRepository.save(album);
             log.info("Album updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return savedAlbum;
+        return album;
     }
 
     @Override
@@ -188,4 +180,5 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
         return albumRepository.findPhotoAlbumsByUser(user);
     }
+
 }

@@ -1,9 +1,9 @@
 package ru.java.mentor.oldranger.club.model.media;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -31,10 +31,11 @@ public class Photo {
     private LocalDateTime uploadPhotoDate;
 
     @ManyToOne
+    @JsonBackReference
     PhotoAlbum album;
 
     @Column(name = "comment_count")
-    private long commentCount;
+    private Long commentCount;
 
     public Photo(String original, String small) {
         this.original = original;
