@@ -27,10 +27,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Set;
 
@@ -38,7 +35,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RequestMapping("/api/securedPhoto")
 @Tag(name = "Secured photos")
-public class SecurePhoto {
+public class SecurePhotoRestController {
 
 
     @NonNull
@@ -65,26 +62,23 @@ public class SecurePhoto {
             @ApiResponse(responseCode = "400", description = "Secure or id error")})
     @GetMapping(value = "/photoFromAlbum/{photoId}")
     public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
-                                                @RequestParam(value = "type", required = false) String type) throws IOException {
+                                                @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+        if (currentUser != null) {
+            Photo photo = photoService.findById(photoId);
+            if (photo != null) {
+                Set<User> viewers = photo.getAlbum().getViewers();
+                if(viewers != null) {
+                    if (viewers.contains(currentUser) || viewers.size() == 0) {
+                        try {
+                            return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
+                                    new File(albumsdDir + File.separator +
+                                    (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                        } catch (NullPointerException |  IOException e) {}
+                    }
+                }
+            }
         }
-        if(type == null) {
-            type = "original";
-        }
-        Photo photo = photoService.findById(photoId);
-        Set<User> viewers = photo.getAlbum().getViewers();
-        if (viewers.size() != 0 && !viewers.contains(currentUser)) {
-            return ResponseEntity.badRequest().build();
-        }
-        String path = "";
-        if(type.equals("original")) {
-            path = photo.getOriginal();
-        }
-        if(type.equals("small")) {
-            path = photo.getSmall();
-        }
-        return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(new File(albumsdDir + File.separator + path))));
+        return ResponseEntity.badRequest().build();
     }
 }
