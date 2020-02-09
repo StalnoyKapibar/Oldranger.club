@@ -27,7 +27,7 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                ph.upload_photo_date " +
             "         from photo_album as pa " +
             "                  left join photos as ph on ph.album_id = pa.id " +
-            "         where pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "         where pa.allow_view=1 and pa.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
             "           and (ph.original_img IS NOT NULL or ph.small_img IS NOT NULL)) as t1 " +
             "         inner join (SELECT album_id               as oldest_photos_album_id, " +
             "                            MIN(upload_photo_date) as max_date " +
@@ -57,7 +57,7 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "       ?2, " +
             "       ?2 " +
             "from photo_album as album_without_photos " +
-            "where album_without_photos.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
+            "where album_without_photos.allow_view=1 and album_without_photos.media_id in (select m.user_id_user from media as m where m.user_id_user = ?1) " +
             "  and id not in (select pa.id as album_id " +
             "                 from photo_album as pa " +
             "                          left join photos as ph on ph.album_id = pa.id " +

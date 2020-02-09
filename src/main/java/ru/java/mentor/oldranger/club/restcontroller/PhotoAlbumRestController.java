@@ -31,7 +31,7 @@ public class PhotoAlbumRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get all photo albums", tags = {"Photo album"})
+            summary = "Get all photo albums for current user", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),

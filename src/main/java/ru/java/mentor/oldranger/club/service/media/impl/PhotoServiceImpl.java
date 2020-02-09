@@ -56,6 +56,11 @@ public class PhotoServiceImpl implements PhotoService {
     private int small;
 
     @Override
+    public Photo save(PhotoAlbum album, MultipartFile file, String description) {
+        return photoRepository.save(save(album, file).setDescription(description));
+    }
+
+    @Override
     public Photo save(PhotoAlbum album, MultipartFile file) {
         log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
@@ -260,5 +265,10 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return updatedPhoto;
+    }
+
+    @Override
+    public List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description) {
+
     }
 }

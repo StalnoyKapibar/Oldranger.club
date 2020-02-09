@@ -188,4 +188,9 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
         return albumRepository.findPhotoAlbumsByUser(user);
     }
+
+    @Override
+    public PhotoAlbum findPhotoAlbumByName(String name) {
+        return albumRepository.findPhotoAlbumByName(name);
+    }
 }

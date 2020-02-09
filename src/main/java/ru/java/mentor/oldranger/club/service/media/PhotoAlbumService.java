@@ -29,4 +29,5 @@ public interface PhotoAlbumService {
 
     List<PhotoAlbumDto> findPhotoAlbumsByUser(User user);
 
+    PhotoAlbum findPhotoAlbumByName(String name);
 }
