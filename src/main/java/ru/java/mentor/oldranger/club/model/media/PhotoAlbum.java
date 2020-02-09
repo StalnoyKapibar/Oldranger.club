@@ -1,6 +1,6 @@
 package ru.java.mentor.oldranger.club.model.media;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -42,7 +42,7 @@ public class PhotoAlbum {
     private Media media;
 
     @OneToOne
-    @JsonManagedReference
+    @JsonIgnoreProperties("album")
     private Photo thumbImage;
 
     public PhotoAlbum(String title) {

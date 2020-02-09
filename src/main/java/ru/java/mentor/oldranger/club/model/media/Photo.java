@@ -1,7 +1,7 @@
 package ru.java.mentor.oldranger.club.model.media;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -31,7 +31,7 @@ public class Photo {
     private LocalDateTime uploadPhotoDate;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonIgnoreProperties("thumbImage")
     PhotoAlbum album;
 
     @Column(name = "comment_count")
