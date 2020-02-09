@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.model.media;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 @Table(name = "photo_album")
 @DynamicUpdate
 public class PhotoAlbum {
@@ -42,7 +44,6 @@ public class PhotoAlbum {
     private Media media;
 
     @OneToOne
-    @JsonIgnoreProperties("album")
     private Photo thumbImage;
 
     public PhotoAlbum(String title) {
