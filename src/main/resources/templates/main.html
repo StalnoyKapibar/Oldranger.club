@@ -1,8 +1,22 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
 >
-<head th:replace="fragments/commonfragment :: head (~{::title})">
-    <title>test</title>
+<head>
+    <title>Tst page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
 </head>
 <body>
 <div th:replace="fragments/main_menu :: main_menu"></div>
@@ -58,7 +72,19 @@
         </fieldset>
     </form>
 </div>
-
+<script>
+    console.log('script started');
+    var formData = new FormData();
+    formData.set("text", "123");
+    formData.set("idTopic", 1);
+    formData.set("idUser", 1);
+    sendRequest = async request => {
+        const res = await axios.put ('http://localhost:8888/api/comment/update?commentID=1 ', formData);
+        return res.data;
+    };
+    var res = sendRequest(formData);
+    console.log(res);
+</script>
 <!--<script>
     $(document).ready(function () {
         getSectionsAndTopics();
