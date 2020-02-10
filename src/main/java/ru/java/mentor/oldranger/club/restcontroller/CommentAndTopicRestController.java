@@ -161,16 +161,18 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
             @ApiResponse(responseCode = "404", description = "Error deleting comment")})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
-    public ResponseEntity<CommentDto> deleteComment(@PathVariable(value = "commentId") Long id) {
+    public ResponseEntity deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
-
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
+        comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1 );
+        topicService.editTopicByName(comment.getTopic());
+        commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
         commentService.deleteComment(id);
         return ResponseEntity.ok().build();
     }
@@ -200,7 +202,7 @@ public class CommentAndTopicRestController {
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(messageComments.getText());
-        if (messageComments.getAnswerID() != 0) {
+        if (messageComments.getAnswerID() != null) {
             comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
         } else {
             comment.setAnswerTo(null);
