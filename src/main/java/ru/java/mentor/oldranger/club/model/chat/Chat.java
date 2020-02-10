@@ -28,7 +28,6 @@ public class Chat {
     @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
-    //ToDo N+1 problem
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},

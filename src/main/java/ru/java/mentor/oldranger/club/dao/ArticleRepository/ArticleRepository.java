@@ -13,20 +13,16 @@ import java.util.Set;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    //ToDo N+1 problem  - потенциально опасный метод
     Page<Article> findDistinctByDraftIsFalseAndArticleTagsIn(Set<ArticleTag> tags, Pageable pageable);
 
-    //ToDo N+1 problem  - потенциально опасный метод
     Page<Article> findAllByDraftIsFalse(Pageable pageable);
 
-    //ToDo N+1 problem  - потенциально опасный метод
     Page<Article> findAllByDraftIsTrueAndUser(User user, Pageable pageable);
 
     Article findById(long id);
 
     void deleteAllByIdIn(List<Long> ids);
 
-    //ToDo N+1 problem  - потенциально опасный метод
     @Query(nativeQuery = true,
             value = "select * from articles a where a.article_hide = false")
     Page<Article> getArticlesForAnon(Pageable pageable);

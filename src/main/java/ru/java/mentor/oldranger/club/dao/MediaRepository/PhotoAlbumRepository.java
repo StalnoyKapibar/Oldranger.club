@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
-    //ToDo N+1 problem
-    @Deprecated
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 
     @Query(nativeQuery = true, value = "SELECT album_id, " +

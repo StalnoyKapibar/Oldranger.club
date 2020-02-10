@@ -63,7 +63,6 @@ public class PrivateChatRestController {
             return ResponseEntity.noContent().build();
         }
         List<Chat> chats = chatService.getAllPrivateChats(currentUser);
-        //ToDo N+1 problem
         Chat existingChat = chats.stream().filter(c -> c.getUserList().contains(user)).findFirst().orElse(null);
         if (existingChat == null) {
             Chat newChat = new Chat(true);

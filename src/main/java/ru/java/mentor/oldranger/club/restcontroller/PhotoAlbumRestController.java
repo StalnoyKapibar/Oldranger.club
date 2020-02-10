@@ -78,6 +78,11 @@ public class PhotoAlbumRestController {
         if(currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
+
+        for (User u : photoAlbum.getWriters()) {
+            System.out.printf(u.toString());
+        }
+
         if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
             return ResponseEntity.badRequest().build();
