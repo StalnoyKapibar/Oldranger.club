@@ -20,6 +20,5 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     Chat findChatByToken(String token);
 
-    @EntityGraph(value = "graph.Chat.userList")
     List<Chat> findAllByPrivacyTrueAndUserListContaining(User user);
 }

@@ -12,10 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "chats")
-@NamedEntityGraphs({
-        @NamedEntityGraph(name = "graph.Chat.userList",
-                attributeNodes = {@NamedAttributeNode("userList")})
-})
 public class Chat {
 
     @Id
