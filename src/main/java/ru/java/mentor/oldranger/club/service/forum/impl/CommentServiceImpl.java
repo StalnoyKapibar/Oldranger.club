@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -142,10 +144,15 @@ public class CommentServiceImpl implements CommentService {
             LocalDateTime replyTime = null;
             String replyNick = null;
             String replyText = null;
-            if (comment.getAnswerTo() != null) {
-                replyTime = comment.getAnswerTo().getDateTime();
-                replyNick = comment.getAnswerTo().getUser().getNickName();
-                replyText = comment.getAnswerTo().getCommentText();
+            if(comment.getAnswerTo() != null) {
+                if (!(comment.getAnswerTo() instanceof HibernateProxy)) {
+                    replyTime = comment.getAnswerTo().getDateTime();
+                    replyNick = comment.getAnswerTo().getUser().getNickName();
+                    replyText = comment.getAnswerTo().getCommentText();
+                    commentDto.setRootDeleted(false);
+                } else {
+                    commentDto.setRootDeleted(true);
+                }
             }
             commentDto.setCommentId(comment.getId());
             commentDto.setPositionInTopic(comment.getPosition());
