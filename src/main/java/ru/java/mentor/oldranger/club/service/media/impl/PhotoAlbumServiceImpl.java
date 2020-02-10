@@ -45,6 +45,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private int small;
 
     @Override
+    //add cache
     public List<PhotoAlbum> findAllByUser(User user) {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
@@ -59,6 +60,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
 
     @Override
+    //clear cache
     public PhotoAlbum save(PhotoAlbum album) {
         log.info("Saving album {}", album);
         PhotoAlbum savedAlbum = null;
@@ -85,6 +87,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add caching
     public List<PhotoAlbum> findAll() {
         log.debug("Getting all albums");
         List<PhotoAlbum> albums = null;
@@ -99,6 +102,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     @PostConstruct
+    //clear cache
     public void deleteAllAlbums() {
         log.info("Deleting all albums");
         try {
@@ -111,6 +115,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //clear cache
     public void deleteAlbum(Long id) {
         log.info("Deleting album with id = {}", id);
         try {
@@ -126,6 +131,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public PhotoAlbum findById(Long id) {
         log.debug("Getting album with id = {}", id);
         PhotoAlbum album = null;
@@ -139,6 +145,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //clear cache
     public PhotoAlbum update(PhotoAlbum album) {
         log.info("Updating album with id = {}", album.getId());
         try {
@@ -151,6 +158,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //clear cache
     public void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album) {
         log.debug("Deleting photos from album", album);
         List<Photo> photoList = null;
@@ -165,6 +173,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public List<Photo> getAllPhotos(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
@@ -178,6 +187,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
         return albumRepository.findPhotoAlbumsByUser(user);
     }
