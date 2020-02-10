@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -31,6 +32,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Set;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/securedPhoto")
@@ -38,12 +40,9 @@ import java.util.Set;
 public class SecurePhotoRestController {
 
 
-    @NonNull
-    private SecurityUtilsService securityUtilsService;
-    @NonNull
-    private PhotoService photoService;
-    @NonNull
-    private PhotoAlbumService photoAlbumService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoService photoService;
+    private final  PhotoAlbumService photoAlbumService;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -57,7 +56,7 @@ public class SecurePhotoRestController {
                     type = "String",
                     example = "http://localhost:8888/api/securedPhoto/photoFromAlbum/1?type=small"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Photo found",
+            @ApiResponse(responseCode   = "200", description = "Photo found",
                     content = @Content(schema = @Schema(implementation = Array.class))),
             @ApiResponse(responseCode = "400", description = "Secure or id error")})
     @GetMapping(value = "/photoFromAlbum/{photoId}")
@@ -68,13 +67,16 @@ public class SecurePhotoRestController {
             Photo photo = photoService.findById(photoId);
             if (photo != null) {
                 Set<User> viewers = photo.getAlbum().getViewers();
-                if(viewers != null) {
+                if (viewers != null) {
                     if (viewers.contains(currentUser) || viewers.size() == 0) {
                         try {
                             return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
                                     new File(albumsdDir + File.separator +
                                     (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
-                        } catch (NullPointerException |  IOException e) {}
+                        } catch (NullPointerException |  IOException e) {
+                            log.debug("error in getting image");
+                            log.debug(e.getMessage());
+                        }
                     }
                 }
             }
