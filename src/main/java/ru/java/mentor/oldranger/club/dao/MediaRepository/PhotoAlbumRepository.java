@@ -14,6 +14,8 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 
+    PhotoAlbum findPhotoAlbumByTitle(String title);
+
     @Query(nativeQuery = true, value = "SELECT album_id, " +
             "       title, " +
             "       photo_counts, " +

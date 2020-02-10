@@ -57,7 +57,9 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
-        return photoRepository.save(save(album, file).setDescription(description));
+        Photo photo = save(album, file);
+        photo.setDescription(description);
+        return photoRepository.save(photo);
     }
 
     @Override
@@ -269,6 +271,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description) {
-
+        return photoRepository.findByAlbumTitleAndDescription(albumTitle, description);
     }
 }

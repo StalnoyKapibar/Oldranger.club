@@ -15,6 +15,7 @@ import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
@@ -190,7 +191,18 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
-    public PhotoAlbum findPhotoAlbumByName(String name) {
-        return albumRepository.findPhotoAlbumByName(name);
+    public PhotoAlbum findPhotoAlbumByTitle(String name) {
+        return albumRepository.findPhotoAlbumByTitle(name);
+    }
+
+    @Override
+    public void createAlbum(PhotoAlbum photoAlbum) {
+        log.info("Saving album {}", photoAlbum);
+        try {
+            albumRepository.save(photoAlbum);
+            log.info("Album saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }
