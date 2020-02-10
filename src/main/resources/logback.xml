@@ -10,7 +10,14 @@
         </filter>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
-<!--            <onMatch>DENY</onMatch>-->
+            <onMatch>ACCEPT</onMatch>
+            <!--            <onMatch>ACCEPT</onMatch>-->
+
+
+        </filter>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info_console_ONLY</level>
             <onMatch>ACCEPT</onMatch>
         </filter>
     </appender>
@@ -36,6 +43,6 @@
     </logger>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="STASH"/>
+<!--        <appender-ref ref="STASH"/>-->
     </logger>
 </configuration>
