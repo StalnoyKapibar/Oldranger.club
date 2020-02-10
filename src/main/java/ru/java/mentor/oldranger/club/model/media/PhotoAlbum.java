@@ -41,7 +41,7 @@ public class PhotoAlbum {
     @Column(name = "allow_view")
     private boolean allowView;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Media media;
 
     public PhotoAlbum(String title) {

@@ -29,7 +29,7 @@ public class UserStatistic {
     @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

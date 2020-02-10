@@ -29,7 +29,7 @@ public class Chat {
     @Column(name = "token")
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
     //ToDo N+1 problem

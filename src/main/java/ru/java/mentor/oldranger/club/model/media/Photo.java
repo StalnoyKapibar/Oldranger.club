@@ -30,7 +30,7 @@ public class Photo {
     @Column(name = "upload_photo_date")
     private LocalDateTime uploadPhotoDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     PhotoAlbum album;
 
     @Column(name = "comment_count")
