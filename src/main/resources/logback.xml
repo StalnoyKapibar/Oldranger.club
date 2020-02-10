@@ -11,14 +11,6 @@
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
             <onMatch>ACCEPT</onMatch>
-            <!--            <onMatch>ACCEPT</onMatch>-->
-
-
-        </filter>
-
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>info_console_ONLY</level>
-            <onMatch>ACCEPT</onMatch>
         </filter>
     </appender>
     <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -27,7 +19,9 @@
             <fileNamePattern>./logstash/pipeline/logs/Oldrangerclub.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
+
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+
     </appender>
     <appender name="Async-STASH" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="STASH"/>
@@ -35,14 +29,9 @@
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="STASH"/>
-<!--        <appender-ref ref="TRACE"/>-->
-<!--        <appender-ref ref="INFO"/>-->
     </root>
     <logger name="ru.java.mentor.oldranger.club" level="debug" additivity="false">
         <appender-ref ref="Async-STASH"/>
     </logger>
-    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info">
-        <appender-ref ref="STDOUT"/>
-<!--        <appender-ref ref="STASH"/>-->
-    </logger>
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 </configuration>
