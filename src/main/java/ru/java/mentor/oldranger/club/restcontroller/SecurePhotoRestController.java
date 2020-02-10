@@ -74,8 +74,8 @@ public class SecurePhotoRestController {
                                     new File(albumsdDir + File.separator +
                                     (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
                         } catch (NullPointerException |  IOException e) {
-                            log.debug("error in getting image");
-                            log.debug(e.getMessage());
+                            log.error("error in getting image");
+                            log.error(e.getMessage());
                         }
                     }
                 }
