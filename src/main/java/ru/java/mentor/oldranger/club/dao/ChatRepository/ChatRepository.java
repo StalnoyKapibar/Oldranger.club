@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.dao.ChatRepository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
@@ -19,5 +20,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     Chat findChatByToken(String token);
 
+    @EntityGraph(value = "graph.Chat.userList")
     List<Chat> findAllByPrivacyTrueAndUserListContaining(User user);
 }
