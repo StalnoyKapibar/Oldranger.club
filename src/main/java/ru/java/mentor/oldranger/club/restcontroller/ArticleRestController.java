@@ -46,18 +46,23 @@ public class ArticleRestController {
     public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
                                                                @RequestParam(value = "page", required = false) Integer page) {
 
-        if (page == null) {
-            page = 0;
-        }
+        User user = securityUtilsService.getLoggedUser();
+        if(user == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            if (page == null) {
+                page = 0;
+            }
 
-        Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
-        Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
-        if (tag_id.isEmpty()) {
-            return ResponseEntity.ok(searchWithoutTag);
+            Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
+            Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
+            if (tag_id.isEmpty()) {
+                return ResponseEntity.ok(searchWithoutTag);
+            }
+            Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+            Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
+            return ResponseEntity.ok(articles);
         }
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
-        Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
-        return ResponseEntity.ok(articles);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -70,16 +75,20 @@ public class ArticleRestController {
     public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam(value = "page", required = false) Integer page) {
 
         User user = securityUtilsService.getLoggedUser();
-        if (page == null) {
-            page = 0;
-        }
+        if(user == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            if (page == null) {
+                page = 0;
+            }
 
-        if (user == null) {
-            return ResponseEntity.badRequest().build();
+            if (user == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
+            Page<Article> draftsPage = articleService.getArticleDraftByUser(user, pageable);
+            return ResponseEntity.ok(draftsPage);
         }
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
-        Page<Article> draftsPage = articleService.getArticleDraftByUser(user, pageable);
-        return ResponseEntity.ok(draftsPage);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -94,13 +103,17 @@ public class ArticleRestController {
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
-        Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
-        if (tagsArt.size() == 0) {
+        if(user == null) {
             return ResponseEntity.noContent().build();
+        } else {
+            Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
+            if (tagsArt.size() == 0) {
+                return ResponseEntity.noContent().build();
+            }
+            Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isDraft);
+            articleService.addArticle(article);
+            return ResponseEntity.ok(article);
         }
-        Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isHideToAnon, isDraft);
-        articleService.addArticle(article);
-        return ResponseEntity.ok(article);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -116,25 +129,30 @@ public class ArticleRestController {
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
                                                      @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                      @RequestParam("isDraft") boolean isDraft) {
-        Article article = articleService.getArticleById(id);
-        if (article == null) {
+
+        User user = securityUtilsService.getLoggedUser();
+        if(user == null) {
             return ResponseEntity.noContent().build();
+        } else {
+            Article article = articleService.getArticleById(id);
+            if (article == null) {
+                return ResponseEntity.noContent().build();
+            }
+            int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
+            if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
+                ResponseEntity.status(203).build();
+            }
+            article.setTitle(title);
+            article.setText(text);
+            Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
+            if (tagsArt.size() == 0) {
+                return ResponseEntity.noContent().build();
+            }
+            article.setArticleTags(tagsArt);
+            article.setDraft(isDraft);
+            articleService.addArticle(article);
+            return ResponseEntity.ok(article);
         }
-        int daysSinceLastEdit = (int) Duration.between(article.getDate(), LocalDateTime.now()).toDays();
-        if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
-            ResponseEntity.status(203).build();
-        }
-        article.setTitle(title);
-        article.setText(text);
-        Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
-        if (tagsArt.size() == 0) {
-            return ResponseEntity.noContent().build();
-        }
-        article.setArticleTags(tagsArt);
-        article.setHideToAnon(isHideToAnon);
-        article.setDraft(isDraft);
-        articleService.addArticle(article);
-        return ResponseEntity.ok(article);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

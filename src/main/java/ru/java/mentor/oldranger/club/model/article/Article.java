@@ -46,9 +46,6 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
-    @Column(name = "article_hide", columnDefinition = "TINYINT")
-    private boolean isHideToAnon;
-
     @Column(name = "draft", columnDefinition = "TINYINT")
     private boolean draft;
 
@@ -59,13 +56,12 @@ public class Article {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, boolean draft) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean draft) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
-        this.isHideToAnon = isHideToAnon;
         this.draft = draft;
     }
 
