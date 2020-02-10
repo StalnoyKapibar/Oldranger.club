@@ -49,13 +49,13 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                where media_id in (select id as media_id_id  " +
             "                                   from media  " +
             "                                   where user_id_user = ?1)  " +
-            "              )  and ph.allow_view = 1" +
+            "              ) " +
             "              group by album_id  " +
             "            ) as counter on pa.id = counter.album_id  " +
 
             "where media_id in (select id as media_id_id  " +
             "                   from media  " +
-            "                   where user_id_user = ?1);")
+            "                   where user_id_user = ?1) and allow_view=1;")
     List<Tuple> findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
 
     default List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
