@@ -56,7 +56,7 @@ public class SecurePhotoRestController {
                     type = "String",
                     example = "http://localhost:8888/api/securedPhoto/photoFromAlbum/1?type=small"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode   = "200", description = "Photo found",
+            @ApiResponse(responseCode = "200", description = "Photo found",
                     content = @Content(schema = @Schema(implementation = Array.class))),
             @ApiResponse(responseCode = "400", description = "Secure or id error")})
     @GetMapping(value = "/photoFromAlbum/{photoId}")
