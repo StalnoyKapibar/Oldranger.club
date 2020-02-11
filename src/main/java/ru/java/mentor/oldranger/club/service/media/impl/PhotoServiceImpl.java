@@ -11,17 +11,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
+import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoPositionRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -44,6 +45,8 @@ public class PhotoServiceImpl implements PhotoService {
     private PhotoCommentRepository photoCommentRepository;
     @NonNull
     private UserStatisticService userStatisticService;
+
+    private final PhotoPositionRepository photoPositionRepository;
 
 
     @Value("${photoalbums.location}")
@@ -123,7 +126,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoComment getCommentById(Long id) {
-        Optional<PhotoComment> comment =  photoCommentRepository.findById(id);
+        Optional<PhotoComment> comment = photoCommentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
     }
 
@@ -153,7 +156,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position) {
-        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(),photo.getId());
+        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(), photo.getId());
         Page<PhotoCommentDto> page = null;
         List<PhotoComment> list = new ArrayList<>();
         try {
@@ -266,5 +269,19 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return updatedPhoto;
+    }
+
+    @Transactional
+    @Override
+    public void positionPhotoOnAlbum(long photoId, long position, long albumId) {
+        log.info("Change position of photo on album with id = {}", photoId);
+        Optional<Object> count = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+        if (count == null) {
+
+            photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 1);
+        } else {
+            photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 2);
+        }
+        log.debug("Changed position");
     }
 }

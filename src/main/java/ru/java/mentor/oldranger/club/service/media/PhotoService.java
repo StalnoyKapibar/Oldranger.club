@@ -27,13 +27,15 @@ public interface PhotoService {
 
     PhotoComment getCommentById(Long id);
 
-    public void deleteComment(long id);
+    void deleteComment(long id);
 
-    public void addCommentToPhoto(PhotoComment photoComment);
+    void addCommentToPhoto(PhotoComment photoComment);
 
-    public void updatePhotoComment(PhotoComment photoComment);
+    void updatePhotoComment(PhotoComment photoComment);
 
     Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
 
     PhotoCommentDto assembleCommentDto(PhotoComment comment);
+
+    void positionPhotoOnAlbum(long idPhoto, long position, long idAlbum);
 }
