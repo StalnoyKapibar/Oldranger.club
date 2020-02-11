@@ -210,7 +210,7 @@ public class CommentAndTopicRestController {
         comment.setDateTime(comment.getDateTime());
 
 
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null ||  !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
