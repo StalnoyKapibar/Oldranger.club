@@ -29,4 +29,6 @@ public interface CommentService {
     List<Comment> getAllCommentsByTopicId(Long id);
 
     Comment getCommentById(Long id);
+
+    void updatePostion(Long topicID, Long deletedPosition);
 }

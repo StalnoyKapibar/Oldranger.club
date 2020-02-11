@@ -216,4 +216,14 @@ public class CommentServiceImpl implements CommentService {
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
     }
+
+    @Override
+    public void updatePostion(Long topicID, Long deletedPosition) {
+        log.debug("Updating comments position with topic_id = {}", topicID);
+        List<Comment> comments = commentRepository.findByPositionGreaterThanAndTopicId(deletedPosition, topicID);
+        comments.forEach(a->{
+            a.setPosition(a.getPosition() - 1);
+            commentRepository.save(a);
+        });
+    }
 }
