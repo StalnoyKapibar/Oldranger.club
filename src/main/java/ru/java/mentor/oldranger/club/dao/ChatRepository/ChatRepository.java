@@ -14,7 +14,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     Chat findChatById(Long id);
 
     @Query(nativeQuery = true,
-            value = "select * from chats where is_private = false LIKE 1")
+            value = "select * from chats where is_private = false LIMIT 1")
     Chat findGroupChat();
 
     Chat findChatByToken(String token);
