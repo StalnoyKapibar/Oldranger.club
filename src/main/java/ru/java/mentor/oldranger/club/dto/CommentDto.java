@@ -23,6 +23,7 @@ public class CommentDto {
     private String replyText;
     private String commentText;
     private List<Photo> photos;
+    //private List<ImageComment> imageComment;
     private boolean updatable;
     private boolean rootDeleted;
 }

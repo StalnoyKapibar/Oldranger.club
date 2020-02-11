@@ -219,6 +219,8 @@ public class DataInitializer implements CommandLineRunner {
             Random random = new Random();
             Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
             topicService.createTopic(topicX);
+            PhotoAlbum albumX = new PhotoAlbum("PhotoAlbum by " + topicX.getName());
+            albumService.createAlbum(albumX);
             for (int j = 0; j < 10; j++) {
                 Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);
                 commentService.createComment(commentX);

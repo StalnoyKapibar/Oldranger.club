@@ -166,7 +166,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setCommentText(comment.getCommentText());
             commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
                     comment.getTopic().getName(), comment.getId().toString()));
-
+            //commentDto.setImageComment(imageCommnetService.findAllByCommentId(comment.getId()));
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
             if(user == null) {
                 commentDto.setUpdatable(false);
