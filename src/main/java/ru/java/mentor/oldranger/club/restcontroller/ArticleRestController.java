@@ -54,9 +54,9 @@ public class ArticleRestController {
                 page = 0;
             }
 
-            Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
-            Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
             if (tag_id.isEmpty()) {
+                Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
+                Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
                 return ResponseEntity.ok(searchWithoutTag);
             }
             Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));

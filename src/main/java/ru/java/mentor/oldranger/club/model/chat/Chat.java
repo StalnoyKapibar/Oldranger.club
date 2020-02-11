@@ -25,10 +25,10 @@ public class Chat {
     @Column(name = "token")
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
