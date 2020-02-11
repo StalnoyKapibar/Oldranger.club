@@ -78,8 +78,8 @@ public class PhotoAlbumRestController {
         if (photoAlbum == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(photoAlbum);
