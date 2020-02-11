@@ -6,24 +6,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -48,6 +45,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private int small;
 
     @Override
+    //add cache
     public List<PhotoAlbum> findAllByUser(User user) {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
@@ -62,6 +60,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
 
     @Override
+    //clear cache
     public PhotoAlbum save(PhotoAlbum album) {
         log.info("Saving album {}", album);
         PhotoAlbum savedAlbum = null;
@@ -88,6 +87,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add caching
     public List<PhotoAlbum> findAll() {
         log.debug("Getting all albums");
         List<PhotoAlbum> albums = null;
@@ -102,6 +102,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     @PostConstruct
+    //clear cache
     public void deleteAllAlbums() {
         log.info("Deleting all albums");
         try {
@@ -114,6 +115,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //clear cache
     public void deleteAlbum(Long id) {
         log.info("Deleting album with id = {}", id);
         try {
@@ -129,6 +131,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public PhotoAlbum findById(Long id) {
         log.debug("Getting album with id = {}", id);
         PhotoAlbum album = null;
@@ -142,22 +145,20 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //clear cache
     public PhotoAlbum update(PhotoAlbum album) {
         log.info("Updating album with id = {}", album.getId());
-        PhotoAlbum savedAlbum = null;
         try {
-            savedAlbum = findById(album.getId());
-            savedAlbum.setMedia(album.getMedia());
-            savedAlbum.setTitle(album.getTitle());
-            albumRepository.save(savedAlbum);
+            albumRepository.save(album);
             log.info("Album updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return savedAlbum;
+        return album;
     }
 
     @Override
+    //clear cache
     public void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album) {
         log.debug("Deleting photos from album", album);
         List<Photo> photoList = null;
@@ -172,6 +173,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public List<Photo> getAllPhotos(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
@@ -185,7 +187,24 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     }
 
     @Override
+    //add cache
     public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
         return albumRepository.findPhotoAlbumsByUser(user);
+    }
+
+    @Override
+    public PhotoAlbum findPhotoAlbumByTitle(String name) {
+        return albumRepository.findPhotoAlbumByTitle(name);
+    }
+
+    @Override
+    public void createAlbum(PhotoAlbum photoAlbum) {
+        log.info("Saving album {}", photoAlbum);
+        try {
+            albumRepository.save(photoAlbum);
+            log.info("Album saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

@@ -16,6 +16,7 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.Duration;
@@ -35,6 +36,7 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
+    private PhotoService photoService;
     private ImageCommnetService imageCommnetService;
 
     @Override
@@ -155,7 +157,9 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setReplyNick(replyNick);
             commentDto.setReplyText(replyText);
             commentDto.setCommentText(comment.getCommentText());
-            commentDto.setImageComment(imageCommnetService.findAllByCommentId(comment.getId()));
+            commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                    comment.getTopic().getName(), comment.getId().toString()));
+
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
             if(user == null) {
                 commentDto.setUpdatable(false);
@@ -211,5 +215,15 @@ public class CommentServiceImpl implements CommentService {
         log.debug("Getting comment with id = {}", id);
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
+    }
+
+    @Override
+    public void updatePostion(Long topicID, Long deletedPosition) {
+        log.debug("Updating comments position with topic_id = {}", topicID);
+        List<Comment> comments = commentRepository.findByPositionGreaterThanAndTopicId(deletedPosition, topicID);
+        comments.forEach(a->{
+            a.setPosition(a.getPosition() - 1);
+            commentRepository.save(a);
+        });
     }
 }

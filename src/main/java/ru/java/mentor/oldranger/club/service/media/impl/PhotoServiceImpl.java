@@ -56,6 +56,14 @@ public class PhotoServiceImpl implements PhotoService {
     private int small;
 
     @Override
+    public Photo save(PhotoAlbum album, MultipartFile file, String description) {
+        Photo photo = save(album, file);
+        photo.setDescription(description);
+        return photoRepository.save(photo);
+    }
+
+    @Override
+    //clear cache
     public Photo save(PhotoAlbum album, MultipartFile file) {
         log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
@@ -93,6 +101,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    //add caching
     public Photo findById(Long id) {
         log.debug("Getting photo with id = {}", id);
         Photo photo = null;
@@ -106,6 +115,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    //add caching
     public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
         log.debug("Getting photos of album {}", album);
         List<Photo> photos = null;
@@ -199,6 +209,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    //clear cache
     public void deletePhotoByName(String name) {
         try {
             log.debug("Getting photo by name {} to delete", name);
@@ -210,6 +221,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    //clear cache
     public void deletePhoto(Long id) {
         log.info("Deleting photo with id = {}", id);
         try {
@@ -229,6 +241,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    //clear cache
     public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
         Photo updatedPhoto = null;
@@ -260,5 +273,10 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return updatedPhoto;
+    }
+
+    @Override
+    public List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description) {
+        return photoRepository.findByAlbumTitleAndDescription(albumTitle, description);
     }
 }
