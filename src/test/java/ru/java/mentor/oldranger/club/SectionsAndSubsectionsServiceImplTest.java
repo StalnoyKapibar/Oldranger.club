@@ -101,9 +101,8 @@ public class SectionsAndSubsectionsServiceImplTest {
         Assert.assertEquals(subsectionMap.get(2L).getPosition(), 2);
         Assert.assertEquals(subsectionMap.get(3L).getPosition(), 1);
         Assert.assertEquals(subsectionMap.get(3L).getSection(), sectionMap.get(2L));
-        Mockito.verify(subsectionRepository, Mockito.times(1)).save(subsectionMap.get(1L));
-        Mockito.verify(subsectionRepository, Mockito.times(1)).save(subsectionMap.get(2L));
-        Mockito.verify(subsectionRepository, Mockito.times(1)).save(subsectionMap.get(3L));
+        subsectionMap.forEach((k,v)-> Mockito.verify(subsectionRepository, Mockito.times(1)).save(v));
+
     }
 
     @Test
@@ -121,9 +120,7 @@ public class SectionsAndSubsectionsServiceImplTest {
         sectionIDS.put(1L, Arrays.asList("1,1", "1,2"));
         sectionIDS.put(2L, Arrays.asList("2,3"));
         sectionsAndSubsectionsService.swapSubsectons(sectionIDS);
-        Assert.assertEquals(subsectionMap.get(1L).getPosition(), 3);
-        Assert.assertEquals(subsectionMap.get(2L).getPosition(), 3);
-        Assert.assertEquals(subsectionMap.get(3L).getPosition(), 3);
+        subsectionMap.forEach((k,v)-> Assert.assertEquals(v.getPosition(), 3));
         Assert.assertEquals(subsectionMap.get(3L).getSection(), sectionMap.get(1L));
     }
 }
