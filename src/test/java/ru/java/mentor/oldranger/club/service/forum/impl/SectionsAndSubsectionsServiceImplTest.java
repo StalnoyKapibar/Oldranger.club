@@ -1,4 +1,4 @@
-package ru.java.mentor.oldranger.club.service.forum;
+package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.junit.Assert;
 import org.junit.Test;
