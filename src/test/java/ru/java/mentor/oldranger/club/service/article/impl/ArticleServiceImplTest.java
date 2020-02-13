@@ -34,46 +34,41 @@ class ArticleServiceImplTest {
     @MockBean
     private UserStatisticService userStatisticService;
 
-    @MockBean
-    private UserStatistic userStatistic;
-
     @Mock
     private Pageable pageable;
 
     @Test
     public void addCommentToArticle() {
         User user = new User();
+        UserStatistic userStatistic = new UserStatistic(user);
+        userStatistic.setMessageCount(1L);
         Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
         ArticleComment articleComm = null;
         article.setCommentCount(1L);
         ArticleComment articleComment = new ArticleComment(article, user, articleComm
                 , LocalDateTime.now(), "comment text");
-        Mockito.when(userStatistic.getMessageCount()).thenReturn(1L);
         Mockito.when(userStatisticService.getUserStaticByUser(articleComment.getUser())).thenReturn(userStatistic);
         articleService.addCommentToArticle(articleComment);
-
         Mockito.verify(articleCommentRepository, Mockito.times(1)).save(articleComment);
         Assert.assertEquals(2L, article.getCommentCount());
-
+        Assert.assertEquals(2L, userStatistic.getMessageCount());
     }
 
     @Test
     public void conversionCommentToDto() {
         User user = new User();
         user.setNickName("NickName");
+        UserStatistic userStatistic = new UserStatistic(user);
+        userStatistic.setMessageCount(1L);
         ArticleComment answerTo = new ArticleComment(null, user, null
                 , LocalDateTime.now(), "comment text");
         Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
         ArticleComment articleComment = new ArticleComment(article, user, answerTo
                 , LocalDateTime.now(), "comment text");
-
         articleComment.setPosition(3L);
         article.setId(3L);
         Mockito.when(userStatisticService.getUserStaticById(articleComment.getUser().getId())).thenReturn(userStatistic);
-        Mockito.when(userStatistic.getMessageCount()).thenReturn(2L);
-
         ArticleCommentDto articleCommentDto = articleService.conversionCommentToDto(articleComment);
-
         Assert.assertEquals(articleComment.getUser().getNickName(), articleCommentDto.getReplyNick());
         Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());
@@ -88,8 +83,7 @@ class ArticleServiceImplTest {
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
-
-        Page<ArticleCommentDto> list = articleService.getAllByArticle(article, pageable);
+        articleService.getAllByArticle(article, pageable);
         Mockito.verify(articleCommentRepository, Mockito.times(1))
                 .findByArticle(article, pageable);
     }
