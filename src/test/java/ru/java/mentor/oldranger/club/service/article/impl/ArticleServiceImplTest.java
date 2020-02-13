@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,19 +38,14 @@ class ArticleServiceImplTest {
     private UserStatistic userStatistic;
 
     @Mock
-    private Article article;
-
-    @Mock
-    private ArticleComment articleComm;
-
-    @Mock
-    private User user;
-
-    @Mock
-    Pageable pageable;
+    private Pageable pageable;
 
     @Test
-    void addCommentToArticle() {
+    public void addCommentToArticle() {
+        User user = new User();
+        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
+        ArticleComment articleComm = null;
+        article.setCommentCount(1L);
         ArticleComment articleComment = new ArticleComment(article, user, articleComm
                 , LocalDateTime.now(), "comment text");
         Mockito.when(userStatistic.getMessageCount()).thenReturn(1L);
@@ -59,34 +53,37 @@ class ArticleServiceImplTest {
         articleService.addCommentToArticle(articleComment);
 
         Mockito.verify(articleCommentRepository, Mockito.times(1)).save(articleComment);
+        Assert.assertEquals(2L, article.getCommentCount());
 
     }
 
     @Test
-    void conversionCommentToDto() {
-        ArticleComment articleComment = new ArticleComment(article, user, articleComm
+    public void conversionCommentToDto() {
+        User user = new User();
+        user.setNickName("NickName");
+        ArticleComment answerTo = new ArticleComment(null, user, null
                 , LocalDateTime.now(), "comment text");
-        Mockito.when(articleComment.getAnswerTo().getDateTime()).thenReturn(LocalDateTime.now());
-        Mockito.when(articleComment.getArticle().getId()).thenReturn(1L);
-        Mockito.when(articleComment.getAnswerTo().getUser()).thenReturn(user);
-        Mockito.when(user.getNickName()).thenReturn("NickName");
-        Mockito.when(articleComment.getAnswerTo().getCommentText()).thenReturn("Text");
+        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
+        ArticleComment articleComment = new ArticleComment(article, user, answerTo
+                , LocalDateTime.now(), "comment text");
 
         articleComment.setPosition(3L);
         article.setId(3L);
-
-        Mockito.when(userStatisticService.getUserStaticById(ArgumentMatchers.anyLong())).thenReturn(userStatistic);
-        Mockito.when(userStatistic.getMessageCount()).thenReturn(1L);
+        Mockito.when(userStatisticService.getUserStaticById(articleComment.getUser().getId())).thenReturn(userStatistic);
+        Mockito.when(userStatistic.getMessageCount()).thenReturn(2L);
 
         ArticleCommentDto articleCommentDto = articleService.conversionCommentToDto(articleComment);
 
-        Assert.assertEquals("NickName", articleCommentDto.getReplyNick());
-        Assert.assertEquals("Text", articleCommentDto.getReplyText());
+        Assert.assertEquals(articleComment.getUser().getNickName(), articleCommentDto.getReplyNick());
+        Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());
+
     }
 
     @Test
-    void getAllByArticle() {
+    public void getAllByArticle() {
+        Article article = new Article("String title", null, null, LocalDateTime.now(), "String text", true);
+        article.setId(1L);
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
