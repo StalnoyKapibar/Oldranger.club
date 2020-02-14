@@ -3,7 +3,6 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,21 +73,5 @@ class CommentServiceImplTest {
         Assert.assertEquals(commentDto.getReplyText(), commentDto.getReplyText());
         Assert.assertEquals(commentDto.getCommentText(), commentDto.getCommentText());
         Assert.assertEquals(commentDto.getPhotos(), commentDto.getPhotos());
-    }
-
-    @Test
-    void getAllComments() {
-    }
-
-    @Test
-    void getAllCommentsByTopicId() {
-    }
-
-    @Test
-    void getCommentById() {
-    }
-
-    @Test
-    void updatePostion() {
     }
 }
