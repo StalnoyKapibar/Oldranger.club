@@ -15,4 +15,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findAllByAlbumAndDate(PhotoAlbum album, LocalDateTime date);
 
     Photo findByOriginal(String original);
+
+    List<Photo> getAllByAlbumId(long albumId);
 }

@@ -11,11 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.PhotosDto;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
-import ru.java.mentor.oldranger.club.service.media.PhotoService;
-
-import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -31,10 +29,9 @@ public class PositionPhotoOnAlbumRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "position/{photoId}", method = RequestMethod.POST)
-//    public ResponseEntity<String> positionPhotoOnAlbum(@PathVariable("photoId") long photoId, @RequestParam("position") long position, @RequestParam("albumId") long albumId) {
-    public ResponseEntity<String> positionPhotoOnAlbum(List<long>) {
-        photoPositionService.setPositionPhotoOnAlbum(list, albumId);
+    @RequestMapping(value = "position/{albumId}", method = RequestMethod.POST)
+    public ResponseEntity<String> positionPhotoOnAlbum(@RequestBody PhotosDto photosDto, @PathVariable long albumId) {
+        photoPositionService.setPositionPhotoOnAlbumWithIdPhoto(photosDto.getPositions(), albumId);
         return ResponseEntity.ok("change of position");
     }
 }
