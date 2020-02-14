@@ -16,4 +16,11 @@ public interface PhotoPositionRepository extends JpaRepository<Photo, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "update photos set position = :position where id = :photoId")
     void setPositionPhotoOnAlbumWithId(long photoId, long position);
+
+    @Modifying
+    @Query(nativeQuery = true, value = "update photos set position = :positionNew where album_id = :albumId and position = :positionOld")
+    void setPositionPhotoOnAlbumWithPositionPhoto(long positionNew, long positionOld, long albumId);
+
+    @Query(nativeQuery = true, value = "select position from photos where id = :photoId")
+    Long getPositionOfPhotoOnAlbumWithIdPhoto(long photoId);
 }

@@ -36,6 +36,4 @@ public interface PhotoService {
     Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
 
     PhotoCommentDto assembleCommentDto(PhotoComment comment);
-
-    void positionPhotoOnAlbum(long idPhoto, long position, long idAlbum);
 }

@@ -39,11 +39,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Tag(name = "Photo")
 public class PhotoRestController {
 
-    private PhotoService service;
-    private PhotoAlbumService albumService;
-    private SecurityUtilsService securityUtilsService;
+    private final PhotoService service;
+    private final PhotoAlbumService albumService;
+    private final SecurityUtilsService securityUtilsService;
     private final PhotoPositionService photoPositionService;
-    private PhotoPositionRepository photoPositionRepository;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -63,7 +62,7 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         List<Photo> savedPhotos = new ArrayList<>();
-        Optional<Long> maxPosition = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(Long.parseLong(albumId));
+        Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(Long.parseLong(albumId));
         AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
         photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a, atom.incrementAndGet())));
         return ResponseEntity.ok(savedPhotos);
