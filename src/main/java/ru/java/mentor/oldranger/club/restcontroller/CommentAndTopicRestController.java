@@ -181,7 +181,7 @@ public class CommentAndTopicRestController {
             summary = "Update a comment", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
+                    content = @Content(schema = @Schema(implementation = CommentDto.class)  )),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
