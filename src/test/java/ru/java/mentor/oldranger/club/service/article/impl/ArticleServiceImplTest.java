@@ -45,8 +45,7 @@ class ArticleServiceImplTest {
         Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
         ArticleComment articleComm = null;
         article.setCommentCount(1L);
-        ArticleComment articleComment = new ArticleComment(article, user, articleComm
-                , LocalDateTime.now(), "comment text");
+        ArticleComment articleComment = new ArticleComment(article, user, articleComm, LocalDateTime.now(), "comment text");
         Mockito.when(userStatisticService.getUserStaticByUser(articleComment.getUser())).thenReturn(userStatistic);
         articleService.addCommentToArticle(articleComment);
         Mockito.verify(articleCommentRepository, Mockito.times(1)).save(articleComment);
@@ -60,11 +59,9 @@ class ArticleServiceImplTest {
         user.setNickName("NickName");
         UserStatistic userStatistic = new UserStatistic(user);
         userStatistic.setMessageCount(1L);
-        ArticleComment answerTo = new ArticleComment(null, user, null
-                , LocalDateTime.now(), "comment text");
+        ArticleComment answerTo = new ArticleComment(null, user, null, LocalDateTime.now(), "comment text");
         Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
-        ArticleComment articleComment = new ArticleComment(article, user, answerTo
-                , LocalDateTime.now(), "comment text");
+        ArticleComment articleComment = new ArticleComment(article, user, answerTo, LocalDateTime.now(), "comment text");
         articleComment.setPosition(3L);
         article.setId(3L);
         Mockito.when(userStatisticService.getUserStaticById(articleComment.getUser().getId())).thenReturn(userStatistic);

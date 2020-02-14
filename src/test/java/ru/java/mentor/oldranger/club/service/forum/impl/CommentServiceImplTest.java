@@ -52,31 +52,28 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void getPageableCommentDtoByTopic() {
-
-    }
-
-    @Test
-    void getPageableCommentDtoByUser() {
-    }
-
-    @Test
     public void assembleCommentDto() {
         User user = new User("String firstName", "String lastName", "String email"
                 , "String nickName", new Role("user"));
+        user.setId(1L);
         Topic topic = new Topic();
         Comment answerTo = new Comment(topic, user, null, LocalDateTime.now(), "String commentText");
         answerTo.setDateTime(LocalDateTime.now());
         Comment comment = new Comment(topic, user, answerTo, LocalDateTime.now(), "String commentText");
+        UserStatistic userStatistic = new UserStatistic();
+        userStatistic.setMessageCount(1L);
+        Mockito.when(userStatisticService.getUserStaticById(comment.getUser().getId())).thenReturn(userStatistic);
         CommentDto commentDto = commentServiceImpl.assembleCommentDto(comment, user);
         Assert.assertEquals(comment.getId(), commentDto.getCommentId());
         Assert.assertEquals(comment.getPosition(), commentDto.getPositionInTopic());
         Assert.assertEquals(comment.getTopic().getId(), commentDto.getTopicId());
         Assert.assertEquals(comment.getUser(), commentDto.getAuthor());
         Assert.assertEquals(comment.getDateTime(), commentDto.getCommentDateTime());
-//        Assert.assertEquals(comment.getAnswerTo().getDateTime(), commentDto.getReplyDateTime());
-
-
+        Assert.assertEquals(comment.getAnswerTo().getDateTime(), commentDto.getReplyDateTime());
+        Assert.assertEquals(commentDto.getReplyNick(), commentDto.getReplyNick());
+        Assert.assertEquals(commentDto.getReplyText(), commentDto.getReplyText());
+        Assert.assertEquals(commentDto.getCommentText(), commentDto.getCommentText());
+        Assert.assertEquals(commentDto.getPhotos(), commentDto.getPhotos());
     }
 
     @Test
