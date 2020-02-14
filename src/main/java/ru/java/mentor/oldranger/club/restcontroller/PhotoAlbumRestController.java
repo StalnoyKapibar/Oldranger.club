@@ -9,14 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.Photo;
-import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -34,7 +32,7 @@ public class PhotoAlbumRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get all photo albums", tags = {"Photo album"})
+            summary = "Get all photo albums for current user", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),

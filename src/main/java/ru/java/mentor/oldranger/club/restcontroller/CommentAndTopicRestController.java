@@ -27,6 +27,8 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
@@ -51,7 +53,8 @@ public class CommentAndTopicRestController {
     private RoleService roleService;
     private ImageCommnetService imageCommnetService;
     private CheckFileTypeService checkFileTypeService;
-
+    private PhotoAlbumService photoAlbumService;
+    private PhotoService photoService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
@@ -139,15 +142,13 @@ public class CommentAndTopicRestController {
         commentService.createComment(comment);
 
         if (image1 != null) {
-            ImageComment imageComment = imageCommnetService.createNewImage(image1);
-            imageComment.setComment(comment);
-            imageCommnetService.save(imageComment);
+            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+                    , comment.getId().toString());
         }
 
         if (image2 != null) {
-            ImageComment imageComment = imageCommnetService.createNewImage(image2);
-            imageComment.setComment(comment);
-            imageCommnetService.save(imageComment);
+            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
+                    , comment.getId().toString());
         }
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);
@@ -208,21 +209,19 @@ public class CommentAndTopicRestController {
         comment.setDateTime(comment.getDateTime());
 
 
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);
 
         if (image1 != null) {
-            ImageComment imageComment = imageCommnetService.createNewImage(image1);
-            imageComment.setComment(comment);
-            imageCommnetService.save(imageComment);
+            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+                    , comment.getId().toString());
         }
 
         if (image2 != null) {
-            ImageComment imageComment = imageCommnetService.createNewImage(image2);
-            imageComment.setComment(comment);
-            imageCommnetService.save(imageComment);
+            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+                    , comment.getId().toString());
         }
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);

@@ -21,7 +21,7 @@ public class InvitationToken {
     private LocalDateTime date;
 
     @JoinColumn(name = "user")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "mail")
@@ -31,7 +31,7 @@ public class InvitationToken {
     private Boolean used;
 
     @JoinColumn(name = "new_user")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User visitor;
 
     public InvitationToken() {

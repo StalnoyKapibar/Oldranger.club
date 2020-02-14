@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import javax.persistence.Tuple;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,9 @@ import java.util.stream.Collectors;
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
+
+
+    PhotoAlbum findPhotoAlbumByTitle(String title);
 
     @Query(nativeQuery = true, value = "select  " +
             "  pa.id as album_id,  " +
@@ -46,13 +50,13 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                where media_id in (select id as media_id_id  " +
             "                                   from media  " +
             "                                   where user_id_user = ?1)  " +
-            "              )  " +
+            "              ) " +
             "              group by album_id  " +
             "            ) as counter on pa.id = counter.album_id  " +
 
             "where media_id in (select id as media_id_id  " +
             "                   from media  " +
-            "                   where user_id_user = ?1);")
+            "                   where user_id_user = ?1) and allow_view=1;")
     List<Tuple> findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
 
     default List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {

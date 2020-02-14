@@ -1,11 +1,11 @@
 package ru.java.mentor.oldranger.club.model.user;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 
 import javax.persistence.*;
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 @Data
@@ -20,7 +20,7 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

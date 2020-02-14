@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.chat;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
@@ -25,10 +27,10 @@ public class Chat {
     @Column(name = "token")
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "chat_user",
             joinColumns = {@JoinColumn(name = "chat_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})

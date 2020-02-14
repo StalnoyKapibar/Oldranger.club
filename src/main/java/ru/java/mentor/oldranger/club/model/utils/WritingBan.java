@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.utils;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -18,7 +20,7 @@ public class WritingBan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
 

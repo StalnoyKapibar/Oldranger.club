@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.user;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "userStatistic")
+@Table(name = "user_statistic")
 public class UserStatistic {
 
     @Id
@@ -29,7 +31,7 @@ public class UserStatistic {
     @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

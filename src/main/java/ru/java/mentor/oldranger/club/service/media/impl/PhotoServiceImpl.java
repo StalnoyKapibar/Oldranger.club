@@ -11,12 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoPositionRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
@@ -54,6 +52,13 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Value("${media.small}")
     private int small;
+
+    @Override
+    public Photo save(PhotoAlbum album, MultipartFile file, String description) {
+        Photo photo = save(album, file);
+        photo.setDescription(description);
+        return photoRepository.save(photo);
+    }
 
     @Override
     //clear cache
@@ -269,5 +274,10 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return updatedPhoto;
+    }
+
+    @Override
+    public List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description) {
+        return photoRepository.findByAlbumTitleAndDescription(albumTitle, description);
     }
 }

@@ -13,6 +13,8 @@ import java.util.List;
 public interface PhotoService {
     Photo save(PhotoAlbum album, MultipartFile file, long position);
 
+    Photo save(PhotoAlbum album, MultipartFile file, String description);
+
     Photo findById(Long id);
 
     void deletePhoto(Long id);
@@ -36,4 +38,6 @@ public interface PhotoService {
     Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
 
     PhotoCommentDto assembleCommentDto(PhotoComment comment);
+
+    List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description);
 }

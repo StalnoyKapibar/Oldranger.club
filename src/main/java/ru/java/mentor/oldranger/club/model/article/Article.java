@@ -27,11 +27,11 @@ public class Article {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
