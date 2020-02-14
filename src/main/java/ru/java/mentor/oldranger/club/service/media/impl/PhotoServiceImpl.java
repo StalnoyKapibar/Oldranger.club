@@ -60,7 +60,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     //clear cache
-    public Photo save(PhotoAlbum album, MultipartFile file) {
+    public Photo save(PhotoAlbum album, MultipartFile file, long position) {
         log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
         try {
@@ -85,6 +85,25 @@ public class PhotoServiceImpl implements PhotoService {
             photo = new Photo(resultFileName + File.separator + fileName,
                     resultFileName + File.separator + "small_" + fileName);
             photo.setAlbum(album);
+
+
+//            if (!photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(1).isPresent()) {
+//                photo.setPositionPhoto(1L);
+//            } else {
+//                Optional<Long> count = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(album.getId());
+//                long max = (long) count.get();
+//                photo.setPositionPhoto(++max);
+//            }
+
+//            Optional<Object> position = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(album.getId());
+//            if (position == null) {
+//                positionPhotoOnAlbum(photo.getId(), 1, album.getId());
+//            } else {
+//                positionPhotoOnAlbum(photo.getId(), position, album.getId());
+//                photo.setPositionPhoto(position);
+//            }
+            photo.setPositionPhoto(position);
+
             photo.setUploadPhotoDate(LocalDateTime.now());
 
             photo = photoRepository.save(photo);
@@ -275,12 +294,16 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public void positionPhotoOnAlbum(long photoId, long position, long albumId) {
         log.info("Change position of photo on album with id = {}", photoId);
-        Optional<Object> count = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
-        if (count == null) {
-
-            photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 1);
+        if (albumId != 0) {
+            if (photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId).isPresent()) {
+                photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 1);
+            } else {
+                Optional<Long> count = photoPositionRepository.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+                long g = (long) count.get();
+                photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, ++g);
+            }
         } else {
-            photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 2);
+            photoPositionRepository.setPositionPhotoOnAlbumWithId(photoId, 0);
         }
         log.debug("Changed position");
     }

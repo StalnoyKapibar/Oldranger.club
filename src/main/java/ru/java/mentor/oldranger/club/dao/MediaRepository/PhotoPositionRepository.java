@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface PhotoPositionRepository extends JpaRepository<Photo, Long> {
 
     @Query(nativeQuery = true, value = "select MAX(position) from photos where album_id = :albumId")
-    Optional<Object> getMaxPositionOfPhotoOnAlbumWithIdAlbum(long albumId);
+    Optional<Long> getMaxPositionOfPhotoOnAlbumWithIdAlbum(long albumId);
 
     @Modifying
     @Query(nativeQuery = true, value = "update photos set position = :position where id = :photoId")
