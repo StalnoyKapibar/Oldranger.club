@@ -32,4 +32,6 @@ public interface PhotoAlbumService {
     PhotoAlbum findPhotoAlbumByTitle(String name);
 
     void createAlbum(PhotoAlbum photoAlbum);
+
+    PhotoAlbumDto assemblePhotoAlbumDto(PhotoAlbum album);
 }
