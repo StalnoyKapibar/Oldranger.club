@@ -3,10 +3,13 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
@@ -19,6 +22,8 @@ import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RunWith(SpringRunner.class)
@@ -36,24 +41,48 @@ class CommentServiceImplTest {
     @MockBean
     private UserStatisticService userStatisticService;
 
+    @Mock
+    private Pageable pageable;
+
+    @MockBean
+    private Sort sort;
+
     @Test
     public void createComment() {
-        User user = new User("String firstName", "String lastName", "String email"
-                , "String nickName", new Role("user"));
+        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_ADMIN"));
         Topic topic = new Topic();
         topic.setMessageCount(1L);
         Comment comment = new Comment(topic, user, null, LocalDateTime.now(), "String commentText");
+        UserStatistic userStatistic = new UserStatistic(user);
+        userStatistic.setMessageCount(2L);
+        userStatistic.setId(2L);
+        Mockito.when(userStatisticService.getUserStaticByUser(comment.getUser())).thenReturn(userStatistic);
         commentServiceImpl.createComment(comment);
         Mockito.verify(topicService, Mockito.times(1)).editTopicByName(topic);
         Mockito.verify(commentRepository, Mockito.times(1)).save(comment);
-        Mockito.verify(userStatisticService, Mockito.times(1)).getUserStaticByUser(comment.getUser());
+        Mockito.verify(userStatisticService, Mockito.times(1)).saveUserStatic(userStatistic);
         Assert.assertEquals(2L, topic.getMessageCount());
+        Assert.assertEquals(3L, userStatistic.getMessageCount());
+        Assert.assertEquals(userStatistic.getLastComment(), comment.getDateTime());
+    }
+
+    @Test
+    public void getPageableCommentDtoByTopic(){
+        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_ADMIN"));
+        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
+        List<CommentDto> dtoList = null;
+        int position = 1;
+        Comment comment = new Comment();
+        List<Comment> list = new ArrayList<>();
+        list.add(comment);
+        Mockito.when(pageable.getPageSize() + position).thenReturn(2);
+        Mockito.when(pageable.getSort()).thenReturn(sort);
+        commentServiceImpl.getPageableCommentDtoByTopic(topic, pageable, position, user);
     }
 
     @Test
     public void assembleCommentDto() {
-        User user = new User("String firstName", "String lastName", "String email"
-                , "String nickName", new Role("user"));
+        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("user"));
         user.setId(1L);
         Topic topic = new Topic();
         Comment answerTo = new Comment(topic, user, null, LocalDateTime.now(), "String commentText");
