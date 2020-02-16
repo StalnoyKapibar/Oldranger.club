@@ -87,7 +87,8 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     public List<UserStatisticDto> getUserStatisticDtoFromUserStatistic(List<UserStatistic> users) {
         log.debug("Building user statistic dto");
         List<UserStatisticDto> dtos = new ArrayList<>();
-        users.forEach(user -> dtos.add(new UserStatisticDto(user.getUser().getNickName(),
+        users.forEach(user -> dtos.add(new UserStatisticDto(user.getUser().getId(),
+                user.getUser().getNickName(),
                 user.getUser().getEmail(),
                 user.getUser().getRegDate(),
                 user.getUser().getRole().getAuthority(),
