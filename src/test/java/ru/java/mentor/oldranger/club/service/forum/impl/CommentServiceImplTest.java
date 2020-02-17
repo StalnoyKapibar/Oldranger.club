@@ -68,16 +68,6 @@ class CommentServiceImplTest {
     }
 
     @Test
-    public void getPageableCommentDtoByTopic(){
-        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_ADMIN"));
-        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
-        int position = 1;
-        Mockito.when(pageable.getPageSize() + position).thenReturn(2);
-        Mockito.when(pageable.getSort()).thenReturn(sort);
-        commentServiceImpl.getPageableCommentDtoByTopic(topic, pageable, position, user);
-    }
-
-    @Test
     public void assembleCommentDto() {
         User user = new User("String firstName", "String lastName", "String email", "String nickName", null);
         user.setId(1L);
