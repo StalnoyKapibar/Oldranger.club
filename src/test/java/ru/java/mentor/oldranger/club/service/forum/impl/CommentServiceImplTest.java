@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,12 +43,6 @@ class CommentServiceImplTest {
     @MockBean
     private PhotoService photoService;
 
-    @MockBean
-    private Pageable pageable;
-
-    @MockBean
-    private Sort sort;
-
     @Test
     public void createComment() {
         User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_ADMIN"));
@@ -65,16 +60,6 @@ class CommentServiceImplTest {
         Assert.assertEquals(2L, topic.getMessageCount());
         Assert.assertEquals(3L, userStatistic.getMessageCount());
         Assert.assertEquals(userStatistic.getLastComment(), comment.getDateTime());
-    }
-
-    @Test
-    public void getPageableCommentDtoByTopic(){
-        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_ADMIN"));
-        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
-        int position = 1;
-        Mockito.when(pageable.getPageSize() + position).thenReturn(2);
-        Mockito.when(pageable.getSort()).thenReturn(sort);
-        commentServiceImpl.getPageableCommentDtoByTopic(topic, pageable, position, user);
     }
 
     @Test
