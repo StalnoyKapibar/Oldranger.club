@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,11 +10,13 @@ import ru.java.mentor.oldranger.club.dao.ForumRepository.DirectionRepository;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
-import ru.java.mentor.oldranger.club.model.forum.*;
-import ru.java.mentor.oldranger.club.model.comment.*;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
+import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
-import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -55,6 +58,9 @@ public class DataInitializer implements CommandLineRunner {
     private MediaService mediaService;
     private PhotoAlbumService albumService;
 
+    @Value("${spring.jpa.hibernate.ddl-auto}")
+    private String hibernateDdlAuto;
+
     @Autowired
     @Lazy
     private PasswordEncoder passwordEncoder;
@@ -95,6 +101,10 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        if (hibernateDdlAuto.equals("update")) {
+            return;
+        }
+
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
         Role roleModerator = new Role("ROLE_MODERATOR");
@@ -123,6 +133,7 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(unverified);
 
         // Общий чат
+
         Chat chat = new Chat();
         PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
         photoAlbum.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
@@ -131,6 +142,7 @@ public class DataInitializer implements CommandLineRunner {
         chat.setPhotoAlbum(photoAlbum);
 
         chatService.createChat(chat);
+
 
         List<User> users = userService.findAll();
         LocalDateTime localDateTime = LocalDateTime.now();

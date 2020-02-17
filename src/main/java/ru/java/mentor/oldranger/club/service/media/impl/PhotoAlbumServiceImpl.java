@@ -17,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
@@ -37,6 +38,9 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
+
+    @Value("${spring.jpa.hibernate.ddl-auto}")
+    private String hibernateDdlAuto;
 
     @Value("${upload.medium}")
     private int medium;
@@ -105,9 +109,11 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     public void deleteAllAlbums() {
         log.info("Deleting all albums");
         try {
-            File dir = new File(albumsdDir);
-            FileSystemUtils.deleteRecursively(dir);
-            log.debug("Albums deleted");
+            if (hibernateDdlAuto.equals("create-drop")){
+                File dir = new File(albumsdDir);
+                FileSystemUtils.deleteRecursively(dir);
+                log.debug("Albums deleted");
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -214,8 +220,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         return new PhotoAlbumDto(
                 album.getId(),
                 album.getTitle(),
-                thumbImage!= null ? thumbImage.getOriginal() : "thumb_image_placeholder",
-                thumbImage!= null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                thumbImage != null ? thumbImage.getOriginal() : "thumb_image_placeholder",
+                thumbImage != null ? thumbImage.getSmall() : "thumb_image_placeholder",
                 photosCount
         );
     }
