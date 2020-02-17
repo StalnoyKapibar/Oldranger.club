@@ -13,7 +13,6 @@ import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
@@ -206,5 +205,18 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public PhotoAlbumDto assemblePhotoAlbumDto(PhotoAlbum album) {
+        int photosCount = photoService.findPhotoByAlbum(album).size();
+        Photo thumbImage = album.getThumbImage();
+        return new PhotoAlbumDto(
+                album.getId(),
+                album.getTitle(),
+                thumbImage!= null ? thumbImage.getOriginal() : "thumb_image_placeholder",
+                thumbImage!= null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                photosCount
+        );
     }
 }
