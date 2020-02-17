@@ -3,32 +3,26 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
-import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -45,7 +39,10 @@ class CommentServiceImplTest {
     @MockBean
     private UserStatisticService userStatisticService;
 
-    @Mock
+    @MockBean
+    private PhotoService photoService;
+
+    @MockBean
     private Pageable pageable;
 
     @MockBean
@@ -82,12 +79,14 @@ class CommentServiceImplTest {
 
     @Test
     public void assembleCommentDto() {
-        User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("user"));
+        User user = new User("String firstName", "String lastName", "String email", "String nickName", null);
         user.setId(1L);
-        Topic topic = new Topic();
+        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
+        topic.setId(1L);
         Comment answerTo = new Comment(topic, user, null, LocalDateTime.now(), "String commentText");
         answerTo.setDateTime(LocalDateTime.now());
         Comment comment = new Comment(topic, user, answerTo, LocalDateTime.now(), "String commentText");
+        comment.setId(1L);
         UserStatistic userStatistic = new UserStatistic();
         userStatistic.setMessageCount(1L);
         Mockito.when(userStatisticService.getUserStaticById(comment.getUser().getId())).thenReturn(userStatistic);
@@ -98,9 +97,14 @@ class CommentServiceImplTest {
         Assert.assertEquals(comment.getUser(), commentDto.getAuthor());
         Assert.assertEquals(comment.getDateTime(), commentDto.getCommentDateTime());
         Assert.assertEquals(comment.getAnswerTo().getDateTime(), commentDto.getReplyDateTime());
-        Assert.assertEquals(commentDto.getReplyNick(), commentDto.getReplyNick());
-        Assert.assertEquals(commentDto.getReplyText(), commentDto.getReplyText());
-        Assert.assertEquals(commentDto.getCommentText(), commentDto.getCommentText());
-        Assert.assertEquals(commentDto.getPhotos(), commentDto.getPhotos());
+        Assert.assertEquals(comment.getAnswerTo().getUser().getNickName(), commentDto.getReplyNick());
+        Assert.assertEquals(comment.getAnswerTo().getCommentText(), commentDto.getReplyText());
+        Assert.assertEquals(comment.getCommentText(), commentDto.getCommentText());
+        Mockito.verify(photoService, Mockito.times(1))
+                .findByAlbumTitleAndDescription(ArgumentMatchers.any(), ArgumentMatchers.any());
+        Assert.assertTrue(commentDto.isUpdatable());
+        user = null;
+        commentDto = commentServiceImpl.assembleCommentDto(comment, user);
+        Assert.assertFalse(commentDto.isUpdatable());
     }
 }
