@@ -72,7 +72,7 @@ public class SecurePhotoRestController {
                         try {
                             return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
                                     new File(albumsdDir + File.separator +
-                                    (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                                    (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
                         } catch (NullPointerException |  IOException e) {
                             log.error("error in getting image");
                             log.error(e.getMessage());

@@ -89,7 +89,7 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
-    @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
+    @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails
             , @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();

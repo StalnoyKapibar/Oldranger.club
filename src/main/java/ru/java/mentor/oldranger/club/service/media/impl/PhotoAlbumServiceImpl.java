@@ -20,6 +20,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,7 +46,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbum> findAllByUser(User user) {
+    public List<PhotoAlbumDto> findAllByUser(User user) {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
         try {
@@ -54,7 +55,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return albums;
+        return albums.stream().map(a->assemblePhotoAlbumDto(a)).collect(Collectors.toList());
     }
 
 

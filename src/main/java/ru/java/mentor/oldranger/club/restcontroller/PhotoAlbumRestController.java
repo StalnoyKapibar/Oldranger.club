@@ -34,6 +34,21 @@ public class PhotoAlbumRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all photo albums what can viewed by current user", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Login error")})
+    @GetMapping("/viewAlbums")
+    public ResponseEntity<List<PhotoAlbumDto>> getViewPhotoAlbums() {
+        if (securityUtilsService.getLoggedUser() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(albumService.findAllByUser(securityUtilsService.getLoggedUser()));
+    }
+
+
+    @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get all photo albums for current user", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
@@ -51,10 +66,10 @@ public class PhotoAlbumRestController {
             summary = "Save photo album", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
             @ApiResponse(responseCode = "400", description = "Login or rights error")})
     @PostMapping
-    public ResponseEntity<PhotoAlbum> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
+    public ResponseEntity<PhotoAlbumDto> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null || albumTitle.equals("")) {
             return ResponseEntity.badRequest().build();
@@ -62,14 +77,14 @@ public class PhotoAlbumRestController {
         PhotoAlbum album = new PhotoAlbum(albumTitle);
         album.addWriter(currentUser);
         album.setAllowView(true);
-        return ResponseEntity.ok(albumService.save(album));
+        return ResponseEntity.ok(albumService.assemblePhotoAlbumDto(albumService.save(album)));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get photo album", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
             @ApiResponse(responseCode = "400", description = "Rights or id error")})
     @GetMapping("/{id}")
     public ResponseEntity<PhotoAlbumDto> getAlbum(@PathVariable("id") String id) {
@@ -112,7 +127,7 @@ public class PhotoAlbumRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
     @PutMapping("/{id}")
-    public ResponseEntity<PhotoAlbum> updateAlbum(@PathVariable("id") String id,
+    public ResponseEntity<PhotoAlbumDto> updateAlbum(@PathVariable("id") String id,
                                                   @RequestParam(value = "photoId", required = false) String photoId,
                                                   @RequestParam(value = "title", required = false) String title) {
         User currentUser = securityUtilsService.getLoggedUser();
@@ -134,7 +149,7 @@ public class PhotoAlbumRestController {
         if (title != null) {
             album.setTitle(title);
         }
-        return ResponseEntity.ok(albumService.update(album));
+        return ResponseEntity.ok(albumService.assemblePhotoAlbumDto(albumService.update(album)));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
