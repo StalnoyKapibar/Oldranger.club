@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
-    List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
+    List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNullAndAllowViewIsTrue(User user);
 
     PhotoAlbum findPhotoAlbumByTitle(String title);
 
