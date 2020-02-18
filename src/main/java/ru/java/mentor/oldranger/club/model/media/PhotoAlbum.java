@@ -13,7 +13,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 @Table(name = "photo_album")
 @DynamicUpdate
 public class PhotoAlbum {

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 @Table(name = "photos")
 public class Photo {
     @Id
@@ -32,7 +31,7 @@ public class Photo {
     @Column(name = "upload_photo_date")
     private LocalDateTime uploadPhotoDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     PhotoAlbum album;
 
     @Column(name = "comment_count")
