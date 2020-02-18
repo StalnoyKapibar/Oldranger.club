@@ -58,11 +58,11 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     }
 
     @Override
-    public Page<UserStatistic> getAllUserStatistic(Pageable pageable) {
+    public Page<UserStatisticDto> getAllUserStatistic(Pageable pageable) {
         log.debug("Getting page {} of user statistic", pageable.getPageNumber());
-        Page<UserStatistic> page = null;
+        Page<UserStatisticDto> page = null;
         try {
-            page = userStaticRepository.findAll(pageable);
+            page = userStaticRepository.findAllDto(pageable);
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -71,11 +71,11 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     }
 
     @Override
-    public Page<UserStatistic> getUserStatisticsByQuery(Pageable pageable, String query) {
+    public Page<UserStatisticDto> getUserStatisticsByQuery(Pageable pageable, String query) {
         log.debug("Getting page {} of user statistic by query = {}", pageable.getPageNumber(), query);
-        Page<UserStatistic> page = null;
+        Page<UserStatisticDto> page = null;
         try {
-            page = userStaticRepository.findByQuery(pageable, query);
+            page = userStaticRepository.findByQueryDto(pageable, query);
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

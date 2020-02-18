@@ -74,17 +74,17 @@ public class AdminRestController {
     @GetMapping(value = "/users", produces = { "application/json" })
     public ResponseEntity<ListUserStatisticDTO> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "query", required = false) String query) {
+
+        List<UserStatisticDto> users;
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 5, Sort.by("user_id"));
-
-        List<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable).getContent();
-
         if (query != null && !query.trim().isEmpty()) {
             query = query.toLowerCase().trim().replaceAll("\\s++", ",");
             users = userStatisticService.getUserStatisticsByQuery(pageable, query).getContent();
+        } else {
+            users =  userStatisticService.getAllUserStatistic(pageable).getContent();
         }
-        List<UserStatisticDto> dtos = userStatisticService.getUserStatisticDtoFromUserStatistic(users);
-        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(dtos, userService.findAll().size());
+        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.findAll().size());
         return ResponseEntity.ok(listUserStatisticDTO);
     }
 
