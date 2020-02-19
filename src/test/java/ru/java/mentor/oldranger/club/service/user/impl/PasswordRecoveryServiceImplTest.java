@@ -103,7 +103,6 @@ class PasswordRecoveryServiceImplTest {
                 "NO Password Recovery Interval Violations FOUND !!!!");
     }
 
-
     @Test
     void validateToken_00_privateMethod_verifyToken_throws_PasswordRecoveryInvalidToken() {
         assertThrows(PasswordRecoveryInvalidToken.class,
@@ -181,7 +180,6 @@ class PasswordRecoveryServiceImplTest {
             fail("dbToken should be validated");
         }
     }
-
 
     PasswordRecoveryToken returnTokenWithIssueDateSoManyDaysAgo(int days) {
         PasswordRecoveryToken token = new PasswordRecoveryToken();
