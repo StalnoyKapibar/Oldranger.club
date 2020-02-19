@@ -68,8 +68,6 @@ class PasswordRecoveryServiceImplTest {
         token.setUser(user);
 
         Mockito.when(passwordEncoder.encode("xxx")).thenReturn(null);
-        Mockito.doNothing().when(userService).save(ArgumentMatchers.any(User.class));
-        Mockito.doNothing().when(passwordRecoveryTokenService).delete(token);
 
         passwordRecoveryService.updatePassword(token, "xxx");
 
