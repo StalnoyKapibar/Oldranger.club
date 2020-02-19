@@ -32,7 +32,6 @@ import java.util.Date;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 class PasswordRecoveryServiceImplTest {
@@ -196,7 +195,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     void mockPasswordRecoveryTokenServiceGetByUserIdWithToken(PasswordRecoveryToken token) {
-        when(passwordRecoveryTokenService.getByUserId(ArgumentMatchers.anyLong())).thenReturn(token);
+        Mockito.when(passwordRecoveryTokenService.getByUserId(ArgumentMatchers.anyLong())).thenReturn(token);
     }
 
     void settingSomeConstants(String prt, String tc, String js, String pr) {
