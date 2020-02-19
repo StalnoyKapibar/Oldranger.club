@@ -19,6 +19,7 @@ import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
+import ru.java.mentor.oldranger.club.service.utils.TimeParserService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
@@ -35,6 +36,7 @@ public class SystemBlockingUsersRestController {
     private BlackListService blackListService;
     private WritingBanService writingBanService;
     private SessionService sessionService;
+    private TimeParserService timeParserService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
                summary = "Get all users", tags = { "System blocking users" })
@@ -62,15 +64,7 @@ public class SystemBlockingUsersRestController {
         } else if (list != null && blackListDto.getDateUnblock().equals("")) {
             blackList = new BlackList(list.getId(), user, null);
         } else {
-            String[] dateTime = blackListDto.getDateUnblock().split(" ");
-            String[] date = dateTime[0].split("/");
-            String[] time = dateTime[1].split(":");
-            LocalDateTime localDateTime = LocalDateTime.of( Integer.parseInt(date[2]),
-                    Integer.parseInt(date[1]),
-                    Integer.parseInt(date[0]),
-                    Integer.parseInt(time[0]),
-                    Integer.parseInt(time[1]),
-                    0);
+            LocalDateTime localDateTime = timeParserService.toLocalDateTime(blackListDto.getDateUnblock());
             if (list != null) {
                 blackList = new BlackList(list.getId(), user, localDateTime);
             } else {
@@ -98,16 +92,8 @@ public class SystemBlockingUsersRestController {
             localDateTime = null;
         }
         else {
-            String[] dateTime = writingBanDto.getDateUnblock().split(" ");
-            String[] date = dateTime[0].split("/");
-            String[] time = dateTime[1].split(":");
-            localDateTime = LocalDateTime.of( Integer.parseInt(date[2]),
-                    Integer.parseInt(date[1]),
-                    Integer.parseInt(date[0]),
-                    Integer.parseInt(time[0]),
-                    Integer.parseInt(time[1]),
-                    0);
-        }
+            localDateTime = timeParserService.toLocalDateTime(writingBanDto.getDateUnblock());
+         }
         if (oldWritingBan != null) {
             writingBan = new WritingBan(oldWritingBan.getId(), user, type, localDateTime);
         } else {
