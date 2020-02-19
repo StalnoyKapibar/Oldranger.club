@@ -63,7 +63,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void updatePassword() {
+    public void updatePassword() {
         PasswordRecoveryToken token = new PasswordRecoveryToken();
         token.setUser(user);
 
@@ -78,12 +78,12 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void sendRecoveryTokenToEmail_01_whenTokenDoesntExist()  {
+    public void sendRecoveryTokenToEmail_01_whenTokenDoesntExist()  {
         verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(null);
     }
 
     @Test
-    void sendRecoveryTokenToEmail_02_whenTokenExists() {
+    public void sendRecoveryTokenToEmail_02_whenTokenExists() {
         PasswordRecoveryToken token = returnTokenWithIssueDateSoManyDaysAgo(-1000);
         LocalDateTime oldIssueDate = token.getIssueDate();
         LocalDateTime oldExpirationDate = token.getExpirationDate();
@@ -94,7 +94,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void sendRecoveryTokenToEmail_03_whenPasswordRecoveryIntervalViolations() {
+    public void sendRecoveryTokenToEmail_03_whenPasswordRecoveryIntervalViolations() {
         Mockito.when(passwordRecoveryTokenService.getByUserId(user.getId())).thenReturn(returnTokenWithIssueDateSoManyDaysAgo(1000));
 
         assertThrows(PasswordRecoveryIntervalViolation.class,
@@ -103,14 +103,14 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_00_privateMethod_verifyToken_throws_PasswordRecoveryInvalidToken() {
+    public void validateToken_00_privateMethod_verifyToken_throws_PasswordRecoveryInvalidToken() {
         assertThrows(PasswordRecoveryInvalidToken.class,
                 () -> passwordRecoveryService.validateToken("invalid_token"),
                 "private Method verifyToken DOESN'T throw PasswordRecoveryInvalidToken exception!!");
     }
 
     @Test
-    void validateToken_01_expiresTokenDate() {
+    public void validateToken_01_expiresTokenDate() {
         assertThrows(PasswordRecoveryTokenExpired.class,
                 () -> passwordRecoveryService.validateToken(
                         createJwtToken(1L, new Date(1L), TOKEN_CLAIM, JWT_SECRET)),
@@ -118,7 +118,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_02_invalidTokenClaim() {
+    public void validateToken_02_invalidTokenClaim() {
         assertThrows(PasswordRecoveryTokenExpired.class,
                 () -> passwordRecoveryService.validateToken(
                         createJwtToken(1L, new Date(1L), "invalid_token", JWT_SECRET)),
@@ -126,7 +126,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_03_invalidTokenSecret() {
+    public void validateToken_03_invalidTokenSecret() {
         assertThrows(PasswordRecoveryInvalidToken.class,
                 () -> passwordRecoveryService.validateToken(
                         createJwtToken(1L, new Date(1L), TOKEN_CLAIM, "invalid_secret")),
@@ -134,7 +134,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_04_tokenHasNonexistantUserId() {
+    public void validateToken_04_tokenHasNonexistantUserId() {
         assertThrows(PasswordRecoveryInvalidToken.class,
                 () -> passwordRecoveryService.validateToken(
                         createJwtToken(-1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET)),
@@ -142,7 +142,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_05_dbTokenDoesntEqualUserToken() {
+    public void validateToken_05_dbTokenDoesntEqualUserToken() {
         PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
         dbToken.setToken(createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET));
         mockPasswordRecoveryTokenServiceGetByUserIdWithToken(dbToken);
@@ -154,7 +154,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_06_dbExpirationDateIsBeforeNow() {
+    public void validateToken_06_dbExpirationDateIsBeforeNow() {
         PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
         dbToken.setToken(createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET));
         dbToken.setExpirationDate(LocalDateTime.now().minus(10, ChronoUnit.DAYS));
@@ -167,7 +167,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    void validateToken_07_dbTokenIsGood() {
+    public void validateToken_07_dbTokenIsGood() {
         PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
         String token = createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET);
         dbToken.setToken(token);
