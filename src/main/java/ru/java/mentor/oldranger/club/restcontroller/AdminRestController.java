@@ -77,14 +77,14 @@ public class AdminRestController {
 
         List<UserStatisticDto> users;
         if (page == null) page = 0;
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("user_id"));
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("id"));
         if (query != null && !query.trim().isEmpty()) {
             query = query.toLowerCase().trim().replaceAll("\\s++", ",");
             users = userStatisticService.getUserStatisticsByQuery(pageable, query).getContent();
         } else {
             users =  userStatisticService.getAllUserStatistic(pageable).getContent();
         }
-        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.findAll().size());
+        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.countUsers());
         return ResponseEntity.ok(listUserStatisticDTO);
     }
 

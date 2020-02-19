@@ -27,4 +27,6 @@ public interface UserService {
     User getUserByInviteKey(String key);
 
    UserAuthDTO buildUserDtoByUser(User user, boolean currentUser);
+
+    Long countUsers();
 }

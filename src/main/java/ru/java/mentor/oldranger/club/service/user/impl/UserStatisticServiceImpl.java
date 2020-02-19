@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserStaticRepository;
+import ru.java.mentor.oldranger.club.dto.ErrorDto;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -67,7 +68,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return page;
+        return null;
     }
 
     @Override

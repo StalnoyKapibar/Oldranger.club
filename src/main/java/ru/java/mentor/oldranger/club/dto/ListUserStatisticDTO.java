@@ -14,5 +14,5 @@ import java.util.List;
 public class ListUserStatisticDTO {
 
     private List<UserStatisticDto> users;
-    private Integer usersCount;
+    private Long usersCount;
 }

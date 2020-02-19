@@ -157,4 +157,10 @@ public class UserServiceImpl implements UserService {
                 LocalDateTime.now(),
                 currentUser);
     }
+
+    @Override
+    public Long countUsers() {
+        log.debug("Count users");
+        return  userRepository.count();
+    }
 }
