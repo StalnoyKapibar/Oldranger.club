@@ -84,7 +84,7 @@ public class AdminRestController {
         } else {
             users =  userStatisticService.getAllUserStatistic(pageable).getContent();
         }
-        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.countUsers());
+        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         return ResponseEntity.ok(listUserStatisticDTO);
     }
 

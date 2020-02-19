@@ -28,5 +28,5 @@ public interface UserService {
 
    UserAuthDTO buildUserDtoByUser(User user, boolean currentUser);
 
-    Long countUsers();
+    Long getCount();
 }
