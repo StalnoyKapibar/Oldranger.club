@@ -81,7 +81,6 @@ class PasswordRecoveryServiceImplTest {
     @Test
     void sendRecoveryTokenToEmail_01_whenTokenDoesntExist()  {
         verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(null);
-
     }
 
     @Test
@@ -248,5 +247,4 @@ class PasswordRecoveryServiceImplTest {
         }
         return token;
     }
-
 }
