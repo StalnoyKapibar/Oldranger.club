@@ -3,20 +3,20 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import lombok.NonNull;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryIntervalViolation;
+import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryInvalidToken;
+import ru.java.mentor.oldranger.club.exceptions.passwordrecovery.PasswordRecoveryTokenExpired;
 import ru.java.mentor.oldranger.club.model.user.PasswordRecoveryToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
@@ -24,23 +24,17 @@ import ru.java.mentor.oldranger.club.service.mail.impl.MailServiceImpl;
 import ru.java.mentor.oldranger.club.service.user.PasswordRecoveryTokenService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-import org.mockito.internal.util.reflection.FieldSetter;
-
-
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
-//@RunWith(PowerMockRunner.class)
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@PrepareForTest(fullyQualifiedNames = "ru.java.mentor.oldranger.club.service.user.impl.PasswordRecoveryServiceImpl")
 class PasswordRecoveryServiceImplTest3 {
     @Mock
     private MailService mailService = Mockito.mock(MailServiceImpl.class);
@@ -86,8 +80,8 @@ class PasswordRecoveryServiceImplTest3 {
     }
 
     @Test
-    void sendRecoveryTokenToEmail_01_whenTokenDoesntExist() throws Exception {
-                verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(null);
+    void sendRecoveryTokenToEmail_01_whenTokenDoesntExist()  {
+        verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(null);
 
     }
 
@@ -101,6 +95,95 @@ class PasswordRecoveryServiceImplTest3 {
         Assert.assertTrue(oldExpirationDate.isBefore(token.getExpirationDate()));
         Assert.assertNotEquals(token.getIssueDate().toString(), token.getToken());
     }
+
+    @Test
+    void sendRecoveryTokenToEmail_03_whenPasswordRecoveryIntervalViolations() {
+        Mockito.when(passwordRecoveryTokenService.getByUserId(user.getId())).thenReturn(returnTokenWithIssueDateSoManyDaysAgo(1000));
+
+        assertThrows(PasswordRecoveryIntervalViolation.class,
+                () -> passwordRecoveryService.sendRecoveryTokenToEmail(user),
+                "NO Password Recovery Interval Violations FOUND !!!!");
+    }
+
+
+    @Test
+    void validateToken_00_privateMethod_verifyToken_throws_PasswordRecoveryInvalidToken() {
+        assertThrows(PasswordRecoveryInvalidToken.class,
+                () -> passwordRecoveryService.validateToken("invalid_token"),
+                "private Method verifyToken DOESN'T throw PasswordRecoveryInvalidToken exception!!");
+    }
+
+    @Test
+    void validateToken_01_expiresTokenDate() {
+        assertThrows(PasswordRecoveryTokenExpired.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(1L, new Date(1L), TOKEN_CLAIM, JWT_SECRET)),
+                "Token Date expires exception NOT Thrown!!");
+    }
+
+    @Test
+    void validateToken_02_invalidTokenClaim() {
+        assertThrows(PasswordRecoveryTokenExpired.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(1L, new Date(1L), "invalid_token", JWT_SECRET)),
+                "Invalid Token Claim exception NOT Thrown!!!");
+    }
+
+    @Test
+    void validateToken_03_invalidTokenSecret() {
+        assertThrows(PasswordRecoveryInvalidToken.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(1L, new Date(1L), TOKEN_CLAIM, "invalid_secret")),
+                "invalid Token Secret exception  NOT Thrown");
+    }
+
+    @Test
+    void validateToken_04_tokenHasNonexistantUserId() {
+        assertThrows(PasswordRecoveryInvalidToken.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(-1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET)),
+                " token Has Nonexistant UserId exception is NOT FOUND");
+    }
+
+    @Test
+    void validateToken_05_dbTokenDoesntEqualUserToken() {
+        PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
+        dbToken.setToken(createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET));
+        mockPasswordRecoveryTokenServiceGetByUserIdWithToken(dbToken);
+
+        assertThrows(PasswordRecoveryInvalidToken.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(2L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET)),
+                "the token from the database should not equal the user token");
+    }
+
+    @Test
+    void validateToken_06_dbExpirationDateIsBeforeNow() {
+        PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
+        dbToken.setToken(createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET));
+        dbToken.setExpirationDate(LocalDateTime.now().minus(10, ChronoUnit.DAYS));
+        mockPasswordRecoveryTokenServiceGetByUserIdWithToken(dbToken);
+
+        assertThrows(PasswordRecoveryTokenExpired.class,
+                () -> passwordRecoveryService.validateToken(
+                        createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET)),
+                "the ExpirationDate of the token from the database should be Before Now");
+    }
+
+    @Test
+    void validateToken_07_dbTokenIsGood() {
+        PasswordRecoveryToken dbToken = new PasswordRecoveryToken();
+        String token = createJwtToken(1L, addDaysToToday(1), TOKEN_CLAIM, JWT_SECRET);
+        dbToken.setToken(token);
+        dbToken.setExpirationDate(LocalDateTime.now().plus(10, ChronoUnit.DAYS));
+        mockPasswordRecoveryTokenServiceGetByUserIdWithToken(dbToken);
+        try {
+            passwordRecoveryService.validateToken(token);
+        } catch (Exception e) {
+            fail("dbToken should be validated");
+        }
+    }
+
 
     PasswordRecoveryToken returnTokenWithIssueDateSoManyDaysAgo(int days) {
         PasswordRecoveryToken token = new PasswordRecoveryToken();
@@ -129,10 +212,14 @@ class PasswordRecoveryServiceImplTest3 {
         ReflectionTestUtils.setField(passwordRecoveryService,
                 "PASSWORD_RECOVERY_INTERVAL",
                 pr, String.class);
-
-
     }
 
+    Date addDaysToToday(int days) {
+        Calendar tomorrow = Calendar.getInstance();
+        tomorrow.setTime(new Date());
+        tomorrow.add(Calendar.DATE, days);
+        return tomorrow.getTime();
+    }
 
     void verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(PasswordRecoveryToken token) {
         mockPasswordRecoveryTokenServiceGetByUserIdWithToken(token);
