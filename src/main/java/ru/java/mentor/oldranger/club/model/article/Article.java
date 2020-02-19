@@ -27,11 +27,11 @@ public class Article {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "article_tags",
             joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
@@ -46,9 +46,6 @@ public class Article {
     @Column(name = "article_text")
     private String text;
 
-    @Column(name = "article_hide", columnDefinition = "TINYINT")
-    private boolean isHideToAnon;
-
     @Column(name = "draft", columnDefinition = "TINYINT")
     private boolean draft;
 
@@ -59,13 +56,12 @@ public class Article {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon, boolean draft) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean draft) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
-        this.isHideToAnon = isHideToAnon;
         this.draft = draft;
     }
 

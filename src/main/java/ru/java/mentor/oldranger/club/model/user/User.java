@@ -48,7 +48,7 @@ public class User implements UserDetails{
     @Column(name = "invite_key")
     private String invite;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 
@@ -57,7 +57,7 @@ public class User implements UserDetails{
     private UserAvatar avatar;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private PasswordRecoveryToken passwordRecoveryToken;
 
 

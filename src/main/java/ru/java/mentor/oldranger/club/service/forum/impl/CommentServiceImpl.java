@@ -18,6 +18,7 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.Duration;
@@ -34,6 +35,7 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
+    private PhotoService photoService;
     private ImageCommnetService imageCommnetService;
     private RoleRepository roleRepository;
     private UserService userService;
@@ -133,41 +135,38 @@ public class CommentServiceImpl implements CommentService {
             return page;
         }
 
+    public CommentDto assembleCommentDto(Comment comment, User user) {
+        log.debug("Assembling comment {} dto", comment);
+        CommentDto commentDto = new CommentDto();
+        try {
+            LocalDateTime replyTime = null;
+            String replyNick = null;
+            String replyText = null;
+            if (comment.getAnswerTo() != null) {
+                replyTime = comment.getAnswerTo().getDateTime();
+                replyNick = comment.getAnswerTo().getUser().getNickName();
+                replyText = comment.getAnswerTo().getCommentText();
+            }
+            commentDto.setCommentId(comment.getId());
+            commentDto.setPositionInTopic(comment.getPosition());
+            commentDto.setTopicId(comment.getTopic().getId());
+            commentDto.setAuthor(comment.getUser());
+            commentDto.setCommentDateTime(comment.getDateTime());
+            commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
+            commentDto.setReplyDateTime(replyTime);
+            commentDto.setReplyNick(replyNick);
+            commentDto.setReplyText(replyText);
+            commentDto.setCommentText(comment.getCommentText());
+            commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                    comment.getTopic().getName(), comment.getId().toString()));
 
-        public CommentDto assembleCommentDto (Comment comment, User user){
-            log.debug("Assembling comment {} dto", comment);
-            CommentDto commentDto = new CommentDto();
-            try {
-                LocalDateTime replyTime = null;
-                String replyNick = null;
-                String replyText = null;
-                if (comment.getAnswerTo() != null) {
-                    replyTime = comment.getAnswerTo().getDateTime();
-                    replyNick = comment.getAnswerTo().getUser().getNickName();
-                    replyText = comment.getAnswerTo().getCommentText();
-                }
-                commentDto.setCommentId(comment.getId());
-                commentDto.setPositionInTopic(comment.getPosition());
-                commentDto.setTopicId(comment.getTopic().getId());
-                commentDto.setAuthor(comment.getUser());
-                commentDto.setCommentDateTime(comment.getDateTime());
-                commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
-                commentDto.setReplyDateTime(replyTime);
-                commentDto.setReplyNick(replyNick);
-                commentDto.setReplyText(replyText);
-                commentDto.setCommentText(comment.getCommentText());
-                commentDto.setImageComment(imageCommnetService.findAllByCommentId(comment.getId()));
-                boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
-                if (user == null) {
-                    commentDto.setUpdatable(false);
-                } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
-                    commentDto.setUpdatable(true);
-                } else {
-                    commentDto.setUpdatable(false);
-                }
-                log.debug("Comment dto assembled");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
+            boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
+            if(user == null) {
+                commentDto.setUpdatable(false);
+            } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
+                commentDto.setUpdatable(true);
+            } else {
+                commentDto.setUpdatable(false);
             }
             return commentDto;
         }
@@ -214,3 +213,14 @@ public class CommentServiceImpl implements CommentService {
             return comment.orElseThrow(() -> new RuntimeException("not found comment by id: " + id));
         }
     }
+
+    @Override
+    public void updatePostion(Long topicID, Long deletedPosition) {
+        log.debug("Updating comments position with topic_id = {}", topicID);
+        List<Comment> comments = commentRepository.findByPositionGreaterThanAndTopicId(deletedPosition, topicID);
+        comments.forEach(a->{
+            a.setPosition(a.getPosition() - 1);
+            commentRepository.save(a);
+        });
+    }
+}
