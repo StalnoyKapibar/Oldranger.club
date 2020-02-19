@@ -95,7 +95,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
         Role roleModerator = new Role("ROLE_MODERATOR");
