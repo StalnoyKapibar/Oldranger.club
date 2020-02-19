@@ -70,7 +70,7 @@ public class BlackListServiceImpl implements BlackListService {
         }
         return false;
     }
-
+    //clear cache
     private boolean deleteUnlockBlock(List<BlackList> blackLists) {
         log.debug("Checking ban unlock time");
         LocalDateTime now = LocalDateTime.now();
@@ -86,6 +86,7 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     @Override
+    //add caching
     public List<BlackList> findAll() {
         log.debug("Getting all blacklists");
         List<BlackList> blackList = new ArrayList<>();
@@ -99,6 +100,7 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     @Override
+    //add clear cache
     public void save(BlackList blackList) {
         log.info("Saving user blackList");
         try {
@@ -110,6 +112,7 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     @Override
+    //add caching
     public List<BlackList> findByUserId(Long id) {
         log.debug("Getting blacklist for user with id = {}", id);
         List<BlackList> blackList = new ArrayList<>();
@@ -123,6 +126,7 @@ public class BlackListServiceImpl implements BlackListService {
     }
 
     @Override
+    //add caching
     public BlackList findByUser(User user) {
         log.debug("Getting blacklist for user {}", user);
         BlackList blackList = null;

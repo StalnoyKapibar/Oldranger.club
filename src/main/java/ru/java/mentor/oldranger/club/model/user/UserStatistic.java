@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "userStatistic")
+@Table(name = "user_statistic")
 public class UserStatistic {
 
     @Id
@@ -29,7 +29,7 @@ public class UserStatistic {
     @Column(name = "last_vizit")
     private LocalDateTime lastVizit;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

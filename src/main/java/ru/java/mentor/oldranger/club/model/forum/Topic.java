@@ -54,7 +54,7 @@ public class Topic {
     @Column(name = "forbid_add_update_comment", columnDefinition = "TINYINT")
     private boolean isForbidComment;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
     public PhotoAlbum getPhotoAlbum() {
