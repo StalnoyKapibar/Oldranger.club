@@ -68,7 +68,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return null;
+        return page;
     }
 
     @Override
