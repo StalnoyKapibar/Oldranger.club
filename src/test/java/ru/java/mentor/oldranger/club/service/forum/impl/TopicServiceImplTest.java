@@ -1,15 +1,14 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.junit4.SpringRunner;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
@@ -26,29 +25,30 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 class TopicServiceImplTest {
 
-    @Autowired
     private TopicServiceImpl topicService;
 
-    @MockBean
-    private UserStatisticService userStatisticService;
+    @Mock
+    private UserStatisticService userStatisticService = Mockito.mock(UserStatisticService.class);
 
-    @MockBean
-    private SecurityUtilsService securityUtilsService;
+    @Mock
+    private SecurityUtilsService securityUtilsService = Mockito.mock(SecurityUtilsService.class);
 
-    @MockBean
-    private TopicRepository topicRepository;
+    @Mock
+    private TopicRepository topicRepository = Mockito.mock(TopicRepository.class);
 
-    @MockBean
-    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    @Mock
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService = Mockito.mock(TopicVisitAndSubscriptionService.class);
 
-    @MockBean
-    private Pageable pageable;
+    @Mock
+    private Pageable pageable = Mockito.mock(Pageable.class);
+
+    @BeforeEach
+    void initAlgo(){
+        topicService = new TopicServiceImpl(topicRepository, userStatisticService, securityUtilsService, topicVisitAndSubscriptionService);
+    }
 
     @Test
     public void createTopic() {
