@@ -48,8 +48,7 @@ class PasswordRecoveryServiceImplTest {
 
     private String JWT_SECRET = "secret";
     private String TOKEN_CLAIM = "userid";
-    private String PASSWORD_RECOVERY_TOKEN_EXPIRATION_PATTERN
-            = "1-12-30";
+    private String PASSWORD_RECOVERY_TOKEN_EXPIRATION_PATTERN = "1-12-30";
     private String PASSWORD_RECOVERY_INTERVAL = "0-0-2";
     private User user;
 
