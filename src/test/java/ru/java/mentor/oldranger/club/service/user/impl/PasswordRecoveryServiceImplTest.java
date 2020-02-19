@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-class PasswordRecoveryServiceImplTest3 {
+class PasswordRecoveryServiceImplTest {
     @Mock
     private MailService mailService = Mockito.mock(MailServiceImpl.class);
     @Mock
