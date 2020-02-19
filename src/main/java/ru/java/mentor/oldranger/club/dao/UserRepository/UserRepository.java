@@ -20,7 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByRegDateBeforeAndRoleNotAndRoleNotAndRoleNot(LocalDateTime localDateTime, Role roleAdmin, Role roleVeteran, Role roleModerator);
 
-    @Query(value = "SELECT * FROM users WHERE nick_name=:q or email=:q", nativeQuery = true)
     @Query(value = "SELECT * FROM users WHERE nick_name=:q or email=:q LIMIT 1", nativeQuery = true)
     Optional<User> findUserByEmailOrNickName(@Param("q") String login);
 
