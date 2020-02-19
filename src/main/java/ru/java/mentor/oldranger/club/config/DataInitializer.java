@@ -95,9 +95,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-//        if (true) {
-//            return;
-//        }
 
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
         Role roleAdmin = new Role("ROLE_ADMIN");
@@ -129,7 +126,7 @@ public class DataInitializer implements CommandLineRunner {
         // Общий чат
         Chat chat = new Chat();
         PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
-        photoAlbum.setMedia(mediaService.   findMediaByUser(userService.getUserByNickName("Admin")));
+        photoAlbum.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         albumService.save(photoAlbum);
 
         chat.setPhotoAlbum(photoAlbum);
