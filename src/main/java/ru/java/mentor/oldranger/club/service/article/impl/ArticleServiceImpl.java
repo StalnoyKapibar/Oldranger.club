@@ -56,8 +56,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Cacheable
-    public Article getArticleById(long id) {
-        return articleRepository.findById(id);
+    public Article getArticleById(Long id) {
+        return articleRepository.findById(id).get();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleCommentDto conversionCommentToDto(ArticleComment articleComment) {
+    public ArticleCommentDto assembleCommentToDto(ArticleComment articleComment) {
         ArticleCommentDto articleCommentDto;
 
         LocalDateTime replyTime = null;
@@ -136,7 +136,7 @@ public class ArticleServiceImpl implements ArticleService {
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
-                        stream().map(this::conversionCommentToDto).collect(Collectors.toList());
+                        stream().map(this::assembleCommentToDto).collect(Collectors.toList());
             } else {
                 list = Collections.emptyList();
             }
