@@ -13,6 +13,7 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 
 @Aspect
@@ -34,7 +35,8 @@ public class CommentAspect {
     @AfterReturning(value = "addComment()")
     public void getRoleForAddComment() {
         Long maxId = commentRepository.findMaxId();
-        Comment comment = commentRepository.findCommentById(maxId);
+        Optional<Comment> comment1 = commentRepository.findById(maxId);
+        Comment comment = comment1.get();
         try {
             Properties properties = new Properties();
             FileInputStream fis = new FileInputStream("src/main/resources/config/dataForChangeRole.properties");
