@@ -55,7 +55,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
-        Photo photo = save(album, file);
+        Photo photo = save(album, file, 0);
         photo.setDescription(description);
         return photoRepository.save(photo);
     }
