@@ -5,8 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
@@ -26,11 +26,11 @@ public interface ArticleService {
 
     void deleteArticles(List<Long> ids);
 
-    Article getArticleById(long id);
+    Article getArticleById(Long id);
 
     void addCommentToArticle(ArticleComment articleComment);
 
-    ArticleCommentDto conversionCommentToDto(ArticleComment articleComment);
+    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment);
 
     ArticleComment getCommentById(Long id);
 

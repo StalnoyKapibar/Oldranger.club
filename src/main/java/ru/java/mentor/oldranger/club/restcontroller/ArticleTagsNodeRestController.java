@@ -1,6 +1,11 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -11,11 +16,6 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
 
@@ -80,9 +80,9 @@ public class ArticleTagsNodeRestController {
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
             @ApiResponse(responseCode = "400", description = "Admin role required")})
     @PostMapping(value = "/add", produces = {"application/json"})
-    public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("position") Integer position,
-                                                      @RequestParam("tag") ArticleTag tag,
-                                                      @RequestParam("parentId") Long parentId) {
+    public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("parentId") Long parentId,
+                                                      @RequestParam("position") Integer position,
+                                                      @RequestBody ArticleTag tag) {
 
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();

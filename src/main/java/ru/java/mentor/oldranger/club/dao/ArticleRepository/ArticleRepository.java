@@ -19,8 +19,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findAllByDraftIsTrueAndUser(User user, Pageable pageable);
 
-    Article findById(long id);
-
     void deleteAllByIdIn(List<Long> ids);
 
     @Query(nativeQuery = true,
