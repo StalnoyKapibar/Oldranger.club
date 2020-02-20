@@ -10,7 +10,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.mail.EmailDraftService;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
@@ -40,7 +40,7 @@ public class TestAdminController {
             pageable = PageRequest.of(page, 5, Sort.by("user_id"));
         }
 
-        Page<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable);
+        Page<UserStatisticDto> users = userStatisticService.getAllUserStatistic(pageable);
 
         if (query != null && !query.trim().isEmpty()) {
             query = query.toLowerCase().trim().replaceAll("\\s++", ",");

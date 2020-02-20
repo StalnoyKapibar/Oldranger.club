@@ -76,7 +76,7 @@ public class CommentToArticleRestController {
     @PostMapping(value = "/comment/add", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
                                                                  @RequestParam("idUser") Long idUser,
-                                                                 @RequestParam("answerId") Long answerId,
+                                                                 @RequestParam(value = "answerId", required = false) Long answerId,
                                                                  @RequestBody String commentText) {
         ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment;
@@ -85,7 +85,7 @@ public class CommentToArticleRestController {
         Article article = articleService.getArticleById(receivedCommentDto.getIdArticle());
         User user = userService.findById(receivedCommentDto.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
-        if (receivedCommentDto.getAnswerId() != 0) {
+        if (receivedCommentDto.getAnswerId() != null) {
             ArticleComment answer = articleService.getCommentById(receivedCommentDto.getAnswerId());
             articleComment = new ArticleComment(article, user, answer, localDateTime, receivedCommentDto.getCommentText());
         } else {
@@ -95,8 +95,9 @@ public class CommentToArticleRestController {
         if (user == null || !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
+
         articleService.addCommentToArticle(articleComment);
-        ArticleCommentDto commentDto = articleService.conversionCommentToDto(articleComment);
+        ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment);
         return ResponseEntity.ok(commentDto);
     }
 
@@ -110,7 +111,7 @@ public class CommentToArticleRestController {
     public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestParam("commentID") Long commentID,
                                                                   @RequestParam("idArticle") Long idArticle,
                                                                   @RequestParam("idUser") Long idUser,
-                                                                  @RequestParam("answerId") Long answerId,
+                                                                  @RequestParam(value = "answerId", required = false) Long answerId,
                                                                   @RequestBody String commentText) {
 
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
@@ -125,7 +126,7 @@ public class CommentToArticleRestController {
         articleComment.setArticle(articleService.getArticleById(commentArticleDto.getIdArticle()));
         articleComment.setCommentText(commentArticleDto.getCommentText());
         articleComment.setDateTime(articleComment.getDateTime());
-        if (commentArticleDto.getAnswerId() != 0) {
+        if (commentArticleDto.getAnswerId() != null) {
             articleComment.setAnswerTo(articleService.getCommentById(commentArticleDto.getAnswerId()));
         } else {
             articleComment.setAnswerTo(null);
@@ -136,7 +137,7 @@ public class CommentToArticleRestController {
         }
 
         articleService.updateArticleComment(articleComment);
-        ArticleCommentDto articleCommentDto = articleService.conversionCommentToDto(articleComment);
+        ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
         return ResponseEntity.ok(articleCommentDto);
     }
 

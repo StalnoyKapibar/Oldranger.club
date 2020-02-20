@@ -14,7 +14,6 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
 
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 
-
     PhotoAlbum findPhotoAlbumByTitle(String title);
 
     @Query(nativeQuery = true, value = "select  " +
@@ -57,10 +56,10 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "where media_id in (select id as media_id_id  " +
             "                   from media  " +
             "                   where user_id_user = ?1) and allow_view=1;")
-    List<Tuple> findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(Long userId, String defaultImage);
+    List<Tuple> findPhotoAlbumsByUserWithPhotoCount(Long userId, String defaultImage);
 
     default List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
-        return findPhotoAlbumByUserWithPhotoCountAndOldestPhoto(user.getId(), "photo_album_placeholder").stream()
+        return findPhotoAlbumsByUserWithPhotoCount(user.getId(), "thumb_image_placeholder").stream()
                 .map(e -> new PhotoAlbumDto(
                         e.get("album_id") == null ? null : Long.valueOf(e.get("album_id").toString()),
                         e.get("title", String.class),

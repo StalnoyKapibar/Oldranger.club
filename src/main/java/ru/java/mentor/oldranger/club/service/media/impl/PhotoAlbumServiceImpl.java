@@ -207,4 +207,17 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.error(e.getMessage(), e);
         }
     }
+
+    @Override
+    public PhotoAlbumDto assemblePhotoAlbumDto(PhotoAlbum album) {
+        int photosCount = photoService.findPhotoByAlbum(album).size();
+        Photo thumbImage = album.getThumbImage();
+        return new PhotoAlbumDto(
+                album.getId(),
+                album.getTitle(),
+                thumbImage != null ? thumbImage.getOriginal() : "thumb_image_placeholder",
+                thumbImage != null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                photosCount
+        );
+    }
 }
