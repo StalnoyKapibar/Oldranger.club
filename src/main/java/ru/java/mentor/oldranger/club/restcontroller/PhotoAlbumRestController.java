@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO2;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -21,6 +23,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -92,7 +95,7 @@ public class PhotoAlbumRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights or id error")})
     @GetMapping("/getPhotos/{id}")
-    public ResponseEntity<List<Photo>> getPhotosByAlbum(@PathVariable("id") String id) {
+    public ResponseEntity<List<PhotoDTO2>> getPhotosByAlbum(@PathVariable("id") String id) {
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(id));
         User currentUser = securityUtilsService.getLoggedUser();
         if (photoAlbum == null || currentUser == null) {
@@ -102,7 +105,11 @@ public class PhotoAlbumRestController {
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(albumService.getAllPhotos(photoAlbum));
+        List<PhotoDTO> photoDTOS = albumService.getAllPhotosDTO(photoAlbum);
+        List<PhotoDTO2> photoDTO2s = new ArrayList<>();
+        photoDTOS.forEach(a->photoDTO2s.add(new PhotoDTO2(a.getPhotoID(), a.getDescription(), a.getUploadPhotoDate(), a.getCommentCount(), null)));
+        photoDTO2s.forEach(a->a.setPhotoAlbumDto(albumService.assemblePhotoAlbumDto(photoAlbum)));
+        return ResponseEntity.ok(photoDTO2s);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

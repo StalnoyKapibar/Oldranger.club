@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -169,6 +170,20 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         for (Photo photo : photoList) {
             photoService.findById(photo.getId());
         }
+    }
+
+    @Override
+    //add cache
+    public List<PhotoDTO> getAllPhotosDTO(PhotoAlbum album) {
+        log.debug("Getting all photos of album {}", album);
+        List<PhotoDTO> photos = null;
+        try {
+            photos = photoService.findPhotoDTOByAlbum(album);
+            log.debug("Returned list of {} photos", photos.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photos;
     }
 
     @Override

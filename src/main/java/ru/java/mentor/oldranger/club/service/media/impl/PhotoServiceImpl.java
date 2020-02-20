@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -112,6 +113,20 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return photo;
+    }
+
+    @Override
+    //add caching
+    public List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album) {
+        log.debug("Getting photos of album {}", album);
+        List<PhotoDTO> photos = null;
+        try {
+            photos = photoRepository.findPhotoDTOByAlbum(album);
+            log.debug("Returned list of {} photos", photos.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photos;
     }
 
     @Override

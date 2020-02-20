@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.media;
 
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -12,6 +13,8 @@ public interface PhotoAlbumService {
     PhotoAlbum save(PhotoAlbum album);
 
     List<PhotoAlbum> findAll();
+
+    List<PhotoDTO> getAllPhotosDTO(PhotoAlbum album);
 
     List<Photo> getAllPhotos(PhotoAlbum album);
 
