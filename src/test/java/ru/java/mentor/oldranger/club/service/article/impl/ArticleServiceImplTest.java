@@ -1,18 +1,16 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
+import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
@@ -22,20 +20,26 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 class ArticleServiceImplTest {
-    @Autowired
     private ArticleServiceImpl articleService;
 
-    @MockBean
-    private ArticleCommentRepository articleCommentRepository;
-
-    @MockBean
-    private UserStatisticService userStatisticService;
+    @Mock
+    private ArticleRepository articleRepository = Mockito.mock(ArticleRepository.class);
 
     @Mock
-    private Pageable pageable;
+    private ArticleCommentRepository articleCommentRepository = Mockito.mock(ArticleCommentRepository.class);
+
+    @Mock
+    private UserStatisticService userStatisticService = Mockito.mock(UserStatisticService.class);
+
+    @Mock
+    private Pageable pageable = Mockito.mock(Pageable.class);
+
+    @BeforeEach
+    void initSomeCase() {
+        articleService = new ArticleServiceImpl(articleRepository, articleCommentRepository, userStatisticService);
+    }
 
     @Test
     public void addCommentToArticle() {
@@ -43,9 +47,8 @@ class ArticleServiceImplTest {
         UserStatistic userStatistic = new UserStatistic(user);
         userStatistic.setMessageCount(1L);
         Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true);
-        ArticleComment articleComm = null;
         article.setCommentCount(1L);
-        ArticleComment articleComment = new ArticleComment(article, user, articleComm, LocalDateTime.now(), "comment text");
+        ArticleComment articleComment = new ArticleComment(article, user, null, LocalDateTime.now(), "comment text");
         Mockito.when(userStatisticService.getUserStaticByUser(articleComment.getUser())).thenReturn(userStatistic);
         articleService.addCommentToArticle(articleComment);
         Mockito.verify(articleCommentRepository, Mockito.times(1)).save(articleComment);
@@ -65,7 +68,7 @@ class ArticleServiceImplTest {
         articleComment.setPosition(3L);
         article.setId(3L);
         Mockito.when(userStatisticService.getUserStaticById(articleComment.getUser().getId())).thenReturn(userStatistic);
-        ArticleCommentDto articleCommentDto = articleService.conversionCommentToDto(articleComment);
+        ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
         Assert.assertEquals(articleComment.getUser().getNickName(), articleCommentDto.getReplyNick());
         Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());

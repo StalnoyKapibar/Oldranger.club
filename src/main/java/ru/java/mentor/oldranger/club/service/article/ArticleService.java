@@ -26,11 +26,11 @@ public interface ArticleService {
 
     void deleteArticles(List<Long> ids);
 
-    Article getArticleById(long id);
+    Article getArticleById(Long id);
 
     void addCommentToArticle(ArticleComment articleComment);
 
-    ArticleCommentDto conversionCommentToDto(ArticleComment articleComment);
+    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment);
 
     ArticleComment getCommentById(Long id);
 

@@ -38,3 +38,4 @@ public class UserStatistic {
         this.lastVizit = LocalDateTime.now();
     }
 }
+

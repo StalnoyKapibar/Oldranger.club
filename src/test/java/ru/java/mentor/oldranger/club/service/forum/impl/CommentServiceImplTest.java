@@ -1,10 +1,13 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,35 +21,37 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.article.impl.ArticleServiceImpl;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 class CommentServiceImplTest {
-    @Autowired
-    CommentServiceImpl commentServiceImpl;
 
-    @MockBean
-    private TopicService topicService;
+    private CommentServiceImpl commentServiceImpl;
 
-    @MockBean
-    private CommentRepository commentRepository;
+    @Mock
+    private TopicService topicService = Mockito.mock(TopicServiceImpl.class);
 
-    @MockBean
-    private UserStatisticService userStatisticService;
+    @Mock
+    private CommentRepository commentRepository = Mockito.mock(CommentRepository.class);
 
-    @MockBean
-    private PhotoService photoService;
+    @Mock
+    private UserStatisticService userStatisticService = Mockito.mock(UserStatisticService.class);
 
-    @MockBean
-    private Pageable pageable;
+    @Mock
+    private ImageCommentServiceImpl imageCommentService = Mockito.mock(ImageCommentServiceImpl.class);
 
-    @MockBean
-    private Sort sort;
+    @Mock
+    private PhotoService photoService = Mockito.mock(PhotoService.class);
+
+    @BeforeEach
+    void initSomeCase() {
+        commentServiceImpl = new CommentServiceImpl(commentRepository, userStatisticService, topicService, photoService, imageCommentService);
+    }
 
     @Test
     public void createComment() {
