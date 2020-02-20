@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class UserStatisticDto {
-
+    private Long userStatisticId;
     private String nickName;
     private String email;
     private LocalDateTime registered;

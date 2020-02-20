@@ -80,9 +80,9 @@ public class ArticleTagsNodeRestController {
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
             @ApiResponse(responseCode = "400", description = "Admin role required")})
     @PostMapping(value = "/add", produces = {"application/json"})
-    public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("position") Integer position,
-                                                      @RequestParam("tag") ArticleTag tag,
-                                                      @RequestParam("parentId") Long parentId) {
+    public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("parentId") Long parentId,
+                                                      @RequestParam("position") Integer position,
+                                                      @RequestBody ArticleTag tag) {
 
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();

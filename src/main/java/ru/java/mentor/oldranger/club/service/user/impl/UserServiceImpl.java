@@ -165,4 +165,11 @@ public class UserServiceImpl implements UserService {
                 currentUser);
     }
 
+
+    @Override
+    public Long getCount() {
+        log.debug("Count users");
+        return  userRepository.count();
+    }
+
 }
