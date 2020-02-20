@@ -2,8 +2,10 @@ package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 
+@Service
 public class FilterHtmlServiceImpl implements FilterHtmlService {
     @Override
     public String filterHtml(String comment) {
