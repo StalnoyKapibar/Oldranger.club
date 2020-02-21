@@ -52,3 +52,4 @@ media/*
 /sqldata/**
 /data01/**
 /logstash/pipeline/logs/**
+/src/main/resources/config/cache.properties
