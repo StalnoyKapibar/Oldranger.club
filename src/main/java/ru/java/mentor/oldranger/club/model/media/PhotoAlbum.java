@@ -1,19 +1,23 @@
 package ru.java.mentor.oldranger.club.model.media;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "photo_album")
 @DynamicUpdate
 public class PhotoAlbum {
@@ -63,6 +67,19 @@ public class PhotoAlbum {
             viewers = new HashSet<User>();
         }
         viewers.add(user);
+    }
+
+    @Override
+    public String toString() {
+        return "PhotoAlbum{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", writers=" + writers +
+                ", viewers=" + viewers +
+                ", allowView=" + allowView +
+                ", media=" + media +
+                ", thumbImage=" + (thumbImage == null ? thumbImage : thumbImage.getId()) +
+                '}';
     }
 
 }
