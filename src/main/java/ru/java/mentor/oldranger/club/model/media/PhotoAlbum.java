@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.persistence.*;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Data
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
