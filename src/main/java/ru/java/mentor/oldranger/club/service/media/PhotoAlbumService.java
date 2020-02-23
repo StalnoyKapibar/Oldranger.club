@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.media;
 
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -14,7 +15,7 @@ public interface PhotoAlbumService {
 
     List<PhotoAlbum> findAll();
 
-    List<PhotoDTO> getAllPhotosDTO(PhotoAlbum album);
+    List<PhotoWithAlbumDTO> getAllPhotoWithAlbumsDTO(PhotoAlbum album);
 
     List<Photo> getAllPhotos(PhotoAlbum album);
 
@@ -28,9 +29,9 @@ public interface PhotoAlbumService {
 
     void deleteAlbumPhotos(boolean deleteAll, PhotoAlbum album);
 
-    List<PhotoAlbum> findAllByUser(User user);
+    List<PhotoAlbum> findPhotoAlbumsViewedByUser(User user);
 
-    List<PhotoAlbumDto> findPhotoAlbumsByUser(User user);
+    List<PhotoAlbumDto> findPhotoAlbumsOwnedByUser(User user);
 
     PhotoAlbum findPhotoAlbumByTitle(String name);
 

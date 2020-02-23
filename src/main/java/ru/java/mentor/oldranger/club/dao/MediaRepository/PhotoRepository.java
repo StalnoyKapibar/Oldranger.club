@@ -14,9 +14,10 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findAllByAlbum(PhotoAlbum album);
 
     @Query(value = "select new ru.java.mentor.oldranger.club.dto.PhotoDTO" +
-            "(id" +
-            ", description, uploadPhotoDate, commentCount) " +
-            "from Photo where album=:album")
+            "(p.id" +
+            ",p.description, p.uploadPhotoDate, p.commentCount," +
+            ") " +
+            "from Photo p where p.album=:album")
     List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album);
 
     @Query(nativeQuery = true, value = "select * from photos where album_id = ?1 and upload_photo_date <= ?2")

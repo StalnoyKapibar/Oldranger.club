@@ -10,6 +10,7 @@ import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -21,6 +22,8 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,7 +49,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbum> findAllByUser(User user) {
+    public List<PhotoAlbum> findPhotoAlbumsViewedByUser(User user) {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
         try {
@@ -174,7 +177,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoDTO> getAllPhotosDTO(PhotoAlbum album) {
+    public List<PhotoWithAlbumDTO> getAllPhotoWithAlbumsDTO(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<PhotoDTO> photos = null;
         try {
@@ -183,7 +186,15 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return photos;
+        return photos.stream().map( a ->
+                new PhotoWithAlbumDTO(
+                        a.getPhotoID(),
+                        a.getDescription(),
+                        a.getUploadPhotoDate(),
+                        a.getCommentCount(),
+                        assemblePhotoAlbumDto(album)
+                )
+        ).collect(Collectors.toList());
     }
 
     @Override
@@ -202,7 +213,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
+    public List<PhotoAlbumDto> findPhotoAlbumsOwnedByUser(User user) {
         return albumRepository.findPhotoAlbumsByUser(user);
     }
 
