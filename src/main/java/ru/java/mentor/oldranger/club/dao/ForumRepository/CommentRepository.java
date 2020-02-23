@@ -22,4 +22,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query(value = "SELECT MAX(id) FROM comments", nativeQuery = true)
     Long findMaxId();
+  
+    List<Comment> findByPositionGreaterThanAndTopicId(Long position, Long id);
+
 }

@@ -13,6 +13,7 @@ import ru.java.mentor.oldranger.club.model.forum.*;
 import ru.java.mentor.oldranger.club.model.comment.*;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -176,13 +177,29 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection4);
 
         Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
+        PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic.getName());
+        photoAlbum1.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
+        PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName());
+        photoAlbum2.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
+        PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName());
+        photoAlbum3.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true, false);
+        PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName());
+        photoAlbum4.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false, false);
+        PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName());
+        photoAlbum5.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true, false);
+        PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName());
+        photoAlbum6.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false, true);
+        PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName());
+        photoAlbum7.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true, false);
+        PhotoAlbum photoAlbum8 = new PhotoAlbum("PhotoAlbum by " + topic8.getName());
+        photoAlbum8.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         topicService.createTopic(topic);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
@@ -191,6 +208,14 @@ public class DataInitializer implements CommandLineRunner {
         topicService.createTopic(topic6);
         topicService.createTopic(topic7);
         topicService.createTopic(topic8);
+        albumService.createAlbum(photoAlbum1);
+        albumService.createAlbum(photoAlbum2);
+        albumService.createAlbum(photoAlbum3);
+        albumService.createAlbum(photoAlbum4);
+        albumService.createAlbum(photoAlbum5);
+        albumService.createAlbum(photoAlbum6);
+        albumService.createAlbum(photoAlbum7);
+        albumService.createAlbum(photoAlbum8);
 
         boolean b = false;
         for (int i = 0; i < 2; i++) {
@@ -257,7 +282,7 @@ public class DataInitializer implements CommandLineRunner {
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!", false, false));
+                    "Text news!", false));
         }
     }
 }
