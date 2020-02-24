@@ -6,11 +6,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@Schema(description = "parantId -указывает на id вышестоящего родителя, таким образом об, " +
-        "если parantId -1 (минус единица) означает верхний уровнь, " +
+@Schema(description = "parantId -указывает на id вышестоящего родителя, таким образом, " +
+        "если parantId = -1 (минус единица), то это означает верхний уровнь. " +
         "Порядок вывода элементов  соответствует обходу дерева по веткам , а иерархия (уровень)" +
-        " обеспечивается взаимосвязью реквизитов id и parentId." +
-        "tagsHierarchy следует вернуть на БЭКЕНД - в случае выбора конкретного тега на дереве. ",
+        " обеспечивается взаимосвязью реквизитов id и parentId.  " +
+        "На БЭКЕНД следует вернуть tagsHierarchy - в случае выбора конкретного тега на дереве. ",
         requiredProperties = {"tag", "tagsHierarchy"})
 public class ArticleTagsNodeDto {
     private Long id;
