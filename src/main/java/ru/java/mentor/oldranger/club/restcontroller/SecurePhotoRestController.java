@@ -63,7 +63,7 @@ public class SecurePhotoRestController {
     public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
                                                 @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser != null) {
+        if (currentUser != null) {  
             Photo photo = photoService.findById(photoId);
             if (photo != null) {
                 Set<User> viewers = photo.getAlbum().getViewers();
@@ -72,7 +72,7 @@ public class SecurePhotoRestController {
                         try {
                             return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
                                     new File(albumsdDir + File.separator +
-                                    (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                                    (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
                         } catch (NullPointerException |  IOException e) {
                             log.error("error in getting image");
                             log.error(e.getMessage());
