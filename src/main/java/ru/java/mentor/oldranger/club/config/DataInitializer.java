@@ -1,6 +1,5 @@
 package ru.java.mentor.oldranger.club.config;
 
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -11,11 +10,13 @@ import ru.java.mentor.oldranger.club.dao.ForumRepository.DirectionRepository;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
-import ru.java.mentor.oldranger.club.model.forum.*;
-import ru.java.mentor.oldranger.club.model.comment.*;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
+import ru.java.mentor.oldranger.club.model.forum.Section;
+import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
-import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.Role;
@@ -97,7 +98,7 @@ public class DataInitializer implements CommandLineRunner {
         this.articleService = articleService;
         this.mediaService = mediaService;
         this.albumService = albumService;
-        this.invitationService=invitationService;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -138,7 +139,7 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(invitingUser);
         //2. Создаем токен приглашения
         String keyOne = invitationService.generateKey();
-        InvitationToken invitationToken = new InvitationToken(keyOne,invitingUser);
+        InvitationToken invitationToken = new InvitationToken(keyOne, invitingUser);
 
         //3. Создаём приглашённого пользователя по токену
         //3.1 Создаём 1-го приглашенного юзера
@@ -160,7 +161,7 @@ public class DataInitializer implements CommandLineRunner {
 
         //3.2 Создаём 2-го приглашенного юзера
         String keyTwo = invitationService.generateKey();
-        InvitationToken invitationTokenTwo = new InvitationToken(keyTwo,invitingUser);
+        InvitationToken invitationTokenTwo = new InvitationToken(keyTwo, invitingUser);
 
         User newInviteUserTwo = new User();
         newInviteUserTwo.setEmail("inviteTwo@javamentor.com");
