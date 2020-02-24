@@ -17,13 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
-import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -46,9 +44,6 @@ public class PhotoServiceImpl implements PhotoService {
     private PhotoCommentRepository photoCommentRepository;
     @NonNull
     private UserStatisticService userStatisticService;
-    @NonNull
-    private PhotoAlbumService photoAlbumService;
-
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -63,10 +58,6 @@ public class PhotoServiceImpl implements PhotoService {
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file);
         photo.setDescription(description);
-        if (album.getThumbImage() == null) {
-            album.setThumbImage(photo);
-            photoAlbumService.update(album);
-        }
         return photoRepository.save(photo);
     }
 
@@ -223,17 +214,6 @@ public class PhotoServiceImpl implements PhotoService {
             log.debug("Getting photo by name {} to delete", name);
             Photo photo = photoRepository.findByOriginal(name);
             deletePhoto(photo.getId());
-            /*PhotoAlbum album = photoAlbum.getOne(photo.getAlbum().getId());
-            int countPhoto = findPhotoByAlbum(album).size();
-            if (album.getThumbImage().getId().equals(photo.getId())) {
-                if (countPhoto != 0) {
-                    Photo newThumbImage = photoRepository.findAllByAlbum(album).get(0);
-                    album.setThumbImage(newThumbImage);
-                } else {
-                    album.setThumbImage(null);
-                }
-                photoAlbum.save(album);*//*
-            }*/
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -252,18 +232,6 @@ public class PhotoServiceImpl implements PhotoService {
             FileSystemUtils.deleteRecursively(file);
 
             photoRepository.delete(photo);
-
-           /* PhotoAlbum album = photoAlbum.getOne(photo.getAlbum().getId());
-            int countPhoto = findPhotoByAlbum(album).size();
-            if (album.getThumbImage().getId().equals(photo.getId())) {
-                if (countPhoto != 0) {
-                    Photo newThumbImage = photoRepository.findAllByAlbum(album).get(0);
-                    album.setThumbImage(newThumbImage);
-                } else {
-                    album.setThumbImage(null);
-                }
-                photoAlbum.save(album);
-            }*/
             log.debug("Photo deleted");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -298,7 +266,8 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setOriginal(resultFileName + File.separator + fileName);
             photo.setSmall(resultFileName + File.separator + fileName);
             photo.setUploadPhotoDate(LocalDateTime.now());
-            photo = photoRepository.save(photo);
+            photoRepository.save(photo);
+
             log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

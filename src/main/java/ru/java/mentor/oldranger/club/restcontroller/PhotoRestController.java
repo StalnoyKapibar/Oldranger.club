@@ -18,12 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
-import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
-import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
-import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -33,8 +29,6 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
 
 @AllArgsConstructor
 @RestController
@@ -46,7 +40,7 @@ public class PhotoRestController {
     private PhotoAlbumService albumService;
     private SecurityUtilsService securityUtilsService;
     private PhotoAlbumRepository photoAlbumRepository;
-
+    private PhotoRepository photoRepository;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -72,7 +66,6 @@ public class PhotoRestController {
             photoAlbum.setThumbImage(savedPhotos.get(0));
             photoAlbumRepository.save(photoAlbum);
         }
-
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -158,6 +151,15 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
+        if (photoAlbum.getThumbImage().getId().equals(photo.getId())) {
+            List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
+            if (photoList.size() != 0) {
+                photoAlbum.setThumbImage(photoList.get(0));
+            } else {
+                photoAlbum.setThumbImage(null);
+            }
+            photoAlbumRepository.save(photoAlbum);
+        }
         return ResponseEntity.ok("delete ok");
     }
 }
