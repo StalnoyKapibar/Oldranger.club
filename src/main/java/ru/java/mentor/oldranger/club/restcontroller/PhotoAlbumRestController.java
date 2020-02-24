@@ -100,7 +100,7 @@ public class PhotoAlbumRestController {
         if (photoAlbum == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -122,7 +122,7 @@ public class PhotoAlbumRestController {
         if (album == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -151,7 +151,7 @@ public class PhotoAlbumRestController {
         if (album == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
