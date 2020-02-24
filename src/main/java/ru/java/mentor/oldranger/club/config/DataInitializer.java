@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.config;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ import java.util.Random;
 import java.util.Set;
 
 @Component
+@ConditionalOnMissingClass({"org.junit.Test"})
 public class DataInitializer implements CommandLineRunner {
     private RoleService roleService;
     private UserService userService;
