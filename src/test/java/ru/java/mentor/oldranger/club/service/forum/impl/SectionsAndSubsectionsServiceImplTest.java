@@ -1,37 +1,38 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.context.junit4.SpringRunner;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SubsectionRepository;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
-import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class SectionsAndSubsectionsServiceImplTest {
+@RunWith(MockitoJUnitRunner.class)
+class SectionsAndSubsectionsServiceImplTest {
+    private SectionsAndSubsectionsServiceImpl sectionsAndSubsectionsService;
 
-    @Autowired
-    private SectionsAndSubsectionsService sectionsAndSubsectionsService;
+    @Mock
+    private SectionRepository sectionRepository = Mockito.mock(SectionRepository.class);
 
-    @MockBean
-    private SectionRepository sectionRepository;
+    @Mock
+    private SubsectionRepository subsectionRepository = Mockito.mock(SubsectionRepository.class);
 
-    @MockBean
-    private SubsectionRepository subsectionRepository;
+    @BeforeEach
+    void initSomeCase() {
+        sectionsAndSubsectionsService = new SectionsAndSubsectionsServiceImpl(sectionRepository, subsectionRepository);
+    }
 
     @Test
     public void getAllSectionsAndSubsectionsNoUniqueSubsectionTest() {

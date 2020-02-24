@@ -1,35 +1,36 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import ru.java.mentor.oldranger.club.dao.BlackListRepository;
-import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class BlackListServiceImplTest {
+@RunWith(MockitoJUnitRunner.class)
+class BlackListServiceImplTest {
+    private BlackListServiceImpl blackListService;
 
-    @Autowired
-    private BlackListService blackListService;
+    @Mock
+    private BlackListRepository blackListRepository = Mockito.mock(BlackListRepository.class);
 
-    @MockBean
-    private BlackListRepository blackListRepository;
+    @Mock
+    private UserService userService = Mockito.mock(UserService.class);;
 
+    @BeforeEach
+    void initSomeCase() {
+        blackListService = new BlackListServiceImpl(blackListRepository, userService);
+    }
 
     @Test
     public void userSearchBlackListByUserIdOneClearTest() {
