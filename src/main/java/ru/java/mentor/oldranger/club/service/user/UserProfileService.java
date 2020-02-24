@@ -11,7 +11,7 @@ public interface UserProfileService {
 
     void deleteUserProfileById(Long id);
 
-    void editUserProfile(UserProfile userProfile);
+    void saveUserProfile(UserProfile userProfile);
 
     UserProfile getUserProfileByUser(User user);
 

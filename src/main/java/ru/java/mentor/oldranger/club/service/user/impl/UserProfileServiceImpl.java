@@ -43,7 +43,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public void editUserProfile(UserProfile userProfile) {
+    public void saveUserProfile(UserProfile userProfile) {
         log.info("Updating profile with id = {}", userProfile.getId());
         try {
             userProfileRepository.save(userProfile);
@@ -74,11 +74,20 @@ public class UserProfileServiceImpl implements UserProfileService {
                 profile.getUser().getFirstName(),
                 profile.getUser().getLastName(),
                 profile.getUser().getEmail(),
+                profile.getCity(),
+                profile.getCountry(),
+                profile.getBirthday(),
+                profile.getGender(),
+                profile.getPhoneNumber(),
+                profile.getSocialFb(),
+                profile.getSocialTw(),
+                profile.getSocialVk(),
+                profile.getAboutMe(),
                 profile.getUser().getRegDate(),
                 stat.getMessageCount(),
                 stat.getTopicStartCount(),
                 stat.getLastComment(),
-                stat.getLastVizit(),
+                stat.getLastVisit(),
                 profile.getUser().getAvatar().getOriginal(),
                 owner,
                 isUser);
