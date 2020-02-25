@@ -100,14 +100,14 @@ public class DataInitializer implements CommandLineRunner {
         Role roleModerator = new Role("ROLE_MODERATOR");
         Role roleUser = new Role("ROLE_USER");
         Role roleProspect = new Role("ROLE_PROSPECT");
-        Role roleVeteran = new Role("ROLE_VETERAN");
         Role roleOld_Timer = new Role("ROLE_OLD_TIMER");
+        Role roleVeteran = new Role("ROLE_VETERAN");
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);
         roleService.createRole(roleProspect);
-        roleService.createRole(roleVeteran);
         roleService.createRole(roleOld_Timer);
+        roleService.createRole(roleVeteran);
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
@@ -121,16 +121,10 @@ public class DataInitializer implements CommandLineRunner {
         user.setPassword(passwordEncoder.encode("user"));
         User unverified = new User("Prospect", "Prospect", "prospect@javamentor.com", "Prospect", roleProspect);
         unverified.setPassword(passwordEncoder.encode("prospect"));
-        User veteran = new User("Veteran", "Veteran", "veteran@javamentor.com", "Veteran", roleVeteran);
-        veteran.setPassword(passwordEncoder.encode("veteran"));
-        User old_Timer = new User("Old_Timer", "Old_Timer", "old_Timer@javamentor.com", "Old_Timer", roleOld_Timer);
-        unverified.setPassword(passwordEncoder.encode("oldtimer"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
-        userService.save(veteran);
-        userService.save(old_Timer);
 
         // Общий чат
         Chat chat = new Chat();

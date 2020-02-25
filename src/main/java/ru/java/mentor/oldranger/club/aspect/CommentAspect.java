@@ -5,8 +5,6 @@ import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
-import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -45,7 +43,7 @@ public class CommentAspect {
         if (!role.getRole().equals("ROLE_ADMIN")
                 & !role.getRole().equals("ROLE_MODERATOR")) {
             Role newRole = getRole(countMessages);
-            if (!role.equals(newRole)) {
+            if (newRole.getRole() != null && !role.equals(newRole)) {
                 user.setRole(newRole);
                 userService.save(user);
             }
