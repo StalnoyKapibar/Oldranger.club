@@ -11,10 +11,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class PageableUsersDto {
+public class ListUserStatisticDTO {
 
-    private Page<UserStatistic> users;
-    private int pageCount;
-    private List<UserStatistic> usersList;
-    private String query;
+    private List<UserStatisticDto> users;
+    private Long usersCount;
 }

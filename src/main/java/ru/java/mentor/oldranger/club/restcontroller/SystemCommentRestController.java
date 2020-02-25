@@ -9,12 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
-import ru.java.mentor.oldranger.club.model.forum.Comment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -38,7 +36,7 @@ public class SystemCommentRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))})
     @GetMapping("/com/comments/{id}")
-    public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long id) {
+    public ResponseEntity<List<CommentDto>> getComments(@SessionAttribute User currentUser,  @PathVariable Long id) {
         List<Comment> commentsList;
         commentsList = commentService.getAllCommentsByTopicId(id);
 
@@ -51,7 +49,7 @@ public class SystemCommentRestController {
                 comment.setPozition(true);
             }
         }
-        return ResponseEntity.ok(commentsList.stream().map(commentService::assembleCommentDto).collect(Collectors.toList()));
+        return ResponseEntity.ok(commentsList.stream().map(a->commentService.assembleCommentDto(a, currentUser)).collect(Collectors.toList()));
     }
 
     @Operation(summary = "Is it forbidden to write comments", tags = {"Topic comments"})

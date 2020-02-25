@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.model.forum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 
 import javax.persistence.*;
 import java.util.List;

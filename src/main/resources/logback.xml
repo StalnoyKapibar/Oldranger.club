@@ -10,7 +10,7 @@
         </filter>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
-            <onMatch>DENY</onMatch>
+            <onMatch>ACCEPT</onMatch>
         </filter>
     </appender>
     <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -31,4 +31,5 @@
     <logger name="ru.java.mentor.oldranger.club" level="debug" additivity="false">
         <appender-ref ref="Async-STASH"/>
     </logger>
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 </configuration>

@@ -1,48 +1,165 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/albums")
+@Tag(name = "Photo album")
 public class PhotoAlbumRestController {
 
-    private PhotoAlbumService service;
+    private PhotoAlbumService albumService;
+    private PhotoService photoService;
+    private SecurityUtilsService securityUtilsService;
 
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all photo albums for current user", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Login error")})
     @GetMapping
-    public List<PhotoAlbum> getPhotoAlbums() {
-        return service.findAll();
+    public ResponseEntity<List<PhotoAlbumDto>> getPhotoAlbums() {
+        if (securityUtilsService.getLoggedUser() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(albumService.findPhotoAlbumsDtoOwnedByUser(securityUtilsService.getLoggedUser()));
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Save photo album", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+            @ApiResponse(responseCode = "400", description = "Login or rights error")})
     @PostMapping
-    public PhotoAlbum savePhotoAlbum(@RequestBody PhotoAlbum album) {
-        return service.save(album);
+    public ResponseEntity<PhotoAlbum> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null || albumTitle.equals("")) {
+            return ResponseEntity.badRequest().build();
+        }
+        PhotoAlbum album = new PhotoAlbum(albumTitle);
+        album.addWriter(currentUser);
+        album.setAllowView(true);
+        return ResponseEntity.ok(albumService.save(album));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public PhotoAlbum getAlbum(@PathVariable("id") String id) {
-        return service.findById(Long.parseLong(id));
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get photo album", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights or id error")})
+    @GetMapping("/{id}")
+    public ResponseEntity<PhotoAlbumDto> getAlbum(@PathVariable("id") String id) {
+        PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(id));
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (photoAlbum == null || currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(albumService.assemblePhotoAlbumDto(photoAlbum));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    public List<Photo> getPhotosByAlbum(@PathVariable("id") String id) {
-        return service.getAllPhotos(service.findById(Long.parseLong(id)));
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all photos from album", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoWithAlbumDTO.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights or id error")})
+    @GetMapping("/getPhotos/{id}")
+    public ResponseEntity<List<PhotoWithAlbumDTO>> getPhotosByAlbum(@PathVariable("id") String id) {
+        PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(id));
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (photoAlbum == null || currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(albumService.getAllPhotoWithAlbumsDTO(photoAlbum));
     }
 
-    @PutMapping
-    public PhotoAlbum updateAlbum(@RequestBody PhotoAlbum album) {
-        return service.update(album);
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Update album", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+            @ApiResponse(responseCode = "400", description = "Rights error")})
+    @PutMapping("/{id}")
+    public ResponseEntity<PhotoAlbum> updateAlbum(@PathVariable("id") String id,
+                                                  @RequestParam(value = "photoId", required = false) String photoId,
+                                                  @RequestParam(value = "title", required = false) String title) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        PhotoAlbum album = albumService.findById(Long.parseLong(id));
+        if (album == null || currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (photoId != null) {
+            Photo photo = photoService.findById(Long.parseLong(photoId));
+            if (photo == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            album.setThumbImage(photo);
+        }
+        if (title != null) {
+            if(title.equals("")){
+                return ResponseEntity.badRequest().build();
+            }
+            album.setTitle(title);
+        }
+        return ResponseEntity.ok(albumService.update(album));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void deleteAlbum(@PathVariable("id") String id) {
-        service.deleteAlbum(Long.parseLong(id));
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete album", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "Rights error")})
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteAlbum(@PathVariable("id") String id) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        PhotoAlbum album = albumService.findById(Long.parseLong(id));
+        if (album == null || currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        albumService.deleteAlbum(Long.parseLong(id));
+        return ResponseEntity.ok("delete ok");
     }
+
 }

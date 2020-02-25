@@ -27,12 +27,18 @@ public class TestCommentDtoController {
     private TopicService topicService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
+    /*
+        ToDo DELETE ПОДУМАТЬ удалить ли этот метод так как есть аналог
+          в REST http://localhost:8888/api/topic/1
+          вместо текущего
+          http://localhost:8888/topic/1
 
+     */
     @RequestMapping(path = "/topic/{topicId}", method = RequestMethod.GET)
     public String getPageableComments(@PathVariable(value = "topicId") Long topicId,
                                       @SessionAttribute User currentUser,
                                       @RequestAttribute(value = "page", required = false) Integer page,
-                                      @RequestParam(value = "pos",required = false) Integer position,
+                                      @RequestParam(value = "pos", required = false) Integer position,
                                       @PageableDefault(size = 10, sort = "dateTime") Pageable pageable,
                                       Model model) {
         Topic topic = topicService.findById(topicId);
@@ -47,13 +53,13 @@ public class TestCommentDtoController {
             page = (position - 1 == 0) ? 0 : (position - 1) / pageable.getPageSize();
             pageable = PageRequest.of(page, 10, Sort.by("dateTime"));
         }
-        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, 0);
+        Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, 0, currentUser);
         if (currentUser.getRole().getRole().equals("ROLE_PROSPECT")) {
             for (CommentDto cd : dtos.getContent()) {
                 cd.getAuthor().getAvatar().setSmall("default-sm.png");
             }
         }
-        topicVisitAndSubscriptionService.updateVisitTime(currentUser,topic);
+        topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
         model.addAttribute("topic", topic);
         model.addAttribute("pageCount", dtos.getTotalPages());
         model.addAttribute("commentList", dtos.getContent());

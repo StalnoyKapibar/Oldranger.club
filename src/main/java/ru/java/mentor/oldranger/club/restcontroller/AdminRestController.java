@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -53,22 +55,37 @@ public class AdminRestController {
                summary = "Get UserStatisticDto list", tags = { "Admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserStatisticDto.class)))) })
+                         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListUserStatisticDTO.class)))) })
+    @Parameter(in = ParameterIn.QUERY, name = "page",
+            required = false, description = "номер страницы (необязательный параметр)",
+            allowEmptyValue = true,
+            schema = @Schema(
+                    type = "Integer",
+                    example = "http://localhost:8888/api/admin/users?page=1"))
+    @Parameter(in = ParameterIn.QUERY, name = "query",
+            required = false, description = "значение для фильтрации  (необязательный параметр) только тех строк таблицы " +
+            "'users', в которых данное значение " +
+            "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
+            allowEmptyValue = true, allowReserved = true,
+            schema = @Schema(
+                    type = "string",
+                    example = "http://localhost:8888/api/admin/users?query=moderator@javamentor.com  или http://localhost:8888/api/admin/users?query=Admin"))
+
     @GetMapping(value = "/users", produces = { "application/json" })
-    public ResponseEntity<List<UserStatisticDto>> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
-                                                              @RequestParam(value = "query", required = false) String query) {
+    public ResponseEntity<ListUserStatisticDTO> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
+                                                            @RequestParam(value = "query", required = false) String query) {
+
+        List<UserStatisticDto> users;
         if (page == null) page = 0;
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("user_id"));
-
-        List<UserStatistic> users = userStatisticService.getAllUserStatistic(pageable).getContent();
-
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("id"));
         if (query != null && !query.trim().isEmpty()) {
             query = query.toLowerCase().trim().replaceAll("\\s++", ",");
             users = userStatisticService.getUserStatisticsByQuery(pageable, query).getContent();
+        } else {
+            users =  userStatisticService.getAllUserStatistic(pageable).getContent();
         }
-
-        List<UserStatisticDto> dtos = userStatisticService.getUserStatisticDtoFromUserStatistic(users);
-        return ResponseEntity.ok(dtos);
+        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
+        return ResponseEntity.ok(listUserStatisticDTO);
     }
 
 

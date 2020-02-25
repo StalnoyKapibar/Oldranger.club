@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ArticleCommentDto {
 
-    private long positionInArticle;
-    private long articleId;
+    private Long positionInArticle;
+    private Long articleId;
     private User author;
     private LocalDateTime commentDateTime;
     private Long messageCount;
