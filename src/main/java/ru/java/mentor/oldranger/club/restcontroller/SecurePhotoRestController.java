@@ -3,25 +3,18 @@ package ru.java.mentor.oldranger.club.restcontroller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
@@ -31,6 +24,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -39,10 +33,9 @@ import java.util.Set;
 @Tag(name = "Secured photos")
 public class SecurePhotoRestController {
 
-
     private final SecurityUtilsService securityUtilsService;
     private final PhotoService photoService;
-    private final  PhotoAlbumService photoAlbumService;
+    private final PhotoAlbumService photoAlbumService;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -70,10 +63,11 @@ public class SecurePhotoRestController {
                 if (viewers != null) {
                     if (viewers.contains(currentUser) || viewers.size() == 0) {
                         try {
-                            return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
+                            CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
+                            return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
                                     new File(albumsdDir + File.separator +
-                                    (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
-                        } catch (NullPointerException |  IOException e) {
+                                            (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                        } catch (NullPointerException | IOException e) {
                             log.error("error in getting image");
                             log.error(e.getMessage());
                         }
