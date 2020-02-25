@@ -121,10 +121,16 @@ public class DataInitializer implements CommandLineRunner {
         user.setPassword(passwordEncoder.encode("user"));
         User unverified = new User("Prospect", "Prospect", "prospect@javamentor.com", "Prospect", roleProspect);
         unverified.setPassword(passwordEncoder.encode("prospect"));
+        User veteran = new User("Veteran", "Veteran", "veteran@javamentor.com", "Veteran", roleVeteran);
+        veteran.setPassword(passwordEncoder.encode("veteran"));
+        User old_Timer = new User("Old_Timer", "Old_Timer", "old_Timer@javamentor.com", "Old_Timer", roleOld_Timer);
+        unverified.setPassword(passwordEncoder.encode("oldtimer"));
         userService.save(admin);
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+        userService.save(veteran);
+        userService.save(old_Timer);
 
         // Общий чат
         Chat chat = new Chat();
