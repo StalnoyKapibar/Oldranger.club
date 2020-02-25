@@ -15,7 +15,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     @Query(value = "select new ru.java.mentor.oldranger.club.dto.PhotoDTO" +
             "(p.id" +
-            ",p.description, p.uploadPhotoDate, p.commentCount," +
+            ",p.description, p.uploadPhotoDate, p.commentCount" +
             ") " +
             "from Photo p where p.album=:album")
     List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album);
