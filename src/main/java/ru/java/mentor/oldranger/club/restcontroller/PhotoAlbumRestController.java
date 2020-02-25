@@ -46,7 +46,7 @@ public class PhotoAlbumRestController {
         if (securityUtilsService.getLoggedUser() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(albumService.findPhotoAlbumsOwnedByUser(securityUtilsService.getLoggedUser()));
+        return ResponseEntity.ok(albumService.findPhotoAlbumsDtoOwnedByUser(securityUtilsService.getLoggedUser()));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
