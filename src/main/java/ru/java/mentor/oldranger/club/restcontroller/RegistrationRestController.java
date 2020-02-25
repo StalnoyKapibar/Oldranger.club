@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
@@ -62,7 +63,9 @@ public class RegistrationRestController {
         }
 
         userService.save(user);
-        invitationService.getInvitationTokenByKey(dec.split(" ")[5]).setVisitor(user);
+        InvitationToken token = invitationService.getInvitationTokenByKey(dec.split(" ")[5]);
+        token.setVisitor(user);
+        invitationService.save(token);
         invitationService.markAsUsed(dec.split(" ")[5]);
         return ResponseEntity.ok("Ok");
     }
