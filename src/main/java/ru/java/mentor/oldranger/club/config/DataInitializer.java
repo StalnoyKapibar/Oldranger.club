@@ -107,10 +107,14 @@ public class DataInitializer implements CommandLineRunner {
         Role roleModerator = new Role("ROLE_MODERATOR");
         Role roleUser = new Role("ROLE_USER");
         Role roleProspect = new Role("ROLE_PROSPECT");
+        Role roleOld_Timer = new Role("ROLE_OLD_TIMER");
+        Role roleVeteran = new Role("ROLE_VETERAN");
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);
         roleService.createRole(roleProspect);
+        roleService.createRole(roleOld_Timer);
+        roleService.createRole(roleVeteran);
 
         // Создаем пользователей с разными ролями;
         User admin = new User("Admin", "Admin", "admin@javamentor.com", "Admin", roleAdmin);
