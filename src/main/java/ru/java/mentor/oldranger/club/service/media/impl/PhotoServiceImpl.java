@@ -158,7 +158,7 @@ public class PhotoServiceImpl implements PhotoService {
     public void addCommentToPhoto(PhotoComment photoComment) {
         Photo photo = photoComment.getPhoto();
         Long comments = photo.getCommentCount();
-        if(comments == null) {
+        if (comments == null) {
             comments = 0L;
         }
         photoComment.setPosition(++comments);

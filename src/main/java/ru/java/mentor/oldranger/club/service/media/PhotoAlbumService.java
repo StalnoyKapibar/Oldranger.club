@@ -31,7 +31,7 @@ public interface PhotoAlbumService {
 
     List<PhotoAlbum> findPhotoAlbumsViewedByUser(User user);
 
-    List<PhotoAlbumDto> findPhotoAlbumsOwnedByUser(User user);
+    List<PhotoAlbumDto> findPhotoAlbumsDtoOwnedByUser(User user);
 
     PhotoAlbum findPhotoAlbumByTitle(String name);
 

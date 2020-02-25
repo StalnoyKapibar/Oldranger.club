@@ -213,8 +213,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbumDto> findPhotoAlbumsOwnedByUser(User user) {
-        return albumRepository.findPhotoAlbumsByUser(user);
+    public List<PhotoAlbumDto> findPhotoAlbumsDtoOwnedByUser(User user) {
+        return albumRepository.findPhotoAlbumsDtoOwnedByUser(user);
     }
 
     @Override
