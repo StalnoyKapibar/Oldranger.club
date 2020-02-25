@@ -37,7 +37,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
-
+    @NonNull
+    private PhotoAlbumRepository photoAlbumRepository;
     @NonNull
     private PhotoRepository photoRepository;
     @NonNull
@@ -58,6 +59,10 @@ public class PhotoServiceImpl implements PhotoService {
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file);
         photo.setDescription(description);
+        if (album.getThumbImage() == null) {
+            album.setThumbImage(photo);
+            photoAlbumRepository.save(album);
+        }
         return photoRepository.save(photo);
     }
 
@@ -80,7 +85,6 @@ public class PhotoServiceImpl implements PhotoService {
 
             Files.copy(file.getInputStream(), copyLocation);
 
-
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
                     .toFile(uploadPath + File.separator + "small_" + fileName);
@@ -91,6 +95,11 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setUploadPhotoDate(LocalDateTime.now());
 
             photo = photoRepository.save(photo);
+
+            if (album.getThumbImage() == null) {
+                album.setThumbImage(photo);
+                photoAlbumRepository.save(album);
+            }
 
             log.debug("Photo saved");
         } catch (Exception e) {
@@ -181,7 +190,6 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return page;
-
     }
 
     @Override
@@ -225,6 +233,7 @@ public class PhotoServiceImpl implements PhotoService {
         log.info("Deleting photo with id = {}", id);
         try {
             Photo photo = findById(id);
+            PhotoAlbum photoAlbum = photo.getAlbum();
             File file = new File(albumsdDir + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
 
@@ -232,11 +241,21 @@ public class PhotoServiceImpl implements PhotoService {
             FileSystemUtils.deleteRecursively(file);
 
             photoRepository.delete(photo);
+
+            if (photoAlbum.getThumbImage().getId().equals(photo.getId())) {
+                List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
+                if (photoList.size() != 0) {
+                    photoAlbum.setThumbImage(photoList.get(0));
+                } else {
+                    photoAlbum.setThumbImage(null);
+                }
+                photoAlbumRepository.save(photoAlbum);
+            }
+
             log.debug("Photo deleted");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     @Override

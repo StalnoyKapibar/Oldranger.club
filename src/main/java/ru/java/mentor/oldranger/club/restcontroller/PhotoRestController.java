@@ -39,8 +39,6 @@ public class PhotoRestController {
     private PhotoService service;
     private PhotoAlbumService albumService;
     private SecurityUtilsService securityUtilsService;
-    private PhotoAlbumRepository photoAlbumRepository;
-    private PhotoRepository photoRepository;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -62,10 +60,6 @@ public class PhotoRestController {
         List<Photo> savedPhotos = new ArrayList<>();
         photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a)));
 
-        if (photoAlbum.getThumbImage() == null) {
-            photoAlbum.setThumbImage(savedPhotos.get(0));
-            photoAlbumRepository.save(photoAlbum);
-        }
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -151,15 +145,6 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
-        if (photoAlbum.getThumbImage().getId().equals(photo.getId())) {
-            List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
-            if (photoList.size() != 0) {
-                photoAlbum.setThumbImage(photoList.get(0));
-            } else {
-                photoAlbum.setThumbImage(null);
-            }
-            photoAlbumRepository.save(photoAlbum);
-        }
         return ResponseEntity.ok("delete ok");
     }
 }
