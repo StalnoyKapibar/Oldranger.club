@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserProfileRepository;
 import ru.java.mentor.oldranger.club.dto.ProfileDto;
+import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -44,13 +45,29 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public void saveUserProfile(UserProfile userProfile) {
-        log.info("Updating profile with id = {}", userProfile.getId());
+        log.info("Saving user profile with id = {}", userProfile.getId());
         try {
             userProfileRepository.save(userProfile);
-            log.info("Profile updated");
+            log.info("Profile saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void updateUserProfile(UserProfile userProfile, UpdateProfileDto updateProfileDto) {
+        log.info("Updating user profile with id = {}", userProfile.getId());
+        userProfile.setCity(updateProfileDto.getCity());
+        userProfile.setCountry(updateProfileDto.getCountry());
+        userProfile.setBirthday(updateProfileDto.getBirthday());
+        userProfile.setGender(updateProfileDto.getGender());
+        userProfile.setPhoneNumber(updateProfileDto.getPhoneNumber());
+        userProfile.setSocialFb(updateProfileDto.getSocialFb());
+        userProfile.setSocialTw(updateProfileDto.getSocialTw());
+        userProfile.setSocialVk(updateProfileDto.getSocialVk());
+        userProfile.setAboutMe(updateProfileDto.getAboutMe());
+
+        saveUserProfile(userProfile);
     }
 
     @Override

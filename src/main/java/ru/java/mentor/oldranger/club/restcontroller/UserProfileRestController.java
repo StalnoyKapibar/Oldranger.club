@@ -99,6 +99,7 @@ public class UserProfileRestController {
         return ResponseEntity.ok(dto);
     }
 
+    //TODO ErrorDto - зачем?
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Update profile", tags = {"User profile"})
     @ApiResponses(value = {
@@ -111,29 +112,14 @@ public class UserProfileRestController {
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-
-        currentUser.setNickName(updateProfileDto.getNickName());
-        currentUser.setFirstName(updateProfileDto.getFirstName());
-        currentUser.setLastName(updateProfileDto.getLastName());
-        currentUser.setEmail(updateProfileDto.getEmail());
-        userService.save(currentUser);
+        userService.updateUser(currentUser, updateProfileDto);
 
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
         if (profile == null) {
             profile = new UserProfile();
             profile.setUser(currentUser);
         }
-
-        profile.setCity(updateProfileDto.getCity());
-        profile.setCountry(updateProfileDto.getCountry());
-        profile.setBirthday(updateProfileDto.getBirthday());
-        profile.setGender(updateProfileDto.getGender());
-        profile.setPhoneNumber(updateProfileDto.getPhoneNumber());
-        profile.setSocialFb(updateProfileDto.getSocialFb());
-        profile.setSocialTw(updateProfileDto.getSocialTw());
-        profile.setSocialVk(updateProfileDto.getSocialVk());
-        profile.setAboutMe(updateProfileDto.getAboutMe());
-        userProfileService.saveUserProfile(profile);
+        userProfileService.updateUserProfile(profile,updateProfileDto);
 
         return ResponseEntity.ok(new ErrorDto("OK"));
     }
