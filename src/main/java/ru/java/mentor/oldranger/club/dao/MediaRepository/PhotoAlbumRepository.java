@@ -57,7 +57,7 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "                   where user_id_user = ?1) and allow_view=1;")
     List<Tuple> findPhotoAlbumsByUserWithPhotoCount(Long userId, String defaultImage);
 
-    default List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
+    default List<PhotoAlbumDto> findPhotoAlbumsDtoOwnedByUser(User user) {
         return findPhotoAlbumsByUserWithPhotoCount(user.getId(), "thumb_image_placeholder").stream()
                 .map(e -> new PhotoAlbumDto(
                         e.get("album_id") == null ? null : Long.valueOf(e.get("album_id").toString()),

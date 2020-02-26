@@ -16,8 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
@@ -45,7 +43,6 @@ public class PhotoRestController {
     private PhotoService service;
     private PhotoAlbumService albumService;
     private SecurityUtilsService securityUtilsService;
-    private PhotoAlbumRepository photoAlbumRepository;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -58,21 +55,15 @@ public class PhotoRestController {
     public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
         User currentUser = securityUtilsService.getLoggedUser();
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
-        if (currentUser == null) {
+        if(currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
         List<Photo> savedPhotos = new ArrayList<>();
-        photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a)));
-
-        if (photoAlbum.getThumbImage() == null) {
-            photoAlbum.setThumbImage(savedPhotos.get(0));
-            photoAlbumRepository.save(photoAlbum);
-        }
-
+        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -84,20 +75,20 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "400", description = "Error id or rights error")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
-                                                        @RequestParam(value = "page", required = false) Integer page,
-                                                        @RequestParam(value = "pos", required = false) Integer position,
-                                                        @RequestParam(value = "limit", required = false) Integer limit) {
+                                                    @RequestParam(value = "page", required = false) Integer page,
+                                                    @RequestParam(value = "pos", required = false) Integer position,
+                                                    @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (currentUser == null) {
+        if(currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
+        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -126,12 +117,12 @@ public class PhotoRestController {
         if (photo == null || newPhoto == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (currentUser == null) {
+        if(currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(service.update(newPhoto, photo));
@@ -149,12 +140,12 @@ public class PhotoRestController {
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (currentUser == null) {
+        if(currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
