@@ -10,22 +10,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
-import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
-import ru.java.mentor.oldranger.club.model.article.Article;
-import ru.java.mentor.oldranger.club.model.article.ArticleTag;
-import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 
 @RestController
@@ -36,7 +29,6 @@ public class CommentToPhotoRestController {
 
     private SecurityUtilsService securityUtilsService;
     private PhotoService photoService;
-    private UserService userService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add comment to photo", description = "Add comment to photo", tags = {"Comment to photo"})
