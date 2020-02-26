@@ -157,8 +157,8 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position) {
-        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(),photo.getId());
+    public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable) {
+        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(), photo.getId());
         Page<PhotoCommentDto> page = null;
         try {
             page = photoCommentRepository.findByPhoto(photo, pageable);

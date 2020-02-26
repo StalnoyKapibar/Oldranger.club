@@ -16,12 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
-import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
-import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -31,7 +27,6 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 @AllArgsConstructor
@@ -87,8 +82,8 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -96,10 +91,8 @@ public class PhotoRestController {
         }
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
-        if (position == null) {
-            position = 0;
-        }
-        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
+
+        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable);
         PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
         return ResponseEntity.ok(photoCommentsDto);
     }
