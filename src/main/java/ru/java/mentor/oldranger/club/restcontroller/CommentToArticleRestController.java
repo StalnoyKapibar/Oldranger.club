@@ -59,9 +59,7 @@ public class CommentToArticleRestController {
         }
 
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
-        //
         Page<ArticleCommentDto> articleComments = articleService.getAllByArticle(article, pageable);
-        //
         ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComments);
         return ResponseEntity.ok(articleAndCommentsDto);
     }
