@@ -128,7 +128,6 @@ public class TopicServiceImpl implements TopicService {
     @Override
     @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10() {
-        System.out.println("limit10");
         if (securityUtilsService.isLoggedUserIsUser()) {
             return topicRepository.getActualTopicsLimit(10);
         } else {

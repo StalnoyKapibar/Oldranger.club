@@ -66,15 +66,15 @@ public class UserProfileRestController {
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/profile", produces = {"application/json"})
     public ResponseEntity<ProfileDto> getProfile() {
-
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.noContent().build();
-        }
 
+        }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
         ProfileDto dto = userProfileService.buildProfileDto(profile, stat, true, securityUtilsService.isLoggedUserIsUser());
+
         return ResponseEntity.ok(dto);
     }
 
@@ -95,9 +95,11 @@ public class UserProfileRestController {
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
         ProfileDto dto = userProfileService.buildProfileDto(profile, stat, false, securityUtilsService.isLoggedUserIsUser());
+
         return ResponseEntity.ok(dto);
     }
 
+    //TODO ErrorDto - зачем?
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Update profile", tags = {"User profile"})
     @ApiResponses(value = {
@@ -110,24 +112,14 @@ public class UserProfileRestController {
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-        currentUser.setNickName(updateProfileDto.getNickName());
-        currentUser.setFirstName(updateProfileDto.getFirstName());
-        currentUser.setLastName(updateProfileDto.getLastName());
-        currentUser.setEmail(updateProfileDto.getEmail());
+        userService.updateUser(currentUser, updateProfileDto);
 
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
         if (profile == null) {
             profile = new UserProfile();
+            profile.setUser(currentUser);
         }
-        profile.setCity(updateProfileDto.getCity());
-        profile.setAboutMe(updateProfileDto.getAboutMe());
-        profile.setCountry(updateProfileDto.getCountry());
-        profile.setSocialFb(updateProfileDto.getSocialFb());
-        profile.setSocialTw(updateProfileDto.getSocialTw());
-        profile.setSocialVk(updateProfileDto.getSocialVk());
-        userService.save(currentUser);
-        profile.setUser(currentUser);
-        userProfileService.editUserProfile(profile);
+        userProfileService.updateUserProfile(profile,updateProfileDto);
 
         return ResponseEntity.ok(new ErrorDto("OK"));
     }
@@ -141,18 +133,16 @@ public class UserProfileRestController {
     @GetMapping(value = "/comments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getComments(
             @RequestAttribute(value = "page", required = false) Integer page) {
-
         if (page == null) {
             page = 0;
         }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime").descending());
-
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-
         List<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable).getContent();
+
         return ResponseEntity.ok(dtos);
     }
 
@@ -174,6 +164,7 @@ public class UserProfileRestController {
             pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         }
         List<Topic> topics = topicVisitAndSubscriptionService.getPagebleSubscribedTopicsForUser(currentUser, pageable).getContent();
+
         return ResponseEntity.ok(topics);
     }
 
@@ -221,10 +212,11 @@ public class UserProfileRestController {
         if (topicVisitAndSubscription == null) {
             return ResponseEntity.status(204).build();
         }
-        if (topicVisitAndSubscription.isSubscribed() == false) {
+        if (!topicVisitAndSubscription.isSubscribed()) {
             return ResponseEntity.status(204).build();
         }
         topicVisitAndSubscriptionService.unsubscribe(topicVisitAndSubscription);
+
         return ResponseEntity.ok().build();
     }
 
@@ -236,16 +228,16 @@ public class UserProfileRestController {
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @GetMapping(value = "/topics", produces = {"application/json"})
     public ResponseEntity<List<Topic>> getTopics(@RequestParam(value = "page", required = false) Integer page) {
-
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-
-        if (page == null) page = 0;
+        if (page == null) {
+            page = 0;
+        }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
-
         List<Topic> dtos = topicService.findAllTopicsStartedByUser(currentUser, pageable).getContent();
+
         return ResponseEntity.ok(dtos);
     }
 
@@ -262,9 +254,9 @@ public class UserProfileRestController {
         if (currentUser == null || !isUser) {
             return ResponseEntity.noContent().build();
         }
-
         String key = invitationService.getCurrentKey(currentUser);
         InviteDto dto = new InviteDto(currentUser, key);
+
         return ResponseEntity.ok(dto);
     }
 
@@ -290,6 +282,7 @@ public class UserProfileRestController {
                 return ResponseEntity.ok(new ErrorDto("Пароль обновлен"));
             }
         }
+
         return ResponseEntity.ok(new ErrorDto("Пароль указан неверно"));
     }
 
