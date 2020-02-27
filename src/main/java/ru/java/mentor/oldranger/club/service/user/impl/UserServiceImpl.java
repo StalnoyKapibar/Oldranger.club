@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
+    private RoleRepository roleRepository;
 
     @Override
     @Cacheable(cacheNames = {"allUsers"})
@@ -157,9 +159,11 @@ public class UserServiceImpl implements UserService {
                 currentUser);
     }
 
+
     @Override
     public Long getCount() {
         log.debug("Count users");
         return userRepository.count();
     }
+
 }

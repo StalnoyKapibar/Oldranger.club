@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "photo_album")
 @DynamicUpdate
 public class PhotoAlbum {
@@ -64,6 +64,19 @@ public class PhotoAlbum {
             viewers = new HashSet<User>();
         }
         viewers.add(user);
+    }
+
+    @Override
+    public String toString() {
+        return "PhotoAlbum{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", writers=" + writers +
+                ", viewers=" + viewers +
+                ", allowView=" + allowView +
+                ", media=" + media +
+                ", thumbImage=" + (thumbImage == null ? thumbImage : thumbImage.getId()) +
+                '}';
     }
 
 }

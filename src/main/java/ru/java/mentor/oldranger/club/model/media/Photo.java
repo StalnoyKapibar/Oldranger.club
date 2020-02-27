@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.media;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "photos")
 public class Photo {
     @Id
@@ -44,5 +47,17 @@ public class Photo {
         this.small = small;
     }
 
+    @Override
+    public String toString() {
+        return "Photo{" +
+                "id=" + id +
+                ", original='" + original + '\'' +
+                ", small='" + small + '\'' +
+                ", description='" + description + '\'' +
+                ", uploadPhotoDate=" + uploadPhotoDate +
+                ", album=" + album.getId() +
+                ", commentCount=" + commentCount +
+                '}';
+    }
 
 }
