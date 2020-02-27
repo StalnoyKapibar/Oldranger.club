@@ -2,7 +2,10 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.*;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -128,7 +131,6 @@ public class TopicServiceImpl implements TopicService {
     @Override
     @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10() {
-        System.out.println("limit10");
         if (securityUtilsService.isLoggedUserIsUser()) {
             return topicRepository.getActualTopicsLimit(10);
         } else {
