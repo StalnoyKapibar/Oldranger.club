@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
+import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -17,9 +19,11 @@ import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,7 +49,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbum> findAllByUser(User user) {
+    public List<PhotoAlbum> findPhotoAlbumsViewedByUser(User user) {
         List<PhotoAlbum> albums = null;
         log.debug("Getting all albums for anon");
         try {
@@ -173,6 +177,28 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
+    public List<PhotoWithAlbumDTO> getAllPhotoWithAlbumsDTO(PhotoAlbum album) {
+        log.debug("Getting all photos of album {}", album);
+        List<PhotoDTO> photos = null;
+        try {
+            photos = photoService.findPhotoDTOByAlbum(album);
+            log.debug("Returned list of {} photos", photos.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photos.stream().map(a ->
+                new PhotoWithAlbumDTO(
+                        a.getPhotoID(),
+                        a.getDescription(),
+                        a.getUploadPhotoDate(),
+                        a.getCommentCount(),
+                        assemblePhotoAlbumDto(album)
+                )
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    //add cache
     public List<Photo> getAllPhotos(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
@@ -187,8 +213,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<PhotoAlbumDto> findPhotoAlbumsByUser(User user) {
-        return albumRepository.findPhotoAlbumsByUser(user);
+    public List<PhotoAlbumDto> findPhotoAlbumsDtoOwnedByUser(User user) {
+        return albumRepository.findPhotoAlbumsDtoOwnedByUser(user);
     }
 
     @Override

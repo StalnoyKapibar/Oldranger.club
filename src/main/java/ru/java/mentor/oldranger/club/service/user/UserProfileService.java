@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.user;
 
 import ru.java.mentor.oldranger.club.dto.ProfileDto;
+import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -11,7 +12,9 @@ public interface UserProfileService {
 
     void deleteUserProfileById(Long id);
 
-    void editUserProfile(UserProfile userProfile);
+    void saveUserProfile(UserProfile userProfile);
+
+    void updateUserProfile(UserProfile userProfile, UpdateProfileDto updateProfileDto);
 
     UserProfile getUserProfileByUser(User user);
 
