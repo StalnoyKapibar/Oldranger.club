@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>CRUD Project</title>
+
+</head>
+<body>
+<div th:fragment="table">
+    <h5 class="h5 p-3 bg-light">All users</h5>
+    <div class="container-full bg-white p-3">
+
+        <table class="table table-sm m-0 ">
+
+            <thead class="thead">
+            <tr>
+                <th>id</th>
+                <th>firstName</th>
+                <th>lastName</th>
+                <th>email</th>
+                <th>nickName</th>
+                <th>regDate</th>
+                <th>blocking</th>
+                <th>action restriction</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="tempUser : ${list}">
+
+                <td th:text="${tempUser.id}"/>
+                <td th:text="${tempUser.firstName}"/>
+                <td th:text="${tempUser.lastName}"/>
+                <td th:text="${tempUser.email}"/>
+                <td th:text="${tempUser.nickName}"/>
+                <td th:text="${tempUser.regDate}"/>
+                <td>
+                    <a class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModalEdit"
+                       th:attr="onclick=|showFunctionModal('${tempUser.id}','${tempUser.firstName}','${tempUser.lastName}','${tempUser.email}','${tempUser.nickName}', '/admin/blocking')|"
+                    >
+                        Blocking
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModalEdit"
+                       th:attr="onclick=|showFunctionModal('${tempUser.id}','${tempUser.firstName}','${tempUser.lastName}','${tempUser.email}','${tempUser.nickName}', '/admin/writingBan')|"
+                    >
+                        Action restriction
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

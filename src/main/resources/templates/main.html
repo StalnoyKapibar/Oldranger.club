@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>Tst page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
+</head>
+<body>
+<div th:replace="fragments/main_menu :: main_menu"></div>
+
+<div class="whiteblock"></div>
+<div class="main_body">
+
+    <div class="wrap">
+        <a class="navicon" href="#menu-left"></a>
+        <div class="forum" id="sectionsandtopicsplain">
+
+            <form action="/test/search" method="GET">
+                <input name="query" type="text"/>
+                <select name="searchBy">
+                    <option value="byTopics">По темам</option>
+                    <option value="byComments">По сообщениям</option>
+                </select>
+                <button type="submit">Поиск</button>
+            </form>
+            <h4>Sections and topics example thymeleaf driven:</h4>
+            <div class="forum_section">
+                <th:block th:each="section : ${sectionsAndTopics}">
+                    <h5 th:text="${section.getSection().getName()}"></h5>
+                    <ul>
+                        <li class="forum_topic" th:each="topic : ${section.getTopics()}"
+                            th:text="${topic.getName()}"></li>
+                    </ul>
+                </th:block>
+            </div>
+        </div>
+        <!--      <hr>
+              <div id="sectionsandtopicsrest">
+                  <h4>Sections and topics example ajax driven:</h4>
+              </div>-->
+    </div>
+
+</div>
+
+<div id="dialog-form" title="Ворота в сообщество">
+    <p class="validateTips">Все поля нужно заполнить.</p>
+
+    <form action="/login" id="login_form" method="post">
+        <fieldset>
+            <label for="username">e-mail</label>
+            <input class="text ui-widget-content ui-corner-all" id="username" name="username" type="text"
+                   value=""><br>
+            <label for="password">пароль</label>
+            <input class="text ui-widget-content ui-corner-all" id="password" name="password" type="password"
+                   value="xxxxxxx">
+
+            <!-- Allow form submission with keyboard without duplicating the dialog button -->
+            <input style="position:absolute; top:-1000px" tabindex="-1" type="submit">
+        </fieldset>
+    </form>
+</div>
+<script>
+    console.log('script started');
+    var formData = new FormData();
+    formData.set("text", "123");
+    formData.set("idTopic", 1);
+    formData.set("idUser", 1);
+    sendRequest = async request => {
+        const res = await axios.put ('http://localhost:8888/api/comment/update?commentID=1 ', formData);
+        return res.data;
+    };
+    var res = sendRequest(formData);
+    console.log(res);
+</script>
+<!--<script>
+    $(document).ready(function () {
+        getSectionsAndTopics();
+    });
+
+    function getSectionsAndTopics() {
+        $.ajax({
+            type: "GET",
+            url: "/api/sectionsandactualtopics",
+            contentType: "application/json; charset=utf-8",
+            success: function (e) {
+                console.log(e);
+                drawSectionsAndTopics(e);
+            },
+            error: function (e) {
+                console.log(e.responseText);
+            }
+        });
+    }
+
+    function drawSectionsAndTopics(e) {
+        let holder = $('#sectionsandtopicsrest');
+        for (let i = 0; i < e.length; i++) {
+            holder.append('<h5>' + e[i].section.name + '</h5>');
+            let list = $('<ul>');
+            holder.append(list);
+            for (let j = 0; j < e[i].topics.length; j++) {
+                list.append('<li>' + e[i].topics[j].name + '</li>');
+            }
+        }
+    }
+</script>-->
+</body>
+</html>

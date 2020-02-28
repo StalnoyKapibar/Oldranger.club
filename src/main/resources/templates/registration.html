@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <script type="application/javascript" src="/js/invite.js"></script>
+</head>
+<body>
+<form id="registrationForm" method="GET" th:action="@{/}">
+    <div class="form-group" align="'center'">
+        <label for="nickName" id="11">nickName</label>
+        <input type="text" name="nickName" class="form-control" id="nickName" placeholder="nickName"></input>
+    </div>
+    <div class="form-group" align="'center'">
+        <label for="firstName">firstName</label>
+        <input type="text" name="firstName" class="form-control" id="firstName" placeholder="firstName"></input>
+    </div>
+    <div class="form-group" align="'center'">
+        <label for="lastName">lastName</label>
+        <input type="text" name="lastName" class="form-control" id="lastName" placeholder="lastName"></input>
+    </div>
+    <div class="form-group" align="'center'">
+        <label for="email">email</label>
+        <input type="text" name="email" class="form-control" id="email" placeholder="email"></input>
+    </div>
+    <div class="form-group" align="'center'">
+        <label for="pwdUser">Password</label>
+        <input type="password" name="password" class="form-control" id="pwdUser" placeholder="Password"></input>
+    </div>
+    <div align="'center'">
+            <button type="submit" class="btn btn-success"/>Registration</button>
+    </div>
+    <input type="hidden"
+           name="${_csrf.parameterName}"
+           value="${_csrf.token}"/>
+</form>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        let registr = $("#registrationForm");
+        let url = "localhost:8888/"
+
+        registr.on('submit', sendUser);
+
+        function sendUser(e) {
+            e.preventDefault();
+            var regUserDto = {
+                nickName : $("#nickName").val(),
+                firstName : $("#firstName").val(),
+                lastName : $("#lastName").val(),
+                email : $("#email").val(),
+                password : $("#pwdUser").val(),
+                key : getUrlVar("key")
+            }
+            $.ajax({
+                type : "POST",
+                contentType : "application/json",
+                url : "/api/token/confirm/bymail",
+                data : JSON.stringify(regUserDto),
+                dataType : 'json',
+                success : function (e) {
+                    window.location = "/";
+                }
+            });
+        }
+
+        function getUrlVars() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for(var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+
+        function getUrlVar(name) {
+            return getUrlVars()[name];
+        }
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comment Dtos</title>
+</head>
+<body>
+<div>
+    <h2 th:text="${topic.name}" >Topic</h2>
+</div>
+<div th:if="${pageCount != 0}" style="display: flex">
+    <a th:each="i : ${#numbers.sequence(1, pageCount)}" th:href="@{'/topic/' + ${topic.id}(page=${i - 1})}"
+       th:text="'page ' + ${i}" style="margin: 5px">page</a>
+</div>
+<div th:each="comment : ${commentList}" style="border: 1px solid black; border-radius: 5px; padding-left: 10px" >
+    <div th:id="${comment.positionInTopic}" style="display: inline-block;border-right: 1px solid black;padding-right: 20px;">
+        <p th:text="${comment.author.nickName}"></p>
+        <section th:if="${comment.author.avatar.small}">
+            <img src="#" th:src="${'/img/' + comment.author.avatar.small}" alt="avatar">
+        </section>
+        <p th:text="${comment.author.regDate}"></p>
+        <p><b>Всего сообщений: </b> <span th:text="${comment.messageCount}" ></span></p>
+        <p th:text="${comment.author.role.role}"></p>
+    </div>
+    <div style="display: inline-block; vertical-align: top;padding-left: 25px">
+        <blockquote th:if="${comment.replyDateTime}">
+            <p th:text="${comment.replyDateTime}"></p>
+            <p th:text="${comment.replyNick}"></p>
+            <p th:text="${comment.replyText}"></p>
+        </blockquote>
+        <br>
+        <p th:text="${comment.commentDateTime}"></p>
+        <p th:text="${comment.commentText}"></p>
+    </div>
+
+
+</div>
+<script src="/js/jquery-3.4.1.js"></script>
+<script>
+    if (window.location.hash)
+        scroll(0,0);
+    setTimeout(function(){scroll(0,0);},1);
+
+    $(function(){
+        if(window.location.hash){
+            // smooth scroll to the anchor id
+            $('html,body').animate({
+                scrollTop:$(window.location.hash).offset().top + 'px'
+            },1000,'swing');
+        }
+    });
+</script>
+</body>
+</html>
