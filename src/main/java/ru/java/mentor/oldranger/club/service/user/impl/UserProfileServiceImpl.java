@@ -2,7 +2,6 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserProfileRepository;
 import ru.java.mentor.oldranger.club.dto.ProfileDto;

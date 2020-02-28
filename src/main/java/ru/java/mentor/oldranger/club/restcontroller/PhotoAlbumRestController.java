@@ -12,17 +12,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
-import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
-import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -134,7 +132,7 @@ public class PhotoAlbumRestController {
             album.setThumbImage(photo);
         }
         if (title != null) {
-            if(title.equals("")){
+            if (title.equals("")) {
                 return ResponseEntity.badRequest().build();
             }
             album.setTitle(title);

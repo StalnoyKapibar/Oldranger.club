@@ -19,10 +19,10 @@ import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -186,7 +186,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return photos.stream().map( a ->
+        return photos.stream().map(a ->
                 new PhotoWithAlbumDTO(
                         a.getPhotoID(),
                         a.getDescription(),
@@ -240,8 +240,8 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         return new PhotoAlbumDto(
                 album.getId(),
                 album.getTitle(),
-                thumbImage!= null ? thumbImage.getOriginal() : "thumb_image_placeholder",
-                thumbImage!= null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                thumbImage != null ? thumbImage.getOriginal() : "thumb_image_placeholder",
+                thumbImage != null ? thumbImage.getSmall() : "thumb_image_placeholder",
                 photosCount
         );
     }

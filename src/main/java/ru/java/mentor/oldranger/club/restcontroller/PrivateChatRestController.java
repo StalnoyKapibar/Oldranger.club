@@ -198,7 +198,7 @@ public class PrivateChatRestController {
         }
         Map<String, String> result = new HashMap<>();
         PhotoAlbum album = chat.getPhotoAlbum();
-        Photo photo = photoService.save(album, file);
+        Photo photo = photoService.save(album, file, 0);
         result.put("originalImg", photo.getOriginal());
         result.put("thumbnailImg", photo.getSmall());
         return ResponseEntity.ok(result);

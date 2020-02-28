@@ -119,7 +119,7 @@ public class UserProfileRestController {
             profile = new UserProfile();
             profile.setUser(currentUser);
         }
-        userProfileService.updateUserProfile(profile,updateProfileDto);
+        userProfileService.updateUserProfile(profile, updateProfileDto);
 
         return ResponseEntity.ok(new ErrorDto("OK"));
     }

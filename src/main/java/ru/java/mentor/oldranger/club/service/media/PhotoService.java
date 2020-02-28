@@ -12,7 +12,7 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import java.util.List;
 
 public interface PhotoService {
-    Photo save(PhotoAlbum album, MultipartFile file);
+    Photo save(PhotoAlbum album, MultipartFile file, long position);
 
     Photo save(PhotoAlbum album, MultipartFile file, String description);
 
@@ -32,11 +32,11 @@ public interface PhotoService {
 
     PhotoComment getCommentById(Long id);
 
-    public void deleteComment(long id);
+    void deleteComment(long id);
 
-    public void addCommentToPhoto(PhotoComment photoComment);
+    void addCommentToPhoto(PhotoComment photoComment);
 
-    public void updatePhotoComment(PhotoComment photoComment);
+    void updatePhotoComment(PhotoComment photoComment);
 
     Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
 

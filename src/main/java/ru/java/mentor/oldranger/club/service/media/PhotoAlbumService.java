@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.media;
 
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
-import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
