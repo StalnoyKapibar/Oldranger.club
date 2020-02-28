@@ -262,7 +262,6 @@ public class PhotoServiceImpl implements PhotoService {
     //clear cache
     public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
-        Photo updatedPhoto = null;
         try {
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
             String pathToImg = userName + File.separator + "photo_albums" + File.separator + photo.getAlbum().getId() + File.separator;
@@ -291,7 +290,7 @@ public class PhotoServiceImpl implements PhotoService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return updatedPhoto;
+        return photo;
     }
 
     @Override
