@@ -12,6 +12,8 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import java.util.List;
 
 public interface PhotoService {
+    Photo save(PhotoAlbum album, Photo photo);
+
     Photo save(PhotoAlbum album, MultipartFile file);
 
     Photo save(PhotoAlbum album, MultipartFile file, String description);

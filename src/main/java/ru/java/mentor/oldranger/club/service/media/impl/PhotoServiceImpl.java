@@ -22,7 +22,6 @@ import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -62,6 +61,16 @@ public class PhotoServiceImpl implements PhotoService {
         photo.setDescription(description);
         return photoRepository.save(photo);
     }
+
+    @Override
+    public Photo save(PhotoAlbum album, Photo photo) {
+        Photo newPhoto = new Photo(photo.getOriginal(), photo.getSmall());
+        photo.setAlbum(album);
+        photo.setUploadPhotoDate(LocalDateTime.now());
+        log.debug("Photo saved in a new album");
+        return photoRepository.save(newPhoto);
+    }
+
 
     @Override
     //clear cache
@@ -145,7 +154,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoComment getCommentById(Long id) {
-        Optional<PhotoComment> comment =  photoCommentRepository.findById(id);
+        Optional<PhotoComment> comment = photoCommentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
     }
 
@@ -178,7 +187,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position) {
-        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(),photo.getId());
+        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(), photo.getId());
         Page<PhotoCommentDto> page = null;
         List<PhotoComment> list = new ArrayList<>();
         try {

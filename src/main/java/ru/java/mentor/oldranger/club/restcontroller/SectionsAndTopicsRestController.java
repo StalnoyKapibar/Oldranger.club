@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -91,7 +92,7 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
     @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails
-            , @RequestParam List<MultipartFile> photos) {
+            , @RequestParam List<MultipartFile> photos, @RequestParam List<Long> photoId) {
         User user = securityUtilsService.getLoggedUser();
 
 
@@ -102,6 +103,13 @@ public class SectionsAndTopicsRestController {
 
         for (MultipartFile file : photos) {
             photoService.save(photoAlbum, file);
+        }
+
+        if(photoId!=null){
+            for (Long id: photoId) {
+                Photo photo=photoService.findById(id);
+                photoService.save(photoAlbum,photo);
+            }
         }
 
         topic.setName(topicDetails.getName());
