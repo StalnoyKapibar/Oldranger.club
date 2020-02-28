@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+
 import javax.persistence.Tuple;
 import java.util.List;
 import java.util.stream.Collectors;

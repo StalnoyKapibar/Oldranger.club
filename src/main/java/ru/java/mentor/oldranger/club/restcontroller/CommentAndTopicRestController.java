@@ -22,17 +22,15 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
-import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
-import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
+import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import javax.validation.Valid;
@@ -46,16 +44,15 @@ import java.util.List;
 @Tag(name = "Topic and comments")
 public class CommentAndTopicRestController {
 
-    private CommentService commentService;
-    private TopicService topicService;
-    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
-    private SecurityUtilsService securityUtilsService;
-    private UserService userService;
-    private RoleService roleService;
-    private ImageCommnetService imageCommnetService;
-    private CheckFileTypeService checkFileTypeService;
-    private PhotoAlbumService photoAlbumService;
-    private PhotoService photoService;
+    private final CommentService commentService;
+    private final TopicService topicService;
+    private final TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private final SecurityUtilsService securityUtilsService;
+    private final UserService userService;
+    private final CheckFileTypeService checkFileTypeService;
+    private final PhotoAlbumService photoAlbumService;
+    private final PhotoService photoService;
+    private final FilterHtmlService filterHtmlService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
@@ -132,14 +129,15 @@ public class CommentAndTopicRestController {
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
         if (messageComentsEntity.getAnswerID() != null) {
             Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, messageComentsEntity.getText());
+            comment = new Comment(topic, user, answer, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
         } else {
-            comment = new Comment(topic, user, null, localDateTime, messageComentsEntity.getText());
+            comment = new Comment(topic, user, null, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
         }
 
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId()) || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
+
         commentService.createComment(comment);
 
         if (image1 != null) {
@@ -181,7 +179,7 @@ public class CommentAndTopicRestController {
             summary = "Update a comment", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = CommentDto.class)  )),
+                    content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
@@ -201,7 +199,7 @@ public class CommentAndTopicRestController {
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
 
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setCommentText(messageComments.getText());
+        comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
         if (messageComments.getAnswerID() != null) {
             comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
         } else {
@@ -210,7 +208,7 @@ public class CommentAndTopicRestController {
         comment.setDateTime(comment.getDateTime());
 
 
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null ||  !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
+        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
         commentService.updateComment(comment);

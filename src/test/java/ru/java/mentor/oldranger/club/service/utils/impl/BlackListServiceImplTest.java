@@ -1,8 +1,8 @@
 package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -25,7 +25,8 @@ class BlackListServiceImplTest {
     private BlackListRepository blackListRepository = Mockito.mock(BlackListRepository.class);
 
     @Mock
-    private UserService userService = Mockito.mock(UserService.class);;
+    private UserService userService = Mockito.mock(UserService.class);
+    ;
 
     @BeforeEach
     void initSomeCase() {
@@ -34,24 +35,24 @@ class BlackListServiceImplTest {
 
     @Test
     public void userSearchBlackListByUserIdOneClearTest() {
-        List<BlackList> blackLists = new ArrayList<>() ;
+        List<BlackList> blackLists = new ArrayList<>();
         User user = new User();
         user.setId(1L);
         blackLists.add(new BlackList(1L, user, LocalDateTime.now().minusMinutes(1)));
-        Mockito.when(blackListRepository.findByUserId(ArgumentMatchers.anyLong())).thenAnswer(a->blackLists);
-        boolean res =  blackListService.userSearchBlackListByUserId(user.getId());
+        Mockito.when(blackListRepository.findByUserId(ArgumentMatchers.anyLong())).thenAnswer(a -> blackLists);
+        boolean res = blackListService.userSearchBlackListByUserId(user.getId());
         Mockito.verify(blackListRepository, Mockito.times(1)).delete(blackLists.get(0));
         Assert.assertEquals(res, true);
     }
 
     @Test
     public void userSearchBlackListByUserIdTwoNoClearTest() {
-        List<BlackList> blackLists = new ArrayList<>() ;
+        List<BlackList> blackLists = new ArrayList<>();
         User user = new User();
         user.setId(1L);
         blackLists.add(new BlackList(1L, user, LocalDateTime.now().minusMinutes(1)));
         blackLists.add(new BlackList(2L, user, LocalDateTime.now().plusDays(1)));
-        Mockito.when(blackListRepository.findByUserId(ArgumentMatchers.anyLong())).thenAnswer(a->blackLists);
+        Mockito.when(blackListRepository.findByUserId(ArgumentMatchers.anyLong())).thenAnswer(a -> blackLists);
         boolean res = blackListService.userSearchBlackListByUserId(user.getId());
         Mockito.verify(blackListRepository, Mockito.times(1)).delete(blackLists.get(0));
         Mockito.verify(blackListRepository, Mockito.times(0)).delete(blackLists.get(1));

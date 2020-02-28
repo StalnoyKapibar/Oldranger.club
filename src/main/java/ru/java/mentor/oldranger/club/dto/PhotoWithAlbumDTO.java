@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class PhotoWithAlbumDTO {
-        private Long photoID;
-        private String description;
-        private LocalDateTime uploadPhotoDate;
-        private Long commentCount;
-        private PhotoAlbumDto photoAlbumDto;
+    private Long photoID;
+    private String description;
+    private LocalDateTime uploadPhotoDate;
+    private Long commentCount;
+    private PhotoAlbumDto photoAlbumDto;
 }

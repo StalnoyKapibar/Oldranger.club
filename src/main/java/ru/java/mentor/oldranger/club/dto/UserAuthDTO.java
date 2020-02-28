@@ -2,9 +2,6 @@ package ru.java.mentor.oldranger.club.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.java.mentor.oldranger.club.model.user.PasswordRecoveryToken;
-import ru.java.mentor.oldranger.club.model.user.Role;
-import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 
 import java.time.LocalDateTime;
 

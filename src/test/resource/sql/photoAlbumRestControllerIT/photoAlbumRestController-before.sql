@@ -11,6 +11,11 @@ insert into jm_oldc_test.media (id, user_id_user) values
 (1, 1),
 (2, 2);
 
+insert into jm_oldc_test.photo_album_viewers(album_id, user_id) values
+(1,1);
+
+insert into jm_oldc_test.photo_album_writers(album_id, user_id) values
+(1,1);
 
 insert into jm_oldc_test.photo_album (id, allow_view, title, media_id, thumb_image_id) values
 (1, 1, 'Album1 Admin', 1, 1),

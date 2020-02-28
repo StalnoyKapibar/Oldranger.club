@@ -1,7 +1,6 @@
 package ru.java.mentor.oldranger.club.service.forum;
 
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 
 import java.util.List;
