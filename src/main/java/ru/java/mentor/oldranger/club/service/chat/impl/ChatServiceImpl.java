@@ -2,15 +2,11 @@ package ru.java.mentor.oldranger.club.service.chat.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.ChatRepository;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
-import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 
 import java.util.List;
 import java.util.UUID;
