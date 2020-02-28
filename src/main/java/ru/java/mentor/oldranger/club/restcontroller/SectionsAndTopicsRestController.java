@@ -92,23 +92,24 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
     @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails
-            , @RequestParam List<MultipartFile> photos, @RequestParam List<Long> photoId) {
+            , @RequestParam(required = false) List<MultipartFile> photos, @RequestParam(required = false) List<Long> photoId) {
         User user = securityUtilsService.getLoggedUser();
-
 
         Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
         photoAlbum.setMedia(mediaService.findMediaByUser(user));
         albumService.save(photoAlbum);
 
-        for (MultipartFile file : photos) {
-            photoService.save(photoAlbum, file);
+        if (photos != null) {
+            for (MultipartFile file : photos) {
+                photoService.save(photoAlbum, file);
+            }
         }
 
-        if(photoId!=null){
-            for (Long id: photoId) {
-                Photo photo=photoService.findById(id);
-                photoService.save(photoAlbum,photo);
+        if (photoId != null) {
+            for (Long id : photoId) {
+                Photo photo = photoService.findById(id);
+                photoService.save(photoAlbum, photo);
             }
         }
 

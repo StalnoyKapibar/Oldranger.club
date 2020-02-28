@@ -64,11 +64,38 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo save(PhotoAlbum album, Photo photo) {
-        Photo newPhoto = new Photo(photo.getOriginal(), photo.getSmall());
-        photo.setAlbum(album);
-        photo.setUploadPhotoDate(LocalDateTime.now());
-        log.debug("Photo saved in a new album");
-        return photoRepository.save(newPhoto);
+        Photo copyPhotoToNewAlbum = null;
+        try {
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            String pathToImg = userName + File.separator + "photo_albums" + File.separator + album.getId() + File.separator;
+            String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(photo.getOriginal());
+            String resultFileName = pathToImg + fileName;
+
+            File uploadPath = new File(albumsdDir + File.separator + resultFileName);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+            Path copyFrom = Paths.get(photo.getOriginal());
+            Path copyTo = Paths.get(uploadPath + File.separator + fileName);
+
+            Files.copy(copyFrom, copyTo);
+
+            Thumbnails.of(uploadPath + File.separator + fileName)
+                    .size(small, small)
+                    .toFile(uploadPath + File.separator + "small_" + fileName);
+
+            copyPhotoToNewAlbum = new Photo(resultFileName + File.separator + fileName,
+                    resultFileName + File.separator + "small_" + fileName);
+            copyPhotoToNewAlbum.setAlbum(album);
+            copyPhotoToNewAlbum.setUploadPhotoDate(LocalDateTime.now());
+
+            photoRepository.save(copyPhotoToNewAlbum);
+            log.debug("Photo copied in a new album");
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return copyPhotoToNewAlbum;
     }
 
 
@@ -294,12 +321,12 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setOriginal(resultFileName + File.separator + fileName);
             photo.setSmall(resultFileName + File.separator + fileName);
             photo.setUploadPhotoDate(LocalDateTime.now());
-            photo = photoRepository.save(photo);
+            photoRepository.save(photo);
             log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return updatedPhoto;
+        return photo;
     }
 
     @Override
