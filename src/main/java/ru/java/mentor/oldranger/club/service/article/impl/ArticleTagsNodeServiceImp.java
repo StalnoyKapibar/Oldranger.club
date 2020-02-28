@@ -13,9 +13,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
