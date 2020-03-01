@@ -44,4 +44,9 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     public Set<ArticleTag> addTagsToSet(List<Long> tagsId) {
         return articleTagRepository.findByIdIn(tagsId);
     }
+
+    @Override
+    public ArticleTag getTagByTagName(String TagName) {
+        return articleTagRepository.findArticleTagByName(TagName);
+    }
 }
