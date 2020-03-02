@@ -1,3 +1,4 @@
+
 version: "3.2"
 services:
   MySQL:
@@ -75,6 +76,13 @@ services:
       - elk
     depends_on:
       - elasticsearch
+  sonarqube:
+    image: sonarqube
+    container_name: sonarqube_oldc
+    ports:
+      - "9001:9000"
+    expose:
+      - "9000"
 networks:
   elk:
     driver: bridge
