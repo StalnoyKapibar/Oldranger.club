@@ -10,17 +10,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
-import ru.java.mentor.oldranger.club.model.forum.Topic;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailDirectionService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
-import ru.java.mentor.oldranger.club.service.utils.impl.SecurityUtilsServiceImpl;
-
-import java.util.List;
 
 @RestController
 @AllArgsConstructor

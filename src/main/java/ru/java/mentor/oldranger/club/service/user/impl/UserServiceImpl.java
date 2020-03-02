@@ -8,7 +8,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
+import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -34,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
+    private RoleRepository roleRepository;
 
     @Override
     @Cacheable(cacheNames = {"allUsers"})
@@ -76,6 +79,23 @@ public class UserServiceImpl implements UserService {
             media.setUser(user);
             mediaService.save(media);
             log.info("User {} saved", savedUser);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    //TODO Надо ли тут кеширование?
+    @Override
+    public void updateUser(User user, UpdateProfileDto updateProfileDto) {
+        log.info("Updating user {}", user);
+        user.setNickName(updateProfileDto.getNickName());
+        user.setFirstName(updateProfileDto.getFirstName());
+        user.setLastName(updateProfileDto.getLastName());
+        user.setEmail(updateProfileDto.getEmail());
+
+        try {
+            userRepository.save(user);
+            log.info("User {} updated", user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -157,9 +177,11 @@ public class UserServiceImpl implements UserService {
                 currentUser);
     }
 
+
     @Override
     public Long getCount() {
         log.debug("Count users");
         return userRepository.count();
     }
+
 }

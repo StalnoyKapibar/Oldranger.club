@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoPositionRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
 import ru.java.mentor.oldranger.club.model.media.Photo;
@@ -57,7 +56,7 @@ public class PhotoRestController {
         if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -88,7 +87,7 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -122,7 +121,7 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -145,7 +144,7 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }

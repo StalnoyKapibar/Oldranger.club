@@ -24,6 +24,7 @@ import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
@@ -34,9 +35,10 @@ import java.time.LocalDateTime;
 @Tag(name = "Article comment")
 public class CommentToArticleRestController {
 
-    private ArticleService articleService;
-    private UserService userService;
-    private SecurityUtilsService securityUtilsService;
+    private final ArticleService articleService;
+    private final UserService userService;
+    private final SecurityUtilsService securityUtilsService;
+    private final FilterHtmlService filterHtmlService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -76,7 +78,7 @@ public class CommentToArticleRestController {
                                                                  @RequestParam("idUser") Long idUser,
                                                                  @RequestParam(value = "answerId", required = false) Long answerId,
                                                                  @RequestBody String commentText) {
-        ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);
+        ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment;
 
         User currentUser = securityUtilsService.getLoggedUser();
@@ -112,7 +114,7 @@ public class CommentToArticleRestController {
                                                                   @RequestParam(value = "answerId", required = false) Long answerId,
                                                                   @RequestBody String commentText) {
 
-        ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, commentText, answerId);
+        ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();

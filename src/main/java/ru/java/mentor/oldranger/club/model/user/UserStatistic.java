@@ -29,7 +29,7 @@ public class UserStatistic {
     private LocalDateTime lastComment;
 
     @Column(name = "last_vizit")
-    private LocalDateTime lastVizit;
+    private LocalDateTime lastVisit;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -37,7 +37,7 @@ public class UserStatistic {
 
     public UserStatistic(User user) {
         this.user = user;
-        this.lastVizit = LocalDateTime.now();
+        this.lastVisit = LocalDateTime.now();
     }
 }
 

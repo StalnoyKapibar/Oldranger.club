@@ -93,7 +93,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
                 user.getUser().getRegDate(),
                 user.getUser().getRole().getAuthority(),
                 user.getLastComment(),
-                user.getLastVizit())));
+                user.getLastVisit())));
         return dtos;
     }
 }

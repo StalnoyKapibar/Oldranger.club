@@ -1,7 +1,8 @@
 package ru.java.mentor.oldranger.club.dto;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

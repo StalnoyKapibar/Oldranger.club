@@ -1,17 +1,13 @@
 package ru.java.mentor.oldranger.club.dao.ArticleRepository;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.http.ResponseEntity;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 
 import javax.persistence.Tuple;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
@@ -62,9 +58,10 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
         return findAllChildrenTree().stream()
                 .map(e -> new ArticleTagsNodeDto(
                         Long.valueOf(e.get("id").toString()),
-                        e.get("parent") == null ? null :  Long.valueOf(e.get("parent").toString()),
+                        e.get("parent") == null ? null : Long.valueOf(e.get("parent").toString()),
+                        Integer.valueOf(e.get("id").toString()),
                         e.get("tag_name", String.class),
-                        Arrays.stream( e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
+                        Arrays.stream(e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
     }
 
 

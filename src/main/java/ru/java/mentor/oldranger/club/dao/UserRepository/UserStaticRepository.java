@@ -12,14 +12,14 @@ import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 public interface UserStaticRepository extends JpaRepository<UserStatistic, Long> {
 
     @Query(value = "select  new ru.java.mentor.oldranger.club.dto.UserStatisticDto" +
-            "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVizit)  " +
+            "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVisit)  " +
             "from UserStatistic us join us.user u join u.role r")
     Page<UserStatisticDto> findAllDto(Pageable pageable);
 
     UserStatistic getOneByUser(User user);
 
     @Query(value = "select  new ru.java.mentor.oldranger.club.dto.UserStatisticDto" +
-            "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVizit)  " +
+            "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVisit)  " +
             "from UserStatistic us join us.user u join u.role r where u.firstName=:q or u.email=:q or u.lastName=:q")
     Page<UserStatisticDto> findByQueryDto(Pageable pageable, @Param("q") String query);
 }

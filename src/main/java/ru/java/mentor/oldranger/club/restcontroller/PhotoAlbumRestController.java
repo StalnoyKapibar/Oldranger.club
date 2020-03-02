@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -31,18 +32,19 @@ public class PhotoAlbumRestController {
     private PhotoService photoService;
     private SecurityUtilsService securityUtilsService;
 
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get all photo albums for current user", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
             @ApiResponse(responseCode = "400", description = "Login error")})
     @GetMapping
     public ResponseEntity<List<PhotoAlbumDto>> getPhotoAlbums() {
         if (securityUtilsService.getLoggedUser() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(albumService.findPhotoAlbumsByUser(securityUtilsService.getLoggedUser()));
+        return ResponseEntity.ok(albumService.findPhotoAlbumsDtoOwnedByUser(securityUtilsService.getLoggedUser()));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -87,20 +89,20 @@ public class PhotoAlbumRestController {
             summary = "Get all photos from album", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoWithAlbumDTO.class)))),
             @ApiResponse(responseCode = "400", description = "Rights or id error")})
     @GetMapping("/getPhotos/{id}")
-    public ResponseEntity<List<Photo>> getPhotosByAlbum(@PathVariable("id") String id) {
+    public ResponseEntity<List<PhotoWithAlbumDTO>> getPhotosByAlbum(@PathVariable("id") String id) {
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(id));
         User currentUser = securityUtilsService.getLoggedUser();
         if (photoAlbum == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(albumService.getAllPhotos(photoAlbum));
+        return ResponseEntity.ok(albumService.getAllPhotoWithAlbumsDTO(photoAlbum));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -118,7 +120,7 @@ public class PhotoAlbumRestController {
         if (album == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
@@ -130,6 +132,9 @@ public class PhotoAlbumRestController {
             album.setThumbImage(photo);
         }
         if (title != null) {
+            if (title.equals("")) {
+                return ResponseEntity.badRequest().build();
+            }
             album.setTitle(title);
         }
         return ResponseEntity.ok(albumService.update(album));
@@ -147,7 +152,7 @@ public class PhotoAlbumRestController {
         if (album == null || currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
+        if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
