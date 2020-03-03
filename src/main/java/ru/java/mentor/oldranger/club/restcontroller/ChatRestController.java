@@ -113,7 +113,7 @@ public class ChatRestController {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
                     content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
-    @PostMapping("/image")
+    @PostMapping(value = "/image", consumes = {"multipart/form-data"})
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
         User user = securityUtilsService.getLoggedUser();

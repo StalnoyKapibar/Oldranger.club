@@ -13,6 +13,8 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +27,7 @@ public class GroupChatController {
     private MessageService messageService;
     private UserService userService;
     private PhotoService photoService;
+    private SecurityUtilsService securityUtilsService;
 
     @GetMapping("/chat")
     public String getChatPage() {
@@ -34,6 +37,8 @@ public class GroupChatController {
     @MessageMapping("/sendMessage")
     @SendTo("/channel/public")
     public Message sendMessage(@Payload Message chatMessage) {
+        User user = securityUtilsService.getLoggedUser();
+        chatMessage.setSenderAvatar(user.getAvatar().getSmall());
         chatMessage.setMessageDate(LocalDateTime.now());
         chatMessage.setChat(chatService.getGroupChat());
         messageService.addMessage(chatMessage);
@@ -43,6 +48,8 @@ public class GroupChatController {
     @MessageMapping("/addUser")
     @SendTo("/channel/public")
     public Message addUser(@Payload Message chatMessage) {
+        User user = securityUtilsService.getLoggedUser();
+        chatMessage.setSenderAvatar(user.getAvatar().getSmall());
         updateUserList(chatMessage, true);
         return chatMessage;
     }
@@ -58,6 +65,7 @@ public class GroupChatController {
         Chat chat = chatService.getGroupChat();
         User user = userService.getUserByNickName(chatMessage.getSender());
         List<User> users = chat.getUserList();
+
         if (bool) {
             users.add(user);
         } else {
