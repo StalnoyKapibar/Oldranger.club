@@ -46,7 +46,7 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     }
 
     @Override
-    public ArticleTag getTagByTagName(String TagName) {
-        return articleTagRepository.findArticleTagByName(TagName);
+    public ArticleTag getTagByTagName(String tagName) {
+        return articleTagRepository.findArticleTagByName(tagName);
     }
 }
