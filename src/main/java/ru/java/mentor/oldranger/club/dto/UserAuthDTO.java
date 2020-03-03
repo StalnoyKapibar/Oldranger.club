@@ -14,7 +14,6 @@ public class UserAuthDTO {
     private String email;
     private String nickName;
     private String role;
-    private String password;
     private LocalDateTime currentlyVisit;
     private boolean currentUser;
 
