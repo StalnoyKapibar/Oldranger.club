@@ -53,6 +53,7 @@ class PhotoAlbumRestControllerIT {
         mockMvc.perform(get("/api/albums"))
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     void savePhotoAlbum() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
@@ -67,7 +68,7 @@ class PhotoAlbumRestControllerIT {
     }
 
     @Test
-    void savePhotoAlbumWithEmptyTitle() throws Exception{
+    void savePhotoAlbumWithEmptyTitle() throws Exception {
         mockMvc.perform(post("/api/albums")
                 .param("albumTitle", ""))
                 .andExpect(status().isBadRequest());
@@ -75,7 +76,7 @@ class PhotoAlbumRestControllerIT {
 
     @Test
     @WithAnonymousUser
-    void savePhotoAlbumWithoutAuth() throws Exception{
+    void savePhotoAlbumWithoutAuth() throws Exception {
         mockMvc.perform(post("/api/albums")
                 .param("albumTitle", "Album 4"))
                 .andExpect(status().isBadRequest());
