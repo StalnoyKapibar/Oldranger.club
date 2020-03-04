@@ -51,7 +51,7 @@ public class AdminRestController {
     private RoleService roleService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get UserStatisticDto list", tags = { "Admin" })
+            summary = "Get UserStatisticDto list", tags = {"Admin"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListUserStatisticDTO.class))))})
@@ -89,14 +89,14 @@ public class AdminRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email Draft list", tags = { "Drafts" })
+            summary = "Get Email Draft list", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class)))) })
-    @GetMapping(value = "/getDrafts", produces = { "application/json" })
-    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description="Page")
-                                                          @RequestParam(value = "page", required = false) Integer page,
-                              @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class))))})
+    @GetMapping(value = "/getDrafts", produces = {"application/json"})
+    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description = "Page")
+                                                      @RequestParam(value = "page", required = false) Integer page,
+                                                      @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("lastEditDate").descending());
         }
@@ -105,30 +105,30 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get total pages number", description = "Total pages for email drafts", tags = { "Drafts" })
+            summary = "Get total pages number", description = "Total pages for email drafts", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Map.class))) })
-    @GetMapping(value = "/getTotalPages", produces = { "application/json" })
-    public ResponseEntity<Map<String,Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
+                    content = @Content(schema = @Schema(implementation = Map.class)))})
+    @GetMapping(value = "/getTotalPages", produces = {"application/json"})
+    public ResponseEntity<Map<String, Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
         Integer pages = emailDraftService.getAllDraftsPageable(pageable).getTotalPages();
-        Map<String,Integer> totalPages = new HashMap<>();
+        Map<String, Integer> totalPages = new HashMap<>();
         totalPages.put("totalPages", pages);
         return ResponseEntity.ok(totalPages);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Send mail to all users", tags = { "Direct Mail" })
+            summary = "Send mail to all users", tags = {"Direct Mail"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Mail send",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
-    @PostMapping(value = "/sendMail", produces = { "application/json" })
-    public ResponseEntity<String> sendMail(EmailDraft draft) {
+    @PostMapping(value = "/sendMail", produces = {"application/json"})
+    public ResponseEntity<String> sendMail(@RequestBody EmailDraft draft) {
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
         users.forEach(user -> mailList.add(user.getEmail()));
-        String[] emails = (String[]) mailList.toArray();
+        String[] emails = mailList.toArray(new String[mailList.size()]);
         try {
             mailService.sendHtmlMessage(emails, draft);
         } catch (Exception e) {
@@ -138,11 +138,11 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email draft", description = "Get email draft by id", tags = { "Drafts" })
+            summary = "Get Email draft", description = "Get email draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = EmailDraft.class)))})
-    @GetMapping(value = "/getDraft/{id}", produces = { "application/json" })
+    @GetMapping(value = "/getDraft/{id}", produces = {"application/json"})
     public ResponseEntity<EmailDraft> editDraft(@PathVariable long id) {
         EmailDraft draft = emailDraftService.getById(id);
         return ResponseEntity.ok(draft);
@@ -150,33 +150,33 @@ public class AdminRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete draft", description = "Delete draft by id", tags = { "Drafts" })
+            summary = "Delete draft", description = "Delete draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Deleting error")})
-    @GetMapping(value = "/deleteDraft/{id}", produces = { "application/json" })
+    @DeleteMapping(value = "/deleteDraft/{id}", produces = {"application/json"})
     public ResponseEntity<String> deleteDraft(@PathVariable long id) {
         try {
             emailDraftService.deleteDraft(id);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Save draft", description = "Save draft", tags = { "Drafts" })
+            summary = "Save draft", description = "Save draft", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft saved",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Saving error")})
-    @PostMapping(value = "/saveDraft", produces = { "application/json" })
-    public ResponseEntity<String> saveDraft(EmailDraft draft) {
+    @PostMapping(value = "/saveDraft", produces = {"application/json"})
+    public ResponseEntity<String> saveDraft(@RequestBody EmailDraft draft) {
         draft.setLastEditDate(LocalDateTime.now());
         try {
             emailDraftService.saveDraft(draft);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
