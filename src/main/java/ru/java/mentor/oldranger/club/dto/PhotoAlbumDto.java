@@ -9,7 +9,7 @@ import lombok.Data;
 @Schema(description = "DTO для передачи фото по умолчанию (самая первая фотография по дате загрузки), а так же общего количества фото и",
         requiredProperties = {"albumId", "albumTitle"})
 public class PhotoAlbumDto {
-    private Long photoAlbumId;
+    private Long id;
     private String title;
     private String originalThumbImage;
     private String smallThumbImage;
