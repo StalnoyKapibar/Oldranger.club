@@ -172,7 +172,6 @@ public class UserServiceImpl implements UserService {
                 user.getEmail(),
                 user.getNickName(),
                 user.getRole().getRole(),
-                user.getPassword(),
                 LocalDateTime.now(),
                 currentUser);
     }
@@ -181,7 +180,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long getCount() {
         log.debug("Count users");
-        return  userRepository.count();
+        return userRepository.count();
     }
 
 }

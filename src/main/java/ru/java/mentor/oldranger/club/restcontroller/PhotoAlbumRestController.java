@@ -132,7 +132,7 @@ public class PhotoAlbumRestController {
             album.setThumbImage(photo);
         }
         if (title != null) {
-            if(title.equals("")){
+            if (title.equals("")) {
                 return ResponseEntity.badRequest().build();
             }
             album.setTitle(title);

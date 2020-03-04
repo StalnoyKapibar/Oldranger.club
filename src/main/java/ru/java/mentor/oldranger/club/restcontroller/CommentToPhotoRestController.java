@@ -16,6 +16,7 @@ import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
@@ -27,8 +28,9 @@ import java.time.LocalDateTime;
 @Tag(name = "Comment to photo")
 public class CommentToPhotoRestController {
 
-    private SecurityUtilsService securityUtilsService;
-    private PhotoService photoService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoService photoService;
+    private final FilterHtmlService filterHtmlService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Add comment to photo", description = "Add comment to photo", tags = {"Comment to photo"})
@@ -49,7 +51,7 @@ public class CommentToPhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         LocalDateTime localDateTime = LocalDateTime.now();
-        PhotoComment photoComment = new PhotoComment(photo, currentUser,localDateTime, commentText);
+        PhotoComment photoComment = new PhotoComment(photo, currentUser, localDateTime, filterHtmlService.filterHtml(commentText));
         PhotoAlbum photoAlbum = photo.getAlbum();
         if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
@@ -107,7 +109,7 @@ public class CommentToPhotoRestController {
         if(!securityUtilsService.isAdmin() && !securityUtilsService.isModerator() && allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
-        photoComment.setCommentText(commentText);
+        photoComment.setCommentText(filterHtmlService.filterHtml(commentText));
         photoComment.setDateTime(photoComment.getDateTime());
         photoService.updatePhotoComment(photoComment);
         PhotoCommentDto photoCommentDto = photoService.assembleCommentDto(photoComment);

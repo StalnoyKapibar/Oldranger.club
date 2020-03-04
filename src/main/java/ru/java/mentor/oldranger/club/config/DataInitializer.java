@@ -19,6 +19,7 @@ import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -31,6 +32,7 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
@@ -61,6 +63,7 @@ public class DataInitializer implements CommandLineRunner {
     private ArticleService articleService;
     private MediaService mediaService;
     private PhotoAlbumService albumService;
+    private InvitationService invitationService;
 
     @Autowired
     @Lazy
@@ -82,7 +85,8 @@ public class DataInitializer implements CommandLineRunner {
                            ArticleTagsNodeService articleTagsNodeService,
                            ArticleService articleService,
                            MediaService mediaService,
-                           PhotoAlbumService albumService) {
+                           PhotoAlbumService albumService,
+                           InvitationService invitationService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -99,6 +103,7 @@ public class DataInitializer implements CommandLineRunner {
         this.articleService = articleService;
         this.mediaService = mediaService;
         this.albumService = albumService;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -134,6 +139,76 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(moderator);
         userService.save(user);
         userService.save(unverified);
+
+        // Создаем пользователей, которые зарегистрировались по приглашениям
+        //1.Создаём ползователя, который раздает приглашения
+        User invitingUser = new User("invitingUser", "invitingUser", "invitingUser@javamentor.com", "invitingUser", roleUser);
+        invitingUser.setRegDate(LocalDateTime.of(2020, 2, 20, 11, 10, 35));
+        invitingUser.setPassword(passwordEncoder.encode("invitingUser"));
+        userService.save(invitingUser);
+        //2. Создаем токен приглашения
+        String keyOne = invitationService.generateKey();
+        InvitationToken invitationToken = new InvitationToken(keyOne, invitingUser);
+
+        //3. Создаём приглашённого пользователя по токену
+        //3.1 Создаём 1-го приглашенного юзера
+        User newInviteUserOne = new User();
+        newInviteUserOne.setEmail("inviteOne@javamentor.com");
+        newInviteUserOne.setNickName("inviteOne");
+        newInviteUserOne.setFirstName("inviteOneF");
+        newInviteUserOne.setLastName("inviteOneL");
+        newInviteUserOne.setPassword(passwordEncoder.encode("One"));
+        newInviteUserOne.setRegDate(LocalDateTime.now());
+        newInviteUserOne.setInvite(keyOne);
+        newInviteUserOne.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(newInviteUserOne);
+
+        invitationToken.setVisitor(newInviteUserOne);
+        invitationToken.setMail(newInviteUserOne.getEmail());
+        invitationToken.setUsed(true);
+        invitationService.save(invitationToken);
+
+        //3.2 Создаём 2-го приглашенного юзера
+        String keyTwo = invitationService.generateKey();
+        InvitationToken invitationTokenTwo = new InvitationToken(keyTwo, invitingUser);
+
+        User newInviteUserTwo = new User();
+        newInviteUserTwo.setEmail("inviteTwo@javamentor.com");
+        newInviteUserTwo.setNickName("inviteTwo");
+        newInviteUserTwo.setFirstName("inviteTwoF");
+        newInviteUserTwo.setLastName("inviteTwoL");
+        newInviteUserTwo.setPassword(passwordEncoder.encode("Two"));
+        newInviteUserTwo.setRegDate(LocalDateTime.now());
+        newInviteUserTwo.setInvite(keyTwo);
+        newInviteUserTwo.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(newInviteUserTwo);
+
+        invitationTokenTwo.setVisitor(newInviteUserTwo);
+        invitationTokenTwo.setMail(newInviteUserTwo.getEmail());
+        invitationTokenTwo.setUsed(true);
+        invitationService.save(invitationTokenTwo);
+
+        //4. Создаём приглашённого пользователя по email
+        //4.1. Создаём 1-го приглашённого пользователя по email
+        String emailThree = "inviteOneByEmail@javamentor.com";
+        User inviteUserThreeByEmail = new User();
+        String keyEmailOne = invitationService.generateMD5Key(emailThree);
+        InvitationToken invitationTokenByEmail = new InvitationToken(keyEmailOne, invitingUser, emailThree);
+
+        inviteUserThreeByEmail.setNickName("inviteThreeByEmail");
+        inviteUserThreeByEmail.setEmail(emailThree);
+        inviteUserThreeByEmail.setFirstName("inviteThreeByEmailF");
+        inviteUserThreeByEmail.setLastName("inviteThreeByEmailL");
+        inviteUserThreeByEmail.setPassword(passwordEncoder.encode("ThreeEmail"));
+        inviteUserThreeByEmail.setRegDate(LocalDateTime.now());
+        inviteUserThreeByEmail.setInvite(keyEmailOne);
+        inviteUserThreeByEmail.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(inviteUserThreeByEmail);
+
+        invitationTokenByEmail.setVisitor(inviteUserThreeByEmail);
+        invitationTokenByEmail.setMail(inviteUserThreeByEmail.getEmail());
+        invitationTokenByEmail.setUsed(true);
+        invitationService.save(invitationTokenByEmail);
 
         // Общий чат
         Chat chat = new Chat();

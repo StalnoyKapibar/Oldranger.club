@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.article;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 

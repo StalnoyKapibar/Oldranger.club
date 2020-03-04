@@ -43,7 +43,7 @@ public class Article {
     @Column(name = "comment_count")
     private long commentCount;
 
-    @Column(name = "article_text")
+    @Column(name = "article_text", columnDefinition = "MEDIUMTEXT")
     private String text;
 
     @Column(name = "draft", columnDefinition = "TINYINT")

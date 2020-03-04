@@ -29,4 +29,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
             "select id from photo_album where title = ?1" +
             ") and description = ?2")
     List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description);
+
+    List<Photo> getAllByAlbumId(long albumId);
 }

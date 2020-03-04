@@ -22,12 +22,14 @@ import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor
 @RestController
@@ -35,10 +37,10 @@ import java.util.List;
 @Tag(name = "Photo")
 public class PhotoRestController {
 
-    private PhotoService service;
-    private PhotoAlbumService albumService;
-    private SecurityUtilsService securityUtilsService;
-
+    private final PhotoService service;
+    private final PhotoAlbumService albumService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -58,7 +60,9 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         List<Photo> savedPhotos = new ArrayList<>();
-        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
+        Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(Long.parseLong(albumId));
+        AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+        photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a, atom.incrementAndGet())));
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -70,15 +74,15 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "400", description = "Error id or rights error")})
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
-                                                    @RequestParam(value = "page", required = false) Integer page,
-                                                    @RequestParam(value = "pos", required = false) Integer position,
-                                                    @RequestParam(value = "limit", required = false) Integer limit) {
+                                                        @RequestParam(value = "page", required = false) Integer page,
+                                                        @RequestParam(value = "pos", required = false) Integer position,
+                                                        @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
@@ -92,7 +96,7 @@ public class PhotoRestController {
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
 
-        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable);
+        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
         PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
         return ResponseEntity.ok(photoCommentsDto);
     }
@@ -110,7 +114,7 @@ public class PhotoRestController {
         if (photo == null || newPhoto == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
@@ -133,7 +137,7 @@ public class PhotoRestController {
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();

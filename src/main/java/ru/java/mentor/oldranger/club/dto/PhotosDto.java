@@ -2,13 +2,14 @@ package ru.java.mentor.oldranger.club.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-public class ListUserStatisticDTO {
+public class PhotosDto {
 
-    private List<UserStatisticDto> users;
-    private Long usersCount;
+    private List<Long> positions;
 }
