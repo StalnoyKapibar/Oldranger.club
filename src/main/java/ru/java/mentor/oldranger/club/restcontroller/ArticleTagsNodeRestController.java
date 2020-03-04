@@ -76,7 +76,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Create new node by parentId, position, tagName(if tag == null, then create new tag", tags = {"Article TagsNode"})
+            summary = "Create new node by parentId, position, tagName(if tag == null, then create new tag)", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
@@ -115,7 +115,7 @@ public class ArticleTagsNodeRestController {
         if (tagsNodeForUpdate == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        if (id.equals(parentId)) {
+        if (id == parentId) {
             return ResponseEntity.badRequest().build();
         }
         ArticleTagsNode parentTagsNode = tagsNodeService.findById(parentId);
