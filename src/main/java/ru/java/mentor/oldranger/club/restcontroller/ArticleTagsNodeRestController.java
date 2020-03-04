@@ -115,7 +115,7 @@ public class ArticleTagsNodeRestController {
         if (tagsNodeForUpdate == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        if (id == parentId) {
+        if (id.equals(parentId)) {
             return ResponseEntity.badRequest().build();
         }
         ArticleTagsNode parentTagsNode = tagsNodeService.findById(parentId);
