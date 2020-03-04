@@ -246,8 +246,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         return new PhotoAlbumDto(
                 album.getId(),
                 album.getTitle(),
-                thumbImage != null ? thumbImage.getOriginal() : "thumb_image_placeholder",
-                thumbImage != null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                thumbImage == null ? null : thumbImage.getId(),
                 photosCount
         );
     }
