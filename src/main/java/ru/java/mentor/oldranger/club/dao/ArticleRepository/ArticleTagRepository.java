@@ -8,4 +8,6 @@ import java.util.Set;
 
 public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
     Set<ArticleTag> findByIdIn(List<Long> id);
+
+    ArticleTag findArticleTagByName(String name);
 }
