@@ -19,5 +19,5 @@ public interface ArticleTagService {
 
     Set<ArticleTag> addTagsToSet (List<Long> tags);
 
-    ArticleTag getTagByTagName(String TagName);
+    ArticleTag getTagByTagName(String tagName);
 }

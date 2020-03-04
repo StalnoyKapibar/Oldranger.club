@@ -76,7 +76,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Create new tag in node by parentId, position, tagName", tags = {"Article TagsNode"})
+            summary = "Create new node by parentId, position, tagName(if tag == null, then create new tag", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
@@ -100,7 +100,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Edit tag in node by parentId, tagName, position", tags = {"Article TagsNode"})
+            summary = "Edit node by id, change params parentId, tagName, position, if tag == null, then create new tag", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
@@ -115,7 +115,7 @@ public class ArticleTagsNodeRestController {
         if (tagsNodeForUpdate == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        if (id == parentId) {
+        if (id.equals(parentId)) {
             return ResponseEntity.badRequest().build();
         }
         ArticleTagsNode parentTagsNode = tagsNodeService.findById(parentId);
