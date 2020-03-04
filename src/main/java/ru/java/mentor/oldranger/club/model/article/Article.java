@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.Type;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -44,7 +43,7 @@ public class Article {
     @Column(name = "comment_count")
     private long commentCount;
 
-    @Column(name = "article_text", columnDefinition="MEDIUMTEXT")
+    @Column(name = "article_text", columnDefinition = "MEDIUMTEXT")
     private String text;
 
     @Column(name = "draft", columnDefinition = "TINYINT")

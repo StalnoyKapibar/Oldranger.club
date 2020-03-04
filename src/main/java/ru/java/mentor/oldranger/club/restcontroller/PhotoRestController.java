@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/photos")
@@ -96,9 +95,7 @@ public class PhotoRestController {
         }
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
-        if (position == null) {
-            position = 0;
-        }
+
         Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
         PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
         return ResponseEntity.ok(photoCommentsDto);

@@ -16,17 +16,17 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<java.version>1.8</java.version>
-		<sonar.host.url>http://localhost:9001</sonar.host.url>
-		<!--		<sonar.login></sonar.login>-->
-		<!--		<sonar.password></sonar.password>-->
-		<!--		<sonar.coverage.exclusions>-->
-		<!--			**/entity/**-->
-		<!--		</sonar.coverage.exclusions>-->
-		<!--		<sonar.cpd.exclusions>-->
-		<!--			**/entity/**-->
-		<!--		</sonar.cpd.exclusions>-->
-	</properties>
+        <java.version>1.8</java.version>
+        <sonar.host.url>http://localhost:9001</sonar.host.url>
+        <!--		<sonar.login></sonar.login>-->
+        <!--		<sonar.password></sonar.password>-->
+        <!--		<sonar.coverage.exclusions>-->
+        <!--			**/entity/**-->
+        <!--		</sonar.coverage.exclusions>-->
+        <!--		<sonar.cpd.exclusions>-->
+        <!--			**/entity/**-->
+        <!--		</sonar.cpd.exclusions>-->
+    </properties>
 
 	<dependencies>
         <dependency>

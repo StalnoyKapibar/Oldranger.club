@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,8 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -181,27 +180,13 @@ public class PhotoServiceImpl implements PhotoService {
     public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position) {
         log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(), photo.getId());
         Page<PhotoCommentDto> page = null;
-        List<PhotoComment> list = new ArrayList<>();
         try {
-            photoCommentRepository.findByPhoto(photo,
-                    PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
-                    .map(list::add);
-            List<PhotoCommentDto> dtoList = null;
-            if (list.size() != 0) {
-                dtoList = list.subList(
-                        Math.min(position, list.size() - 1),
-                        Math.min(position + pageable.getPageSize(), list.size()))
-                        .stream().map(this::assembleCommentDto).collect(Collectors.toList());
-            } else {
-                dtoList = Collections.emptyList();
-            }
-            page = new PageImpl<PhotoCommentDto>(dtoList, pageable, dtoList.size());
+            page = photoCommentRepository.findByPhoto(photo, pageable);
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return page;
-
     }
 
     @Override
