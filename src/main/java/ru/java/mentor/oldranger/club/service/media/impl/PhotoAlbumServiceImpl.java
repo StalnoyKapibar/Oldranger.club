@@ -73,12 +73,6 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
                 userName = SecurityContextHolder.getContext().getAuthentication().getName();
                 User user = userService.getUserByNickName(userName);
                 Media media = mediaService.findMediaByUser(user);
-                try {
-                    if (media == null) throw new RuntimeException(
-                            "Media is null for album: " + album.getTitle() + "and userId: " + user.getId());
-                } catch (RuntimeException e) {
-                    log.error(e.getMessage(), e);
-                }
                 album.setMedia(media);
             } else {
                 userName = album.getMedia().getUser().getNickName();
