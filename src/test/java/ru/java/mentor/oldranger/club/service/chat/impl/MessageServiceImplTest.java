@@ -1,21 +1,19 @@
 package ru.java.mentor.oldranger.club.service.chat.impl;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.MessageRepository;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,20 +21,22 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class MessageServiceImplTest {
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    @Autowired
-    private MessageServiceImpl messageService;
-    @MockBean
-    MessageRepository messageRepository;
-    @MockBean
-    PhotoService photoService;
-    @MockBean
-    ChatService chatService;
+@RunWith(MockitoJUnitRunner.class)
+class MessageServiceImplTest {
+
     @Mock
-    private Chat chat;
+    private MessageRepository messageRepository = Mockito.mock(MessageRepository.class);
+    @Mock
+    private PhotoService photoService = Mockito.mock(PhotoService.class);
+    @Mock
+    private ChatService chatService = Mockito.mock(ChatService.class);
+    @Mock
+    private Chat chat = Mockito.mock(Chat.class);
+
+
+    private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService);
 
     private static List<Message> messages = new ArrayList<>(Arrays.asList(
             new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null),
@@ -133,12 +133,14 @@ public class MessageServiceImplTest {
 
         messageService.deleteMessage(id);
 
-        Mockito.verify(photoService, Mockito.times(1)).deletePhotoByName( message.getOriginalImg());
+        Mockito.verify(photoService, Mockito.times(1)).deletePhotoByName(message.getOriginalImg());
         Mockito.verify(messageRepository, Mockito.times(1)).deleteById(id);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void findMessageFail() {
-        messageService.findMessage(null);
+        assertThrows(RuntimeException.class,
+                () -> messageService.findMessage(null),
+                "Did not find message by id -Null");
     }
 }

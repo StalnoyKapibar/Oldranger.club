@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.ArticleTitleAndTextDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -97,20 +98,19 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Article.class))),})
     @PostMapping(value = "/add", produces = {"application/json"})
-    public ResponseEntity<Article> addNewArticle(@RequestParam("title") String title,
-                                                 @RequestParam("text") String text,
+    public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam("tagsId") List<Long> tagsId,
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         } else {
             Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
             if (tagsArt.size() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            Article article = new Article(title, user, tagsArt, LocalDateTime.now(), text, isDraft);
+            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), isDraft);
             articleService.addArticle(article);
             return ResponseEntity.ok(article);
         }
@@ -122,10 +122,9 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Article.class))),
             @ApiResponse(responseCode = "203", description = "You have no rights to edit this article"),
             @ApiResponse(responseCode = "204", description = "Article not found")})
-    @PostMapping(value = "/update/{id}", produces = {"application/json"})
+    @PutMapping(value = "/update/{id}", produces = {"application/json"})
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
-                                                     @RequestParam("title") String title,
-                                                     @RequestParam("text") String text,
+                                                     @RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
                                                      @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                      @RequestParam("isDraft") boolean isDraft) {
@@ -142,8 +141,8 @@ public class ArticleRestController {
             if (!securityUtilsService.isModerator() || !(article.getUser().equals(securityUtilsService.getLoggedUser()) && daysSinceLastEdit < 7)) {
                 ResponseEntity.status(203).build();
             }
-            article.setTitle(title);
-            article.setText(text);
+            article.setTitle(titleAndTextDto.getTitle());
+            article.setText(titleAndTextDto.getText());
             Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
             if (tagsArt.size() == 0) {
                 return ResponseEntity.noContent().build();

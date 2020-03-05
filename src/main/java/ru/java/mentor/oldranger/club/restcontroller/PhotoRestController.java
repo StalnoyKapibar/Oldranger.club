@@ -22,12 +22,14 @@ import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor
 @RestController
@@ -35,10 +37,10 @@ import java.util.List;
 @Tag(name = "Photo")
 public class PhotoRestController {
 
-    private PhotoService service;
-    private PhotoAlbumService albumService;
-    private SecurityUtilsService securityUtilsService;
-
+    private final PhotoService service;
+    private final PhotoAlbumService albumService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -46,19 +48,23 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
+    @PostMapping(value = "/{albumId}")
     public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
         User currentUser = securityUtilsService.getLoggedUser();
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         List<Photo> savedPhotos = new ArrayList<>();
-        photos.forEach(a->savedPhotos.add(service.save(photoAlbum,a)));
+
+        Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(Long.parseLong(albumId));
+        AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+        photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a, atom.incrementAndGet())));
+
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -68,22 +74,23 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoCommentDto.class)))),
             @ApiResponse(responseCode = "400", description = "Error id or rights error")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/{id}")
     public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
-                                                    @RequestParam(value = "page", required = false) Integer page,
-                                                    @RequestParam(value = "pos", required = false) Integer position,
-                                                    @RequestParam(value = "limit", required = false) Integer limit) {
+                                                        @RequestParam(value = "page", required = false) Integer page,
+                                                        @RequestParam(value = "pos", required = false) Integer position,
+                                                        @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
+
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -103,19 +110,20 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
             @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "/{photoId}", method = RequestMethod.PUT)
+    @PutMapping(value = "/{photoId}")
     public ResponseEntity<Photo> updatePhoto(@RequestBody MultipartFile newPhoto, @PathVariable("photoId") String photoId) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.valueOf(photoId));
         if (photo == null || newPhoto == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(service.update(newPhoto, photo));
@@ -126,19 +134,20 @@ public class PhotoRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", description = "Error id or rights error")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity deletePhoto(@PathVariable("id") String id) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if(!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() ||
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0)  {
+
+        if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));

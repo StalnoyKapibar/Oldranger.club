@@ -161,7 +161,7 @@ public class CommentServiceImpl implements CommentService {
                     comment.getTopic().getName(), comment.getId().toString()));
 
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
-            if(user == null) {
+            if (user == null) {
                 commentDto.setUpdatable(false);
             } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
                 commentDto.setUpdatable(true);

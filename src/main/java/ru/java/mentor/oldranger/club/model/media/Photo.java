@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Data
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "photos")
 public class Photo {
     @Id
@@ -28,6 +29,9 @@ public class Photo {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "position")
+    private Long positionPhoto;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
     @Column(name = "upload_photo_date")
     private LocalDateTime uploadPhotoDate;
@@ -43,5 +47,17 @@ public class Photo {
         this.small = small;
     }
 
+    @Override
+    public String toString() {
+        return "Photo{" +
+                "id=" + id +
+                ", original='" + original + '\'' +
+                ", small='" + small + '\'' +
+                ", description='" + description + '\'' +
+                ", uploadPhotoDate=" + uploadPhotoDate +
+                ", album=" + album.getId() +
+                ", commentCount=" + commentCount +
+                '}';
+    }
 
 }

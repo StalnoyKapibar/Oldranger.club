@@ -1,6 +1,11 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -9,13 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
 
@@ -27,9 +28,10 @@ public class ArticleTagsNodeRestController {
 
     private ArticleTagsNodeService tagsNodeService;
     private SecurityUtilsService securityUtilsService;
+    private ArticleTagService articleTagService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get full tree", description = "Get full tree with child", tags = {"Article TagsNode"})
+            summary = "Get all nodes of tags", description = "Get full tree with child", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
@@ -44,7 +46,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get full dto tree", description = "Get full dto tree with child", tags = {"Article TagsNode"})
+            summary = "Get tree of tags dto (menu tree)", description = "Get full dto tree with child", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNodeDto.class)))),
@@ -74,7 +76,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Create new node", tags = {"Article TagsNode"})
+            summary = "Create new node by parentId, position, tagName(if tag == null, then create new tag)", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
@@ -82,10 +84,15 @@ public class ArticleTagsNodeRestController {
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("parentId") Long parentId,
                                                       @RequestParam("position") Integer position,
-                                                      @RequestBody ArticleTag tag) {
-
+                                                      @RequestParam("tagName") String tagName) {
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
+        }
+        ArticleTag tag = articleTagService.getTagByTagName(tagName);
+        if (tag == null) {
+            tag = new ArticleTag();
+            tag.setName(tagName);
+            articleTagService.addTag(tag);
         }
         ArticleTagsNode tagsNode = new ArticleTagsNode(tagsNodeService.findById(parentId), position, tag);
         tagsNodeService.save(tagsNode);
@@ -93,7 +100,7 @@ public class ArticleTagsNodeRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Edit node", tags = {"Article TagsNode"})
+            summary = "Edit node by id, change params parentId, tagName, position, if tag == null, then create new tag", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
@@ -101,19 +108,28 @@ public class ArticleTagsNodeRestController {
     @PutMapping(value = "/update", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> updateNode(@RequestParam("id") Long id,
                                                       @RequestParam("parentId") Long parentId,
-                                                      @RequestParam("tag") ArticleTag tag,
+                                                      @RequestParam("tagName") String tagName,
                                                       @RequestParam("position") Integer pos) {
 
-        ArticleTagsNode tagsNode = tagsNodeService.findById(id);
-        if (tagsNode == null || !securityUtilsService.isAdmin()) {
+        ArticleTagsNode tagsNodeForUpdate = tagsNodeService.findById(id);
+        if (tagsNodeForUpdate == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.badRequest().build();
         }
-        ArticleTagsNode articleTagsNode = tagsNodeService.findById(parentId);
-        tagsNode.setParent(articleTagsNode);
-        tagsNode.setPosition(pos);
-        tagsNode.setTag(tag);
-        tagsNodeService.save(tagsNode);
-        return ResponseEntity.ok(tagsNode);
+        if (id.equals(parentId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        ArticleTagsNode parentTagsNode = tagsNodeService.findById(parentId);
+        tagsNodeForUpdate.setParent(parentTagsNode);
+        tagsNodeForUpdate.setPosition(pos);
+        ArticleTag tag = articleTagService.getTagByTagName(tagName);
+        if (tag == null) {
+            tag = new ArticleTag();
+            tag.setName(tagName);
+            articleTagService.addTag(tag);
+        }
+        tagsNodeForUpdate.setTag(tag);
+        tagsNodeService.save(tagsNodeForUpdate);
+        return ResponseEntity.ok(tagsNodeForUpdate);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -129,6 +145,4 @@ public class ArticleTagsNodeRestController {
         tagsNodeService.deleteById(id);
         return ResponseEntity.ok().build();
     }
-
-
 }

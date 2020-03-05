@@ -1,33 +1,31 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.java.mentor.oldranger.club.dao.BlackListRepository;
+import org.mockito.junit.MockitoJUnitRunner;
 import ru.java.mentor.oldranger.club.dao.UserRepository.InviteRepository;
 import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.service.user.InvitationService;
-import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class InvitationServiceImplTest {
+@RunWith(MockitoJUnitRunner.class)
+class InvitationServiceImplTest {
+    private InvitationServiceImpl invitationService;
 
-    @Autowired
-    private InvitationService invitationService;
+    @Mock
+    private InviteRepository inviteRepository = Mockito.mock(InviteRepository.class);
 
-    @MockBean
-    private InviteRepository inviteRepository;
+    @BeforeEach
+    void initSomeCase() {
+        invitationService = new InvitationServiceImpl(inviteRepository);
+    }
 
     @Test
     public void getCurrentKeyTest() {
@@ -35,7 +33,7 @@ public class InvitationServiceImplTest {
         user.setId(1L);
         List<InvitationToken> tokenList = new ArrayList<>();
         tokenList.add(new InvitationToken(invitationService.generateKey(), user));
-        Mockito.when(inviteRepository.findAllByUserAndUsedAndMail(ArgumentMatchers.eq(user), ArgumentMatchers.anyBoolean(), ArgumentMatchers.isNull())).thenAnswer(a->tokenList);
+        Mockito.when(inviteRepository.findAllByUserAndUsedAndMail(ArgumentMatchers.eq(user), ArgumentMatchers.anyBoolean(), ArgumentMatchers.isNull())).thenAnswer(a -> tokenList);
         Assert.assertEquals(tokenList.get(0).getKey(), invitationService.getCurrentKey(user));
     }
 
@@ -44,7 +42,7 @@ public class InvitationServiceImplTest {
         User user = new User();
         user.setId(1L);
         InvitationToken invitationToken = new InvitationToken(invitationService.generateKey(), user);
-        Mockito.when(inviteRepository.findByKey(ArgumentMatchers.eq(invitationToken.getKey()))).thenAnswer(a->invitationToken);
+        Mockito.when(inviteRepository.findByKey(ArgumentMatchers.eq(invitationToken.getKey()))).thenAnswer(a -> invitationToken);
         Assert.assertEquals(false, invitationService.checkShelfLife(invitationToken));
     }
 
@@ -55,7 +53,7 @@ public class InvitationServiceImplTest {
         user.setEmail("test@mail");
         List<InvitationToken> tokenList = new ArrayList<>();
         tokenList.add(new InvitationToken(invitationService.generateKey(), user));
-        Mockito.when(inviteRepository.findAllByMailAndUsed(ArgumentMatchers.eq(user.getEmail()) , ArgumentMatchers.anyBoolean())).thenAnswer(a->tokenList);
+        Mockito.when(inviteRepository.findAllByMailAndUsed(ArgumentMatchers.eq(user.getEmail()), ArgumentMatchers.anyBoolean())).thenAnswer(a -> tokenList);
         invitationService.markInviteOnMailAsUsed(user.getEmail());
         Assert.assertEquals(tokenList.get(0).getUsed(), true);
     }

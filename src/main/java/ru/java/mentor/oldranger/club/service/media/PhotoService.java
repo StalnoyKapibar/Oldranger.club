@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -11,7 +12,7 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import java.util.List;
 
 public interface PhotoService {
-    Photo save(PhotoAlbum album, MultipartFile file);
+    Photo save(PhotoAlbum album, MultipartFile file, long position);
 
     Photo save(PhotoAlbum album, MultipartFile file, String description);
 
@@ -26,6 +27,8 @@ public interface PhotoService {
     List<Photo> findOldPhoto(PhotoAlbum album);
 
     List<Photo> findPhotoByAlbum(PhotoAlbum album);
+
+    List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album);
 
     PhotoComment getCommentById(Long id);
 
