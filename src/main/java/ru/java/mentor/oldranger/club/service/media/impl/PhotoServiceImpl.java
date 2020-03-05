@@ -18,6 +18,7 @@ import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -59,7 +60,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
-        Photo photo = save(album, file);
+        Photo photo = save(album, file, 0);
         photo.setDescription(description);
         if (album.getThumbImage() == null) {
             album.setThumbImage(photo);
@@ -70,7 +71,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     //clear cache
-    public Photo save(PhotoAlbum album, MultipartFile file) {
+    public Photo save(PhotoAlbum album, MultipartFile file, long position) {
         log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
         try {
@@ -94,6 +95,9 @@ public class PhotoServiceImpl implements PhotoService {
             photo = new Photo(resultFileName + File.separator + fileName,
                     resultFileName + File.separator + SIZE_PHOTO + fileName);
             photo.setAlbum(album);
+
+            photo.setPositionPhoto(position);
+
             photo.setUploadPhotoDate(LocalDateTime.now());
 
             photo = photoRepository.save(photo);
@@ -129,6 +133,20 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     //add caching
+    public List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album) {
+        log.debug("Getting photos of album {}", album);
+        List<PhotoDTO> photos = null;
+        try {
+            photos = photoRepository.findPhotoDTOByAlbum(album);
+            log.debug("Returned list of {} photos", photos.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return photos;
+    }
+
+    @Override
+    //add caching
     public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
         log.debug("Getting photos of album {}", album);
         List<Photo> photos = null;
@@ -155,7 +173,10 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public void addCommentToPhoto(PhotoComment photoComment) {
         Photo photo = photoComment.getPhoto();
-        long comments = photo.getCommentCount();
+        Long comments = photo.getCommentCount();
+        if (comments == null) {
+            comments = 0L;
+        }
         photoComment.setPosition(++comments);
         photo.setCommentCount(comments);
         photoCommentRepository.save(photoComment);
