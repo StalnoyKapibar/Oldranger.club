@@ -120,7 +120,7 @@ public class ChatRestController {
         if (user == null) return ResponseEntity.noContent().build();
         Map<String, String> result = new HashMap<>();
         PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
-        Photo photo = photoService.save(album, file);
+        Photo photo = photoService.save(album, file, 0);
         result.put("originalImg", photo.getOriginal());
         result.put("thumbnailImg", photo.getSmall());
         return ResponseEntity.ok(result);

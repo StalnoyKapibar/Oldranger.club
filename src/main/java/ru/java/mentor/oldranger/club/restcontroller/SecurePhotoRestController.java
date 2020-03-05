@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -21,7 +21,9 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -66,7 +68,7 @@ public class SecurePhotoRestController {
                             CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
                             return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
                                     new File(albumsdDir + File.separator +
-                                            (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                                     (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
                         } catch (NullPointerException | IOException e) {
                             log.error("error in getting image");
                             log.error(e.getMessage());
