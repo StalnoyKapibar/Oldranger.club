@@ -162,7 +162,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoComment getCommentById(Long id) {
-        Optional<PhotoComment> comment =  photoCommentRepository.findById(id);
+        Optional<PhotoComment> comment = photoCommentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
     }
 
@@ -195,7 +195,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position) {
-        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(),photo.getId());
+        log.debug("Getting page {} of comments dto for photo with id = {}", pageable.getPageNumber(), photo.getId());
         Page<PhotoCommentDto> page = null;
         List<PhotoComment> list = new ArrayList<>();
         try {
