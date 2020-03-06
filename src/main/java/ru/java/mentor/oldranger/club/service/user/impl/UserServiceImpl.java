@@ -75,9 +75,11 @@ public class UserServiceImpl implements UserService {
             if (userProfileService.getUserProfileByUser(user) == null) {
                 userProfileService.createUserProfile(new UserProfile(user));
             }
-            Media media = new Media();
-            media.setUser(user);
-            mediaService.save(media);
+            if (mediaService.findMediaByUser(user) == null) {
+                Media media = new Media();
+                media.setUser(user);
+                mediaService.save(media);
+            }
             log.info("User {} saved", savedUser);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

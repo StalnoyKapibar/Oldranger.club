@@ -11,7 +11,6 @@ import lombok.Data;
 public class PhotoAlbumDto {
     private Long photoAlbumId;
     private String title;
-    private String originalThumbImage;
-    private String smallThumbImage;
+    private Long thumbImageId;
     private int photosCounter;
 }
