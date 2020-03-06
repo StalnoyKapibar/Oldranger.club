@@ -43,18 +43,18 @@ public class CommentToPhotoRestController {
     public ResponseEntity<PhotoCommentDto> addNewComment(@RequestParam("idPhoto") Long idPhoto,
                                                          @RequestParam("commentText") String commentText) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         Photo photo = photoService.findById(idPhoto);
-        if(photo == null) {
+        if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
         LocalDateTime localDateTime = LocalDateTime.now();
-        PhotoComment photoComment = new PhotoComment(photo, currentUser,localDateTime, commentText);
+        PhotoComment photoComment = new PhotoComment(photo, currentUser, localDateTime, commentText);
         PhotoAlbum photoAlbum = photo.getAlbum();
-        if(!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0)  {
+        if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
         photoService.addCommentToPhoto(photoComment);
@@ -106,7 +106,7 @@ public class CommentToPhotoRestController {
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {
             return ResponseEntity.badRequest().build();
         }
-        if(!securityUtilsService.isAdmin() && !securityUtilsService.isModerator() && allowedEditingTime) {
+        if (!securityUtilsService.isAdmin() && !securityUtilsService.isModerator() && allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
         photoComment.setCommentText(filterHtmlService.filterHtml(commentText));
