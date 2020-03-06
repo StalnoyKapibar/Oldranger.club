@@ -92,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable() //наверное, временно?
                 .authorizeRequests()
                 .antMatchers("/test/**", "/css/**", "/js/**", "/image/**").permitAll()
-                .antMatchers("/img/**").authenticated()
+                .antMatchers("/img/**").authenticated() //секьюрный endpoint для загрузки аватарок по имени файла
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")
