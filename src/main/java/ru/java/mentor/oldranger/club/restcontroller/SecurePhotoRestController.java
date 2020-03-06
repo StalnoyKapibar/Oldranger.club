@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -21,10 +21,11 @@ import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/securedPhoto")
 @Tag(name = "Secured photos")
 public class SecurePhotoRestController {
+
 
     private final SecurityUtilsService securityUtilsService;
     private final PhotoService photoService;
@@ -56,25 +58,27 @@ public class SecurePhotoRestController {
     public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
                                                 @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser != null) {
-            Photo photo = photoService.findById(photoId);
-            if (photo != null) {
-                Set<User> viewers = photo.getAlbum().getViewers();
-                if (viewers != null) {
-                    if (viewers.contains(currentUser) || viewers.size() == 0) {
-                        try {
-                            CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
-                            return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
-                                    new File(albumsdDir + File.separator +
-                                            (type != null && type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
-                        } catch (NullPointerException | IOException e) {
-                            log.error("error in getting image");
-                            log.error(e.getMessage());
-                        }
-                    }
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Photo photo = photoService.findById(photoId);
+        if (photo != null) {
+            Set<User> viewers = photo.getAlbum().getViewers();
+            if (viewers != null && isCurrentUserOrEmpty(currentUser, viewers)) {
+                try {
+                    return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
+                            new File(albumsdDir + File.separator +
+                                    (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                } catch (NullPointerException | IOException e) {
+                    log.error("error in getting image");
+                    log.error(e.getMessage());
                 }
             }
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    private static boolean isCurrentUserOrEmpty(User currentUser, Set<User> viewers) {
+        return viewers.contains(currentUser) || viewers.isEmpty();
     }
 }

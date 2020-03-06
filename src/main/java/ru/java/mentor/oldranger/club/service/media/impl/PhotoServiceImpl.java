@@ -21,7 +21,6 @@ import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
@@ -45,6 +44,7 @@ public class PhotoServiceImpl implements PhotoService {
     @NonNull
     private UserStatisticService userStatisticService;
 
+    public static final String NAME_SIZE = "small_";
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -84,10 +84,10 @@ public class PhotoServiceImpl implements PhotoService {
 
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + NAME_SIZE + fileName);
 
             photo = new Photo(resultFileName + File.separator + fileName,
-                    resultFileName + File.separator + "small_" + fileName);
+                    resultFileName + File.separator + NAME_SIZE + fileName);
             photo.setAlbum(album);
             photo.setUploadPhotoDate(LocalDateTime.now());
 
@@ -106,7 +106,10 @@ public class PhotoServiceImpl implements PhotoService {
         log.debug("Getting photo with id = {}", id);
         Photo photo = null;
         try {
-            photo = photoRepository.findById(id).get();
+            Optional <Photo> photoFromDB = photoRepository.findById(id);
+            if (photoFromDB.isPresent()){
+                photo = photoFromDB.get();
+            }
             log.debug("Album returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -168,7 +171,7 @@ public class PhotoServiceImpl implements PhotoService {
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
                     .map(list::add);
             List<PhotoCommentDto> dtoList = null;
-            if (list.size() != 0) {
+            if (!list.isEmpty()) {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
@@ -176,7 +179,7 @@ public class PhotoServiceImpl implements PhotoService {
             } else {
                 dtoList = Collections.emptyList();
             }
-            page = new PageImpl<PhotoCommentDto>(dtoList, pageable, dtoList.size());
+            page = new PageImpl<>(dtoList, pageable, dtoList.size());
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -262,12 +265,12 @@ public class PhotoServiceImpl implements PhotoService {
 
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + NAME_SIZE + fileName);
 
             photo.setOriginal(resultFileName + File.separator + fileName);
             photo.setSmall(resultFileName + File.separator + fileName);
             photo.setUploadPhotoDate(LocalDateTime.now());
-            photo = photoRepository.save(photo);
+            photoRepository.save(photo);
             log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
