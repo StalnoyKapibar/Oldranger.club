@@ -38,7 +38,7 @@ public interface PhotoService {
 
     void updatePhotoComment(PhotoComment photoComment);
 
-    Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
+    Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable);
 
     PhotoCommentDto assembleCommentDto(PhotoComment comment);
 

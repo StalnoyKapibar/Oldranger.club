@@ -103,7 +103,7 @@ public class ArticleRestController {
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         } else {
             Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);

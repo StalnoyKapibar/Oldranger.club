@@ -28,7 +28,6 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,10 +37,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Tag(name = "Photo")
 public class PhotoRestController {
 
-private final PhotoService service;
-private final PhotoAlbumService albumService;
-private final SecurityUtilsService securityUtilsService;
-private final PhotoPositionService photoPositionService;
+    private final PhotoService service;
+    private final PhotoAlbumService albumService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -91,7 +90,7 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -99,10 +98,8 @@ private final PhotoPositionService photoPositionService;
         }
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, limit, Sort.by("dateTime"));
-        if (position == null) {
-            position = 0;
-        }
-        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable, position);
+
+        Page<PhotoCommentDto> dtos = service.getPageableCommentDtoByPhoto(photo, pageable);
         PhotoAndCommentsDTO photoCommentsDto = new PhotoAndCommentsDTO(photo, dtos);
         return ResponseEntity.ok(photoCommentsDto);
     }
@@ -126,7 +123,7 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(service.update(newPhoto, photo));
@@ -150,7 +147,7 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
