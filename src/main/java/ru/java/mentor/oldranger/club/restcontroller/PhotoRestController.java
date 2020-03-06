@@ -54,7 +54,7 @@ private final PhotoPositionService photoPositionService;
     public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
         User currentUser = securityUtilsService.getLoggedUser();
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -87,7 +87,7 @@ private final PhotoPositionService photoPositionService;
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
@@ -122,7 +122,7 @@ private final PhotoPositionService photoPositionService;
         if (photo == null || newPhoto == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
@@ -147,7 +147,7 @@ private final PhotoPositionService photoPositionService;
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
