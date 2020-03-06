@@ -58,25 +58,28 @@ public class SecurePhotoRestController {
     public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
                                                 @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser != null) {
-            Photo photo = photoService.findById(photoId);
-            if (photo != null) {
-                Set<User> viewers = photo.getAlbum().getViewers();
-                if (viewers != null) {
-                    if (viewers.contains(currentUser) || viewers.size() == 0) {
-                        try {
-                            CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
-                            return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
-                                    new File(albumsdDir + File.separator +
-                                     (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
-                        } catch (NullPointerException | IOException e) {
-                            log.error("error in getting image");
-                            log.error(e.getMessage());
-                        }
-                    }
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Photo photo = photoService.findById(photoId);
+        if (photo != null) {
+            Set<User> viewers = photo.getAlbum().getViewers();
+            if (viewers != null && isCurrentUserOrEmpty(currentUser, viewers)) {
+                try {
+                    CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
+                    return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
+                            new File(albumsdDir + File.separator +
+                                    (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                } catch (NullPointerException | IOException e) {
+                    log.error("error in getting image");
+                    log.error(e.getMessage());
                 }
             }
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    private static boolean isCurrentUserOrEmpty(User currentUser, Set<User> viewers) {
+        return viewers.contains(currentUser) || viewers.isEmpty();
     }
 }
