@@ -13,11 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
@@ -37,7 +37,6 @@ public class SecurePhotoRestController {
 
     private final SecurityUtilsService securityUtilsService;
     private final PhotoService photoService;
-    private final PhotoAlbumService photoAlbumService;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -64,7 +63,7 @@ public class SecurePhotoRestController {
         Photo photo = photoService.findById(photoId);
         if (photo != null) {
             Set<User> viewers = photo.getAlbum().getViewers();
-            if (viewers != null && isCurrentUserOrEmpty(currentUser, viewers)) {
+            if (viewers.contains(currentUser) || viewers.isEmpty()) {
                 try {
                     CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
                     return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
@@ -77,9 +76,5 @@ public class SecurePhotoRestController {
             }
         }
         return ResponseEntity.badRequest().build();
-    }
-
-    private static boolean isCurrentUserOrEmpty(User currentUser, Set<User> viewers) {
-        return viewers.contains(currentUser) || viewers.isEmpty();
     }
 }
