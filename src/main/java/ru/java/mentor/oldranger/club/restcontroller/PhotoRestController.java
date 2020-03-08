@@ -56,6 +56,7 @@ private final PhotoPositionService photoPositionService;
         if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
+
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -127,6 +128,7 @@ private final PhotoPositionService photoPositionService;
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
             !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(service.update(newPhoto, photo));
@@ -151,6 +153,7 @@ private final PhotoPositionService photoPositionService;
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
             !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));

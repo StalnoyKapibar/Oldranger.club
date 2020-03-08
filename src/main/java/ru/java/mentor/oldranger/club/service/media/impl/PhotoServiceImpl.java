@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
@@ -62,10 +61,12 @@ public class PhotoServiceImpl implements PhotoService {
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file, 0);
         photo.setDescription(description);
+
         if (album.getThumbImage() == null) {
             album.setThumbImage(photo);
             photoAlbumRepository.save(album);
         }
+
         return photoRepository.save(photo);
     }
 
