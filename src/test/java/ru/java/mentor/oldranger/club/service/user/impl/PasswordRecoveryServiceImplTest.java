@@ -76,7 +76,7 @@ class PasswordRecoveryServiceImplTest {
     }
 
     @Test
-    public void sendRecoveryTokenToEmail_01_whenTokenDoesntExist()  {
+    public void sendRecoveryTokenToEmail_01_whenTokenDoesntExist() {
         verifyTokenCreationOrUpdating_and_MailSendingWhenTokenIs(null);
     }
 

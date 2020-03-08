@@ -131,7 +131,7 @@ public class UserProfileController {
         currentUser.setEmail(profile.getUser().getEmail());
         userService.save(currentUser);
         profile.setUser(currentUser);
-        userProfileService.editUserProfile(profile);
+        userProfileService.saveUserProfile(profile);
         return "redirect:/profile";
     }
 

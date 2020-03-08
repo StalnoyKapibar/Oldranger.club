@@ -1,13 +1,11 @@
 package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagRepository;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,5 +43,10 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     @Override
     public Set<ArticleTag> addTagsToSet(List<Long> tagsId) {
         return articleTagRepository.findByIdIn(tagsId);
+    }
+
+    @Override
+    public ArticleTag getTagByTagName(String tagName) {
+        return articleTagRepository.findArticleTagByName(tagName);
     }
 }

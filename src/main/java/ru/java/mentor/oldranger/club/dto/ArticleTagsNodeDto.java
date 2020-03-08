@@ -10,11 +10,13 @@ import lombok.Data;
         "если parantId = -1 (минус единица), то это означает верхний уровнь. " +
         "Порядок вывода элементов  соответствует обходу дерева по веткам , а иерархия (уровень)" +
         " обеспечивается взаимосвязью реквизитов id и parentId.  " +
-        "На БЭКЕНД следует вернуть tagsHierarchy - в случае выбора конкретного тега на дереве. ",
+        "На БЭКЕНД следует вернуть tagsHierarchy - в случае выбора конкретного тега на дереве. " +
+        "position -  отвечает  за сортировку тэгов в перделах  текущего уровня иерархии",
         requiredProperties = {"tag", "tagsHierarchy"})
 public class ArticleTagsNodeDto {
     private Long id;
     private Long parentId;
+    private Integer position;
     private String tag;
     private int[] tagsHierarchy;
 }

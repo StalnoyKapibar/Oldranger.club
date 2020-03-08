@@ -3,8 +3,6 @@ package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
@@ -13,7 +11,6 @@ import ru.java.mentor.oldranger.club.service.utils.SearchService;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j

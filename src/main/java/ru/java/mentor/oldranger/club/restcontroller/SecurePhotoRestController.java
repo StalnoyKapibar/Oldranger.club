@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -33,7 +34,6 @@ import java.util.Set;
 @RequestMapping("/api/securedPhoto")
 @Tag(name = "Secured photos")
 public class SecurePhotoRestController {
-
 
     private final SecurityUtilsService securityUtilsService;
     private final PhotoService photoService;
@@ -66,7 +66,8 @@ public class SecurePhotoRestController {
             Set<User> viewers = photo.getAlbum().getViewers();
             if (viewers != null && isCurrentUserOrEmpty(currentUser, viewers)) {
                 try {
-                    return ResponseEntity.ok(IOUtils.toByteArray(new FileInputStream(
+                    CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
+                    return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
                             new File(albumsdDir + File.separator +
                                     (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
                 } catch (NullPointerException | IOException e) {

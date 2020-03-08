@@ -46,14 +46,14 @@ class TopicServiceImplTest {
     private Pageable pageable = Mockito.mock(Pageable.class);
 
     @BeforeEach
-    void initAlgo(){
+    void initAlgo() {
         topicService = new TopicServiceImpl(topicRepository, userStatisticService, securityUtilsService, topicVisitAndSubscriptionService);
     }
 
     @Test
     public void createTopic() {
         User user = new User("String firstName", "String lastName", "String email", "String nickName", null);
-        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
+        Topic topic = new Topic("String name", user, LocalDateTime.now(), null, null, true, false);
         UserStatistic userStatistic = new UserStatistic(user);
         Mockito.when(userStatisticService.getUserStaticByUser(topic.getTopicStarter())).thenReturn(userStatistic);
         topicService.createTopic(topic);
@@ -77,7 +77,7 @@ class TopicServiceImplTest {
     public void getTopicsDto() {
         User user = new User("String firstName", "String lastName", "String email", "String nickName", new Role("ROLE_USER"));
         user.setId(1L);
-        Topic topic = new Topic("String name", user , LocalDateTime.now(), null, null, true, false);
+        Topic topic = new Topic("String name", user, LocalDateTime.now(), null, null, true, false);
         List<Topic> topics = new ArrayList<>();
         topics.add(topic);
         Mockito.when(securityUtilsService.isLoggedUserIsUser()).thenReturn(true);
