@@ -161,10 +161,10 @@ public class UserProfileRestController {
             return ResponseEntity.noContent().build();
         }
         if (page != null) {
-            pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
+            pageable = PageRequest.of(page - 1, 10, Sort.by("lastMessageTime"));
         }
-        List<Topic> topics = topicVisitAndSubscriptionService.getPagebleSubscribedTopicsForUser(currentUser, pageable).getContent();
-
+        List<Topic> topics = topicVisitAndSubscriptionService.getPagebleSubscribedTopicsForUser(currentUser, pageable)
+                .getContent();
         return ResponseEntity.ok(topics);
     }
 
