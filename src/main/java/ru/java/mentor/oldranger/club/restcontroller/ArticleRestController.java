@@ -110,7 +110,7 @@ public class ArticleRestController {
             if (tagsArt.size() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), isDraft);
+            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), isHideToAnon, isDraft);
             articleService.addArticle(article);
             return ResponseEntity.ok(article);
         }
@@ -148,6 +148,7 @@ public class ArticleRestController {
                 return ResponseEntity.noContent().build();
             }
             article.setArticleTags(tagsArt);
+            article.setHideToAnon(isHideToAnon);
             article.setDraft(isDraft);
             articleService.addArticle(article);
             return ResponseEntity.ok(article);

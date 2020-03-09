@@ -79,8 +79,6 @@ public class ArticleServiceImpl implements ArticleService {
         article.setCommentCount(comments);
         articleCommentRepository.save(articleComment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(articleComment.getUser());
-        comments = userStatistic.getMessageCount();
-        userStatistic.setMessageCount(++comments);
         userStatistic.setLastComment(articleComment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
     }
@@ -103,7 +101,6 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),
-                userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount(),
                 replyTime, replyNick, replyText,
                 articleComment.getCommentText());
 

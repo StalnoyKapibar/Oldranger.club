@@ -17,7 +17,6 @@ public class ArticleCommentDto {
     private Long articleId;
     private User author;
     private LocalDateTime commentDateTime;
-    private Long messageCount;
     private LocalDateTime replyDateTime;
     private String replyNick;
     private String replyText;
