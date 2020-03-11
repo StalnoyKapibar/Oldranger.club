@@ -60,7 +60,7 @@ public class ArticleRestController {
                 Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
                 return ResponseEntity.ok(searchWithoutTag);
             }
-            Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+            Pageable pageable = PageRequest.of(page-1, 10, Sort.by("id"));
             Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
             return ResponseEntity.ok(articles);
         }
