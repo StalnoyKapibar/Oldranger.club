@@ -50,7 +50,7 @@ public class ArticleRestController {
         if (user == null || page == null || tag_id.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("id"));
+            Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
             Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
             return ResponseEntity.ok(articles);
         }
