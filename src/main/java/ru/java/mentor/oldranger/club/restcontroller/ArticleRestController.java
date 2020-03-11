@@ -46,24 +46,31 @@ public class ArticleRestController {
     @GetMapping(value = "/tag", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
                                                                @RequestParam(value = "page", required = false) Integer page) {
-
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null || page == null || tag_id.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            if (page == null) {
-                page = 0;
-            }
-
-            if (tag_id.isEmpty()) {
-                Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
-                Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
-                return ResponseEntity.ok(searchWithoutTag);
-            }
-            Pageable pageable = PageRequest.of(page-1, 10, Sort.by("id"));
+            Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("id"));
             Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
             return ResponseEntity.ok(articles);
         }
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get articles without tags", description = "Get articles without tags", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+    @GetMapping(value = "/withoutTag", produces = {"application/json"})
+    public ResponseEntity<Page<Article>> getAllArticlesByTagId() {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.noContent().build();
+        }
+        int page = 0;
+        Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
+        Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
+        return ResponseEntity.ok(searchWithoutTag);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -76,7 +83,7 @@ public class ArticleRestController {
     public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam(value = "page", required = false) Integer page) {
 
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         } else {
             if (page == null) {
@@ -103,7 +110,7 @@ public class ArticleRestController {
                                                  @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         } else {
             Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
@@ -130,7 +137,7 @@ public class ArticleRestController {
                                                      @RequestParam("isDraft") boolean isDraft) {
 
         User user = securityUtilsService.getLoggedUser();
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.noContent().build();
         } else {
             Article article = articleService.getArticleById(id);
