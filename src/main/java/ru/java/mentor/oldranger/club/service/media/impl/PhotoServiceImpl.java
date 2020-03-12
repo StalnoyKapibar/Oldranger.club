@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
@@ -37,7 +38,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
-
+    @NonNull
+    private PhotoAlbumRepository photoAlbumRepository;
     @NonNull
     private PhotoRepository photoRepository;
     @NonNull
@@ -54,10 +56,18 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("${media.small}")
     private int small;
 
+    private static final String SIZE_PHOTO = "small_";
+
     @Override
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file, 0);
         photo.setDescription(description);
+
+        if (album.getThumbImage() == null) {
+            album.setThumbImage(photo);
+            photoAlbumRepository.save(album);
+        }
+
         return photoRepository.save(photo);
     }
 
@@ -80,13 +90,12 @@ public class PhotoServiceImpl implements PhotoService {
 
             Files.copy(file.getInputStream(), copyLocation);
 
-
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + SIZE_PHOTO + fileName);
 
             photo = new Photo(resultFileName + File.separator + fileName,
-                    resultFileName + File.separator + "small_" + fileName);
+                    resultFileName + File.separator + SIZE_PHOTO + fileName);
             photo.setAlbum(album);
 
             photo.setPositionPhoto(position);
@@ -94,6 +103,11 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setUploadPhotoDate(LocalDateTime.now());
 
             photo = photoRepository.save(photo);
+
+            if (album.getThumbImage() == null) {
+                album.setThumbImage(photo);
+                photoAlbumRepository.save(album);
+            }
 
             log.debug("Photo saved");
         } catch (Exception e) {
@@ -108,7 +122,10 @@ public class PhotoServiceImpl implements PhotoService {
         log.debug("Getting photo with id = {}", id);
         Photo photo = null;
         try {
-            photo = photoRepository.findById(id).get();
+            Optional<Photo> photoInDB = photoRepository.findById(id);
+            if (photoInDB.isPresent()) {
+                photo = photoInDB.get();
+            }
             log.debug("Album returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -187,7 +204,7 @@ public class PhotoServiceImpl implements PhotoService {
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
                     .map(list::add);
             List<PhotoCommentDto> dtoList = null;
-            if (list.size() != 0) {
+            if (!list.isEmpty()) {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
@@ -195,13 +212,12 @@ public class PhotoServiceImpl implements PhotoService {
             } else {
                 dtoList = Collections.emptyList();
             }
-            page = new PageImpl<PhotoCommentDto>(dtoList, pageable, dtoList.size());
+            page = new PageImpl<>(dtoList, pageable, dtoList.size());
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return page;
-
     }
 
     @Override
@@ -245,6 +261,7 @@ public class PhotoServiceImpl implements PhotoService {
         log.info("Deleting photo with id = {}", id);
         try {
             Photo photo = findById(id);
+            PhotoAlbum photoAlbum = photo.getAlbum();
             File file = new File(albumsdDir + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
 
@@ -252,18 +269,27 @@ public class PhotoServiceImpl implements PhotoService {
             FileSystemUtils.deleteRecursively(file);
 
             photoRepository.delete(photo);
+
+            if (photoAlbum.getThumbImage().getId().equals(photo.getId())) {
+                List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
+                if (!photoList.isEmpty()) {
+                    photoAlbum.setThumbImage(photoList.get(0));
+                } else {
+                    photoAlbum.setThumbImage(null);
+                }
+                photoAlbumRepository.save(photoAlbum);
+            }
+
             log.debug("Photo deleted");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     @Override
     //clear cache
     public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
-        Photo updatedPhoto = null;
         try {
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
             String pathToImg = userName + File.separator + "photo_albums" + File.separator + photo.getAlbum().getId() + File.separator;
@@ -281,17 +307,18 @@ public class PhotoServiceImpl implements PhotoService {
 
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + SIZE_PHOTO + fileName);
 
             photo.setOriginal(resultFileName + File.separator + fileName);
             photo.setSmall(resultFileName + File.separator + fileName);
             photo.setUploadPhotoDate(LocalDateTime.now());
-            photo = photoRepository.save(photo);
+            photoRepository.save(photo);
+
             log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return updatedPhoto;
+        return photo;
     }
 
     @Override

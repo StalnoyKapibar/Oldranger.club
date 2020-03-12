@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class PasswordRecoveryIntervalViolation extends Exception {
-    private LocalDateTime nextPossibleRecoveryTime;
+    private final LocalDateTime nextPossibleRecoveryTime;
 
     public PasswordRecoveryIntervalViolation(LocalDateTime nextPossibleRecoveryTime) {
         this.nextPossibleRecoveryTime = nextPossibleRecoveryTime;
