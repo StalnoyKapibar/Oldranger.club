@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.service.cach.CacheService;
+import ru.java.mentor.oldranger.club.service.cache.CacheService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 @AllArgsConstructor
 @RestController
