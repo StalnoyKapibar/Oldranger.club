@@ -98,7 +98,6 @@ public class UserServiceImpl implements UserService {
         user.setNickName(updateProfileDto.getNickName());
         user.setFirstName(updateProfileDto.getFirstName());
         user.setLastName(updateProfileDto.getLastName());
-        user.setEmail(updateProfileDto.getEmail());
 
         User savedUser = null;
         try {

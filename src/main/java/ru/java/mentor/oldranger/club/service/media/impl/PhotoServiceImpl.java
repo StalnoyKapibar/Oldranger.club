@@ -68,10 +68,12 @@ public class PhotoServiceImpl implements PhotoService {
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file, 0);
         photo.setDescription(description);
+
         if (album.getThumbImage() == null) {
             album.setThumbImage(photo);
             photoAlbumRepository.save(album);
         }
+
         return photoRepository.save(photo);
     }
 
@@ -370,4 +372,5 @@ public class PhotoServiceImpl implements PhotoService {
                 new File(albumsDir + File.separator +
                         (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall()))));
     }
+
 }
