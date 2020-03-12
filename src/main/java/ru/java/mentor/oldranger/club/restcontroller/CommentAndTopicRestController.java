@@ -219,7 +219,7 @@ public class CommentAndTopicRestController {
         }
 
         if (image2 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
                     , comment.getId().toString());
         }
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
