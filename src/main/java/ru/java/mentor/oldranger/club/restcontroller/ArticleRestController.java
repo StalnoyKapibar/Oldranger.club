@@ -100,7 +100,6 @@ public class ArticleRestController {
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         if(user == null) {
@@ -126,7 +125,6 @@ public class ArticleRestController {
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
-                                                     @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                      @RequestParam("isDraft") boolean isDraft) {
 
         User user = securityUtilsService.getLoggedUser();

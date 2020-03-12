@@ -45,7 +45,7 @@ class ArticleServiceImplTest {
         User user = new User();
         UserStatistic userStatistic = new UserStatistic(user);
         userStatistic.setMessageCount(1L);
-        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text",false, true);
+        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text",true, true);
         article.setCommentCount(1L);
         ArticleComment articleComment = new ArticleComment(article, user, null, LocalDateTime.now(), "comment text");
         Mockito.when(userStatisticService.getUserStaticByUser(articleComment.getUser())).thenReturn(userStatistic);
@@ -62,7 +62,7 @@ class ArticleServiceImplTest {
         UserStatistic userStatistic = new UserStatistic(user);
         userStatistic.setMessageCount(1L);
         ArticleComment answerTo = new ArticleComment(null, user, null, LocalDateTime.now(), "comment text");
-        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", false, true);
+        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true, true);
         ArticleComment articleComment = new ArticleComment(article, user, answerTo, LocalDateTime.now(), "comment text");
         articleComment.setPosition(3L);
         article.setId(3L);
@@ -77,7 +77,7 @@ class ArticleServiceImplTest {
 
     @Test
     public void getAllByArticle() {
-        Article article = new Article("String title", null, null, LocalDateTime.now(), "String text", false, true);
+        Article article = new Article("String title", null, null, LocalDateTime.now(), "String text", true, true);
         article.setId(1L);
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());

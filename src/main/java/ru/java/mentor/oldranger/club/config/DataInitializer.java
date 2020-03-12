@@ -366,7 +366,7 @@ public class DataInitializer implements CommandLineRunner {
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
             articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!",false, false));
+                    "Text news!",true, false));
         }
 
         ArticleTagsNode articleTagsNode1 = new ArticleTagsNode(1L, null, 2, newsTag2);
