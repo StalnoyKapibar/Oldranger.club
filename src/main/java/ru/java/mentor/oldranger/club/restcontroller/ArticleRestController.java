@@ -107,7 +107,6 @@ public class ArticleRestController {
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
@@ -117,7 +116,7 @@ public class ArticleRestController {
             if (tagsArt.size() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), isDraft);
+            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), true, isDraft);
             articleService.addArticle(article);
             return ResponseEntity.ok(article);
         }
@@ -133,7 +132,6 @@ public class ArticleRestController {
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                      @RequestParam(value = "tagsId") List<Long> tagsId,
-                                                     @RequestParam("isHideToAnon") boolean isHideToAnon,
                                                      @RequestParam("isDraft") boolean isDraft) {
 
         User user = securityUtilsService.getLoggedUser();
@@ -155,6 +153,7 @@ public class ArticleRestController {
                 return ResponseEntity.noContent().build();
             }
             article.setArticleTags(tagsArt);
+            article.setHideToAnon(true);
             article.setDraft(isDraft);
             articleService.addArticle(article);
             return ResponseEntity.ok(article);

@@ -216,7 +216,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"}, key = "#user")
     public Page<Topic> findAllTopicsStartedByUser(User user, Pageable pageable) {
         log.debug("Getting page {} of topics started by user with id = {}", pageable.getPageNumber(), user.getId());
         Page<Topic> page = null;
