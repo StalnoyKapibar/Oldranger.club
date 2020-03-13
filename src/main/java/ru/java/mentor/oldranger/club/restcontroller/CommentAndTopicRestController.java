@@ -119,38 +119,46 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "400",
                     description = "Error adding comment")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageCommentEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
-        Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
-        Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
-        User user = userService.findById(messageComentsEntity.getIdUser());
-        LocalDateTime localDateTime = LocalDateTime.now();
-        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
-        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-        if (messageComentsEntity.getAnswerID() != null) {
-            Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
-        } else {
-            comment = new Comment(topic, user, null, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
         }
 
+        String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
+        if(commentService.isEmptyComment(cleanedText)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Topic topic = topicService.findById(messageCommentEntity.getIdTopic());
+        User user = userService.findById(messageCommentEntity.getIdUser());
+        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
+        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId()) || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
 
+        Comment comment;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (messageCommentEntity.getAnswerID() != null) {
+            Comment answer = commentService.getCommentById(messageCommentEntity.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, cleanedText);
+        } else {
+            comment = new Comment(topic, user, null, localDateTime, cleanedText);
+        }
         commentService.createComment(comment);
 
         if (image1 != null) {
             photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
                     , comment.getId().toString());
         }
-
         if (image2 != null) {
             photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
                     , comment.getId().toString());
         }
+
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);
     }
