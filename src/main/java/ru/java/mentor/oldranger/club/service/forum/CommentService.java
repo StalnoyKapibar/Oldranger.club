@@ -31,4 +31,6 @@ public interface CommentService {
     Comment getCommentById(Long id);
 
     void updatePostion(Long topicID, Long deletedPosition);
+
+    boolean isEmptyComment(String comment);
 }
