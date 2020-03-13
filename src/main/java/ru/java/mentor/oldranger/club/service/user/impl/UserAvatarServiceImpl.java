@@ -131,7 +131,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     public void updateUserAvatar(User user, MultipartFile file) {
         log.info("Updating user {} avatar", user);
-        deleteUserAvatar(user);
+        //deleteUserAvatar(user);
         setAvatarToUser(user, file);
         log.info("Avatar updated");
     }
