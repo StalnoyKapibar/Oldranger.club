@@ -38,9 +38,6 @@ public class SecurePhotoRestController {
     private final SecurityUtilsService securityUtilsService;
     private final PhotoService photoService;
 
-    @Value("${photoalbums.location}")
-    private String albumsdDir;
-
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Return photo as byte array from album", tags = {"Topic and comments"})
     @Parameter(in = ParameterIn.QUERY, name = "type",
@@ -57,6 +54,7 @@ public class SecurePhotoRestController {
     public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
                                                 @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
+
         if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -65,10 +63,7 @@ public class SecurePhotoRestController {
             Set<User> viewers = photo.getAlbum().getViewers();
             if (viewers.contains(currentUser) || viewers.isEmpty()) {
                 try {
-                    CacheControl cache = CacheControl.maxAge(7, TimeUnit.DAYS);
-                    return ResponseEntity.ok().cacheControl(cache).body(IOUtils.toByteArray(new FileInputStream(
-                            new File(albumsdDir + File.separator +
-                                    (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall())))));
+                    return ResponseEntity.ok(photoService.getPhotoAsByteArray(photo,type));
                 } catch (NullPointerException | IOException e) {
                     log.error("error in getting image");
                     log.error(e.getMessage());

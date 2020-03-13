@@ -13,7 +13,7 @@ public interface ArticleTagsNodeService {
 
     ArticleTagsNode findById(Long id);
 
-    void save(ArticleTagsNode tagsNode);
+    ArticleTagsNode save(ArticleTagsNode tagsNode);
 
     void deleteById(Long id);
 

@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-@CacheConfig(cacheNames = {"article"})
+@CacheConfig(cacheNames = {"article"}, cacheManager = "generalCacheManager")
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
@@ -38,13 +38,11 @@ public class ArticleServiceImpl implements ArticleService {
     private UserStatisticService userStatisticService;
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
     }
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
         return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
     }
@@ -66,17 +64,19 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "alllArticle", allEntries = true)})
-    public void addArticle(Article article) {
-        articleRepository.save(article);
+    @CachePut(key = "#article.id", condition = "#article.id!=null")
+    public Article addArticle(Article article) {
+        return articleRepository.save(article);
     }
 
     @Override
+    @CacheEvict(key = "#articleComment.article.id")
     public void addCommentToArticle(ArticleComment articleComment) {
         Article article = articleComment.getArticle();
         long comments = article.getCommentCount();
         articleComment.setPosition(++comments);
         article.setCommentCount(comments);
+        articleRepository.save(article);
         articleCommentRepository.save(articleComment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(articleComment.getUser());
         userStatistic.setLastComment(articleComment.getDateTime());
@@ -108,17 +108,20 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Cacheable(value = "articleComment")
     public ArticleComment getCommentById(Long id) {
         Optional<ArticleComment> comment = articleCommentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
     }
 
     @Override
-    public void updateArticleComment(ArticleComment articleComment) {
-        articleCommentRepository.save(articleComment);
+    @CachePut(value = "articleComment", key = "#articleComment.id")
+    public ArticleComment updateArticleComment(ArticleComment articleComment) {
+        return articleCommentRepository.save(articleComment);
     }
 
     @Override
+    @CacheEvict(value = "articleComment")
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
     }
@@ -146,14 +149,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
+    @CacheEvict
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
+    @CacheEvict(allEntries = true)
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
     }
