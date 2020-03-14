@@ -254,7 +254,7 @@ public class CommentAndTopicRestController {
         return ResponseEntity.ok(commentDto);
     }
 
-   /* public CommentDto deletePhoto(List<Photo> photos, MultipartFile image1, MultipartFile image2, CommentDto commentDto) {
+    public CommentDto deletePhoto(List<Photo> photos, MultipartFile image1, MultipartFile image2, CommentDto commentDto) {
         if (photos.size() == 1) {
             if (image1 == null || image2 == null) {
                 long id = photos.get(0).getId();
@@ -290,5 +290,5 @@ public class CommentAndTopicRestController {
         }
         return commentDto;
     }
-*/
+
 }
