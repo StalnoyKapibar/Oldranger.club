@@ -289,7 +289,8 @@ public class PhotoServiceImpl implements PhotoService {
     @Caching(evict = {
             @CacheEvict,
             @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'original'"),
-            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'")})
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager")})
     public void deletePhoto(Long id) {
         log.info("Deleting photo with id = {}", id);
         try {
@@ -326,7 +327,8 @@ public class PhotoServiceImpl implements PhotoService {
             },
             evict = {
                     @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+'original'"),
-                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+'small'")})
+                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+'small'"),
+                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id")})
     public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
         try {
@@ -366,7 +368,9 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+#type")
+    @Caching(cacheable = {
+            @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+#type", condition = "#type!=null"),
+            @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id", condition = "#type==null")})
     public byte[] getPhotoAsByteArray(Photo photo, String type) throws IOException {
         return IOUtils.toByteArray(new FileInputStream(
                 new File(albumsDir + File.separator +
