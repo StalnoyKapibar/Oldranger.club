@@ -128,7 +128,7 @@ public class CommentAndTopicRestController {
         }
 
         String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
-        if(commentService.isEmptyComment(cleanedText)){
+        if (commentService.isEmptyComment(cleanedText)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -163,7 +163,7 @@ public class CommentAndTopicRestController {
         return ResponseEntity.ok(commentDto);
     }
 
-    //TODO Надо ли удалять Photo если оно есть в коментарии?
+    //TODO Надо ли удалять Photo если оно есть в коментарии
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete comment from topic", description = "Delete comment by id", tags = {"Topic and comments"})
     @ApiResponses(value = {
@@ -195,6 +195,7 @@ public class CommentAndTopicRestController {
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
+                                                    @RequestParam List<Long> oldPhotoId,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
@@ -202,7 +203,9 @@ public class CommentAndTopicRestController {
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
-        List<ImageComment> images = new ArrayList<>();
+
+        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
+
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
@@ -225,26 +228,37 @@ public class CommentAndTopicRestController {
         commentService.updateComment(comment);
 
         if (image1 != null) {
+            String description = "";
             photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
-                    , comment.getId().toString());
+                    , description);
         }
         if (image2 != null) {
+            String description = "";
             photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
-                    , comment.getId().toString());
+                    , description);
         }
-        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
+
         List<Photo> photos = commentDto.getPhotos();
-        if (!photos.isEmpty()){
-            commentDto = deletePhoto(photos, image1, image2, commentDto);
+
+        Long id = oldPhotoId.get(0);
+        if (id == null && !photos.isEmpty()) {
+                Long idOldPhoto = photos.get(0).getId();
+                photoService.deletePhoto(idOldPhoto);
         }
+        Long id1 = oldPhotoId.get(1);
+        if (id1 == null && !photos.isEmpty()) {
+            Long idOldPhoto = photos.get(1).getId();
+            photoService.deletePhoto(idOldPhoto);
+        }
+
         return ResponseEntity.ok(commentDto);
     }
 
-    public CommentDto deletePhoto(List<Photo> photos, MultipartFile image1, MultipartFile image2,  CommentDto commentDto){
+   /* public CommentDto deletePhoto(List<Photo> photos, MultipartFile image1, MultipartFile image2, CommentDto commentDto) {
         if (photos.size() == 1) {
             if (image1 == null || image2 == null) {
                 long id = photos.get(0).getId();
-               photos.clear();
+                photos.clear();
                 commentDto.setPhotos(photos);
                 photoService.deletePhoto(id);
             }
@@ -276,5 +290,5 @@ public class CommentAndTopicRestController {
         }
         return commentDto;
     }
-
+*/
 }
