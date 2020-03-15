@@ -195,7 +195,7 @@ public class CommentAndTopicRestController {
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
-                                                    @RequestParam List<Long> oldPhotoId,
+                                                    @RequestParam String photoIdList,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
@@ -203,8 +203,6 @@ public class CommentAndTopicRestController {
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
-
-        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
 
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
@@ -227,68 +225,69 @@ public class CommentAndTopicRestController {
         }
         commentService.updateComment(comment);
 
+        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
+        List<Photo> photos = commentDto.getPhotos();
+
+        String parsing = photoIdList.replaceAll("[^0-9]", "");
+        String[] parse = parsing.split("");
+
+        commentDto = deletePhoto(parse, photos, commentDto);
+
         if (image1 != null) {
             String description = "";
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+            Photo newPhoto1 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
                     , description);
+            photos.add(newPhoto1);
+            commentDto.setPhotos(photos);
         }
         if (image2 != null) {
             String description = "";
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
+            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
                     , description);
+            photos.add(newPhoto2);
+            commentDto.setPhotos(photos);
         }
-
-        List<Photo> photos = commentDto.getPhotos();
-
-        Long id = oldPhotoId.get(0);
-        if (id == null && !photos.isEmpty()) {
-                Long idOldPhoto = photos.get(0).getId();
-                photoService.deletePhoto(idOldPhoto);
-        }
-        Long id1 = oldPhotoId.get(1);
-        if (id1 == null && !photos.isEmpty()) {
-            Long idOldPhoto = photos.get(1).getId();
-            photoService.deletePhoto(idOldPhoto);
-        }
-
         return ResponseEntity.ok(commentDto);
     }
 
-    public CommentDto deletePhoto(List<Photo> photos, MultipartFile image1, MultipartFile image2, CommentDto commentDto) {
-        if (photos.size() == 1) {
-            if (image1 == null || image2 == null) {
-                long id = photos.get(0).getId();
+    public CommentDto deletePhoto(String[] parse, List<Photo> photos, CommentDto commentDto) {
+        if (!parse[0].equals("")) {
+            if (parse.length == 1) {
+                Long oldId = Long.parseLong(parse[0]);
+                for (Photo photo : photos) {
+                    if (!oldId.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                }
                 photos.clear();
-                commentDto.setPhotos(photos);
-                photoService.deletePhoto(id);
-            }
-        }
-        if (photos.size() == 2) {
-            long id = photos.get(0).getId();
-            long id1 = photos.get(1).getId();
-            if (image1 == null && image2 == null) {
-                photoService.deletePhoto(id);
-                photoService.deletePhoto(id1);
-                photos.clear();
+                photos.add(photoService.findById(oldId));
                 commentDto.setPhotos(photos);
             }
-            if (image1 == null && image2 != null) {
-                photoService.deletePhoto(id1);
-                Photo photoCopy = photos.get(1);
+            if (parse.length == 2) {
+                Long oldId = Long.parseLong(parse[0]);
+                Long oldId1 = Long.parseLong(parse[1]);
+                for (Photo photo : photos) {
+                    if (!oldId.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                    if (!oldId1.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                }
                 photos.clear();
-                photos.add(photoCopy);
-                commentDto.setPhotos(photos);
-
-            }
-            if (image2 == null && image1 != null) {
-                photoService.deletePhoto(id);
-                Photo photoCopy = photos.get(0);
-                photos.clear();
-                photos.add(photoCopy);
+                photos.add(photoService.findById(oldId));
+                photos.add(photoService.findById(oldId1));
                 commentDto.setPhotos(photos);
             }
+        } else {
+            if (!photos.isEmpty()) {
+                for (Photo photo : photos) {
+                    photoService.deletePhoto(photo.getId());
+                }
+            }
+            photos.clear();
+            commentDto.setPhotos(photos);
         }
         return commentDto;
     }
-
 }
