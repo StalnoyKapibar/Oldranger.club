@@ -24,6 +24,7 @@ import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
@@ -231,26 +232,26 @@ public class CommentAndTopicRestController {
         String parsing = photoIdList.replaceAll("[^0-9]", "");
         String[] parse = parsing.split("");
 
-        commentDto = deletePhoto(parse, photos, commentDto);
+        if (!photos.isEmpty()) {
+            commentDto = deletePhotoFromDto(parse, photos, commentDto);
+        }
 
         if (image1 != null) {
-            String description = "";
-            Photo newPhoto1 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
-                    , description);
+            PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
+            Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
             photos.add(newPhoto1);
             commentDto.setPhotos(photos);
         }
         if (image2 != null) {
-            String description = "";
             Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
-                    , description);
+                    , comment.getId().toString());
             photos.add(newPhoto2);
             commentDto.setPhotos(photos);
         }
         return ResponseEntity.ok(commentDto);
     }
 
-    public CommentDto deletePhoto(String[] parse, List<Photo> photos, CommentDto commentDto) {
+    public CommentDto deletePhotoFromDto(String[] parse, List<Photo> photos, CommentDto commentDto) {
         if (!parse[0].equals("")) {
             if (parse.length == 1) {
                 Long oldId = Long.parseLong(parse[0]);
