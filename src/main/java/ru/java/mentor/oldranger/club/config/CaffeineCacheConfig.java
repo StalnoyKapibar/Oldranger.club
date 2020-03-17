@@ -33,7 +33,7 @@ public class CaffeineCacheConfig {
                 "allTagNode",
                 "topic",
                 "allTopic"
-                );
+        );
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;
     }
