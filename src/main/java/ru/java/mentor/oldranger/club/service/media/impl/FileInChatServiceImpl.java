@@ -47,7 +47,7 @@ public class FileInChatServiceImpl implements FileInChatService {
             Path copyLocation = Paths.get(filesDir + File.separator + resultFileName);
             Files.copy(file.getInputStream(), copyLocation);
             log.info("file saved");
-            savedFile.setFileName(fileName);
+            savedFile.setFileName(file.getOriginalFilename());
             savedFile.setFilePath(resultFileName);
             savedFile.setChatID(chatId);
             fileInChatRepository.save(savedFile);
