@@ -103,7 +103,6 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getDateTime(),
                 replyTime, replyNick, replyText,
                 articleComment.getCommentText());
-
         return articleCommentDto;
     }
 

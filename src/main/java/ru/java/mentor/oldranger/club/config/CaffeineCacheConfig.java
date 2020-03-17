@@ -37,6 +37,7 @@ public class CaffeineCacheConfig {
     @Value("${LIVE_TIME}")
     private long LIVE_TIME;
 
+
     @Bean("generalCacheManager")
     @Primary
     public CacheManager generalCacheManager() {

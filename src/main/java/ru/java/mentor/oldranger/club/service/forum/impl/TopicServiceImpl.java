@@ -142,7 +142,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<Topic> getActualTopicsLimit10BySection() {
-        log.debug("Getting actual topics with limit = 10");
+        log.debug("Getting actual of topics with limit = 10");
         System.out.println("get 10");
         List<Topic> topics = null;
         try {
