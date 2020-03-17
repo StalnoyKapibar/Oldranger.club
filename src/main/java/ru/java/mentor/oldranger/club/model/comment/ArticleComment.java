@@ -27,6 +27,9 @@ public class ArticleComment extends BaseComment {
     @JoinColumn(name = "id_answer_comment")
     private ArticleComment answerTo;
 
+    @Column(name = "isDeleted", columnDefinition = "TINYINT")
+    private boolean isDeleted;
+
     public ArticleComment(Article article, User user, ArticleComment answerTo, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);
         this.article = article;

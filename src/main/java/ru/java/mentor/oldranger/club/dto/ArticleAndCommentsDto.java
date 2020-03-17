@@ -6,11 +6,13 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import ru.java.mentor.oldranger.club.model.article.Article;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArticleAndCommentsDto {
 
     private Article article;
-    private Page<ArticleCommentDto> articleCommentDto;
+    private List<ArticleCommentDto> articleCommentDto;
 }

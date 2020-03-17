@@ -72,7 +72,7 @@ class ArticleServiceImplTest {
         Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());
         Assert.assertEquals(articleComment.getArticle().getId(), articleCommentDto.getArticleId());
-        Assert.assertEquals(articleComment.getPosition(), articleCommentDto.getPositionInArticle());
+        Assert.assertEquals(articleComment.getPosition(), articleCommentDto.getPosition());
     }
 
     @Test
