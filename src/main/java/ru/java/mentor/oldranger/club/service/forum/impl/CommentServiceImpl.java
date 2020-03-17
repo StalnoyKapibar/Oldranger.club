@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -227,5 +228,10 @@ public class CommentServiceImpl implements CommentService {
             a.setPosition(a.getPosition() - 1);
             commentRepository.save(a);
         });
+    }
+
+    @Override
+    public boolean isEmptyComment(String comment) {
+        return StringUtils.isBlank(comment.replaceAll("<.+?>",""));
     }
 }

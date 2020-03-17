@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
@@ -19,12 +19,11 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 @Transactional
-@CacheConfig(cacheNames = {"tagNode"})
+@CacheConfig(cacheNames = {"tagNode"}, cacheManager = "generalCacheManager")
 public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     private ArticleTagsNodeRepository tagsNodeRepository;
 
     @Override
-    @Cacheable(cacheNames = {"allTagNode"})
     public List<ArticleTagsNode> findAll() {
         log.info("Getting list of all nodes");
         List<ArticleTagsNode> tagsNodes = null;
@@ -38,7 +37,6 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTagNodeHierarchy"}, keyGenerator = "customKeyGenerator")
     public List<ArticleTagsNodeDto> findHierarchyTreeOfAllTagsNodes() {
         log.info("Getting list of all nodes DTO");
         List<ArticleTagsNodeDto> tagsNodeDto = null;
@@ -66,24 +64,21 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "tagNode", allEntries = true),
-            @CacheEvict(value = "allTagNode", allEntries = true)
-            })
-    public void save(ArticleTagsNode tagsNode) {
+    @CachePut(key = "#tagsNode.id")
+    public ArticleTagsNode save(ArticleTagsNode tagsNode) {
         log.info("Saving node {} or editing node by id = {}", tagsNode, tagsNode.getId());
+        ArticleTagsNode savedTagsNode = null;
         try {
-            tagsNodeRepository.save(tagsNode);
+            savedTagsNode = tagsNodeRepository.save(tagsNode);
             log.debug("Node with id = {} saved or updated", tagsNode.getId());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedTagsNode;
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "tagNode", allEntries = true),
-            @CacheEvict(value = "allTagNode", allEntries = true)})
+    @CacheEvict
     public void deleteById(Long id) {
         log.info("Deleting node with id = {}", id);
         try {
