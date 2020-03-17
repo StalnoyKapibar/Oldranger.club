@@ -162,8 +162,6 @@ public class UserProfileRestController {
         }
         if (page == null) {
             page = 0;
-        } else {
-            page = page - 1;
         }
         pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
 
