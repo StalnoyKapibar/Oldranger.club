@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -77,6 +78,7 @@ public class CommentServiceImpl implements CommentService {
     public void updateComment(Comment comment) {
         log.info("Updating comment with id = {}", comment.getId());
         try {
+            comment.setUpdateTime(LocalDateTime.now());
             commentRepository.save(comment);
             log.info("Comment {} updated", comment.getId());
         } catch (Exception e) {
@@ -153,6 +155,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setTopicId(comment.getTopic().getId());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());
+            commentDto.setCommentUpdateTime(comment.getUpdateTime());
             commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
             commentDto.setReplyDateTime(replyTime);
             commentDto.setReplyNick(replyNick);
