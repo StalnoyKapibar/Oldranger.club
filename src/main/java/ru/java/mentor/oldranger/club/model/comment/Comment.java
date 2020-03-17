@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.model.comment;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -41,6 +43,7 @@ public class Comment extends BaseComment{
                 ", user=" + getUser() +
                 ", answerTo=" + ((answerTo == null) ? "NULL" : answerTo) +
                 ", dateTime=" + this.getDateTime() +
+                ", dateEdit=" + this.getDateEdit() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +
                 '}';

@@ -24,6 +24,9 @@ public abstract class BaseComment {
     @Column(columnDefinition = "DATETIME", name = "date_comment")
     private LocalDateTime dateTime;
 
+    @Column(columnDefinition = "DATETIME", name = "date_edit_comment")
+    private LocalDateTime dateEdit;
+
     @Column(name = "position")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long position;
@@ -53,6 +56,10 @@ public abstract class BaseComment {
         return dateTime;
     }
 
+    public LocalDateTime getDateEdit(){
+        return dateEdit;
+    }
+
     public String getCommentText() {
         return commentText;
     }
@@ -69,6 +76,8 @@ public abstract class BaseComment {
     public void setDateTime(LocalDateTime localDateTime) {
         this.dateTime = localDateTime;
     }
+
+    public void setDateEdit(LocalDateTime localDateEdit) {this.dateEdit = localDateEdit;}
 
     public void setCommentText(String commentText) {
         this.commentText = commentText;

@@ -22,7 +22,6 @@ import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
@@ -207,7 +206,7 @@ public class CommentAndTopicRestController {
         } else {
             comment.setAnswerTo(null);
         }
-        comment.setDateTime(comment.getDateTime());
+        comment.setDateEdit(LocalDateTime.now());
 
 
         if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null ||  !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
