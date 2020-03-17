@@ -68,6 +68,7 @@ public class Article {
         this.text = text;
         this.isHideToAnon = isHideToAnon;
         this.draft = draft;
+
     }
 
 }

@@ -84,6 +84,6 @@ class ArticleServiceImplTest {
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
         articleService.getAllByArticle(article, pageable);
         Mockito.verify(articleCommentRepository, Mockito.times(1))
-                .findByArticle(article, pageable);
+                  .findByArticle(article, pageable);
     }
 }
