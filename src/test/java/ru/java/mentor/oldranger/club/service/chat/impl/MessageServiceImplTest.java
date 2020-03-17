@@ -39,8 +39,8 @@ class MessageServiceImplTest {
     private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService);
 
     private static List<Message> messages = new ArrayList<>(Arrays.asList(
-            new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null),
-            new Message(2L, null, null, null, null, null, null, null, null, null, null)));
+            new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null, null, null),
+            new Message(2L, null, null, null, null, null, null, null, null, null, null, null, null)));
 
     @Test
     public void findFirstMessageByChat() {
@@ -93,8 +93,8 @@ class MessageServiceImplTest {
     public void deleteMessagesInPublicChat() {
         chat.setPrivacy(false);
         List<Message> messages = new ArrayList<>(Arrays.asList(
-                new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null),
-                new Message(2L, null, null, null, null, null, null, null, null, null, null)));
+                new Message(1L, null, "testImg1", null, null, null, null, null,null, null, null, null, null),
+                new Message(2L, null, null, null, null, null, null, null, null,null, null, null, null)));
         Mockito.when(chatService.getGroupChat()).thenReturn(chat);
         Mockito.when(messageRepository.findAllByChat(chat)).thenReturn(messages);
 

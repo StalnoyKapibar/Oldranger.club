@@ -42,6 +42,7 @@ public class GroupChatController {
         chatMessage.setMessageDate(LocalDateTime.now());
         chatMessage.setChat(chatService.getGroupChat());
         messageService.addMessage(chatMessage);
+        System.out.println(chatMessage.getId());
         return chatMessage;
     }
 
@@ -51,6 +52,7 @@ public class GroupChatController {
         User user = securityUtilsService.getLoggedUser();
         chatMessage.setSenderAvatar(user.getAvatar().getSmall());
         updateUserList(chatMessage, true);
+        System.out.println(chatMessage.getId());
         return chatMessage;
     }
 

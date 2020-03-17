@@ -30,6 +30,12 @@ public class Message {
     @Column(name = "img_thumbnail")
     private String thumbnailImg;
 
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_location")
+    private String filePath;
+
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private MessageType type;

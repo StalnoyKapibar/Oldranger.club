@@ -19,18 +19,11 @@ public class FileInChat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "fileName")
+    @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "fileDownloadUri")
-    private String location;
-
-    @Column(name = "fileType")
-    private String fileType;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
-    @Column(name = "upload_file_date")
-    private LocalDateTime uploadFileDate;
+    @Column(name = "file_location")
+    private String filePath;
 
     @Column(name = "id_chat")
     private Long chatID;

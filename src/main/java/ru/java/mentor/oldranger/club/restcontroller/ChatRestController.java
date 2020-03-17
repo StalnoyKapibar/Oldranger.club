@@ -21,14 +21,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.media.FileInChat;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
@@ -48,6 +51,8 @@ public class ChatRestController {
     private MessageService messageService;
     private SecurityUtilsService securityUtilsService;
     private WritingBanService writingBanService;
+    private FileInChatService fileInChatService;
+    private final CheckFileTypeService checkFileTypeService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get current user info", description = "Avatar and username", tags = {"Chat"})
@@ -116,13 +121,22 @@ public class ChatRestController {
     @PostMapping(value = "/image", consumes = {"multipart/form-data"})
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
-        User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
         Map<String, String> result = new HashMap<>();
-        PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
-        Photo photo = photoService.save(album, file, 0);
-        result.put("originalImg", photo.getOriginal());
-        result.put("thumbnailImg", photo.getSmall());
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.noContent().build();
+        }
+        if (checkFileTypeService.isValidImageFile(file)) {
+            PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
+            Photo photo = photoService.save(album, file, 0);
+            result.put("originalImg", photo.getOriginal());
+            result.put("thumbnailImg", photo.getSmall());
+        } else {
+            Chat chat = chatService.getGroupChat();
+            FileInChat uploadFile = fileInChatService.save(file, chat.getId());
+            result.put("fileName", uploadFile.getFileName());
+            result.put("filePath", uploadFile.getFilePath());
+        }
         return ResponseEntity.ok(result);
     }
 
