@@ -26,4 +26,5 @@ public class CommentDto {
     private String commentText;
     private List<Photo> photos;
     private boolean updatable;
+
 }

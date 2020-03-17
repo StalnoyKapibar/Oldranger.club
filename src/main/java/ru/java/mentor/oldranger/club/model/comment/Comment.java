@@ -51,4 +51,5 @@ public class Comment extends BaseComment{
                 ", pozition=" + pozition +
                 '}';
     }
+
 }
