@@ -39,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
     private UserStatisticService userStatisticService;
     private TopicService topicService;
     private PhotoService photoService;
+    private ImageCommnetService imageCommnetService;
 
     @Override
     public void createComment(Comment comment) {
