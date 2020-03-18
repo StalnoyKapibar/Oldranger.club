@@ -82,8 +82,8 @@ class ArticleServiceImplTest {
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
-        articleService.getAllByArticle(article, pageable);
+        articleService.getAllByArticle(article);
         Mockito.verify(articleCommentRepository, Mockito.times(1))
-                .findByArticle(article, pageable);
+                .findByArticle(article);
     }
 }
