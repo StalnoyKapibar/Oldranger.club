@@ -72,7 +72,7 @@ class ArticleServiceImplTest {
         Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());
         Assert.assertEquals(articleComment.getArticle().getId(), articleCommentDto.getArticleId());
-        Assert.assertEquals(articleComment.getPosition(), articleCommentDto.getPositionInArticle());
+        Assert.assertEquals(articleComment.getPosition(), articleCommentDto.getPosition());
     }
 
     @Test
@@ -82,8 +82,8 @@ class ArticleServiceImplTest {
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
-        articleService.getAllByArticle(article, pageable);
+        articleService.getAllByArticle(article);
         Mockito.verify(articleCommentRepository, Mockito.times(1))
-                .findByArticle(article, pageable);
+                .findByArticle(article);
     }
 }

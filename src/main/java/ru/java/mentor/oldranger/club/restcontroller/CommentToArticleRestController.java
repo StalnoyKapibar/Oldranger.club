@@ -28,6 +28,7 @@ import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -48,20 +49,14 @@ public class CommentToArticleRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleAndCommentsDto.class)))),
             @ApiResponse(responseCode = "204", description = "Article not found")})
     @GetMapping(value = "/comments", produces = {"application/json"})
-    public ResponseEntity<ArticleAndCommentsDto> getArticleComments(@RequestParam("id") Long id,
-                                                                    @RequestParam(value = "page", required = false) Integer page) {
+    public ResponseEntity<ArticleAndCommentsDto> getArticleComments(@RequestParam("id") Long id) {
 
         Article article = articleService.getArticleById(id);
         if (article == null) {
             return ResponseEntity.noContent().build();
         }
 
-        if (page == null) {
-            page = 0;
-        }
-
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
-        Page<ArticleCommentDto> articleComments = articleService.getAllByArticle(article, pageable);
+        List<ArticleCommentDto> articleComments = articleService.getAllByArticle(article);
         ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComments);
         return ResponseEntity.ok(articleAndCommentsDto);
     }
