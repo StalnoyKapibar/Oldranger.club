@@ -12,6 +12,5 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 public class TopicAndCommentsDTO {
 
     private Topic topic;
-    private boolean isSubscribe;
     private Page<CommentDto> commentDto;
 }
