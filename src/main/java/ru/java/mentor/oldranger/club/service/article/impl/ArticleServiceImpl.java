@@ -90,10 +90,12 @@ public class ArticleServiceImpl implements ArticleService {
         LocalDateTime replyTime = null;
         String replyNick = null;
         String replyText = null;
+        Long parentId = -1L;
         if (articleComment.getAnswerTo() != null) {
             replyTime = articleComment.getAnswerTo().getDateTime();
             replyNick = articleComment.getAnswerTo().getUser().getNickName();
             replyText = articleComment.getAnswerTo().getCommentText();
+            parentId = articleComment.getAnswerTo().getId();
         }
 
         articleCommentDto = new ArticleCommentDto(
@@ -101,7 +103,7 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),
-                replyTime, replyNick, replyText,
+                replyTime, parentId, replyNick, replyText,
                 articleComment.getCommentText());
         return articleCommentDto;
     }
@@ -123,12 +125,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable) {
-        log.debug("Getting page {} of comment dtos for article with id = {}", pageable.getPageNumber(), article.getId());
-        Page<ArticleCommentDto> articleCommentDto = null;
+    public List<ArticleCommentDto> getAllByArticle(Article article) {
+        log.debug("Getting list of comment dtos for article with id = {}", article.getId());
+        List<ArticleCommentDto> articleCommentDto = null;
         List<ArticleComment> articleComments = new ArrayList<>();
         try {
-            articleCommentRepository.findByArticle(article, pageable).map(articleComments::add);
+            articleComments = articleCommentRepository.findByArticle(article);
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
@@ -136,7 +138,7 @@ public class ArticleServiceImpl implements ArticleService {
             } else {
                 list = Collections.emptyList();
             }
-            articleCommentDto = new PageImpl<>(list, pageable, list.size());
+            articleCommentDto = list;
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

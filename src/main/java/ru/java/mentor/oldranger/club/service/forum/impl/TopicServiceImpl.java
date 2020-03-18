@@ -41,35 +41,30 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
-    public Topic createTopic(Topic topic) {
+    public void createTopic(Topic topic) {
         log.info("Saving topic {}", topic);
-        Topic savedTopic;
-        savedTopic = null;
         try {
             UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
             long topicCount = userStatistic.getTopicStartCount();
             userStatistic.setTopicStartCount(++topicCount);
             userStatisticService.saveUserStatic(userStatistic);
-            savedTopic = topicRepository.save(topic);
+            topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return savedTopic;
     }
 
     @Override
     @CachePut(key = "#topic.id")
-    public Topic editTopicByName(Topic topic) {
+    public void editTopicByName(Topic topic) {
         log.info("Saving topic {}", topic);
-        Topic savedTopic = null;
         try {
-            savedTopic = topicRepository.save(topic);
+            topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return savedTopic;
     }
 
     @Override
@@ -143,7 +138,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<Topic> getActualTopicsLimit10BySection() {
-        log.debug("Getting actual of topics with limit = 10");
+        log.debug("Getting actual topics with limit = 10");
         System.out.println("get 10");
         List<Topic> topics = null;
         try {

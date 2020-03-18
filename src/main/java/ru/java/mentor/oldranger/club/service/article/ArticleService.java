@@ -38,7 +38,7 @@ public interface ArticleService {
 
     void deleteComment(Long id);
 
-    Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable);
+    List<ArticleCommentDto> getAllByArticle(Article article);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
 }

@@ -11,6 +11,7 @@
  * Иначе обращения к кешу будут происходить реже или ненамного чаще, чем его обновление и очистка.
  */
 
+
 package ru.java.mentor.oldranger.club.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
