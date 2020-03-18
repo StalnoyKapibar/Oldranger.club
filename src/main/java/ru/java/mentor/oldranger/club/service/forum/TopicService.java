@@ -12,9 +12,9 @@ import java.util.List;
 
 public interface TopicService {
 
-    Topic createTopic(Topic topic);
+    void createTopic(Topic topic);
 
-    Topic editTopicByName(Topic topic);
+    void editTopicByName(Topic topic);
 
     void deleteTopicById(Long id);
 
