@@ -11,6 +11,7 @@
  * Иначе обращения к кешу будут происходить реже или ненамного чаще, чем его обновление и очистка.
  */
 
+
 package ru.java.mentor.oldranger.club.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -77,7 +78,7 @@ public class CaffeineCacheConfig {
                 .softValues();
     }
 
-    public class CustomKeyGenerator implements KeyGenerator {
+    public static class CustomKeyGenerator implements KeyGenerator {
 
         public Object generate(Object target, Method method, Object... params) {
             return target.getClass().getSimpleName() + "_"
