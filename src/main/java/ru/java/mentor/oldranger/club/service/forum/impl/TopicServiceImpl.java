@@ -43,7 +43,8 @@ public class TopicServiceImpl implements TopicService {
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
     public Topic createTopic(Topic topic) {
         log.info("Saving topic {}", topic);
-        Topic savedTopic = null;
+        Topic savedTopic;
+        savedTopic = null;
         try {
             UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
             long topicCount = userStatistic.getTopicStartCount();

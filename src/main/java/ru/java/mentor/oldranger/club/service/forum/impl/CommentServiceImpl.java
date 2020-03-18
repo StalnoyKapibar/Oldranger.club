@@ -39,7 +39,6 @@ public class CommentServiceImpl implements CommentService {
     private UserStatisticService userStatisticService;
     private TopicService topicService;
     private PhotoService photoService;
-    private ImageCommnetService imageCommnetService;
 
     @Override
     public void createComment(Comment comment) {
@@ -47,7 +46,8 @@ public class CommentServiceImpl implements CommentService {
         try {
             Topic topic = comment.getTopic();
             topic.setLastMessageTime(comment.getDateTime());
-            long messages = topic.getMessageCount();
+            long messages;
+            messages = topic.getMessageCount();
             comment.setPosition(++messages);
             topic.setMessageCount(messages);
             topicService.editTopicByName(topic);
