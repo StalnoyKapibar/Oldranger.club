@@ -41,30 +41,35 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
-    public void createTopic(Topic topic) {
+    public Topic createTopic(Topic topic) {
+
         log.info("Saving topic {}", topic);
+        Topic savedTopic = null;
         try {
             UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
             long topicCount = userStatistic.getTopicStartCount();
             userStatistic.setTopicStartCount(++topicCount);
             userStatisticService.saveUserStatic(userStatistic);
-            topicRepository.save(topic);
+            savedTopic = topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedTopic;
     }
 
     @Override
     @CachePut(key = "#topic.id")
-    public void editTopicByName(Topic topic) {
+    public Topic editTopicByName(Topic topic) {
         log.info("Saving topic {}", topic);
+        Topic savedTopic = null;
         try {
-            topicRepository.save(topic);
+            savedTopic = topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedTopic;
     }
 
     @Override

@@ -20,6 +20,6 @@ public interface TopicVisitAndSubscriptionRepository extends JpaRepository<Topic
     List<TopicVisitAndSubscription> getSubscriptionsByTopic(Topic topic);
 
 
-    @Query("select t.topic from TopicVisitAndSubscription t where t.user=:user and t.isSubscribed=true")
+    @Query("select t.topic from TopicVisitAndSubscription t where t.user=:user and t.lastVisitTime<t.topic.lastMessageTime and t.isSubscribed=true")
     List<Topic> getSubscribedTopicsByUser(User user);
 }
