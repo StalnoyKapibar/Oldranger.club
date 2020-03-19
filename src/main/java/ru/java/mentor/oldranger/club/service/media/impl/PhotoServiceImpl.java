@@ -304,6 +304,10 @@ public class PhotoServiceImpl implements PhotoService {
                         long id1 = photo1.getId();
                         log.info("New thumbImage = {} after deleting photo with id = {}", id1, id);
                         break;
+                    } else {
+                        photoAlbum.setThumbImage(null);
+                        log.info("ThumbImage null");
+                        break;
                     }
                 }
             } else {
