@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -45,7 +46,8 @@ public class CommentServiceImpl implements CommentService {
         try {
             Topic topic = comment.getTopic();
             topic.setLastMessageTime(comment.getDateTime());
-            long messages = topic.getMessageCount();
+            long messages;
+            messages = topic.getMessageCount();
             comment.setPosition(++messages);
             topic.setMessageCount(messages);
             topicService.editTopicByName(topic);
@@ -76,6 +78,7 @@ public class CommentServiceImpl implements CommentService {
     public void updateComment(Comment comment) {
         log.info("Updating comment with id = {}", comment.getId());
         try {
+            comment.setUpdateTime(LocalDateTime.now());
             commentRepository.save(comment);
             log.info("Comment {} updated", comment.getId());
         } catch (Exception e) {
@@ -152,6 +155,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setTopicId(comment.getTopic().getId());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());
+            commentDto.setCommentUpdateTime(comment.getUpdateTime());
             commentDto.setMessageCount(userStatisticService.getUserStaticById(comment.getUser().getId()).getMessageCount());
             commentDto.setReplyDateTime(replyTime);
             commentDto.setReplyNick(replyNick);
@@ -225,5 +229,10 @@ public class CommentServiceImpl implements CommentService {
             a.setPosition(a.getPosition() - 1);
             commentRepository.save(a);
         });
+    }
+
+    @Override
+    public boolean isEmptyComment(String comment) {
+        return StringUtils.isBlank(comment.replaceAll("<.+?>",""));
     }
 }

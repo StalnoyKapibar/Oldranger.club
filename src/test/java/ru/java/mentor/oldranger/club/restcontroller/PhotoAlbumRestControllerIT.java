@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.java.mentor.oldranger.club.AbstractTest;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 
 import java.util.ArrayList;
@@ -20,14 +21,10 @@ import java.util.Arrays;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource("/config/datasource-test.properties")
 @WithUserDetails("Admin")
 @Sql(value = "/sql/photoAlbumRestControllerIT/photoAlbumRestController-before.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = "/sql/photoAlbumRestControllerIT/photoAlbumRestController-after.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-class PhotoAlbumRestControllerIT {
+class PhotoAlbumRestControllerIT extends AbstractTest {
 
     @Autowired
     PhotoAlbumRestController controller;
@@ -38,8 +35,8 @@ class PhotoAlbumRestControllerIT {
     void getPhotoAlbums() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
                 new ArrayList<>(Arrays.asList(
-                        new PhotoAlbumDto(1L, "Album1 Admin", "orig_img 1", "small_img 1", 1),
-                        new PhotoAlbumDto(2L, "Album2 Admin", "thumb_image_placeholder", "thumb_image_placeholder", 1)
+                        new PhotoAlbumDto(1L, "Album1 Admin", 1L, 1),
+                        new PhotoAlbumDto(2L, "Album2 Admin", null, 1)
                 )));
 
         mockMvc.perform(get("/api/albums"))
@@ -57,7 +54,7 @@ class PhotoAlbumRestControllerIT {
     @Test
     void savePhotoAlbum() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
-                new PhotoAlbumDto(4L, "Album 4", "thumb_image_placeholder", "thumb_image_placeholder", 0));
+                new PhotoAlbumDto(4L, "Album 4", null, 0));
 
         mockMvc.perform(post("/api/albums")
                 .param("albumTitle", "Album 4"))
@@ -85,7 +82,7 @@ class PhotoAlbumRestControllerIT {
     @Test
     void getAlbum() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
-                new PhotoAlbumDto(1L, "Album1 Admin", "orig_img 1", "small_img 1", 1));
+                new PhotoAlbumDto(1L, "Album1 Admin", 1L, 1));
 
         mockMvc.perform(get("/api/albums/1"))
                 .andExpect(status().isOk())
@@ -117,7 +114,7 @@ class PhotoAlbumRestControllerIT {
         mockMvc.perform(get("/api/albums/getPhotos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value("1"))
+                .andExpect(jsonPath("$[0].photoID").value("1"))
                 .andExpect(jsonPath("$[0].description").value("photo 1"));
     }
 
@@ -145,7 +142,7 @@ class PhotoAlbumRestControllerIT {
     @Test
     void updateAlbum() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
-                new PhotoAlbumDto(1L, "Changed title", "orig_img 3", "small_img 3", 1));
+                new PhotoAlbumDto(1L, "Changed title", 3L, 1));
 
         mockMvc.perform(put("/api/albums/1")
                 .param("photoId", "3")
@@ -203,7 +200,7 @@ class PhotoAlbumRestControllerIT {
     void deleteAlbum() throws Exception {
         String json = new ObjectMapper().writeValueAsString(
                 new ArrayList<>(Arrays.asList(
-                        new PhotoAlbumDto(2L, "Album2 Admin", "thumb_image_placeholder", "thumb_image_placeholder", 1))));
+                        new PhotoAlbumDto(2L, "Album2 Admin", null, 1))));
 
         mockMvc.perform(delete("/api/albums/1"))
                 .andExpect(status().isOk());

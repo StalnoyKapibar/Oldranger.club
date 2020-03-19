@@ -14,7 +14,6 @@ import java.util.List;
 public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     Page<Topic> findAllBytopicStarter(User user, Pageable pageable);
-
     /*
      * Выборка по N первых актуальных (соритировка по дате) Topic (из topics) для каждой Section.
      * */

@@ -19,16 +19,7 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
     @Query(nativeQuery = true, value = "select  " +
             "  pa.id as album_id,  " +
             "  title,  " +
-            "  CASE  " +
-            "  WHEN original_img is null  " +
-            "    THEN ?2  " +
-            "  ELSE original_img  " +
-            "  END   as original_img,  " +
-            "  CASE  " +
-            "  WHEN small_img is null  " +
-            "    THEN ?2  " +
-            "  ELSE small_img  " +
-            "  END   as small_img,  " +
+            "  thumb_image_id," +
             "  CASE  " +
             "  WHEN counter.photos_count is null  " +
             "    THEN 0  " +
@@ -56,15 +47,14 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
             "where media_id in (select id as media_id_id  " +
             "                   from media  " +
             "                   where user_id_user = ?1) and allow_view=1;")
-    List<Tuple> findPhotoAlbumsByUserWithPhotoCount(Long userId, String defaultImage);
+    List<Tuple> findPhotoAlbumsByUserWithPhotoCount(Long userId);
 
     default List<PhotoAlbumDto> findPhotoAlbumsDtoOwnedByUser(User user) {
-        return findPhotoAlbumsByUserWithPhotoCount(user.getId(), "thumb_image_placeholder").stream()
+        return findPhotoAlbumsByUserWithPhotoCount(user.getId()).stream()
                 .map(e -> new PhotoAlbumDto(
                         e.get("album_id") == null ? null : Long.valueOf(e.get("album_id").toString()),
                         e.get("title", String.class),
-                        e.get("original_img", String.class),
-                        e.get("small_img", String.class),
+                        e.get("thumb_image_id") == null ? null : Long.valueOf(e.get("thumb_image_id").toString()),
                         e.get("photos_count") == null ? 0 : Integer.valueOf(
                                 e.get("photos_count").toString()))).collect(Collectors.toList());
     }

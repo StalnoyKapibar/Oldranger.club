@@ -51,10 +51,10 @@ public class PhotoAlbumRestController {
             summary = "Save photo album", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbum.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
             @ApiResponse(responseCode = "400", description = "Login or rights error")})
     @PostMapping
-    public ResponseEntity<PhotoAlbum> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
+    public ResponseEntity<PhotoAlbumDto> savePhotoAlbum(@RequestParam(value = "albumTitle") String albumTitle) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null || albumTitle.equals("")) {
             return ResponseEntity.badRequest().build();
@@ -62,7 +62,8 @@ public class PhotoAlbumRestController {
         PhotoAlbum album = new PhotoAlbum(albumTitle);
         album.addWriter(currentUser);
         album.setAllowView(true);
-        return ResponseEntity.ok(albumService.save(album));
+
+        return ResponseEntity.ok(albumService.assemblePhotoAlbumDto(albumService.save(album)));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

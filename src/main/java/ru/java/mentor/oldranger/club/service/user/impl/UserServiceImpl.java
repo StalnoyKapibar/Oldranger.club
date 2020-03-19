@@ -2,13 +2,9 @@ package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
@@ -29,17 +25,15 @@ import java.util.Optional;
 @Slf4j
 @Service
 @AllArgsConstructor
-@CacheConfig(cacheNames = {"users"})
+@CacheConfig(cacheNames = "user", cacheManager = "generalCacheManager")
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
-    private RoleRepository roleRepository;
 
     @Override
-    @Cacheable(cacheNames = {"allUsers"})
     public List<User> findAll() {
         log.debug("Getting all users");
         List<User> users = null;
@@ -53,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#theId")
+    @Cacheable
     public User findById(Long theId) {
         log.debug("Getting user with id = {}", theId);
         Optional<User> result = userRepository.findById(theId);
@@ -61,48 +55,62 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "allUsers", allEntries = true)})
-    public void save(User user) {
+    @Caching(put = {
+                    @CachePut(key = "#user.id", condition = "#user.id!=null"),
+                    @CachePut(key = "#user.nickName", condition = "#user.id!=null&&#user.nickName!=null"),
+                    @CachePut(key = "#user.email", condition = "#user.id!=null&&#user.email!=null"),
+                    @CachePut(key = "#user.invite", condition = "#user.id!=null&&#user.invite!=null")})
+    public User save(User user) {
         log.info("Saving user");
+        User savedUser = null;
         try {
             if (user.getAvatar() == null) {
                 user.setAvatar(setDefaultAvatar());
             }
-            User savedUser = userRepository.save(user);
+            savedUser = userRepository.save(user);
             if (userStatistic.getUserStaticByUser(user) == null) {
                 userStatistic.saveUserStatic(new UserStatistic(user));
             }
             if (userProfileService.getUserProfileByUser(user) == null) {
                 userProfileService.createUserProfile(new UserProfile(user));
             }
-            Media media = new Media();
-            media.setUser(user);
-            mediaService.save(media);
+            if (mediaService.findMediaByUser(user) == null) {
+                Media media = new Media();
+                media.setUser(user);
+                mediaService.save(media);
+            }
             log.info("User {} saved", savedUser);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedUser;
     }
 
-    //TODO Надо ли тут кеширование?
+
     @Override
-    public void updateUser(User user, UpdateProfileDto updateProfileDto) {
+    @Caching(put = {
+                    @CachePut(key = "#user.id"),
+                    @CachePut(key = "#user.nickName"),
+                    @CachePut(key = "#user.email"),
+                    @CachePut(key = "#user.invite")})
+    public User updateUser(User user, UpdateProfileDto updateProfileDto) {
         log.info("Updating user {}", user);
         user.setNickName(updateProfileDto.getNickName());
         user.setFirstName(updateProfileDto.getFirstName());
         user.setLastName(updateProfileDto.getLastName());
-        user.setEmail(updateProfileDto.getEmail());
 
+        User savedUser = null;
         try {
-            userRepository.save(user);
+            savedUser = userRepository.save(user);
             log.info("User {} updated", user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedUser;
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "users", key = "#theId"), @CacheEvict(value = "allUsers", allEntries = true)})
+    @CacheEvict(allEntries = true)
     public void deleteById(Long theId) {
         log.info("Deleting user with id = {}", theId);
         try {
@@ -114,7 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#name")
+    @Cacheable
     public User getUserByNickName(String name) {
         log.debug("Getting user with nickname = {}", name);
         User user = null;
@@ -136,7 +144,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#email")
+    @Cacheable
     public User getUserByEmail(String email) {
         log.debug("Getting user with email = {}", email);
         User user = null;
@@ -150,7 +158,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#login")
+    @Cacheable
     public User getUserByEmailOrNickName(String login) {
         log.debug("Getting user with email or nickname = {}", login);
         Optional<User> result = userRepository.findUserByEmailOrNickName(login);
@@ -158,8 +166,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable
     public User getUserByInviteKey(String key) {
-        log.debug("Get user by inviti key ={}", key);
+        log.debug("Get user by invite key ={}", key);
         return userRepository.findUserByInviteKey(key).orElseThrow(() -> new UsernameNotFoundException("There is no such invite key"));
     }
 
