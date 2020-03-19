@@ -38,6 +38,7 @@ uploads/*
 
 ### Media folder ###
 media/*
+filesInChat/*
 
 ## Credential and Environment  depended properties
 /src/main/resources/config/application.properties
