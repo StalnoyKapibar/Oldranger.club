@@ -21,4 +21,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByPositionGreaterThanAndTopicId(Long position, Long id);
 
+    List<Comment> findAllByAnswerTo(Comment comment);
+
 }

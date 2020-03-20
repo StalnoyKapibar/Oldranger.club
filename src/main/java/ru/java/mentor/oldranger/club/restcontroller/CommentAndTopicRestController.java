@@ -180,6 +180,13 @@ public class CommentAndTopicRestController {
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
+        List<Comment> listChildComments = commentService.getChildComment(comment);
+        if (listChildComments != null) {
+            for (Comment childComment : listChildComments) {
+                childComment.setAnswerTo(null);
+                commentService.updateComment(childComment);
+            }
+        }
         comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1);
         topicService.editTopicByName(comment.getTopic());
         commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
