@@ -46,6 +46,7 @@ public class Comment extends BaseComment{
                 ", user=" + getUser() +
                 ", answerTo=" + ((answerTo == null) ? "NULL" : answerTo) +
                 ", dateTime=" + this.getDateTime() +
+                ", dateEdit=" + this.getDateEdit() +
                 ", updateTime=" + this.getUpdateTime() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +

@@ -161,6 +161,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setReplyNick(replyNick);
             commentDto.setReplyText(replyText);
             commentDto.setCommentText(comment.getCommentText());
+            commentDto.setCommentEditTime(comment.getDateEdit());
             commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
                     comment.getTopic().getName(), comment.getId().toString()));
 
