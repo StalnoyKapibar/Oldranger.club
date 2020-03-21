@@ -216,7 +216,7 @@ public class CommentAndTopicRestController {
         } else {
             comment.setAnswerTo(null);
         }
-        comment.setDateTime(comment.getDateTime());
+        comment.setDateEdit(LocalDateTime.now());
 
 
         if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
