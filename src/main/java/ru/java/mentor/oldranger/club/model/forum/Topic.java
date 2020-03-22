@@ -55,6 +55,7 @@ public class Topic {
     private boolean isForbidComment;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photo_album")
     private PhotoAlbum photoAlbum;
 
     public PhotoAlbum getPhotoAlbum() {
