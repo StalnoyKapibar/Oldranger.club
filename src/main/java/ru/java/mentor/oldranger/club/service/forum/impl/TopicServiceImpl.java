@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-@CacheConfig(cacheNames = {"topic"})
+@CacheConfig(cacheNames = {"topic"}, cacheManager = "generalCacheManager")
 public class TopicServiceImpl implements TopicService {
 
     private TopicRepository topicRepository;
@@ -40,35 +40,40 @@ public class TopicServiceImpl implements TopicService {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
-    public void createTopic(Topic topic) {
+    @CachePut(key = "#topic.id", condition = "#topic.id!=null")
+    public Topic createTopic(Topic topic) {
+
         log.info("Saving topic {}", topic);
+        Topic savedTopic = null;
         try {
             UserStatistic userStatistic = userStatisticService.getUserStaticByUser(topic.getTopicStarter());
             long topicCount = userStatistic.getTopicStartCount();
             userStatistic.setTopicStartCount(++topicCount);
             userStatisticService.saveUserStatic(userStatistic);
-            topicRepository.save(topic);
+            savedTopic = topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedTopic;
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
-    public void editTopicByName(Topic topic) {
+    @CachePut(key = "#topic.id")
+    public Topic editTopicByName(Topic topic) {
         log.info("Saving topic {}", topic);
+        Topic savedTopic = null;
         try {
-            topicRepository.save(topic);
+            savedTopic = topicRepository.save(topic);
             log.info("Topic saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedTopic;
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "topic", allEntries = true), @CacheEvict(value = "allTopic", allEntries = true)})
+    @CacheEvict
     public void deleteTopicById(Long id) {
         log.info("Deleting topic with id = {}", id);
         try {
@@ -87,7 +92,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> findAll() {
         System.out.println("findAll");
 
@@ -129,7 +133,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10() {
         if (securityUtilsService.isLoggedUserIsUser()) {
             return topicRepository.getActualTopicsLimit(10);
@@ -139,7 +142,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Cacheable(cacheNames = {"allTopic"}, keyGenerator = "customKeyGenerator")
     public List<Topic> getActualTopicsLimit10BySection() {
         log.debug("Getting actual topics with limit = 10");
         System.out.println("get 10");

@@ -238,6 +238,8 @@ public class UserProfileRestController {
         }
         if (page == null) {
             page = 0;
+        } else {
+            page = page - 1;
         }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
         List<Topic> dtos = topicService.findAllTopicsStartedByUser(currentUser, pageable).getContent();

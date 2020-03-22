@@ -20,7 +20,7 @@ public interface ArticleService {
 
     Page<Article> getArticleDraftByUser(User user, Pageable pageable);
 
-    void addArticle(Article article);
+    Article addArticle(Article article);
 
     void deleteArticle(Long id);
 
@@ -34,11 +34,11 @@ public interface ArticleService {
 
     ArticleComment getCommentById(Long id);
 
-    void updateArticleComment(ArticleComment articleComment);
+    ArticleComment updateArticleComment(ArticleComment articleComment);
 
     void deleteComment(Long id);
 
-    Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable);
+    List<ArticleCommentDto> getAllByArticle(Article article);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
 }
