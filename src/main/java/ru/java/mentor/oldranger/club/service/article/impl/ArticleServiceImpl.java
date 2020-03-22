@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
@@ -154,6 +155,31 @@ public class ArticleServiceImpl implements ArticleService {
     @CacheEvict(allEntries = true)
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
+    }
+
+    @Override
+    public ArticleAndCommentsDto assembleArticleAndCommentToDto(ArticleComment articleComment, Article article) {
+        ArticleCommentDto articleCommentDto;
+
+        LocalDateTime replyTime = null;
+        String replyNick = null;
+        String replyText = null;
+        Long parentId = -1L;
+        if (articleComment.getAnswerTo() != null) {
+            replyTime = articleComment.getAnswerTo().getDateTime();
+            replyNick = articleComment.getAnswerTo().getUser().getNickName();
+            replyText = articleComment.getAnswerTo().getCommentText();
+            parentId = articleComment.getAnswerTo().getId();
+        }
+
+        articleCommentDto = new ArticleCommentDto(
+                articleComment.getPosition(),
+                articleComment.getArticle().getId(),
+                articleComment.getUser(),
+                articleComment.getDateTime(),
+                replyTime, parentId, replyNick, replyText,
+                articleComment.getCommentText());
+        return articleCommentDto;
     }
 
 }

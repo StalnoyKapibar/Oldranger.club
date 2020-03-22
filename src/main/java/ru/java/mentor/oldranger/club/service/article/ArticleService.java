@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.service.article;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
@@ -41,4 +42,6 @@ public interface ArticleService {
     List<ArticleCommentDto> getAllByArticle(Article article);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
+
+    ArticleAndCommentsDto assembleArticleAndCommentToDto(ArticleComment articleComment, Article article);
 }
