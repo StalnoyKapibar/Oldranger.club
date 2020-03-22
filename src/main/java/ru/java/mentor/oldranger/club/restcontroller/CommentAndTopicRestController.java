@@ -129,7 +129,7 @@ public class CommentAndTopicRestController {
         }
 
         String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
-        if (commentService.isEmptyComment(cleanedText)) {
+        if (image1 == null & image2 == null & commentService.isEmptyComment(cleanedText)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -231,13 +231,21 @@ public class CommentAndTopicRestController {
         if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
-        commentService.updateComment(comment);
 
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         List<Photo> photos = commentDto.getPhotos();
 
         String parsing = photoIdList.replaceAll("[^0-9]", "");
         String[] parse = parsing.split("");
+
+        String cleanedText = filterHtmlService.filterHtml(messageComments.getText());
+        if (parse[0].equals("") & commentService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        commentService.updateComment(comment);
+
+
 
         if (!photos.isEmpty()) {
             commentDto = deletePhotoFromDto(parse, photos, commentDto);
