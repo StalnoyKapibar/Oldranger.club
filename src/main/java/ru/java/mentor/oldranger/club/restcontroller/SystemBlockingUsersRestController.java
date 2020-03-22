@@ -81,15 +81,12 @@ public class SystemBlockingUsersRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = BlackListDto.class)))})
     @PostMapping("/admin/unblocking")
-    public ResponseEntity unblockUser(@RequestBody BlackListDto blackListDto) {
+    public BlackListDto unblockUser(@RequestBody BlackListDto blackListDto) {
+
         User user = userService.findById(blackListDto.getId());
         BlackList list = blackListService.findByUser(user);
-        try {
-            blackListService.deleteBlock(list.getId());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.noContent().build();
-        }
+        blackListService.deleteBlock(list.getId());
+        return blackListDto;
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
