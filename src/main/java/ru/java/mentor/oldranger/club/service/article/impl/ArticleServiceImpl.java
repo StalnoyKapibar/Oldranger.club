@@ -95,6 +95,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleCommentDto = new ArticleCommentDto(
                 articleComment.getPosition(),
+                articleComment.getId(),
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),
