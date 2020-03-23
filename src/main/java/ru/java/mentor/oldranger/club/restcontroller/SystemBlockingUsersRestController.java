@@ -37,21 +37,21 @@ public class SystemBlockingUsersRestController {
     private SessionService sessionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get all users", tags = { "System blocking users" })
+            summary = "Get all users", tags = {"System blocking users"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))) })
-    @GetMapping(value = "/admin/list", produces = { "application/json" })
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))))})
+    @GetMapping(value = "/admin/list", produces = {"application/json"})
     public ResponseEntity<List<User>> allUsers() {
         List<User> userList = userService.findAll();
         return ResponseEntity.ok(userList);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Add user to blacklist", tags = { "System blocking users" })
+            summary = "Add user to blacklist", tags = {"System blocking users"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = BlackListDto.class))) })
+                    content = @Content(schema = @Schema(implementation = BlackListDto.class)))})
     @PostMapping("/admin/blocking")
     public BlackListDto blockUser(@RequestBody BlackListDto blackListDto) {
         User user = userService.findById(blackListDto.getId());
@@ -62,15 +62,8 @@ public class SystemBlockingUsersRestController {
         } else if (list != null && blackListDto.getDateUnblock().equals("")) {
             blackList = new BlackList(list.getId(), user, null);
         } else {
-            String[] dateTime = blackListDto.getDateUnblock().split(" ");
-            String[] date = dateTime[0].split("/");
-            String[] time = dateTime[1].split(":");
-            LocalDateTime localDateTime = LocalDateTime.of( Integer.parseInt(date[2]),
-                    Integer.parseInt(date[1]),
-                    Integer.parseInt(date[0]),
-                    Integer.parseInt(time[0]),
-                    Integer.parseInt(time[1]),
-                    0);
+            String unblockTime = blackListDto.getDateUnblock();
+            LocalDateTime localDateTime = LocalDateTime.parse(unblockTime.subSequence(0, 22));
             if (list != null) {
                 blackList = new BlackList(list.getId(), user, localDateTime);
             } else {
@@ -83,30 +76,36 @@ public class SystemBlockingUsersRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Add writingBan for user", tags = { "System blocking users" })
+            summary = "Remove user from blacklist", tags = {"System blocking users"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = WritingBanDto.class))) })
+                    content = @Content(schema = @Schema(implementation = BlackListDto.class)))})
+    @PostMapping("/admin/unblocking")
+    public BlackListDto unblockUser(@RequestBody BlackListDto blackListDto) {
+
+        User user = userService.findById(blackListDto.getId());
+        BlackList list = blackListService.findByUser(user);
+        blackListService.deleteBlock(list.getId());
+        return blackListDto;
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Add writingBan for user", tags = {"System blocking users"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = WritingBanDto.class)))})
     @PostMapping("/admin/writingBan")
     public WritingBanDto writingBanUser(@RequestBody WritingBanDto writingBanDto) {
         User user = userService.findById(writingBanDto.getId());
         BanType type = BanType.valueOf(writingBanDto.getBanType());
         WritingBan oldWritingBan = writingBanService.getByUserAndType(user, type);
         WritingBan writingBan;
-        LocalDateTime localDateTime = null;
-        if (writingBanDto.getDateUnblock()==null || writingBanDto.getDateUnblock().equals("")) {
+        LocalDateTime localDateTime;
+        if (writingBanDto.getDateUnblock() == null || writingBanDto.getDateUnblock().equals("")) {
             localDateTime = null;
-        }
-        else {
-            String[] dateTime = writingBanDto.getDateUnblock().split(" ");
-            String[] date = dateTime[0].split("/");
-            String[] time = dateTime[1].split(":");
-            localDateTime = LocalDateTime.of( Integer.parseInt(date[2]),
-                    Integer.parseInt(date[1]),
-                    Integer.parseInt(date[0]),
-                    Integer.parseInt(time[0]),
-                    Integer.parseInt(time[1]),
-                    0);
+        } else {
+            String unblockTime = writingBanDto.getDateUnblock();
+            localDateTime = LocalDateTime.parse(unblockTime.subSequence(0, 22));
         }
         if (oldWritingBan != null) {
             writingBan = new WritingBan(oldWritingBan.getId(), user, type, localDateTime);
@@ -118,11 +117,11 @@ public class SystemBlockingUsersRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get all blocked users", tags = { "System blocking users" })
+            summary = "Get all blocked users", tags = {"System blocking users"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = BlackList.class)))) })
-    @GetMapping(value = "/admin/blackList", produces = { "application/json" })
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = BlackList.class))))})
+    @GetMapping(value = "/admin/blackList", produces = {"application/json"})
     public ResponseEntity<List<BlackList>> allBlockedUsers() {
         List<BlackList> blackList = blackListService.findAll();
         return ResponseEntity.ok(blackList);

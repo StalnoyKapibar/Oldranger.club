@@ -32,6 +32,9 @@ public class Comment extends BaseComment{
     @Transient
     private boolean pozition;
 
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
+
     public Comment(Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);
         this.topic = topic;
@@ -46,6 +49,7 @@ public class Comment extends BaseComment{
                 ", user=" + getUser() +
                 ", answerTo=" + ((answerTo == null) ? "NULL" : answerTo) +
                 ", dateTime=" + this.getDateTime() +
+                ", updateTime=" + this.getUpdateTime() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +
                 ", isDeleted=" + isDeleted +

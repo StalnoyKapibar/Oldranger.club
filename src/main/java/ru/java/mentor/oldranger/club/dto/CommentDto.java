@@ -18,6 +18,7 @@ public class CommentDto {
     private Long topicId;
     private User author;
     private LocalDateTime commentDateTime;
+    private LocalDateTime commentUpdateTime;
     private Long messageCount;
     private LocalDateTime replyDateTime;
     private String replyNick;

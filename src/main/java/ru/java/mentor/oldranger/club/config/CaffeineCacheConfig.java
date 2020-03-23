@@ -78,7 +78,6 @@ public class CaffeineCacheConfig {
     }
 
     public class CustomKeyGenerator implements KeyGenerator {
-
         public Object generate(Object target, Method method, Object... params) {
             return target.getClass().getSimpleName() + "_"
                     + method.getName() + "_"

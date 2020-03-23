@@ -60,7 +60,7 @@ public class SecurePhotoRestController {
             Set<User> viewers = photo.getAlbum().getViewers();
             if (viewers.contains(currentUser) || viewers.isEmpty()) {
                 try {
-                    return ResponseEntity.ok(photoService.getPhotoAsByteArray(photo,type));
+                    return ResponseEntity.ok(photoService.getPhotoAsByteArray(photo, type));
                 } catch (NullPointerException | IOException e) {
                     log.error("error in getting image");
                     log.error(e.getMessage());
