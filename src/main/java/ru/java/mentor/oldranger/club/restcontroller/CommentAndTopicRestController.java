@@ -183,7 +183,9 @@ public class CommentAndTopicRestController {
         List<Comment> listChildComments = commentService.getChildComment(comment);
         if (listChildComments != null) {
            comment.setDeleted(true);
+           comment.setCommentText("Комментарий был удален");
            commentService.updateComment(comment);
+
             /*for (Comment childComment : listChildComments) {
                 childComment.setAnswerTo(null);
                 commentService.updateComment(childComment);

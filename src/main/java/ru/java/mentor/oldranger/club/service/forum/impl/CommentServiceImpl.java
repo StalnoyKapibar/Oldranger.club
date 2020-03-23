@@ -163,10 +163,13 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setDeleted(comment.isDeleted());
 
 
+
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
             if (user == null) {
                 commentDto.setUpdatable(false);
             } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
+                commentDto.setUpdatable(true);
+            }else if (commentDto.isDeleted()){
                 commentDto.setUpdatable(true);
             } else {
                 commentDto.setUpdatable(false);
