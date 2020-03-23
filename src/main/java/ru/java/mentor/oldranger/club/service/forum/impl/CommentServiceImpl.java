@@ -162,14 +162,10 @@ public class CommentServiceImpl implements CommentService {
                     comment.getTopic().getName(), comment.getId().toString()));
             commentDto.setDeleted(comment.isDeleted());
 
-
-
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
             if (user == null) {
                 commentDto.setUpdatable(false);
             } else if (user.getId().equals(comment.getUser().getId()) && !allowedEditingTime) {
-                commentDto.setUpdatable(true);
-            }else if (commentDto.isDeleted()){
                 commentDto.setUpdatable(true);
             } else {
                 commentDto.setUpdatable(false);
@@ -238,7 +234,7 @@ public class CommentServiceImpl implements CommentService {
         return StringUtils.isBlank(comment.replaceAll("<.+?>", ""));
     }
 
-  public List<Comment> getChildComment(Comment comment) {
+    public List<Comment> getChildComment(Comment comment) {
         log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
         List<Comment> childComment = commentRepository.findAllByAnswerTo(comment);
         return childComment;

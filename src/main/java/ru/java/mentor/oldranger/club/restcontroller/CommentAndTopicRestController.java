@@ -164,7 +164,6 @@ public class CommentAndTopicRestController {
         return ResponseEntity.ok(commentDto);
     }
 
-    //TODO Надо ли удалять Photo если оно есть в коментарии
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete comment from topic", description = "Delete comment by id", tags = {"Topic and comments"})
     @ApiResponses(value = {
@@ -181,19 +180,22 @@ public class CommentAndTopicRestController {
             return ResponseEntity.notFound().build();
         }
         List<Comment> listChildComments = commentService.getChildComment(comment);
-        if (listChildComments != null) {
-           comment.setDeleted(true);
-           comment.setCommentText("Комментарий был удален");
-           commentService.updateComment(comment);
-
-            /*for (Comment childComment : listChildComments) {
-                childComment.setAnswerTo(null);
-                commentService.updateComment(childComment);
-            }*/
+        if (!listChildComments.isEmpty()) {
+            comment.setDeleted(true);
+            comment.setCommentText("Комментарий был удален");
+            commentService.updateComment(comment);
         } else {
             comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1);
             topicService.editTopicByName(comment.getTopic());
             commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
+
+            CommentDto commentDto = commentService.assembleCommentDto(comment, currentUser);
+            List<Photo> photos = commentDto.getPhotos();
+            if (!photos.isEmpty()) {
+                for (Photo photo : photos) {
+                    photoService.deletePhoto(photo.getId());
+                }
+            }
             commentService.deleteComment(id);
         }
         return ResponseEntity.ok().build();
