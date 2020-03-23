@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
@@ -88,9 +89,11 @@ public class CommentAndTopicRestController {
         if (position == null) {
             position = 0;
         }
+        List<TopicVisitAndSubscription> topicVisitAndSubscriptions = topicVisitAndSubscriptionService.getTopicVisitAndSubscriptionForTopic(topic);
+        boolean isSubscribed = topicVisitAndSubscriptions.stream().filter(t -> t.getTopic().getId().equals(topic.getId())).anyMatch(TopicVisitAndSubscription::isSubscribed);
 
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position, currentUser);
-        TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
+        TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, isSubscribed, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 
         return ResponseEntity.ok(topicAndCommentsDTO);
