@@ -48,7 +48,7 @@ public class Comment extends BaseComment{
                 ", dateTime=" + this.getDateTime() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +
-                ", pozition=" + isDeleted +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 }
