@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -95,15 +96,13 @@ public class SectionsAndTopicsRestController {
         User user = securityUtilsService.getLoggedUser();
 
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
-     //   photoAlbum.setMedia(mediaService.findMediaByUser(user));
-
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(true);
+        albumService.save(photoAlbum);
 
         for (MultipartFile file : photos) {
             photoService.save(photoAlbum, file, 0);
         }
-        photoAlbum.setAllowView(true);
-        albumService.save(photoAlbum);
-
 
         Topic topic = new Topic(topicDetails.getName(),
                 securityUtilsService.getLoggedUser(),
