@@ -165,7 +165,6 @@ public class UserProfileRestController {
         } else {
             page = page - 1;
         }
-        pageable = PageRequest.of(page, 10, Sort.by("lastMessageTime"));
 
         List<Topic> topics = topicVisitAndSubscriptionService.getPagebleSubscribedTopicsForUser(currentUser, pageable)
                 .getContent();
