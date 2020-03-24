@@ -296,6 +296,29 @@ public class PhotoServiceImpl implements PhotoService {
         try {
             Photo photo = findById(id);
             PhotoAlbum photoAlbum = photo.getAlbum();
+            List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
+            log.info("return photo list");
+            if (!photoList.isEmpty()) {
+                for (Photo photo1 : photoList) {
+                    if (!photo1.getId().equals(photoAlbum.getThumbImage().getId())) {
+                        photoAlbum.setThumbImage(photo1);
+                        long id1 = photo1.getId();
+                        log.info("New thumbImage = {} after deleting photo with id = {}", id1, id);
+                        break;
+                    } else {
+                        if (photoList.size() <= 1) {
+                            photoAlbum.setThumbImage(null);
+                            log.info("ThumbImage null");
+                        }
+                    }
+                }
+            } else {
+                photoAlbum.setThumbImage(null);
+                log.info("ThumbImage null");
+            }
+            photoAlbumRepository.save(photoAlbum);
+            log.debug("PhotoAlbum save");
+
             File file = new File(albumsDir + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
 
@@ -303,16 +326,6 @@ public class PhotoServiceImpl implements PhotoService {
             FileSystemUtils.deleteRecursively(file);
 
             photoRepository.delete(photo);
-
-            if (photoAlbum.getThumbImage().getId().equals(photo.getId())) {
-                List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
-                if (!photoList.isEmpty()) {
-                    photoAlbum.setThumbImage(photoList.get(0));
-                } else {
-                    photoAlbum.setThumbImage(null);
-                }
-                photoAlbumRepository.save(photoAlbum);
-            }
 
             log.debug("Photo deleted");
         } catch (Exception e) {
@@ -372,6 +385,7 @@ public class PhotoServiceImpl implements PhotoService {
             @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+#type", condition = "#type!=null"),
             @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id", condition = "#type==null")})
     public byte[] getPhotoAsByteArray(Photo photo, String type) throws IOException {
+        log.info("Before method.getPhotoAsByteArray(Photo photo, String type) in PhotoServiceImp");
         return IOUtils.toByteArray(new FileInputStream(
                 new File(albumsDir + File.separator +
                         (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall()))));

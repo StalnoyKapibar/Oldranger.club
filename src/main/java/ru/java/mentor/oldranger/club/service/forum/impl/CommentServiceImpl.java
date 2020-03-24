@@ -111,7 +111,7 @@ public class CommentServiceImpl implements CommentService {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
-                        .stream().map(a->assembleCommentDto(a, user)).collect(Collectors.toList());
+                        .stream().map(a -> assembleCommentDto(a, user)).collect(Collectors.toList());
             } else {
                 dtoList = Collections.emptyList();
             }
@@ -128,7 +128,7 @@ public class CommentServiceImpl implements CommentService {
         log.debug("Getting page {} of comment dtos for user with id = {}", pageable.getPageNumber(), user.getId());
         Page<CommentDto> page = null;
         try {
-            page = commentRepository.findByUser(user, pageable).map(a->assembleCommentDto(a, user));
+            page = commentRepository.findByUser(user, pageable).map(a -> assembleCommentDto(a, user));
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -162,6 +162,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setCommentText(comment.getCommentText());
             commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
                     comment.getTopic().getName(), comment.getId().toString()));
+            commentDto.setDeleted(comment.isDeleted());
 
             boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
             if (user == null) {
@@ -224,7 +225,7 @@ public class CommentServiceImpl implements CommentService {
     public void updatePostion(Long topicID, Long deletedPosition) {
         log.debug("Updating comments position with topic_id = {}", topicID);
         List<Comment> comments = commentRepository.findByPositionGreaterThanAndTopicId(deletedPosition, topicID);
-        comments.forEach(a->{
+        comments.forEach(a -> {
             a.setPosition(a.getPosition() - 1);
             commentRepository.save(a);
         });
@@ -232,6 +233,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public boolean isEmptyComment(String comment) {
-        return StringUtils.isBlank(comment.replaceAll("<.+?>",""));
+        return StringUtils.isBlank(comment.replaceAll("<.+?>", ""));
+    }
+
+    public List<Comment> getChildComment(Comment comment) {
+        log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
+        List<Comment> childComment = commentRepository.findAllByAnswerTo(comment);
+        return childComment;
     }
 }
