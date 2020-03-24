@@ -42,7 +42,6 @@ public class TopicServiceImpl implements TopicService {
     @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
     public Topic createTopic(Topic topic) {
-
         log.info("Saving topic {}", topic);
         Topic savedTopic = null;
         try {
