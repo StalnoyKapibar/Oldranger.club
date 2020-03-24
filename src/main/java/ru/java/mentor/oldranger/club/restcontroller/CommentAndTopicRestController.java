@@ -182,6 +182,15 @@ public class CommentAndTopicRestController {
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
+
+        CommentDto commentDto = commentService.assembleCommentDto(comment, currentUser);
+        List<Photo> photos = commentDto.getPhotos();
+        if (!photos.isEmpty()) {
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+        }
+
         List<Comment> listChildComments = commentService.getChildComment(comment);
         if (!listChildComments.isEmpty()) {
             comment.setDeleted(true);
@@ -191,14 +200,6 @@ public class CommentAndTopicRestController {
             comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1);
             topicService.editTopicByName(comment.getTopic());
             commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
-
-            CommentDto commentDto = commentService.assembleCommentDto(comment, currentUser);
-            List<Photo> photos = commentDto.getPhotos();
-            if (!photos.isEmpty()) {
-                for (Photo photo : photos) {
-                    photoService.deletePhoto(photo.getId());
-                }
-            }
             commentService.deleteComment(id);
         }
         return ResponseEntity.ok().build();
