@@ -100,7 +100,8 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getUser(),
                 articleComment.getDateTime(),
                 replyTime, parentId, replyNick, replyText,
-                articleComment.getCommentText());
+                articleComment.getCommentText(),
+                articleComment.isDeleted());
         return articleCommentDto;
     }
 

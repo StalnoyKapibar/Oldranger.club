@@ -155,7 +155,15 @@ public class CommentToArticleRestController {
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
             return ResponseEntity.status(403).build();
         }
-        articleService.deleteComment(id);
+        if (articleComment.getAnswerTo() == null) {
+            articleService.deleteComment(id);
+        } else {
+            articleComment.setDeleted(true);
+            articleComment.setCommentText("Комментарий был удален");
+            articleService.updateArticleComment(articleComment);
+            ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
+            return ResponseEntity.ok(articleCommentDto);
+        }
         return ResponseEntity.ok().build();
     }
 }

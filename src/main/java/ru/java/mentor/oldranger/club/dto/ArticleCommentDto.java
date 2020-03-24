@@ -23,5 +23,6 @@ public class ArticleCommentDto {
     private String replyNick;
     private String replyText;
     private String commentText;
+    private boolean isDeleted;
 
 }
