@@ -29,15 +29,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 addResourceLocations(uploadlocation);
 
         String absoluteMediaPath = FileSystems.getDefault().getPath(mediaDir).normalize().toAbsolutePath().toString().replace('\\', '/');
-        String medialocation = "file:///" + absoluteMediaPath + "/";
-        registry.addResourceHandler("/img/chat/**").
-                addResourceLocations(medialocation);
-
         String absoluteFilePath = FileSystems.getDefault().getPath(filesDir).normalize().toAbsolutePath().toString().replace('\\', '/');
         String filelocation = "file:///" + absoluteFilePath + "/";
+        String medialocation = "file:///" + absoluteMediaPath + "/";
         registry.addResourceHandler("/img/chat/**").
-                addResourceLocations(filelocation);
-
+                addResourceLocations(medialocation,filelocation);
     }
 
 

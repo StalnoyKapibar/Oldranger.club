@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
+import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 import java.io.File;
@@ -34,9 +35,11 @@ class MessageServiceImplTest {
     private ChatService chatService = Mockito.mock(ChatService.class);
     @Mock
     private Chat chat = Mockito.mock(Chat.class);
+    @Mock
+    private FileInChatService fileInChatService = Mockito.mock(FileInChatService.class);
 
 
-    private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService);
+    private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService,fileInChatService);
 
     private static List<Message> messages = new ArrayList<>(Arrays.asList(
             new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null, null, null),

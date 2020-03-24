@@ -11,5 +11,6 @@ public interface FileInChatService {
     List<FileInChat> findAllByChat (Long chatId);
     FileInChat findByName(String fileName);
     void deleteAllByChat(Long chatId);
+    void deleteByFileName(String fileName);
 
 }

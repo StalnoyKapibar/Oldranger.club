@@ -38,9 +38,9 @@ public class FileInChatServiceImpl implements FileInChatService {
         FileInChat savedFile = new FileInChat();
         try {
             String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
-            String pathToFile = "chat_" + chatId + File.separator;
+            String pathToFile = chatId.toString() + File.separator;
             String resultFileName = pathToFile + fileName;
-            File uploadPath = new File(filesDir + File.separator + "chat_" + chatId);
+            File uploadPath = new File(filesDir + File.separator + chatId.toString());
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
@@ -80,6 +80,20 @@ public class FileInChatServiceImpl implements FileInChatService {
             }
             fileInChatRepository.deleteAllByChatID(chatId);
             log.debug("All files in chat {} deleted", chatId);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteByFileName(String fileName) {
+        log.info("Deleting files with chatId = {}", fileName);
+        try {
+            FileInChat deleteFile = fileInChatRepository.findByFileName(fileName);
+            File file = new File(filesDir + File.separator + deleteFile.getFilePath());
+            FileSystemUtils.deleteRecursively(file);
+            fileInChatRepository.deleteByFileName(fileName);
+            log.debug("File {} in message deleted", deleteFile.getFileName());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

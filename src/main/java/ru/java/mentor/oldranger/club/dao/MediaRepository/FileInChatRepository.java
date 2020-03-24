@@ -9,4 +9,5 @@ public interface FileInChatRepository extends JpaRepository<FileInChat, Long> {
     List<FileInChat> findByChatID(Long chatId);
     void deleteAllByChatID(Long chatId);
     FileInChat findByFileName(String fileName);
+    void deleteByFileName(String fileName);
 }

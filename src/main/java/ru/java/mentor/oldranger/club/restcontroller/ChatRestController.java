@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -115,9 +116,12 @@ public class ChatRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Upload image", tags = {"Group Chat"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
+            @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName, fileName:fileName, filePath:filePath",
                     content = @Content(schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "200", description = "Map fileName:fileName, filePath:filePath",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in"),
+            @ApiResponse(responseCode = "413", description = "File size must not exceed 20Mb")})
     @PostMapping(value = "/image", consumes = {"multipart/form-data"})
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
                                                      @RequestParam("file-input") MultipartFile file) {
