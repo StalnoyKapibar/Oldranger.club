@@ -100,7 +100,7 @@ public class SearchRestController {
                     content = @Content(schema = @Schema(implementation = SectionsAndTopicsDto.class))),
             @ApiResponse(responseCode = "204", description = "Articles not found")})
     @GetMapping(value = "/searchArticles", produces = {"application/json"})
-    public ResponseEntity<SectionsAndTopicsDto> getFindArticles(@Parameter(description = "Ключевое слово поиска")
+    public ResponseEntity<ArticleAndCommentsDto> getFindArticles(@Parameter(description = "Ключевое слово поиска")
                                                               @RequestParam(value = "finderTag") String finderTag,
                                                               @Parameter(description = "page")
                                                               @RequestParam(value = "page", required = false) Integer page,
@@ -112,10 +112,17 @@ public class SearchRestController {
                                                               @RequestParam(value = "nodeValue", required = false) Long nodeValue) {
         User currentUser = securityUtilsService.getLoggedUser();
         List<Article> articles = searchService.searchTopicsByPageAndLimits(finderTag, page, limit, node, nodeValue);
+        List<ArticleCommentDto> articleCommentsDto;
+        ArticleAndCommentsDto articleAndCommentsDto;
+
         if (articles == null) {
             return ResponseEntity.noContent().build();
         }
-        List<ArticleAndCommentsDto> articleAndCommentsDtos = articles.stream().map(a->articleService.assembleArticleAndCommentToDto(a, currentUser).collect(Collectors.toList());
+        for (Article article: articles){
+            articleCommentsDto = articleService.getAllByArticle(article);
+            articleAndCommentsDto = articleService.getArticleAndArticleCommentDto(article, articleCommentsDto);
+        }
+       articles.stream().map(a->articleService.getArticleAndArticleCommentDto().collect(Collectors.toList());
 
         if(currentUser == null) {
             articles = articles.stream().filter(x -> !x.isHideToAnon()).collect(Collectors.toList());

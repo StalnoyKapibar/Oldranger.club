@@ -158,28 +158,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleAndCommentsDto assembleArticleAndCommentToDto(ArticleComment articleComment, Article article) {
-        ArticleCommentDto articleCommentDto;
+    public ArticleAndCommentsDto getArticleAndArticleCommentDto(Article article, ArticleCommentDto articleCommentDto) {
+        ArticleAndCommentsDto articleAndCommentsDto = getArticleAndArticleCommentDto(article)
 
-        LocalDateTime replyTime = null;
-        String replyNick = null;
-        String replyText = null;
-        Long parentId = -1L;
-        if (articleComment.getAnswerTo() != null) {
-            replyTime = articleComment.getAnswerTo().getDateTime();
-            replyNick = articleComment.getAnswerTo().getUser().getNickName();
-            replyText = articleComment.getAnswerTo().getCommentText();
-            parentId = articleComment.getAnswerTo().getId();
-        }
-
-        articleCommentDto = new ArticleCommentDto(
-                articleComment.getPosition(),
-                articleComment.getArticle().getId(),
-                articleComment.getUser(),
-                articleComment.getDateTime(),
-                replyTime, parentId, replyNick, replyText,
-                articleComment.getCommentText());
-        return articleCommentDto;
     }
 
 }
