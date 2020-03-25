@@ -20,6 +20,8 @@ public interface ArticleService {
 
     Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable);
 
+    Page<Article> getAllByTitle(String title, Pageable pageable);
+
     Page<Article> getArticleDraftByUser(User user, Pageable pageable);
 
     Article addArticle(Article article);
@@ -43,7 +45,5 @@ public interface ArticleService {
     List<ArticleCommentDto> getAllByArticle(Article article);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
-
-    ArticleAndCommentsDto getArticleAndArticleCommentDto(Article article, ArticleCommentDto articleCommentDto);
 
 }

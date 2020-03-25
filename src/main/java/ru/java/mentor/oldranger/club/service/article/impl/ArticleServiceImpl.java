@@ -45,6 +45,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public Page<Article> getAllByTitle(String title, Pageable pageable) {
+        return articleRepository.findAllByTitle(title, pageable);
+    }
+
+    @Override
     public Page<Article> getArticleDraftByUser(User user, Pageable pageable) {
         return articleRepository.findAllByDraftIsTrueAndUser(user, pageable);
     }
@@ -155,12 +160,6 @@ public class ArticleServiceImpl implements ArticleService {
     @CacheEvict(allEntries = true)
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
-    }
-
-    @Override
-    public ArticleAndCommentsDto getArticleAndArticleCommentDto(Article article, ArticleCommentDto articleCommentDto) {
-        ArticleAndCommentsDto articleAndCommentsDto = getArticleAndArticleCommentDto(article)
-
     }
 
 }
