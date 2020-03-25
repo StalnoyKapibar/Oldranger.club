@@ -21,6 +21,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -155,14 +156,14 @@ public class CommentToArticleRestController {
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
             return ResponseEntity.status(403).build();
         }
-        if (articleComment.getAnswerTo() == null) {
-            articleService.deleteComment(id);
-        } else {
+
+        List<ArticleComment> listChildComments = articleService.getChildComment(articleComment);
+        if (!listChildComments.isEmpty()) {
             articleComment.setDeleted(true);
             articleComment.setCommentText("Комментарий был удален");
             articleService.updateArticleComment(articleComment);
-            ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
-            return ResponseEntity.ok(articleCommentDto);
+        } else {
+            articleService.deleteComment(id);
         }
         return ResponseEntity.ok().build();
     }

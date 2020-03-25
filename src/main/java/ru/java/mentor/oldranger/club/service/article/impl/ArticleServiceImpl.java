@@ -12,6 +12,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
@@ -156,6 +157,13 @@ public class ArticleServiceImpl implements ArticleService {
     @CacheEvict(allEntries = true)
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
+    }
+
+    @Override
+    public List<ArticleComment> getChildComment(ArticleComment comment) {
+        log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
+        List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
+        return childComment;
     }
 
 }
