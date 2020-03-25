@@ -297,24 +297,16 @@ public class PhotoServiceImpl implements PhotoService {
             Photo photo = findById(id);
             PhotoAlbum photoAlbum = photo.getAlbum();
             List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
-            log.info("return photo list");
-            if (!photoList.isEmpty()) {
+            if (photoAlbum.getThumbImage() != null && id.equals(photoAlbum.getThumbImage().getId())) {
                 for (Photo photo1 : photoList) {
-                    if (!photo1.getId().equals(photoAlbum.getThumbImage().getId())) {
+                    if (!photo1.getId().equals(id)) {
                         photoAlbum.setThumbImage(photo1);
-                        long id1 = photo1.getId();
-                        log.info("New thumbImage = {} after deleting photo with id = {}", id1, id);
                         break;
-                    } else {
-                        if (photoList.size() <= 1) {
-                            photoAlbum.setThumbImage(null);
-                            log.info("ThumbImage null");
-                        }
                     }
                 }
-            } else {
-                photoAlbum.setThumbImage(null);
-                log.info("ThumbImage null");
+                if (photoAlbum.getThumbImage().getId().equals(id)) {
+                    photoAlbum.setThumbImage(null);
+                }
             }
             photoAlbumRepository.save(photoAlbum);
             log.debug("PhotoAlbum save");
