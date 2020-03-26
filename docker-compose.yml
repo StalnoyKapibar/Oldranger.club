@@ -1,19 +1,44 @@
 version: "3.2"
 services:
-  MySQL:
-    image: mysql:8.0.18
-    container_name: MySQL
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
+  mysql:
+    build:
+      context: ./
+      dockerfile: ./mysql/Dockerfile
+    container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: jm_oldc
-      MYSQL_USER: test
-      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./sqldata:/var/lib/mysql
     ports:
       - "3306:3306"
+
+  back-server:
+    build: ./
+    container_name: back-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_DATASOURCE_URL=${MYSQL_URL}
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./uploads:/oldranger/uploads
+      - ./media:/oldranger/media
+      - ./logstash/pipeline/logs:/oldranger/logstash/pipeline/logs
+    depends_on:
+      - mysql
+
+  front-server:
+    build:
+      context: ./front/
+      dockerfile: ./Dockerfile
+    container_name: front-server
+    ports:
+      - "3000:3000"
+
   Kibana:
     image: kibana:7.5.1
     container_name: kibana
@@ -31,7 +56,6 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.5.1
-    restart: always
     container_name: elasticsearch
     volumes:
       - type: bind
@@ -52,11 +76,11 @@ services:
       discovery.type: single-node
     networks:
       - elk
+
   logstash:
     image: logstash:7.5.1
     container_name: logstash
     hostname: logstash
-    restart: always
     volumes:
       - type: bind
         source: ./logstash/config/logstash.yml
@@ -75,6 +99,7 @@ services:
       - elk
     depends_on:
       - elasticsearch
+
   sonarqube:
     image: sonarqube
     container_name: sonarqube_oldc
@@ -82,6 +107,7 @@ services:
       - "9001:9000"
     expose:
       - "9000"
+
 networks:
   elk:
     driver: bridge

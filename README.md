@@ -2,11 +2,20 @@
 ## Запуск проекта (бэк)
 
 ###Прежде всего для развертывания backend можно использовать Docker
-для этого в папке проекта запускаем `docker-compose up -d`
 
-После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash
+1. Качаем проект [back-server](https://github.com/StalnoyKapibar/Oldranger.club) с github. Собирать проект maven не надо, контейнер сам все соберет, оставляем исходники.
 
-Пароль для базы и имя пользователя test/test
+2. Качаем [front](https://github.com/StalnoyKapibar/oldranger-front) проект в папку front проекта back-server. Ничего компилировать не надо. Докер сам все скомпилирует, кладем в папку исходники.
+
+    Так же можно запускать front отдельно от докера(Для разработки этот вариант удобнее). Тогда в папку фронт ничего качать не надо, и так же необходимо закомментировать блок front-server в файле docker-compose.yml
+
+3. Запускаем `docker-compose up -d` из корня back проекта
+
+4. После этого поднимется окружение, состоящее из Mysql 8.0.18, elasticsearch, kibana, logstash, а так же фронт и бек серверов.
+
+В корне проект back-server есть папка sqldata, она хранит последнее состояние БД из контейнера с mysql. Если хотите при запуске контейнера получить чистую БД - удалите все из этой папки.
+
+Пароль для базы и имя пользователя user/pass
 
 Пароль для входа kibana - elastic/changeme
 
@@ -16,8 +25,7 @@
 
 Для загрузки проекта для анализа из папки проекта запустить `mvn sonar:sonar`
 
-При данном способе предварительно нужно установить только JDK 8 и IDEA
-
+При данном способе не требуется устанавливать ни [IDEA](https://www.jetbrains.com/ru-ru/idea/), ни [Java](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html), ни [Maven](https://maven.apache.org/download.cgi).
 ###Длинный способ ниже
 
 1. Устанавливаем JDK 8  
