@@ -33,4 +33,6 @@ public interface CommentService {
     void updatePostion(Long topicID, Long deletedPosition);
 
     boolean isEmptyComment(String comment);
+
+    List<Comment> getChildComment(Comment comment);
 }
