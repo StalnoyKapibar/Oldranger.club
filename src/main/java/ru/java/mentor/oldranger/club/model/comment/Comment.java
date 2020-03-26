@@ -26,6 +26,9 @@ public class Comment extends BaseComment{
     @JoinColumn(name = "id_comment")
     private Comment answerTo;
 
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @Transient
     private boolean pozition;
 
@@ -49,7 +52,7 @@ public class Comment extends BaseComment{
                 ", updateTime=" + this.getUpdateTime() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
-
 }
