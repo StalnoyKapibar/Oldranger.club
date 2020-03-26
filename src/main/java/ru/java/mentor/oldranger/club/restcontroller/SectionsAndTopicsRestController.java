@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -68,7 +69,13 @@ public class SectionsAndTopicsRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class))))})
     @GetMapping(value = "/actualtopics", produces = {"application/json"})
     public ResponseEntity<List<TopicAndNewMessagesCountDto>> getMostPopularTopics() {
-        List<TopicAndNewMessagesCountDto> dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10());
+        List<TopicAndNewMessagesCountDto> dtos = null;
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10BySectionForAnon());
+        } else {
+            dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10());
+        }
         return ResponseEntity.ok(dtos);
     }
 
