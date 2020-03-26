@@ -19,6 +19,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ArticleComment extends BaseComment {
 
+    @Column(name = "id")
+    private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_article")
     private Article article;
@@ -26,6 +29,9 @@ public class ArticleComment extends BaseComment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_answer_comment")
     private ArticleComment answerTo;
+
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
 
     public ArticleComment(Article article, User user, ArticleComment answerTo, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);

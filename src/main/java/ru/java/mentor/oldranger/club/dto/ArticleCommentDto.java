@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ArticleCommentDto {
 
     private Long position;
+    private Long id;
     private Long articleId;
     private User author;
     private LocalDateTime commentDateTime;
@@ -22,5 +23,6 @@ public class ArticleCommentDto {
     private String replyNick;
     private String replyText;
     private String commentText;
+    private boolean isDeleted;
 
 }
