@@ -132,6 +132,13 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleComment> articleComments = new ArrayList<>();
         try {
             articleComments = articleCommentRepository.findByArticle(article);
+            for (ArticleComment comment : articleComments) {
+                if (comment.isDeleted()
+                        && comment.getCommentText().equals("Комментарий был удален")
+                        && getChildComment(comment).isEmpty()) {
+                    deleteComment(comment.getId());
+                }
+            }
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
