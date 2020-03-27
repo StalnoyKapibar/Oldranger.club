@@ -167,22 +167,22 @@ public class PhotoRestController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", description = "Error id or rights error")})
     @DeleteMapping(value = "/deleteMultiplePhoto")
-    public ResponseEntity deleteMultiplePhoto(@RequestBody List<Photo> photoList) {
+    public ResponseEntity deleteMultiplePhoto(@RequestBody String[] photoList) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        if (!photoList.isEmpty()) {
-            for (Photo idPhoto : photoList) {
-                PhotoAlbum photoAlbum = idPhoto.getAlbum();
+        if (photoList.length != 0) {
+            for (String idPhoto : photoList) {
+                PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(idPhoto));
 
                 if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                         !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
 
                     return ResponseEntity.badRequest().build();
                 }
-                service.deletePhoto(idPhoto.getId());
+                service.deletePhoto(Long.parseLong(idPhoto));
             }
         }
         return ResponseEntity.ok("delete ok");
