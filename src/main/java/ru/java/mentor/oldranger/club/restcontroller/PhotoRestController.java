@@ -38,10 +38,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Tag(name = "Photo")
 public class PhotoRestController {
 
-private final PhotoService service;
-private final PhotoAlbumService albumService;
-private final SecurityUtilsService securityUtilsService;
-private final PhotoPositionService photoPositionService;
+    private final PhotoService service;
+    private final PhotoAlbumService albumService;
+    private final SecurityUtilsService securityUtilsService;
+    private final PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -82,7 +82,8 @@ private final PhotoPositionService photoPositionService;
                                                         @RequestParam(value = "pos", required = false) Integer position,
                                                         @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
-        Photo photo = service.findById(Long.parseLong(id));
+        Long l = Long.parseLong(id);
+        Photo photo = service.findById(l);
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -92,7 +93,7 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -127,7 +128,7 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
 
             return ResponseEntity.badRequest().build();
         }
@@ -152,11 +153,38 @@ private final PhotoPositionService photoPositionService;
         PhotoAlbum photoAlbum = photo.getAlbum();
 
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-            !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
 
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
+        return ResponseEntity.ok("delete ok");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete multiple photos", tags = {"Photos"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "Error id or rights error")})
+    @DeleteMapping(value = "/deleteMultiplePhoto")
+    public ResponseEntity deleteMultiplePhoto(@RequestBody List<Photo> photoList) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (!photoList.isEmpty()) {
+            for (Photo idPhoto : photoList) {
+                PhotoAlbum photoAlbum = idPhoto.getAlbum();
+
+                if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                        !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
+                    return ResponseEntity.badRequest().build();
+                }
+                service.deletePhoto(idPhoto.getId());
+            }
+        }
         return ResponseEntity.ok("delete ok");
     }
 }
