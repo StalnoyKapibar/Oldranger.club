@@ -132,7 +132,7 @@ public class PhotoAlbumRestController {
             }
             album.setThumbImage(photo);
         }
-        if (photoId.equals("")) {
+        if (photoId.equals("") | photoId == null) {
             album.setThumbImage(null);
         }
         if (title != null) {
