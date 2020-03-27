@@ -253,7 +253,7 @@ public class DataInitializer implements CommandLineRunner {
         // Создание подсекций
         Subsection subsection = new Subsection("Общая подсекция в секции для всех", 1, sectionForUnverified, false);
         Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", 2, sectionForUnverified, true);
-        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, false);
+        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, true);
         Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей", 2, sectionForUsers, true);
         subsectionService.createSubsection(subsection);
         subsectionService.createSubsection(subsection2);
@@ -266,19 +266,19 @@ public class DataInitializer implements CommandLineRunner {
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
         PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName());
         photoAlbum2.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
+        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, true, false);
         PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName());
         photoAlbum3.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true, false);
         PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName());
         photoAlbum4.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false, false);
+        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, true, false);
         PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName());
         photoAlbum5.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true, false);
         PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName());
         photoAlbum6.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false, true);
+        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, true, true);
         PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName());
         photoAlbum7.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true, false);
@@ -305,7 +305,7 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 0; i < 2; i++) {
             b = !b;
             Random random = new Random();
-            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
+            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, false, false);
             topicService.createTopic(topicX);
             for (int j = 0; j < 10; j++) {
                 Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);

@@ -45,7 +45,7 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
         List<SectionsAndSubsectionsDto> list = null;
         try {
             List<Section> sections = sectionRepository.getAllByIsHideToAnonIsFalse(Sort.by("position").ascending());
-            List<Subsection> subsections = subsectionRepository.findAll(Sort.by("section", "position").ascending());
+            List<Subsection> subsections = subsectionRepository.getAllByHideToAnonIsFalse(Sort.by("section", "position").ascending());
             list = combineListOfSectionsAndSubsections(sections, subsections);
             log.debug("Returned list of {} dtos", list.size());
         } catch (Exception e) {
