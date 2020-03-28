@@ -214,7 +214,7 @@ public class CommentAndTopicRestController {
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
-                                                    @RequestParam String photoIdList,
+                                                    @RequestParam String[] photoIdList,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
@@ -246,20 +246,24 @@ public class CommentAndTopicRestController {
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         List<Photo> photos = commentDto.getPhotos();
 
-        String parsing = photoIdList.replaceAll("[^0-9]", "");
-        String[] parse = parsing.split("");
+        String idPhotosForDelete = photoIdList[0].replaceAll("[^0-9]", "");
 
         String cleanedText = filterHtmlService.filterHtml(messageComments.getText());
-        if (parse[0].equals("") & commentService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
+        if (idPhotosForDelete.equals("") & commentService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
             return ResponseEntity.badRequest().build();
         }
 
         commentService.updateComment(comment);
 
-
-        if (!photos.isEmpty()) {
-            commentDto = deletePhotoFromDto(parse, photos, commentDto);
+        List<Long> idDeletePhotos = new ArrayList<>();
+        for (int i = 0; i <= photoIdList.length - 1; i++) {
+            String id = photoIdList[i].replaceAll("[^0-9]", "");
+            if (!id.equals("")) {
+                idDeletePhotos.add(Long.parseLong(id));
+            }
         }
+
+        commentDto = deletePhotoFromDto(idDeletePhotos, photos, commentDto);
 
         if (image1 != null) {
             PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
@@ -276,40 +280,23 @@ public class CommentAndTopicRestController {
         return ResponseEntity.ok(commentDto);
     }
 
-    public CommentDto deletePhotoFromDto(String[] parse, List<Photo> photos, CommentDto commentDto) {
-        if (!parse[0].equals("")) {
-            if (parse.length == 1) {
-                Long oldId = Long.parseLong(parse[0]);
-                for (Photo photo : photos) {
-                    if (!oldId.equals(photo.getId())) {
+    public CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
+        if (!idDeletePhotos.isEmpty()) {
+            for (Photo photo : photos) {
+                for (Long id : idDeletePhotos) {
+                    if (!id.equals(photo.getId())) {
                         photoService.deletePhoto(photo.getId());
                     }
                 }
-                photos.clear();
-                photos.add(photoService.findById(oldId));
-                commentDto.setPhotos(photos);
             }
-            if (parse.length == 2) {
-                Long oldId = Long.parseLong(parse[0]);
-                Long oldId1 = Long.parseLong(parse[1]);
-                for (Photo photo : photos) {
-                    if (!oldId.equals(photo.getId())) {
-                        photoService.deletePhoto(photo.getId());
-                    }
-                    if (!oldId1.equals(photo.getId())) {
-                        photoService.deletePhoto(photo.getId());
-                    }
-                }
-                photos.clear();
-                photos.add(photoService.findById(oldId));
-                photos.add(photoService.findById(oldId1));
-                commentDto.setPhotos(photos);
+            photos.clear();
+            for (Long id : idDeletePhotos) {
+                photos.add(photoService.findById(id));
             }
+            commentDto.setPhotos(photos);
         } else {
-            if (!photos.isEmpty()) {
-                for (Photo photo : photos) {
-                    photoService.deletePhoto(photo.getId());
-                }
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
             }
             photos.clear();
             commentDto.setPhotos(photos);
@@ -317,3 +304,5 @@ public class CommentAndTopicRestController {
         return commentDto;
     }
 }
+
+
