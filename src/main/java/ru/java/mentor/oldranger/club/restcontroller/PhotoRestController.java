@@ -82,8 +82,7 @@ public class PhotoRestController {
                                                         @RequestParam(value = "pos", required = false) Integer position,
                                                         @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
-        Long l = Long.parseLong(id);
-        Photo photo = service.findById(l);
+        Photo photo = service.findById(Long.parseLong(id));
         if (photo == null) {
             return ResponseEntity.badRequest().build();
         }
