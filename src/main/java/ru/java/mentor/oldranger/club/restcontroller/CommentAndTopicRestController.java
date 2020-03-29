@@ -219,7 +219,10 @@ public class CommentAndTopicRestController {
                                                     @RequestPart(required = false) MultipartFile image2) {
 
         Comment comment = commentService.getCommentById(commentID);
-        messageComments.setAnswerID(comment.getAnswerTo().getId());
+        Comment answerComment = comment.getAnswerTo();
+        if (answerComment != null) {
+            messageComments.setAnswerID(comment.getAnswerTo().getId());
+        }
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
