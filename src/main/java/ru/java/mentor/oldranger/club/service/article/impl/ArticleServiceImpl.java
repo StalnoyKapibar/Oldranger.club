@@ -110,6 +110,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ArticleAndCommentsDto assembleArticleAndCommentToDto(Article article, List<ArticleCommentDto> articleComment) {
+        ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComment);
+        return articleAndCommentsDto;
+    }
+
+    @Override
     @Cacheable(value = "articleComment")
     public ArticleComment getCommentById(Long id) {
         Optional<ArticleComment> comment = articleCommentRepository.findById(id);

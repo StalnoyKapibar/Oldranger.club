@@ -46,4 +46,6 @@ public interface ArticleService {
 
     Page<Article> getArticlesForAnon(Pageable pageable);
 
+    ArticleAndCommentsDto assembleArticleAndCommentToDto(Article article, List<ArticleCommentDto> articleComment);
+
 }

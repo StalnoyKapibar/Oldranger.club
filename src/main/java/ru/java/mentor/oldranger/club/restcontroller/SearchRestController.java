@@ -1,5 +1,6 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
+import com.sun.xml.bind.v2.TODO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -28,6 +29,7 @@ import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,20 +109,25 @@ public class SearchRestController {
                     content = @Content(schema = @Schema(implementation = Article.class))),
             @ApiResponse(responseCode = "204", description = "Articles not found")})
     @GetMapping(value = "/searchArticles", produces = {"application/json"})
-    public ResponseEntity<Page<Article>> getAllArticlesByArticleTitle(@RequestParam(value = "title") String title,
-                                                                      @RequestParam(value = "page", required = false) Integer page) {
+    public ResponseEntity<List<ArticleAndCommentsDto>> getAllArticlesByArticleTitle(@RequestParam(value = "title") String title,
+                                                                                    @RequestParam(value = "page", required = false) Integer page) {
         User user = securityUtilsService.getLoggedUser();
+        //добавить проверку на права редактирования
         if (user == null || page == null || title == null) {
             return ResponseEntity.noContent().build();
-        } else {
-            Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("id"));
-            Page<Article> articles = articleService.getAllByTitle(title, pageable);
-            List<ArticleAndCommentsDto> articleAndCommentsDto;
-            for (Article article: articles){
-                ArticleAndCommentsDto dto = articleService.assembleCommentToDto();
-            }
-            return ResponseEntity.ok(articles);
         }
+
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("id"));
+        Page<Article> articles = articleService.getAllByTitle(title, pageable);
+
+        List<ArticleAndCommentsDto> articleAndCommentsDtoList = new ArrayList<>();
+        ArticleAndCommentsDto articleAndCommentsDto;
+        for (Article article : articles) {
+            List<ArticleCommentDto> articleCommentDto = articleService.getAllByArticle(article);
+            articleAndCommentsDto = articleService.assembleArticleAndCommentToDto(article, articleCommentDto);
+            articleAndCommentsDtoList.add(articleAndCommentsDto);
+        }
+        return ResponseEntity.ok(articleAndCommentsDtoList);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
