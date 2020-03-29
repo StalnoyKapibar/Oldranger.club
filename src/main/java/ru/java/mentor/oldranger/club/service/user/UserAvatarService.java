@@ -7,13 +7,13 @@ import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 public interface UserAvatarService {
     void save(UserAvatar avatar);
 
-    String uploadImage(MultipartFile file);
-
-    String thumbnailImage(String imageLocation, int size, MultipartFile file);
+    String uploadImage(MultipartFile file, Long id);
 
     void setAvatarToUser(User user, MultipartFile file);
 
     void deleteUserAvatar(User user);
+
+    UserAvatar setDefaultAvatar(Long id);
 
     void updateUserAvatar(User user, MultipartFile file);
 }

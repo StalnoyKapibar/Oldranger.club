@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     }
 
     @Override
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file, Long id) {
         log.info("Uploading file {}", file.getOriginalFilename());
         File uploadPath = new File(uploadDir);
         String resultFileName = null;
@@ -60,9 +60,8 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             if (!uploadPath.exists()) {
                 uploadPath.mkdir();
             }
-            resultFileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
-            Path copyLocation = Paths
-                    .get(uploadDir + File.separator + resultFileName);
+            resultFileName = getAvatarPath(id).toString();
+            Path copyLocation = getAvatarPath(id);
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             log.info("File uploaded");
         } catch (IOException e) {
@@ -71,15 +70,15 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         return resultFileName;
     }
 
-    public String thumbnailImage(String imageName, int size, MultipartFile file) {
-        log.info("Thumbnailing image {} to size {}", file.getOriginalFilename(), size);
+    private String thumbnailImage(Long id, int size) {
+        log.info("Thumbnailing image to size {}", size);
         String resultFileName = null;
         try {
-            resultFileName = UUID.randomUUID().toString() + "__" +
-                    size + "px" + StringUtils.cleanPath(file.getOriginalFilename());
+            Path avatarPath = getAvatarPath(id);
+            resultFileName = size + "px" + StringUtils.cleanPath(avatarPath.toFile().getName());
             String resultFileLocation = Paths
                     .get(uploadDir + File.separator + resultFileName).toString();
-            Thumbnails.of(uploadDir + File.separator + imageName)
+            Thumbnails.of(avatarPath.toString())
                     .size(size, size)
                     .toFile(resultFileLocation);
             log.info("Image thumbnailed");
@@ -89,19 +88,24 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         return resultFileName;
     }
 
-    private UserAvatar createNewAvatar(MultipartFile file) {
+    private UserAvatar createNewAvatar(MultipartFile file, User user) {
         log.debug("Creating new user avatar");
         UserAvatar userAvatar = new UserAvatar();
-        userAvatar.setOriginal(uploadImage(file));
-        userAvatar.setMedium(thumbnailImage(userAvatar.getOriginal(), medium, file));
-        userAvatar.setSmall(thumbnailImage(userAvatar.getOriginal(), small, file));
+        userAvatar.setOriginal(uploadImage(file, user.getId()));
+        userAvatar.setMedium(thumbnailImage(user.getId(), medium));
+        userAvatar.setSmall(thumbnailImage(user.getId(), small));
         return userAvatar;
     }
 
     public void setAvatarToUser(User user, MultipartFile file) {
         log.info("Setting avatar to user {}", user);
+        UserAvatar userAvatar = null;
         try {
-            UserAvatar userAvatar = createNewAvatar(file);
+            if (user.getAvatar() == null) {
+                userAvatar = setDefaultAvatar(user.getId());
+            } else {
+                userAvatar = createNewAvatar(file, user);
+            }
             save(userAvatar);
             user.setAvatar(userAvatar);
             userService.save(user);
@@ -115,7 +119,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         log.info("Deleting avatar of user {}", user);
         try {
             UserAvatar userAvatar = user.getAvatar();
-            if (!userAvatar.getOriginal().equals("default.png")) {
+            if (!userAvatar.getIsDefaultAvatar()) {
                 Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getOriginal()));
                 Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getMedium()));
                 Files.deleteIfExists(Paths.get(uploadDir + File.separator + userAvatar.getSmall()));
@@ -131,8 +135,35 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     public void updateUserAvatar(User user, MultipartFile file) {
         log.info("Updating user {} avatar", user);
-        //deleteUserAvatar(user);
+        UserAvatar avatar = user.getAvatar();
+        avatar.setIsDefaultAvatar(false);
+        user.setAvatar(avatar);
         setAvatarToUser(user, file);
         log.info("Avatar updated");
+    }
+
+    private Path getAvatarPath(Long id) {
+        return Paths.get(uploadDir + File.separator + "avatarForUserWithID_" + id + ".jpg");
+    }
+
+    public UserAvatar setDefaultAvatar(Long id) {
+        File uploadPath = new File(uploadDir);
+        try {
+            if (!uploadPath.exists()) {
+                uploadPath.mkdir();
+            }
+            Path path = Paths.get(uploadDir + File.separator + "default.png");
+            Path avatarPath = getAvatarPath(id);
+            Files.copy(path, avatarPath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("File uploaded");
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        UserAvatar defaultAvatar = new UserAvatar();
+        defaultAvatar.setIsDefaultAvatar(true);
+        defaultAvatar.setOriginal(getAvatarPath(id).toString());
+        defaultAvatar.setMedium(thumbnailImage(id, medium));
+        defaultAvatar.setMedium(thumbnailImage(id, small));
+        return defaultAvatar;
     }
 }

@@ -16,6 +16,9 @@ public class UserAvatar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "isDefaultAvatar", nullable = true)
+    private Boolean isDefaultAvatar;
+
     @Column(name = "original_img", nullable = true)
     private String original;
 
