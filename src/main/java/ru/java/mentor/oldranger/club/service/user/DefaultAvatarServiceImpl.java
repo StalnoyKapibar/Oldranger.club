@@ -41,7 +41,7 @@ public class DefaultAvatarServiceImpl {
         }
         UserAvatar defaultAvatar = new UserAvatar();
         defaultAvatar.setIsDefaultAvatar(true);
-        defaultAvatar.setOriginal(avatarPath.toString());
+        defaultAvatar.setOriginal(avatarPath.getFileName().toString());
         defaultAvatar.setMedium(thumbnailImage(avatarPath, medium));
         defaultAvatar.setSmall(thumbnailImage(avatarPath, small));
         //System.out.println(defaultAvatar.getOriginal() + "  " + defaultAvatar.getMedium() + "  " + defaultAvatar.getSmall());

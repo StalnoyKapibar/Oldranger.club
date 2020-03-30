@@ -60,7 +60,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             if (!uploadPath.exists()) {
                 uploadPath.mkdir();
             }
-            resultFileName = getAvatarPath(id).toString();
+            resultFileName = getAvatarPath(id).getFileName().toString();
             Path copyLocation = getAvatarPath(id);
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             log.info("File uploaded");
