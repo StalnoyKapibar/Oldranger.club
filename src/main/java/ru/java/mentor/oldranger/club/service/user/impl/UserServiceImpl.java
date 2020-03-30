@@ -1,14 +1,10 @@
 package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
@@ -18,16 +14,8 @@ import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
-import ru.java.mentor.oldranger.club.service.user.UserProfileService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+import ru.java.mentor.oldranger.club.service.user.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,21 +23,14 @@ import java.util.Optional;
 @Slf4j
 @Service
 @AllArgsConstructor
-@RequiredArgsConstructor
 @CacheConfig(cacheNames = "user", cacheManager = "generalCacheManager")
 public class UserServiceImpl implements UserService {
-
-    @Value("${upload.location:${user.home}}")
-    private String uploadDir;
-    @Value("${upload.medium}")
-    private int medium;
-    @Value("${upload.small}")
-    private int small;
 
     private UserRepository userRepository;
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
+    private DefaultAvatarServiceImpl defaultAvatarService;
 
     @Override
     public List<User> findAll() {
@@ -82,14 +63,10 @@ public class UserServiceImpl implements UserService {
         log.info("Saving user");
         User savedUser = null;
         try {
-            savedUser = userRepository.save(user);
-            Long id = savedUser.getId();
             if (user.getAvatar() == null) {
-                UserAvatar defaultAvatar = setDefaultAvatar(id);
-                savedUser.setAvatar(defaultAvatar);
-                userRepository.save(savedUser);
+                user.setAvatar(setDefaultAvatar());
             }
-
+            savedUser = userRepository.save(user);
             if (userStatistic.getUserStaticByUser(user) == null) {
                 userStatistic.saveUserStatic(new UserStatistic(user));
             }
@@ -157,6 +134,11 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    private UserAvatar setDefaultAvatar() {
+        UserAvatar def = new UserAvatar();
+        return def;
+    }
+
     @Override
     @Cacheable
     public User getUserByEmail(String email) {
@@ -204,34 +186,6 @@ public class UserServiceImpl implements UserService {
     public Long getCount() {
         log.debug("Count users");
         return userRepository.count();
-    }
-
-    public UserAvatar setDefaultAvatar(Long id) {
-        File uploadPath = new File(uploadDir);
-        Path avatarPath = Paths.get(uploadDir + File.separator + "avatarForUserWithID_" + id + ".jpg");
-        String resultFileName = small + "px" + StringUtils.cleanPath(avatarPath.toFile().getName());
-        String resultFileLocation = Paths
-                .get(uploadDir + File.separator + resultFileName).toString();
-        try {
-            if (!uploadPath.exists()) {
-                uploadPath.mkdir();
-            }
-            Path path = Paths.get(uploadDir + File.separator + "default.png");
-            Files.copy(path, avatarPath, StandardCopyOption.REPLACE_EXISTING);
-            log.info("File uploaded");
-
-            Thumbnails.of(avatarPath.toString())
-                    .size(small, small)
-                    .toFile(resultFileLocation);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-        UserAvatar defaultAvatar = new UserAvatar();
-        defaultAvatar.setIsDefaultAvatar(true);
-        defaultAvatar.setOriginal(avatarPath.toString());
-        defaultAvatar.setMedium(avatarPath.toString());
-        defaultAvatar.setMedium(resultFileLocation);
-        return defaultAvatar;
     }
 
 }

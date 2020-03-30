@@ -43,6 +43,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     @Override
     public void save(UserAvatar avatar) {
         log.info("Saving avatar {}", avatar);
+        System.out.println(uploadDir);
         try {
             userAvatarRepository.save(avatar);
             log.info("Avatar saved");
@@ -163,7 +164,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         defaultAvatar.setIsDefaultAvatar(true);
         defaultAvatar.setOriginal(getAvatarPath(id).toString());
         defaultAvatar.setMedium(thumbnailImage(id, medium));
-        defaultAvatar.setMedium(thumbnailImage(id, small));
+        defaultAvatar.setSmall(thumbnailImage(id, small));
         return defaultAvatar;
     }
 }
