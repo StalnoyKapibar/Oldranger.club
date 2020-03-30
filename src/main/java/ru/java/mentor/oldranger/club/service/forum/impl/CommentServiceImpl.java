@@ -152,6 +152,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setCommentId(comment.getId());
             commentDto.setPositionInTopic(comment.getPosition());
             commentDto.setTopicId(comment.getTopic().getId());
+            commentDto.setTopicName(comment.getTopic().getName());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());
             commentDto.setCommentUpdateTime(comment.getUpdateTime());
