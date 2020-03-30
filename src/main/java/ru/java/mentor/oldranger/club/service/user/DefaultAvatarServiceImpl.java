@@ -44,7 +44,6 @@ public class DefaultAvatarServiceImpl {
         defaultAvatar.setOriginal(avatarPath.getFileName().toString());
         defaultAvatar.setMedium(thumbnailImage(avatarPath, medium));
         defaultAvatar.setSmall(thumbnailImage(avatarPath, small));
-        //System.out.println(defaultAvatar.getOriginal() + "  " + defaultAvatar.getMedium() + "  " + defaultAvatar.getSmall());
         return defaultAvatar;
     }
 
@@ -53,14 +52,11 @@ public class DefaultAvatarServiceImpl {
         String resultFileName = null;
         try {
             resultFileName = size + "px" + StringUtils.cleanPath(path.toFile().getName());
-            //System.out.println(resultFileName);
-            //System.out.println(path.getFileName().toString());
             String resultFileLocation = Paths
                     .get(uploadDir + File.separator + resultFileName).toString();
             Thumbnails.of(path.toString())
                     .size(size, size)
                     .toFile(resultFileLocation);
-            //System.out.println(resultFileLocation);
             log.info("Image thumbnailed");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
