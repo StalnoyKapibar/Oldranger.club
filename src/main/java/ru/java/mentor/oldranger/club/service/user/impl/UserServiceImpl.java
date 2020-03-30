@@ -64,9 +64,11 @@ public class UserServiceImpl implements UserService {
         User savedUser = null;
         try {
             if (user.getAvatar() == null) {
-                user.setAvatar(setDefaultAvatar());
+                user.setAvatar(setDefaultAvatar(user));
+                //System.out.println(user.getAvatar().getOriginal());
             }
             savedUser = userRepository.save(user);
+            System.out.println(savedUser.getAvatar().getOriginal());
             if (userStatistic.getUserStaticByUser(user) == null) {
                 userStatistic.saveUserStatic(new UserStatistic(user));
             }
@@ -134,8 +136,10 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private UserAvatar setDefaultAvatar() {
-        UserAvatar def = new UserAvatar();
+    private UserAvatar setDefaultAvatar(User user) {
+        Long id = userRepository.save(user).getId();
+        UserAvatar def = defaultAvatarService.setDefaultAvatar(id);
+        //System.out.println(def.getOriginal());
         return def;
     }
 

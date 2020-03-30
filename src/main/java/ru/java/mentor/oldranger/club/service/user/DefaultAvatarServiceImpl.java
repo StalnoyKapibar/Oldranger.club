@@ -29,7 +29,7 @@ public class DefaultAvatarServiceImpl {
     public UserAvatar setDefaultAvatar(Long id) {
         File uploadPath = new File(uploadDir);
         Path path = Paths.get(uploadDir + File.separator + "default.png");
-        Path avatarPath = Paths.get(uploadDir + File.separator + "avatarForUserWithID_" + id + ".jpg");
+        Path avatarPath = Paths.get(uploadDir + File.separator + "avatarForUserWithID_" + id + ".png");
         try {
             if (!uploadPath.exists()) {
                 uploadPath.mkdir();
@@ -42,21 +42,25 @@ public class DefaultAvatarServiceImpl {
         UserAvatar defaultAvatar = new UserAvatar();
         defaultAvatar.setIsDefaultAvatar(true);
         defaultAvatar.setOriginal(avatarPath.toString());
-        defaultAvatar.setMedium(thumbnailImage(id, medium));
-        defaultAvatar.setSmall(thumbnailImage(id, small));
+        defaultAvatar.setMedium(thumbnailImage(avatarPath, medium));
+        defaultAvatar.setSmall(thumbnailImage(avatarPath, small));
+        //System.out.println(defaultAvatar.getOriginal() + "  " + defaultAvatar.getMedium() + "  " + defaultAvatar.getSmall());
         return defaultAvatar;
     }
-    private String thumbnailImage(Long id, int size) {
+
+    private String thumbnailImage(Path path, int size) {
         log.info("Thumbnailing image to size {}", size);
         String resultFileName = null;
         try {
-            Path avatarPath = Paths.get(uploadDir + File.separator + "avatarForUserWithID_" + id + ".jpg");
-            resultFileName = size + "px" + StringUtils.cleanPath(avatarPath.toFile().getName());
+            resultFileName = size + "px" + StringUtils.cleanPath(path.toFile().getName());
+            //System.out.println(resultFileName);
+            //System.out.println(path.getFileName().toString());
             String resultFileLocation = Paths
                     .get(uploadDir + File.separator + resultFileName).toString();
-            Thumbnails.of(avatarPath.toString())
+            Thumbnails.of(path.toString())
                     .size(size, size)
                     .toFile(resultFileLocation);
+            //System.out.println(resultFileLocation);
             log.info("Image thumbnailed");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
