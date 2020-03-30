@@ -1,4 +1,4 @@
-package ru.java.mentor.oldranger.club.service.user;
+package ru.java.mentor.oldranger.club.service.user.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.java.mentor.oldranger.club.model.user.UserAvatar;
+import ru.java.mentor.oldranger.club.service.user.DefaultAvatarService;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class DefaultAvatarServiceImpl {
+public class DefaultAvatarServiceImpl implements DefaultAvatarService {
     @Value("${upload.location:${user.home}}")
     private String uploadDir;
     @Value("${upload.medium}")
@@ -26,6 +27,7 @@ public class DefaultAvatarServiceImpl {
     @Value("${upload.small}")
     private int small;
 
+    @Override
     public UserAvatar setDefaultAvatar(Long id) {
         File uploadPath = new File(uploadDir);
         Path path = Paths.get(uploadDir + File.separator + "default.png");

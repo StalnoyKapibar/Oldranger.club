@@ -73,7 +73,6 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     private String thumbnailImage(Long id, int size) {
         log.info("Thumbnailing image to size {}", size);
         String resultFileName = null;
-
         try {
             Path avatarPath = getAvatarPath(id);
             resultFileName = size + "px" + StringUtils.cleanPath(avatarPath.toFile().getName());
@@ -86,7 +85,6 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        //System.out.println(resultFileName);
         return resultFileName;
     }
 

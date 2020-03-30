@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private UserProfileService userProfileService;
     private UserStatisticService userStatistic;
     private MediaService mediaService;
-    private DefaultAvatarServiceImpl defaultAvatarService;
+    private DefaultAvatarService defaultAvatarService;
 
     @Override
     public List<User> findAll() {
