@@ -82,7 +82,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         if (page == null || page == 0) {
-            page = 1;
+            page = 0;
         }
         if (limit == null || limit == 0) {
             limit = 10;
@@ -93,7 +93,7 @@ public class SearchServiceImpl implements SearchService {
         int countLastPage = count % limit == 0 ? limit : count % limit;
         int pages = (count / limit) == 0 ? 1 : count / limit;
 
-        int startIndex = pages > page ? page * limit - 1 : (pages * limit) - limit;
+        int startIndex = pages > page ? page * (limit - 1) : (pages * limit) - limit;
 
         if (pages <= page) {
             objects = new Object[countLastPage];

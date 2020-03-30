@@ -86,7 +86,10 @@ public class SearchRestController {
         if (comments == null) {
             return ResponseEntity.noContent().build();
         }
-        List<CommentDto> commentDtoList = comments.stream().map(a -> commentService.assembleCommentDto(a, currentUser)).collect(Collectors.toList());
+        List<CommentDto> commentDtoList = comments
+                .stream()
+                .map(a -> commentService.assembleCommentDto(a, currentUser))
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(commentDtoList);
     }
