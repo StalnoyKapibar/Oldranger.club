@@ -83,7 +83,7 @@ public class SearchRestController {
                                                             @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
         List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
-        if (comments == null) {
+        if (comments == null || comments.size() == 0) {
             return ResponseEntity.noContent().build();
         }
         List<CommentDto> commentDtoList = comments

@@ -35,7 +35,11 @@ public class SearchServiceImpl implements SearchService {
          * А также добавить в параметр fetchingField, вместо null
          */
         List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
-        return pageable(comments, page, limit);
+        if (comments.size() == 0) {
+            return comments;
+        } else {
+            return pageable(comments, page, limit);
+        }
     }
 
 
@@ -81,7 +85,7 @@ public class SearchServiceImpl implements SearchService {
             return null;
         }
 
-        if (page == null || page == 0) {
+        if (page == null) {
             page = 0;
         }
         if (limit == null || limit == 0) {
@@ -91,28 +95,22 @@ public class SearchServiceImpl implements SearchService {
 
         int count = list.size();
         int countLastPage = count % limit == 0 ? limit : count % limit;
-        int pages = (count / limit) == 0 ? 1 : count / limit;
-
-        int startIndex;
-
-        if (page - 1 < 0) {
-            startIndex = 0;
-            objects = new Object[countLastPage];
-            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
-            return Arrays.stream(objects).collect(Collectors.toList());
+        int pages;
+        if (countLastPage == 10) {
+            pages = count / limit;
         } else {
-            startIndex = pages > page - 1 ? page * limit - 1 : (pages * limit) - limit;
+            pages = count / limit == 0 ? 1 : count / limit + 1;
         }
-        if (pages <= page) {
+
+        int startIndex = page == 0 ? 0 : page * limit;
+
+        if (page + 1 == pages) {
             objects = new Object[countLastPage];
             System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
-            return Arrays.stream(objects).collect(Collectors.toList());
-        } else if (pages > page) {
+        } else {
             objects = new Object[limit];
             System.arraycopy(list.toArray(), startIndex, objects, 0, limit);
-            return Arrays.stream(objects).collect(Collectors.toList());
         }
-
-        return null;
+        return Arrays.stream(objects).collect(Collectors.toList());
     }
 }
