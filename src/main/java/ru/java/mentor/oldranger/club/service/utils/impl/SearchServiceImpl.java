@@ -93,8 +93,16 @@ public class SearchServiceImpl implements SearchService {
         int countLastPage = count % limit == 0 ? limit : count % limit;
         int pages = (count / limit) == 0 ? 1 : count / limit;
 
-        int startIndex = pages > page ? page * (limit - 1) : (pages * limit) - limit;
+        int startIndex;
 
+        if (page - 1 < 0) {
+            startIndex = 0;
+            objects = new Object[countLastPage];
+            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
+            return Arrays.stream(objects).collect(Collectors.toList());
+        } else {
+            startIndex = pages > page - 1 ? page * limit - 1 : (pages * limit) - limit;
+        }
         if (pages <= page) {
             objects = new Object[countLastPage];
             System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
