@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
+import ru.java.mentor.oldranger.club.dto.CommentDtoAndCountMessages;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -77,7 +78,7 @@ public class SearchRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
-    public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
+    public ResponseEntity<CommentDtoAndCountMessages> getFindComments(@Parameter(description = "Ключевое слово поиска")
                                                             @RequestParam(value = "finderTag") String finderTag,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "limit", required = false) Integer limit) {
@@ -91,6 +92,13 @@ public class SearchRestController {
                 .map(a -> commentService.assembleCommentDto(a, currentUser))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(commentDtoList);
+        List commentAll = searchService.searchAllCommentByText(finderTag);
+
+        long countMessages = commentAll.size();
+
+        CommentDtoAndCountMessages dtoAndCountMessages = commentService
+                .assembleCommentDtoAndMessages(commentDtoList, countMessages);
+
+        return ResponseEntity.ok(dtoAndCountMessages);
     }
 }

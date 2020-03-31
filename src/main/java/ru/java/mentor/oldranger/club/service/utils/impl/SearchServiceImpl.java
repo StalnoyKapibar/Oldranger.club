@@ -42,6 +42,13 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
+    public List searchAllCommentByText(String queryString) {
+        log.debug("Searching in comments {}", queryString);
+        String[] targetFields = {"commentText"};
+        List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
+       return comments;
+    }
+
 
     public List searchTopicsByNode(String finderTag, Integer node, Long nodeValue) {
         log.debug("Searching topics by node {}, nodeValue = {}, finderTag = {}", node, nodeValue, finderTag);

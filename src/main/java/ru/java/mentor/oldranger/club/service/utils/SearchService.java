@@ -9,4 +9,6 @@ public interface SearchService {
     List searchByComment(String queryString, Integer page, Integer limit);
 
     List searchTopicsByPageAndLimits(String finderTag, Integer page, Integer limit, Integer node, Long nodeValue);
+
+    List searchAllCommentByText(String queryString);
 }
