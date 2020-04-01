@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
+import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
@@ -42,6 +44,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
         return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
+    }
+
+    @Override
+    public Page<Article> getAllByTitle(String title, Pageable pageable) {
+        return articleRepository.findAllByTitle(title, pageable);
     }
 
     @Override
@@ -104,6 +111,12 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getCommentText(),
                 articleComment.isDeleted());
         return articleCommentDto;
+    }
+
+    @Override
+    public ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticles) {
+        ArticleListAndCountArticlesDto articleListDto = new ArticleListAndCountArticlesDto(articles, countArticles);
+        return articleListDto;
     }
 
     @Override
@@ -172,5 +185,4 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
         return childComment;
     }
-
 }

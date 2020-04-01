@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -14,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Indexed
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -25,6 +28,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Field
     @Column(name = "title")
     private String title;
 
