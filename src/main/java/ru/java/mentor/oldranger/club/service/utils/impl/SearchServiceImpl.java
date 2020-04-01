@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
+import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
@@ -106,5 +107,18 @@ public class SearchServiceImpl implements SearchService {
         }
 
         return null;
+    }
+
+    public List searchByArticleNameLimitPage(String queryString, Integer page, Integer limit) {
+        log.debug("Searching by article name {}", queryString);
+        String[] targetFields = {"title"};
+        List list = searchRepository.searchObjectsByName(queryString, null, targetFields, Article.class);
+        return pageable(list, page, limit);
+    }
+
+    public List searchByArticleName(String queryString) {
+        log.debug("Searching by article name {}", queryString);
+        String[] targetFields = {"title"};
+        return searchRepository.searchObjectsByName(queryString, null, targetFields, Article.class);
     }
 }

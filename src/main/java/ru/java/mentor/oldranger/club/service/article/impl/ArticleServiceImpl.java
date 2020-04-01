@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentReposit
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
+import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
@@ -110,9 +111,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleAndCommentsDto assembleArticleAndCommentToDto(Article article, List<ArticleCommentDto> articleComment) {
-        ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComment);
-        return articleAndCommentsDto;
+    public ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticles) {
+        ArticleListAndCountArticlesDto articleListDto = new ArticleListAndCountArticlesDto(articles, countArticles);
+        return articleListDto;
     }
 
     @Override
