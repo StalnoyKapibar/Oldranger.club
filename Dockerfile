@@ -9,6 +9,7 @@ WORKDIR /oldranger/
 COPY --from=build-stage /oldranger/target/oldranger.club-0.0.1-SNAPSHOT.jar /oldranger/target/
 COPY uploads/ uploads/
 COPY media/ media/
+COPY filesInChat/ filesInChat/
 EXPOSE 8888
 ENTRYPOINT ["java", "-jar", "target/oldranger.club-0.0.1-SNAPSHOT.jar"]
 
