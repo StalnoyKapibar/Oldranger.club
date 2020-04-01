@@ -16,6 +16,7 @@ public class CommentDto {
     private Long commentId;
     private Long positionInTopic;
     private Long topicId;
+    private String topicName;
     private User author;
     private LocalDateTime commentDateTime;
     private LocalDateTime commentUpdateTime;
@@ -26,5 +27,5 @@ public class CommentDto {
     private String commentText;
     private List<Photo> photos;
     private boolean updatable;
-
+    private boolean isDeleted;
 }

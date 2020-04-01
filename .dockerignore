@@ -1,0 +1,8 @@
+.idea
+target/
+.gitignore
+backup.bash
+docker-compose.yalm
+Dockerfile
+oldranger.club.iml
+README.md

@@ -40,6 +40,21 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
     }
 
     @Override
+    public List<SectionsAndSubsectionsDto> getAllSectionsAndSubsectionsForAnon() {
+        log.debug("Getting list of section and subsection dtos");
+        List<SectionsAndSubsectionsDto> list = null;
+        try {
+            List<Section> sections = sectionRepository.getAllByIsHideToAnonIsFalse(Sort.by("position").ascending());
+            List<Subsection> subsections = subsectionRepository.getAllByHideToAnonIsFalse(Sort.by("section", "position").ascending());
+            list = combineListOfSectionsAndSubsections(sections, subsections);
+            log.debug("Returned list of {} dtos", list.size());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return list;
+    }
+
+    @Override
     public void swapSections(List<Long> sectionsId) {
         log.info("Swapping sections {}", sectionsId);
         try {

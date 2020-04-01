@@ -36,7 +36,18 @@ public class SearchServiceImpl implements SearchService {
          * А также добавить в параметр fetchingField, вместо null
          */
         List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
-        return pageable(comments, page, limit);
+        if (comments.size() == 0) {
+            return comments;
+        } else {
+            return pageable(comments, page, limit);
+        }
+    }
+
+    public List searchAllCommentByText(String queryString) {
+        log.debug("Searching in comments {}", queryString);
+        String[] targetFields = {"commentText"};
+        List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
+       return comments;
     }
 
 
@@ -82,8 +93,8 @@ public class SearchServiceImpl implements SearchService {
             return null;
         }
 
-        if (page == null || page == 0) {
-            page = 1;
+        if (page == null) {
+            page = 0;
         }
         if (limit == null || limit == 0) {
             limit = 10;
@@ -92,21 +103,23 @@ public class SearchServiceImpl implements SearchService {
 
         int count = list.size();
         int countLastPage = count % limit == 0 ? limit : count % limit;
-        int pages = (count / limit) == 0 ? 1 : count / limit;
-
-        int startIndex = pages > page ? page * limit - 1 : (pages * limit) - limit;
-
-        if (pages <= page) {
-            objects = new Object[countLastPage];
-            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
-            return Arrays.stream(objects).collect(Collectors.toList());
-        } else if (pages > page) {
-            objects = new Object[limit];
-            System.arraycopy(list.toArray(), startIndex, objects, 0, limit);
-            return Arrays.stream(objects).collect(Collectors.toList());
+        int pages;
+        if (countLastPage == 10) {
+            pages = count / limit;
+        } else {
+            pages = count / limit == 0 ? 1 : count / limit + 1;
         }
 
-        return null;
+        int startIndex = page == 0 ? 0 : page * limit;
+
+        if (page + 1 == pages) {
+            objects = new Object[countLastPage];
+            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
+        } else {
+            objects = new Object[limit];
+            System.arraycopy(list.toArray(), startIndex, objects, 0, limit);
+        }
+        return Arrays.stream(objects).collect(Collectors.toList());
     }
 
     public List searchByArticleNameLimitPage(String queryString, Integer page, Integer limit) {

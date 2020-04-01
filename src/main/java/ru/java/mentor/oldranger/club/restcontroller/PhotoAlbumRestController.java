@@ -125,12 +125,15 @@ public class PhotoAlbumRestController {
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
-        if (photoId != null) {
+        if (photoId != null && !photoId.equals("")) {
             Photo photo = photoService.findById(Long.parseLong(photoId));
             if (photo == null) {
                 return ResponseEntity.badRequest().build();
             }
             album.setThumbImage(photo);
+        }
+        if (photoId.equals("") | photoId == null) {
+            album.setThumbImage(null);
         }
         if (title != null) {
             if (title.equals("")) {
@@ -156,6 +159,10 @@ public class PhotoAlbumRestController {
         if (!album.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
+        }
+        List<Photo> photoList = albumService.getAllPhotos(album);
+        for (Photo photo: photoList){
+            photoService.deletePhoto(photo.getId());
         }
         albumService.deleteAlbum(Long.parseLong(id));
         return ResponseEntity.ok("delete ok");

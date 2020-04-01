@@ -14,6 +14,7 @@ import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
@@ -102,11 +103,13 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleCommentDto = new ArticleCommentDto(
                 articleComment.getPosition(),
+                articleComment.getId(),
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),
                 replyTime, parentId, replyNick, replyText,
-                articleComment.getCommentText());
+                articleComment.getCommentText(),
+                articleComment.isDeleted());
         return articleCommentDto;
     }
 
@@ -142,6 +145,13 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleComment> articleComments = new ArrayList<>();
         try {
             articleComments = articleCommentRepository.findByArticle(article);
+            for (ArticleComment comment : articleComments) {
+                if (comment.isDeleted()
+                        && comment.getCommentText().equals("Комментарий был удален")
+                        && getChildComment(comment).isEmpty()) {
+                    deleteComment(comment.getId());
+                }
+            }
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
@@ -169,4 +179,10 @@ public class ArticleServiceImpl implements ArticleService {
         articleRepository.deleteAllByIdIn(ids);
     }
 
+    @Override
+    public List<ArticleComment> getChildComment(ArticleComment comment) {
+        log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
+        List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
+        return childComment;
+    }
 }

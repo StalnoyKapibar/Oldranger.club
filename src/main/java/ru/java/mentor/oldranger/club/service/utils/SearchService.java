@@ -13,4 +13,6 @@ public interface SearchService {
     List searchByArticleNameLimitPage(String queryString, Integer page, Integer limit);
 
     List searchByArticleName(String queryString);
+
+    List searchAllCommentByText(String queryString);
 }
