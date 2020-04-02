@@ -37,8 +37,6 @@ public class GroupChatController {
     @MessageMapping("/sendMessage")
     @SendTo("/channel/public")
     public Message sendMessage(@Payload Message chatMessage) {
-        User user = securityUtilsService.getLoggedUser();
-        chatMessage.setSenderAvatar(user.getAvatar().getSmall());
         chatMessage.setMessageDate(LocalDateTime.now());
         chatMessage.setChat(chatService.getGroupChat());
         messageService.addMessage(chatMessage);
@@ -48,8 +46,6 @@ public class GroupChatController {
     @MessageMapping("/addUser")
     @SendTo("/channel/public")
     public Message addUser(@Payload Message chatMessage) {
-        User user = securityUtilsService.getLoggedUser();
-        chatMessage.setSenderAvatar(user.getAvatar().getSmall());
         updateUserList(chatMessage, true);
         return chatMessage;
     }

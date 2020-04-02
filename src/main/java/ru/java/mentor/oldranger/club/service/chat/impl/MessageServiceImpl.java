@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.MessageRepository;
+import ru.java.mentor.oldranger.club.dto.MessageDTO;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -16,6 +17,7 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +38,14 @@ public class MessageServiceImpl implements MessageService {
     private String uploadDir;
     private String olderThan;
     private FileInChatService fileInChatService;
+    private UserService userService;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService, FileInChatService fileInChatService) {
+    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService, FileInChatService fileInChatService, UserService userService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
         this.photoService = photoService;
         this.fileInChatService = fileInChatService;
+        this.userService = userService;
         uploadDir = "./media";
         olderThan = "week";
     }
@@ -286,5 +290,25 @@ public class MessageServiceImpl implements MessageService {
     public Message findMessage(Long id) {
         log.debug("Getting message by id");
         return messageRepository.findById(id).orElseThrow(() -> new RuntimeException("Did not find message by id - " + id));
+    }
+
+    @Override
+    public MessageDTO setMessageDTO(Message message) {
+        User user = userService.getUserByNickName(message.getSender());
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessageId(message.getId());
+        messageDTO.setText(message.getText());
+        messageDTO.setOriginalImg(message.getOriginalImg());
+        messageDTO.setThumbnailImg(message.getThumbnailImg());
+        messageDTO.setFileName(message.getFileName());
+        messageDTO.setFilePath(message.getFilePath());
+        messageDTO.setType(message.getType());
+        messageDTO.setSender(user.getNickName());
+        messageDTO.setSenderAvatar(user.getAvatar().getOriginal());
+        messageDTO.setReplyTo(message.getReplyTo());
+        messageDTO.setChat(message.getChat());
+        messageDTO.setMessageDate(message.getMessageDate());
+        messageDTO.setEditMessageDate(message.getEditMessageDate());
+        return messageDTO;
     }
 }
