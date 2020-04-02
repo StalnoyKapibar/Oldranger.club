@@ -37,6 +37,7 @@ import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +110,9 @@ public class ChatRestController {
         Page<Message> msgPage = messageService.getPagebleMessages(chat, pageable);
         if (msgPage.getTotalPages() > page) {
             List<Message> messages = msgPage.getContent();
-            List<MessageDTO> messagesDTO = null;
+            List<MessageDTO> messagesDTO = new ArrayList<>();
             for (Message message : messages) {
-                messagesDTO.add(messageService.setMessageDTO(message));
+                    messagesDTO.add(messageService.setMessageDTO(message));
             }
             return ResponseEntity.ok(messagesDTO);
         } else {
@@ -196,7 +197,7 @@ public class ChatRestController {
         User user = securityUtilsService.getLoggedUser();
         boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
-        if (user == null || !isSender) {
+        if (!isSender) {
             if (!isModer) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }

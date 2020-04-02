@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import ru.java.mentor.oldranger.club.dto.MessageDTO;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -26,8 +27,6 @@ public class GroupChatController {
     private ChatService chatService;
     private MessageService messageService;
     private UserService userService;
-    private PhotoService photoService;
-    private SecurityUtilsService securityUtilsService;
 
     @GetMapping("/chat")
     public String getChatPage() {
@@ -36,11 +35,11 @@ public class GroupChatController {
 
     @MessageMapping("/sendMessage")
     @SendTo("/channel/public")
-    public Message sendMessage(@Payload Message chatMessage) {
+    public MessageDTO sendMessage(@Payload Message chatMessage) {
         chatMessage.setMessageDate(LocalDateTime.now());
         chatMessage.setChat(chatService.getGroupChat());
         messageService.addMessage(chatMessage);
-        return chatMessage;
+        return messageService.setMessageDTO(chatMessage);
     }
 
     @MessageMapping("/addUser")
