@@ -89,12 +89,13 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private List pageable(List list, Integer page, Integer limit) {
+        // логика для нумерации страниц с единицы
         if (list == null) {
             return null;
         }
 
         if (page == null) {
-            page = 0;
+            page = 1;
         }
         if (limit == null || limit == 0) {
             limit = 10;
@@ -110,9 +111,9 @@ public class SearchServiceImpl implements SearchService {
             pages = count / limit == 0 ? 1 : count / limit + 1;
         }
 
-        int startIndex = page == 0 ? 0 : page * limit;
+        int startIndex = page == 1 ? 0 :(page -1 ) * limit;
 
-        if (page + 1 == pages) {
+        if (page == pages) {
             objects = new Object[countLastPage];
             System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
         } else {
