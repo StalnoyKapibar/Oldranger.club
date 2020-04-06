@@ -20,8 +20,6 @@ import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
-import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
-import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.media.Photo;
@@ -227,26 +225,11 @@ public class CommentAndTopicRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
 
-        boolean admin = securityUtilsService.isAdmin();
-        boolean moderator = securityUtilsService.isModerator();
-        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
-        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
-        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-
-        comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
-        if (messageComments.getAnswerID() != null) {
-            comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
-        } else {
-            comment.setAnswerTo(null);
-        }
-        comment.setDateTime(comment.getDateTime());
-
-
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
+        if (ifUserAllowedToEditComment(comment, image1, image2, messageComments, topic, currentUser, user)) {
             return ResponseEntity.badRequest().build();
         }
 
+        comment = setInfoIntoComment(comment, messageComments);
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         List<Photo> photos = commentDto.getPhotos();
 
@@ -268,7 +251,39 @@ public class CommentAndTopicRestController {
         }
 
         commentDto = deletePhotoFromDto(idDeletePhotos, photos, commentDto);
+        CommentDto updatedCommentDto = updatePhotos(image1, image2, comment, topic, commentDto, photos);
 
+        return ResponseEntity.ok(updatedCommentDto);
+    }
+
+    private boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
+                                               CommentCreateAndUpdateDto messageComments,
+                                               Topic topic, User currentUser, User user) {
+        boolean admin = securityUtilsService.isAdmin();
+        boolean moderator = securityUtilsService.isModerator();
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) < 0;
+        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
+        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
+        return messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null
+                || !currentUser.getId().equals(user.getId()) && !admin && !moderator
+                || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage;
+    }
+
+    private Comment setInfoIntoComment(Comment comment, CommentCreateAndUpdateDto messageComments) {
+        comment.setTopic(topicService.findById(messageComments.getIdTopic()));
+        comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
+        if (messageComments.getAnswerID() != null) {
+            comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
+        } else {
+            comment.setAnswerTo(null);
+        }
+        comment.setDateTime(comment.getDateTime());
+        return comment;
+    }
+
+    private CommentDto updatePhotos(MultipartFile image1, MultipartFile image2,
+                                    Comment comment, Topic topic,
+                                    CommentDto commentDto, List<Photo> photos) {
         if (image1 != null) {
             PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
             Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
@@ -276,15 +291,15 @@ public class CommentAndTopicRestController {
             commentDto.setPhotos(photos);
         }
         if (image2 != null) {
-            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
-                    , comment.getId().toString());
+            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by "
+                    + topic.getName()), image2, comment.getId().toString());
             photos.add(newPhoto2);
             commentDto.setPhotos(photos);
         }
-        return ResponseEntity.ok(commentDto);
+        return commentDto;
     }
 
-    public CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
+    private CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
         if (!idDeletePhotos.isEmpty()) {
             for (Photo photo : photos) {
                 for (Long id : idDeletePhotos) {
