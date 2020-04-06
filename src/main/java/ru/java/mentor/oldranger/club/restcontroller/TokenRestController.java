@@ -103,8 +103,8 @@ public class TokenRestController {
         String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, user.getFirstName(), "letterToInvite.html", link);
-        invitationService.markInviteOnMailAsUsed(mail);
         invitationService.save(invitationToken);
+        invitationService.markInviteOnMailAsUsed(mail);
         return ResponseEntity.ok(status);
     }
 
