@@ -110,12 +110,12 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // Создаем тестовые роли, сохраняем в репозиторий ролей;
-        Role roleAdmin = new Role("ROLE_ADMIN");
-        Role roleModerator = new Role("ROLE_MODERATOR");
-        Role roleUser = new Role("ROLE_USER");
-        Role roleProspect = new Role("ROLE_PROSPECT");
-        Role roleOld_Timer = new Role("ROLE_OLD_TIMER");
-        Role roleVeteran = new Role("ROLE_VETERAN");
+        Role roleAdmin = new Role("ROLE_ADMIN", "Администратор");
+        Role roleModerator = new Role("ROLE_MODERATOR", "Модератор");
+        Role roleUser = new Role("ROLE_USER", "Пользователи");
+        Role roleProspect = new Role("ROLE_PROSPECT", "Проспект");
+        Role roleOld_Timer = new Role("ROLE_OLD_TIMER","Что-то старое");
+        Role roleVeteran = new Role("ROLE_VETERAN", "Ветеран");
         roleService.createRole(roleAdmin);
         roleService.createRole(roleModerator);
         roleService.createRole(roleUser);

@@ -23,8 +23,17 @@ public class Role implements GrantedAuthority {
     @Column(name = "role")
     private String role;
 
+    @Column(name = "nameRole")
+    private String nameRole;
+
+
     public Role(String role) {
         this.role = role;
+    }
+
+    public Role(String role, String nameRole){
+        this.role = role;
+        this.nameRole = nameRole;
     }
 
     @Override
