@@ -14,6 +14,7 @@ import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
 import java.io.File;
@@ -34,11 +35,13 @@ public class MessageServiceImpl implements MessageService {
     private PhotoService photoService;
     private String uploadDir;
     private String olderThan;
+    private FileInChatService fileInChatService;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService) {
+    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService, FileInChatService fileInChatService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
         this.photoService = photoService;
+        this.fileInChatService = fileInChatService;
         uploadDir = "./media";
         olderThan = "week";
     }
@@ -244,10 +247,22 @@ public class MessageServiceImpl implements MessageService {
             }
         }
         List<String> images = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
         Objects.requireNonNull(messages).forEach(msg -> {
-            images.add(msg.getOriginalImg());
+            if (msg.getOriginalImg() != null) {
+                images.add(msg.getOriginalImg());
+            }
+            if (msg.getFileName() != null) {
+                fileNames.add(msg.getFileName());
+            }
         });
-        deleteChatImages(images);
+        if (!images.isEmpty()) {
+            deleteChatImages(images);
+        }
+        if (!fileNames.isEmpty()) {
+            messages.forEach(msg -> fileInChatService.deleteByFileName(msg.getFileName()));
+        }
+
         messages.forEach(msg -> removeMessageById(msg.getId()));
         log.debug("All messages successfully deleted");
     }
@@ -257,8 +272,13 @@ public class MessageServiceImpl implements MessageService {
         log.debug("Getting message by id for delete");
         Message message = findMessage(id);
         List<String> images = new ArrayList<>();
-        images.add(message.getOriginalImg());
-        deleteChatImages(images);
+        if (message.getOriginalImg() != null) {
+            images.add(message.getOriginalImg());
+            deleteChatImages(images);
+        }
+        if (message.getFileName() != null) {
+            fileInChatService.deleteByFileName(message.getFileName());
+        }
         removeMessageById(id);
     }
 

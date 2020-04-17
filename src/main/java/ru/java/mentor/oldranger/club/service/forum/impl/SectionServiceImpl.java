@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
 import ru.java.mentor.oldranger.club.model.forum.Section;
@@ -52,7 +53,7 @@ public class SectionServiceImpl implements SectionService {
         log.debug("Getting all sections for anonymous user");
         List<Section> sections = null;
         try {
-            sections = sectionRepository.getAllByIsHideToAnonIsFalse();
+            sections = sectionRepository.getAllByIsHideToAnonIsFalse(Sort.by("position").ascending());
             log.debug("Returned list of {} sections", sections.size());
         } catch (Exception e) {
             log.error(e.getMessage(), e);

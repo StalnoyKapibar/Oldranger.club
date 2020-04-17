@@ -15,6 +15,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findDistinctByDraftIsFalseAndArticleTagsIn(Set<ArticleTag> tags, Pageable pageable);
 
+    Page<Article> findAllByTitle(String title, Pageable pageable);
+
     Page<Article> findAllByDraftIsFalse(Pageable pageable);
 
     Page<Article> findAllByDraftIsTrueAndUser(User user, Pageable pageable);

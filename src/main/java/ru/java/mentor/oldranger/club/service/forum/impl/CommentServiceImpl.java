@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
+import ru.java.mentor.oldranger.club.dto.CommentDtoAndCountMessages;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -106,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.findByTopic(topic,
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
                     .map(list::add);
-            List<CommentDto> dtoList = null;
+            List<CommentDto> dtoList;
             if (list.size() != 0) {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
@@ -115,7 +116,7 @@ public class CommentServiceImpl implements CommentService {
             } else {
                 dtoList = Collections.emptyList();
             }
-            page = new PageImpl<CommentDto>(dtoList, pageable, dtoList.size());
+            page = new PageImpl<>(dtoList, pageable, dtoList.size());
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -152,6 +153,7 @@ public class CommentServiceImpl implements CommentService {
             commentDto.setCommentId(comment.getId());
             commentDto.setPositionInTopic(comment.getPosition());
             commentDto.setTopicId(comment.getTopic().getId());
+            commentDto.setTopicName(comment.getTopic().getName());
             commentDto.setAuthor(comment.getUser());
             commentDto.setCommentDateTime(comment.getDateTime());
             commentDto.setCommentUpdateTime(comment.getUpdateTime());
@@ -238,7 +240,10 @@ public class CommentServiceImpl implements CommentService {
 
     public List<Comment> getChildComment(Comment comment) {
         log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
-        List<Comment> childComment = commentRepository.findAllByAnswerTo(comment);
-        return childComment;
+        return commentRepository.findAllByAnswerTo(comment);
+    }
+
+    public CommentDtoAndCountMessages assembleCommentDtoAndMessages(List<CommentDto> commentDto, Long countMessages) {
+        return new CommentDtoAndCountMessages(commentDto, countMessages);
     }
 }

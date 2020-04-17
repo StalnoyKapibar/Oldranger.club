@@ -10,6 +10,8 @@ public interface SectionsAndSubsectionsService {
 
     List<SectionsAndSubsectionsDto> getAllSectionsAndSubsections();
 
+    List<SectionsAndSubsectionsDto> getAllSectionsAndSubsectionsForAnon();
+
     void swapSections(List<Long> sectionsId);
 
     void swapSubsectons(Map<Long, List<String>> sectionsAndSubsectionsIds);
