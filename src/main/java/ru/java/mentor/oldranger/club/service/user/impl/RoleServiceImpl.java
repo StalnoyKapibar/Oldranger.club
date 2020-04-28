@@ -30,9 +30,11 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void deleteById(Long id) {
         log.info("Deleting role with id = {}", id);
+        if(id == null){
+            throw new NullPointerException("Not id");
+        }
         try {
             roleRepository.deleteById(id);
-            log.info("Role deleted");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -44,6 +46,11 @@ public class RoleServiceImpl implements RoleService {
         List<Role> roles = null;
         try{
             roles = roleRepository.findAll();
+
+            if(roles == null){
+                throw new NullPointerException("Not Roles");
+            }
+
             log.debug("Returned list of {} roles", roles.size());
         }catch (Exception e){
             log.error(e.getMessage(),e);
