@@ -9,11 +9,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.WebDataBinder;
@@ -21,18 +25,18 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.EmailChangeToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
-import ru.java.mentor.oldranger.club.service.user.InvitationService;
-import ru.java.mentor.oldranger.club.service.user.UserProfileService;
-import ru.java.mentor.oldranger.club.service.user.UserService;
-import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
+import ru.java.mentor.oldranger.club.service.user.*;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -50,7 +54,8 @@ public class UserProfileRestController {
     private CommentService commentService;
     private PasswordEncoder passwordEncoder;
     private SecurityUtilsService securityUtilsService;
-
+    private MailService mailService;
+    private EmailChangeService emailChangeService;
 
     @InitBinder
     // передаем пустые строки как null
@@ -144,6 +149,46 @@ public class UserProfileRestController {
         List<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable).getContent();
 
         return ResponseEntity.ok(dtos);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Open link to change email", tags = {"User profile"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The email was successfully changed",
+                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "403", description = "The key does not exist")})
+    @GetMapping(value = "editEmail", produces = {"application/json"})
+    public ResponseEntity<User> editUserEmailBy(@RequestParam String key) {
+        EmailChangeToken emailChangeToken = emailChangeService.getEmailChangeDtoByKey(key);
+        if (emailChangeToken == null) {
+           return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        User user = userService.findById(emailChangeToken.getUser().getId());
+        String newEmail = emailChangeToken.getNewEmail();
+        user.setEmail(newEmail);
+        userService.save(user);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Send request to change email", tags = {"User profile"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+    @PostMapping(value = "profile/editEmail", produces = {"application/json"})
+    public ResponseEntity<String> editUserEmail(@RequestParam(value = "password") String password,
+                                                @RequestParam(value = "newEmail") String newEmail) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null || !passwordEncoder.matches(password, currentUser.getPassword())) {
+            return ResponseEntity.noContent().build();
+        }
+        String key = emailChangeService.generateMD5Key(newEmail);
+        EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
+        emailChangeService.save(emailChangeToken);
+        String link = "http://localhost:8888/api/editEmail?key=" + key;
+        String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
+        return ResponseEntity.ok(status);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -256,7 +301,7 @@ public class UserProfileRestController {
     @GetMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
-        Boolean isUser = securityUtilsService.isLoggedUserIsUser();
+        boolean isUser = securityUtilsService.isLoggedUserIsUser();
         if (currentUser == null || !isUser) {
             return ResponseEntity.noContent().build();
         }
@@ -278,8 +323,8 @@ public class UserProfileRestController {
                                                    @RequestParam String passConfirm) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.noContent().build();
-        }
+        return ResponseEntity.noContent().build();
+    }
 
         if (passwordEncoder.matches(oldPass, currentUser.getPassword())) {
             if (passConfirm.equals(newPass)) {
@@ -305,5 +350,4 @@ public class UserProfileRestController {
 
         return ResponseEntity.ok(currentUser.getId());
     }
-
 }
