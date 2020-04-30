@@ -49,9 +49,6 @@ public class Message {
     @Column(name = "sender")
     private String sender;
 
-    @Column(name = "sender_ava")
-    private String senderAvatar;
-
     @Column(name = "replyTo")
     private String replyTo;
 

@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.MessageDTO;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.media.FileInChat;
@@ -36,6 +37,7 @@ import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,10 +97,10 @@ public class ChatRestController {
     @Operation(summary = "Get last messages", description = "limit 20 messages", tags = {"Group chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDTO.class)))),
             @ApiResponse(responseCode = "204", description = "Page parameter is greater than the total number of pages")})
     @GetMapping(value = "/messages", produces = {"application/json"})
-    ResponseEntity<List<Message>> getLastMessages(@RequestParam(value = "page", required = false) Integer page) {
+    ResponseEntity<List<MessageDTO>> getLastMessages(@RequestParam(value = "page", required = false) Integer page) {
 
         if (page == null) page = 0;
         Pageable pageable = PageRequest.of(page, 20, Sort.by("id").descending());
@@ -107,7 +109,12 @@ public class ChatRestController {
 
         Page<Message> msgPage = messageService.getPagebleMessages(chat, pageable);
         if (msgPage.getTotalPages() > page) {
-            return ResponseEntity.ok(msgPage.getContent());
+            List<Message> messages = msgPage.getContent();
+            List<MessageDTO> messagesDTO = new ArrayList<>();
+            for (Message message : messages) {
+                    messagesDTO.add(messageService.setMessageDTO(message));
+            }
+            return ResponseEntity.ok(messagesDTO);
         } else {
             return ResponseEntity.noContent().build();
         }
@@ -190,7 +197,7 @@ public class ChatRestController {
         User user = securityUtilsService.getLoggedUser();
         boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
-        if (user == null || !isSender) {
+        if (!isSender) {
             if (!isModer) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }

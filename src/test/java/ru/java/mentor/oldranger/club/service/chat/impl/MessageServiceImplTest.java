@@ -14,6 +14,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,13 +38,14 @@ class MessageServiceImplTest {
     private Chat chat = Mockito.mock(Chat.class);
     @Mock
     private FileInChatService fileInChatService = Mockito.mock(FileInChatService.class);
+    @Mock
+    private UserService userService = Mockito.mock(UserService.class);
 
-
-    private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService,fileInChatService);
+    private MessageServiceImpl messageService = new MessageServiceImpl(messageRepository, chatService, photoService,fileInChatService, userService);
 
     private static List<Message> messages = new ArrayList<>(Arrays.asList(
-            new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null, null, null),
-            new Message(2L, null, null, null, null, null, null, null, null, null, null, null, null)));
+            new Message(1L, null, "testImg1", null, null, null, null, null, null, null, null, null),
+            new Message(2L, null, null, null, null,  null, null, null, null, null, null, null)));
 
     @Test
     public void findFirstMessageByChat() {
@@ -96,8 +98,8 @@ class MessageServiceImplTest {
     public void deleteMessagesInPublicChat() {
         chat.setPrivacy(false);
         List<Message> messages = new ArrayList<>(Arrays.asList(
-                new Message(1L, null, "testImg1", null, null, null, null, null,null, null, null, null, null),
-                new Message(2L, null, null, null, null, null, null, null, null,null, null, null, null)));
+                new Message(1L, null, "testImg1", null, null, null, null,null, null, null, null, null),
+                new Message(2L, null, null, null, null, null, null, null,null, null, null, null)));
         Mockito.when(chatService.getGroupChat()).thenReturn(chat);
         Mockito.when(messageRepository.findAllByChat(chat)).thenReturn(messages);
 
