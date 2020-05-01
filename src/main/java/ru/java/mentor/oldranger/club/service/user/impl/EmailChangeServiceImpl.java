@@ -13,8 +13,8 @@ import ru.java.mentor.oldranger.club.service.user.EmailChangeService;
 @Service
 @RequiredArgsConstructor
 public class EmailChangeServiceImpl implements EmailChangeService {
-    @NonNull
-    EmailChangeRepository emailChangeRepository;
+
+    private final EmailChangeRepository emailChangeRepository;
 
     @Override
     public void save(EmailChangeToken emailChangeToken) {

@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.PageRequest;
@@ -36,26 +36,33 @@ import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.*;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.util.Base64;
 import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api")
 @Tag(name = "User profile")
 public class UserProfileRestController {
 
-    private UserProfileService userProfileService;
-    private UserStatisticService userStatisticService;
-    private UserService userService;
-    private InvitationService invitationService;
-    private TopicService topicService;
-    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
-    private CommentService commentService;
-    private PasswordEncoder passwordEncoder;
-    private SecurityUtilsService securityUtilsService;
-    private MailService mailService;
-    private EmailChangeService emailChangeService;
+    @NonNull private UserProfileService userProfileService;
+    @NonNull private UserStatisticService userStatisticService;
+    @NonNull private UserService userService;
+    @NonNull private InvitationService invitationService;
+    @NonNull private TopicService topicService;
+    @NonNull private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    @NonNull  private CommentService commentService;
+    @NonNull private PasswordEncoder passwordEncoder;
+    @NonNull private SecurityUtilsService securityUtilsService;
+    @NonNull private MailService mailService;
+    @NonNull private EmailChangeService emailChangeService;
+
+    @Value("${server.protocol}")
+    private String protocol;
+
+    @Value("${server.name}")
+    private String host;
+
+    @Value("${server.port}")
+    private String port;
 
     @InitBinder
     // передаем пустые строки как null
@@ -186,7 +193,7 @@ public class UserProfileRestController {
         String key = emailChangeService.generateMD5Key(newEmail);
         EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
         emailChangeService.save(emailChangeToken);
-        String link = "http://localhost:8888/api/editEmail?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "api/editEmail?key=" + key;
         String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
         return ResponseEntity.ok(status);
     }
