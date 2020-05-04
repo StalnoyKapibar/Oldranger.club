@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -97,10 +98,12 @@ public class SectionsAndTopicsRestController {
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Failed to create topic")})
     @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
-    public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails
-            , @RequestParam List<MultipartFile> photos) {
+    public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails,
+                                                         @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
-
+        if (user == null){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
