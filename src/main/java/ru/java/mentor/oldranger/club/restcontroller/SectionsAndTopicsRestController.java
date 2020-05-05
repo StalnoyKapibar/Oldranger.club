@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -136,26 +138,33 @@ public class SectionsAndTopicsRestController {
                     content = @Content(schema = @Schema(implementation = Topic.class))),
             @ApiResponse(responseCode = "400", description = "Error editing topic")})
     @PutMapping(value = "/topic/edit", produces = {"application/json"})
-    public ResponseEntity<Topic> editTopic(@RequestBody Topic topicDetails) {
+    public ResponseEntity<Topic> editTopic(@RequestBody Map<String, Object> param) {
 
-        Topic topic = topicService.findById(topicDetails.getId());
-        User user = topicDetails.getTopicStarter();
+        Integer id = (Integer) param.get("id");
+        String name = (String) param.get("name");
+        String startMessage = (String) param.get("startMessage");
+        Boolean hideToAnon = (Boolean) param.get("hideToAnon");
+        Boolean forbidComment = (Boolean) param.get("forbidComment");
+
         User currentUser = securityUtilsService.getLoggedUser();
+        Topic topic = topicService.findById(Long.valueOf(id));
 
-        topic.setStartMessage(topicDetails.getStartMessage());
-        topic.setSubsection(topicDetails.getSubsection());
-        topic.setName(topicDetails.getName());
-        topic.setHideToAnon(topic.getSubsection().isHideToAnon() | topicDetails.isHideToAnon());
+        //тест, если бросил 401, удалить условие
+        if (currentUser == null || !securityUtilsService.isAdmin()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        topic.setStartMessage(startMessage);
+        topic.setSubsection(topic.getSubsection());
+        topic.setName(name);
+        topic.setHideToAnon(topic.getSubsection().isHideToAnon() | hideToAnon);
 
         if (securityUtilsService.isModerator()) {
-            topic.setForbidComment(topicDetails.isForbidComment());
+            topic.setForbidComment(forbidComment);
         } else {
             topic.setForbidComment(false);
         }
 
-        if (topicDetails.getId() == null || !currentUser.getId().equals(user.getId()) && !securityUtilsService.isModerator()) {
-            return ResponseEntity.badRequest().build();
-        }
         topicService.editTopicByName(topic);
         return ResponseEntity.ok(topic);
     }
