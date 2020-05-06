@@ -17,6 +17,7 @@ import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -103,22 +104,24 @@ public class SectionsAndTopicsRestController {
             , @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
 
-
-        Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
         photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(true);
         albumService.save(photoAlbum);
 
         for (MultipartFile file : photos) {
             photoService.save(photoAlbum, file, 0);
         }
 
-        topic.setName(topicDetails.getName());
-        topic.setTopicStarter(securityUtilsService.getLoggedUser());
-        topic.setStartTime(LocalDateTime.now());
-        topic.setLastMessageTime(LocalDateTime.now());
-        topic.setSubsection(topicDetails.getSubsection());
-        topic.setStartMessage(topicDetails.getStartMessage());
+        Topic topic = new Topic(topicDetails.getName(),
+                securityUtilsService.getLoggedUser(),
+                LocalDateTime.now(),
+                topicDetails.getStartMessage(),
+                LocalDateTime.now(),
+                topicDetails.getSubsection(),
+                topicDetails.isHideToAnon(),
+                topicDetails.isForbidComment(),
+                photoAlbum);
 
         topic.setHideToAnon(topicDetails.isHideToAnon() || topic.getSubsection().isHideToAnon());
         topic.setForbidComment(false);
