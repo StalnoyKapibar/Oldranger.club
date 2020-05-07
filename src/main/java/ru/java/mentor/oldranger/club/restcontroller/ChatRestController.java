@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +45,7 @@ import java.util.Map;
 @Tag(name = "Chat")
 public class ChatRestController {
 
+    private final CheckFileTypeService checkFileTypeService;
     private ChatService chatService;
     private PhotoService photoService;
     private PhotoAlbumService albumService;
@@ -53,18 +53,17 @@ public class ChatRestController {
     private SecurityUtilsService securityUtilsService;
     private WritingBanService writingBanService;
     private FileInChatService fileInChatService;
-    private final CheckFileTypeService checkFileTypeService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get current user info", description = "Avatar and username", tags = {"Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/user", produces = {"application/json"})
     ResponseEntity<Map<String, String>> getUserInfo() {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         Map<String, String> info = new HashMap<>();
         info.put("username", user.getNickName());
         info.put("ava", user.getAvatar().getSmall());
@@ -120,7 +119,7 @@ public class ChatRestController {
                     content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "200", description = "Map fileName:fileName, filePath:filePath",
                     content = @Content(schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in"),
+            @ApiResponse(responseCode = "401", description = "User is not logged in"),
             @ApiResponse(responseCode = "413", description = "File size must not exceed 20Mb")})
     @PostMapping(value = "/image", consumes = {"multipart/form-data"})
     ResponseEntity<Map<String, String>> processImage(@Parameter(description = "Image file", required = true)
@@ -128,7 +127,7 @@ public class ChatRestController {
         Map<String, String> result = new HashMap<>();
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         if (checkFileTypeService.isValidImageFile(file)) {
             PhotoAlbum album = chatService.getGroupChat().getPhotoAlbum();
@@ -149,11 +148,11 @@ public class ChatRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/photos")
     ResponseEntity<List<Photo>> getChatPhotos() {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         Chat chat = chatService.getGroupChat();
         PhotoAlbum album = chat.getPhotoAlbum();
         return ResponseEntity.ok(albumService.getAllPhotos(album));
@@ -166,12 +165,12 @@ public class ChatRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @DeleteMapping(value = "/messages")
     ResponseEntity<String> deleteMessages(@Parameter(description = "Delete all messages or messages that older than month", required = true)
                                           @RequestParam(value = "all") Boolean all) {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null) return ResponseEntity.noContent().build();
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         messageService.deleteMessages(false, all, null);
         albumService.deleteAlbumPhotos(all, chatService.getGroupChat().getPhotoAlbum());
         return ResponseEntity.ok().build();
@@ -183,14 +182,18 @@ public class ChatRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "403", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in"),
+            @ApiResponse(responseCode = "403", description = "Forbidden to delete")})
     @DeleteMapping(value = "/messages/{id}")
     ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
                                          @PathVariable Long id) {
         User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
-        if (user == null || !isSender) {
+        if (!isSender) {
             if (!isModer) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }

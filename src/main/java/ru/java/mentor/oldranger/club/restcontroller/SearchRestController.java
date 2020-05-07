@@ -14,9 +14,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import ru.java.mentor.oldranger.club.dto.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
+import ru.java.mentor.oldranger.club.dto.CommentDto;
+import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
@@ -107,18 +113,23 @@ public class SearchRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Article.class))),
-            @ApiResponse(responseCode = "204", description = "Articles not found")})
+            @ApiResponse(responseCode = "204", description = "Articles not found"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/searchArticles", produces = {"application/json"})
     public ResponseEntity<ArticleListAndCountArticlesDto> getAllArticlesByArticleTitle(@RequestParam(value = "title") String title,
-                                                                                    @RequestParam(value = "page", required = false) Integer page,
-                                                                                    @RequestParam(value = "limit", required = false) Integer limit) {
+                                                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                                                       @RequestParam(value = "limit", required = false) Integer limit) {
         User user = securityUtilsService.getLoggedUser();
 
-        if (user == null || title == null) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (title == null) {
             return ResponseEntity.noContent().build();
         }
-        List <Article> allArticle = searchService.searchByArticleName(title);
-        List<Article> articlesList= searchService.searchByArticleNameLimitPage(title, page, limit);
+        List<Article> allArticle = searchService.searchByArticleName(title);
+        List<Article> articlesList = searchService.searchByArticleNameLimitPage(title, page, limit);
 
         return ResponseEntity.ok(articleService.assembleArticleListAndCountArticleDto(articlesList, allArticle.size()));
     }
@@ -127,12 +138,16 @@ public class SearchRestController {
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/tag", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
                                                                @RequestParam(value = "page", required = false) Integer page) {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null || page == null || tag_id.isEmpty()) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (page == null || tag_id.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
             Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));

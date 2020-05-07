@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,15 +29,16 @@ public class AvatarUserRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Set Avatar ", description = "Set avatar to user ", tags = { "Avatar from user" })
+            summary = "Set Avatar ", description = "Set avatar to user ", tags = {"Avatar from user"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/set", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file){
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PostMapping(value = "/set", produces = {"application/json"})
+    public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
@@ -52,15 +54,16 @@ public class AvatarUserRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete Avatar ", description = "Delete avatar", tags = { "Avatar from user" })
+            summary = "Delete Avatar ", description = "Delete avatar", tags = {"Avatar from user"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/delete", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(){
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PostMapping(value = "/delete", produces = {"application/json"})
+    public ResponseEntity<String> setAvatarToUser() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {

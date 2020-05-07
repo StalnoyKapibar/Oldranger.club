@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
@@ -51,7 +52,7 @@ public class AdminRestController {
     private RoleService roleService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get UserStatisticDto list", tags = { "Admin" })
+            summary = "Get UserStatisticDto list", tags = {"Admin"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListUserStatisticDTO.class))))})
@@ -89,14 +90,14 @@ public class AdminRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email Draft list", tags = { "Drafts" })
+            summary = "Get Email Draft list", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class)))) })
-    @GetMapping(value = "/getDrafts", produces = { "application/json" })
-    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description="Page")
-                                                          @RequestParam(value = "page", required = false) Integer page,
-                              @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class))))})
+    @GetMapping(value = "/getDrafts", produces = {"application/json"})
+    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description = "Page")
+                                                      @RequestParam(value = "page", required = false) Integer page,
+                                                      @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("lastEditDate").descending());
         }
@@ -105,25 +106,25 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get total pages number", description = "Total pages for email drafts", tags = { "Drafts" })
+            summary = "Get total pages number", description = "Total pages for email drafts", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Map.class))) })
-    @GetMapping(value = "/getTotalPages", produces = { "application/json" })
-    public ResponseEntity<Map<String,Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
+                    content = @Content(schema = @Schema(implementation = Map.class)))})
+    @GetMapping(value = "/getTotalPages", produces = {"application/json"})
+    public ResponseEntity<Map<String, Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
         Integer pages = emailDraftService.getAllDraftsPageable(pageable).getTotalPages();
-        Map<String,Integer> totalPages = new HashMap<>();
+        Map<String, Integer> totalPages = new HashMap<>();
         totalPages.put("totalPages", pages);
         return ResponseEntity.ok(totalPages);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Send mail to all users", tags = { "Direct Mail" })
+            summary = "Send mail to all users", tags = {"Direct Mail"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Mail send",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
-    @PostMapping(value = "/sendMail", produces = { "application/json" })
+    @PostMapping(value = "/sendMail", produces = {"application/json"})
     public ResponseEntity<String> sendMail(EmailDraft draft) {
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
@@ -138,11 +139,11 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email draft", description = "Get email draft by id", tags = { "Drafts" })
+            summary = "Get Email draft", description = "Get email draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = EmailDraft.class)))})
-    @GetMapping(value = "/getDraft/{id}", produces = { "application/json" })
+    @GetMapping(value = "/getDraft/{id}", produces = {"application/json"})
     public ResponseEntity<EmailDraft> editDraft(@PathVariable long id) {
         EmailDraft draft = emailDraftService.getById(id);
         return ResponseEntity.ok(draft);
@@ -150,33 +151,33 @@ public class AdminRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete draft", description = "Delete draft by id", tags = { "Drafts" })
+            summary = "Delete draft", description = "Delete draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Deleting error")})
-    @GetMapping(value = "/deleteDraft/{id}", produces = { "application/json" })
+    @GetMapping(value = "/deleteDraft/{id}", produces = {"application/json"})
     public ResponseEntity<String> deleteDraft(@PathVariable long id) {
         try {
             emailDraftService.deleteDraft(id);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Save draft", description = "Save draft", tags = { "Drafts" })
+            summary = "Save draft", description = "Save draft", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft saved",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Saving error")})
-    @PostMapping(value = "/saveDraft", produces = { "application/json" })
+    @PostMapping(value = "/saveDraft", produces = {"application/json"})
     public ResponseEntity<String> saveDraft(EmailDraft draft) {
         draft.setLastEditDate(LocalDateTime.now());
         try {
             emailDraftService.saveDraft(draft);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
@@ -187,7 +188,8 @@ public class AdminRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "400", description = "User edit error")})
+            @ApiResponse(responseCode = "400", description = "User edit error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/editUser/{userId}", produces = {"application/json"})
     public ResponseEntity<User> editUserById(@PathVariable Long userId,
                                              @RequestParam(value = "firstName") String firstName,
@@ -196,6 +198,12 @@ public class AdminRestController {
                                              @RequestParam(value = "nickName") String nickName,
                                              @RequestParam(value = "role") String role) {
 
+        if (userId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         User user = userService.findById(userId);
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -203,9 +211,6 @@ public class AdminRestController {
         user.setNickName(nickName);
         user.setRole(roleService.getRoleByAuthority(role));
 
-        if (userId == null || !securityUtilsService.isAdmin()) {
-            return ResponseEntity.badRequest().build();
-        }
         userService.save(user);
         return ResponseEntity.ok(user);
     }

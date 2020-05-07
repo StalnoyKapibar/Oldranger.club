@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleTitleAndTextDto;
@@ -42,13 +43,18 @@ public class ArticleRestController {
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "400", description = "Tag or page is empty"),
+            @ApiResponse(responseCode = "401", description = "User does not have authority")})
     @GetMapping(value = "/tag", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam Set<ArticleTag> tag_id,
                                                                @RequestParam(value = "page", required = false) Integer page) {
         User user = securityUtilsService.getLoggedUser();
-        if (user == null || page == null || tag_id.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (page == null || tag_id.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         } else {
             Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
             Page<Article> articles = articleService.getAllByTag(tag_id, pageable);
@@ -60,12 +66,13 @@ public class ArticleRestController {
             summary = "Get articles without tags", description = "Get articles without tags", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class))))})
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/withoutTag", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getAllArticlesByTagId() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         int page = 0;
         Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
@@ -78,21 +85,18 @@ public class ArticleRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
-            @ApiResponse(responseCode = "400", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/drafts", produces = {"application/json"})
     public ResponseEntity<Page<Article>> getArticleDrafts(@RequestParam(value = "page", required = false) Integer page) {
 
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } else {
             if (page == null) {
                 page = 0;
             }
 
-            if (user == null) {
-                return ResponseEntity.badRequest().build();
-            }
             Pageable pageable = PageRequest.of(page, 10, Sort.by("date"));
             Page<Article> draftsPage = articleService.getArticleDraftByUser(user, pageable);
             return ResponseEntity.ok(draftsPage);
@@ -103,14 +107,15 @@ public class ArticleRestController {
             summary = "Add article", description = "Add new article", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Article.class))),})
+                    content = @Content(schema = @Schema(implementation = Article.class))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam("tagsId") List<Long> tagsId,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } else {
             Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
             if (tagsArt.size() == 0) {
@@ -126,7 +131,7 @@ public class ArticleRestController {
             summary = "Update article", description = "Update article", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Article.class))),
-            @ApiResponse(responseCode = "203", description = "You have no rights to edit this article"),
+            @ApiResponse(responseCode = "401", description = "You have no rights to edit this article"),
             @ApiResponse(responseCode = "204", description = "Article not found")})
     @PutMapping(value = "/update/{id}", produces = {"application/json"})
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
@@ -136,7 +141,7 @@ public class ArticleRestController {
 
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } else {
             Article article = articleService.getArticleById(id);
             if (article == null) {
@@ -164,7 +169,7 @@ public class ArticleRestController {
             summary = "Delete article", description = "Delete article", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
-            @ApiResponse(responseCode = "203", description = "Not have rule for delete article"),
+            @ApiResponse(responseCode = "401", description = "Not have rule for delete article"),
             @ApiResponse(responseCode = "204", description = "Not found Article")})
     @DeleteMapping("/delete")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
@@ -176,14 +181,14 @@ public class ArticleRestController {
                 return ResponseEntity.noContent().build();
             }
         }
-        return ResponseEntity.status(203).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete articles", description = "Delete articles", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
-            @ApiResponse(responseCode = "203", description = "Not have rule for delete articles"),
+            @ApiResponse(responseCode = "401", description = "Not have rule for delete articles"),
             @ApiResponse(responseCode = "204", description = "Not found Articles")})
     @DeleteMapping("/deleteArticles")
     public ResponseEntity deleteArticles(@RequestParam("articlesIds") List<Long> ids) {
@@ -196,6 +201,6 @@ public class ArticleRestController {
                 return ResponseEntity.noContent().build();
             }
         }
-        return ResponseEntity.status(203).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
