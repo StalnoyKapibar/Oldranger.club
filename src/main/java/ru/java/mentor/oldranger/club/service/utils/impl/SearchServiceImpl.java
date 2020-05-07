@@ -90,7 +90,7 @@ public class SearchServiceImpl implements SearchService {
 
     private List pageable(List list, Integer page, Integer limit) {
         // логика для нумерации страниц с единицы
-        if (list == null) {
+        if (list.size() == 0) {
             return null;
         }
 
