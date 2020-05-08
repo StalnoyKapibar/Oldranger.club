@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -101,7 +100,7 @@ public class SectionsAndTopicsRestController {
                                                          @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
 
-        if(user == null){
+        if (user == null) {
             return ResponseEntity.status(401).build();
         }
 
