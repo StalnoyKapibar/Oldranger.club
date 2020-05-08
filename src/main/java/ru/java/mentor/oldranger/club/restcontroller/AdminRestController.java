@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/admin")
@@ -133,7 +134,8 @@ public class AdminRestController {
         try {
             mailService.sendHtmlMessage(emails, draft);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
@@ -161,7 +163,8 @@ public class AdminRestController {
         try {
             emailDraftService.deleteDraft(id);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
@@ -178,7 +181,8 @@ public class AdminRestController {
         try {
             emailDraftService.saveDraft(draft);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }

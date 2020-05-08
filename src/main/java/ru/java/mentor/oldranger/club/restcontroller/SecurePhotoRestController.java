@@ -47,8 +47,8 @@ public class SecurePhotoRestController {
             @ApiResponse(responseCode = "400", description = "Secure or id error"),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/photoFromAlbum/{photoId}")
-    public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
-                                                @RequestParam(value = "type", required = false) String type) {
+    public ResponseEntity<?> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
+                                           @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
 
         if (currentUser == null) {
@@ -61,8 +61,8 @@ public class SecurePhotoRestController {
                 try {
                     return ResponseEntity.ok(photoService.getPhotoAsByteArray(photo, type));
                 } catch (NullPointerException | IOException e) {
-                    log.error("error in getting image");
                     log.error(e.getMessage());
+                    return ResponseEntity.badRequest().body(e.getMessage());
                 }
             }
         }

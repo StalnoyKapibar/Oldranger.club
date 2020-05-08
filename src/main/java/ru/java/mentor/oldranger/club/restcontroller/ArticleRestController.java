@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/article")
@@ -170,7 +172,7 @@ public class ArticleRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
             @ApiResponse(responseCode = "401", description = "Not have rule for delete article"),
-            @ApiResponse(responseCode = "204", description = "Not found Article")})
+            @ApiResponse(responseCode = "404", description = "Not found Article")})
     @DeleteMapping("/delete")
     public ResponseEntity deleteArticle(@RequestParam("idArticle") Long idArticle) {
         if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
@@ -178,7 +180,8 @@ public class ArticleRestController {
                 articleService.deleteArticle(idArticle);
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
-                return ResponseEntity.noContent().build();
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -189,7 +192,7 @@ public class ArticleRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
             @ApiResponse(responseCode = "401", description = "Not have rule for delete articles"),
-            @ApiResponse(responseCode = "204", description = "Not found Articles")})
+            @ApiResponse(responseCode = "404", description = "Not found Articles")})
     @DeleteMapping("/deleteArticles")
     public ResponseEntity deleteArticles(@RequestParam("articlesIds") List<Long> ids) {
         if (securityUtilsService.isModerator() || securityUtilsService.isAdmin()) {
@@ -197,8 +200,8 @@ public class ArticleRestController {
                 articleService.deleteArticles(ids);
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseEntity.noContent().build();
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.Base64;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/token")
@@ -34,12 +36,18 @@ import java.util.Base64;
 public class TokenRestController {
 
 
-    @NonNull private InvitationService invitationService;
-    @NonNull private UserService userService;
-    @NonNull private MailService mailService;
-    @NonNull private SecurityUtilsService securityUtilsService;
-    @NonNull private PasswordEncoder passwordEncoder;
-    @NonNull private PasswordsService passwordsService;
+    @NonNull
+    private InvitationService invitationService;
+    @NonNull
+    private UserService userService;
+    @NonNull
+    private MailService mailService;
+    @NonNull
+    private SecurityUtilsService securityUtilsService;
+    @NonNull
+    private PasswordEncoder passwordEncoder;
+    @NonNull
+    private PasswordsService passwordsService;
 
     @Value("${server.protocol}")
     private String protocol;
@@ -49,7 +57,6 @@ public class TokenRestController {
 
     @Value("${client.port}")
     private String port;
-
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -125,7 +132,8 @@ public class TokenRestController {
         try {
             passwordsService.checkStrength(registrationUserDto.getPassword());
         } catch (PasswordException e) {
-            return ResponseEntity.badRequest().build();
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         registrationUserDto.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         String key = Base64.getEncoder().encodeToString(registrationUserDto.toString().getBytes());

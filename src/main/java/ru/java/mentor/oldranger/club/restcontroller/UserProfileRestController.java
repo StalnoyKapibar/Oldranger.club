@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +37,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
@@ -70,7 +72,6 @@ public class UserProfileRestController {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.noContent().build();
-
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
@@ -84,14 +85,15 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ProfileDto.class))),
-            @ApiResponse(responseCode = "204", description = "User by id not found")})
+            @ApiResponse(responseCode = "404", description = "User by id not found")})
     @GetMapping(value = "/{id}", produces = {"application/json"})
-    public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id) {
+    public ResponseEntity<?> getAnotherUserProfile(@PathVariable Long id) {
         User user;
         try {
             user = userService.findById(id);
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
