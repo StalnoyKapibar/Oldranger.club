@@ -95,14 +95,14 @@ public class SearchRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class)))),
             @ApiResponse(responseCode = "204", description = "Comments not found")})
     @GetMapping(value = "/searchComments", produces = {"application/json"})
-    public ResponseEntity<List<CommentDto>> getFindComments(@Parameter(description = "Ключевое слово поиска")
+    public ResponseEntity<?> getFindComments(@Parameter(description = "Ключевое слово поиска")
                                                             @RequestParam(value = "finderTag") String finderTag,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "limit", required = false) Integer limit) {
         User currentUser = securityUtilsService.getLoggedUser();
         List<Comment> comments = searchService.searchByComment(finderTag, page, limit);
         if (comments == null || comments.size() == 0) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Нет результатов по запросу");
         }
         List<CommentDto> commentDtoList = comments
                 .stream()
