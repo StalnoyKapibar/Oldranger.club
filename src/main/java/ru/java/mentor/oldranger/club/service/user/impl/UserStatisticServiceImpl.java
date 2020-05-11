@@ -96,4 +96,21 @@ public class UserStatisticServiceImpl implements UserStatisticService {
                 user.getLastVisit())));
         return dtos;
     }
+
+    @Override
+    public List<UserStatisticDto> getAllLockedUserByListId(Pageable pageable, List<Long> listId) {
+        log.debug("Getting page {} of user statistic", pageable.getPageNumber());
+        List<UserStatisticDto> page = null;
+        try {
+            List<UserStatisticDto> result = new ArrayList<>();
+            for (int i = 0; i < listId.size(); i++){
+                result.add(userStaticRepository.getOneById(listId.get(i)));
+            }
+            page = result;
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
+    }
 }

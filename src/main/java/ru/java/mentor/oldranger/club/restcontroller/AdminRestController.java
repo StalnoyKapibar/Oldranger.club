@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.mail.EmailDraftService;
@@ -28,6 +31,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,9 +53,10 @@ public class AdminRestController {
     private UserService userService;
     private SecurityUtilsService securityUtilsService;
     private RoleService roleService;
+    private BlackListServiceImpl blackListService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Get UserStatisticDto list", tags = { "Admin" })
+            summary = "Get UserStatisticDto list", tags = {"Admin"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ListUserStatisticDTO.class))))})
@@ -76,27 +81,39 @@ public class AdminRestController {
 
         List<UserStatisticDto> users;
         if (page == null) page = 0;
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("id"));
-        if (query != null && !query.trim().isEmpty()) {
-            query = query.toLowerCase().trim().replaceAll("\\s++", ",");
-            users = userStatisticService.getUserStatisticsByQuery(pageable, query).getContent();
+        Pageable pageable;
+        if (query != null && query.equals("name")) {
+            pageable = PageRequest.of(page, 5, Sort.by("u.nickName"));
+            users = userStatisticService.getAllUserStatistic(pageable).getContent();
+        } else if (query != null && query.equals("email")) {
+            pageable = PageRequest.of(page, 5, Sort.by("u.email"));
+            users = userStatisticService.getAllUserStatistic(pageable).getContent();
+        } else if (query != null && query.equals("banned")) {
+            pageable = PageRequest.of(page, 5, Sort.by("id"));
+            List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
+            List<Long> userIds = new ArrayList<>();
+            for (int i = 0; i < content.size(); i++){
+                userIds.add(content.get(i).getUser().getId());
+            }
+            users = userStatisticService.getAllLockedUserByListId(pageable, userIds);
         } else {
+            pageable = PageRequest.of(page, 5, Sort.by("id"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();
         }
+
         ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         return ResponseEntity.ok(listUserStatisticDTO);
     }
 
-
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email Draft list", tags = { "Drafts" })
+            summary = "Get Email Draft list", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class)))) })
-    @GetMapping(value = "/getDrafts", produces = { "application/json" })
-    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description="Page")
-                                                          @RequestParam(value = "page", required = false) Integer page,
-                              @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = EmailDraft.class))))})
+    @GetMapping(value = "/getDrafts", produces = {"application/json"})
+    public ResponseEntity<List<EmailDraft>> getDrafts(@Parameter(description = "Page")
+                                                      @RequestParam(value = "page", required = false) Integer page,
+                                                      @PageableDefault(size = 5, sort = "lastEditDate", direction = Sort.Direction.DESC) Pageable pageable) {
         if (page != null) {
             pageable = PageRequest.of(page, 5, Sort.by("lastEditDate").descending());
         }
@@ -105,25 +122,25 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get total pages number", description = "Total pages for email drafts", tags = { "Drafts" })
+            summary = "Get total pages number", description = "Total pages for email drafts", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = Map.class))) })
-    @GetMapping(value = "/getTotalPages", produces = { "application/json" })
-    public ResponseEntity<Map<String,Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
+                    content = @Content(schema = @Schema(implementation = Map.class)))})
+    @GetMapping(value = "/getTotalPages", produces = {"application/json"})
+    public ResponseEntity<Map<String, Integer>> getDrafts(@PageableDefault(size = 5) Pageable pageable) {
         Integer pages = emailDraftService.getAllDraftsPageable(pageable).getTotalPages();
-        Map<String,Integer> totalPages = new HashMap<>();
+        Map<String, Integer> totalPages = new HashMap<>();
         totalPages.put("totalPages", pages);
         return ResponseEntity.ok(totalPages);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Send mail to all users", tags = { "Direct Mail" })
+            summary = "Send mail to all users", tags = {"Direct Mail"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Mail send",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
-    @PostMapping(value = "/sendMail", produces = { "application/json" })
+    @PostMapping(value = "/sendMail", produces = {"application/json"})
     public ResponseEntity<String> sendMail(EmailDraft draft) {
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
@@ -138,11 +155,11 @@ public class AdminRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get Email draft", description = "Get email draft by id", tags = { "Drafts" })
+            summary = "Get Email draft", description = "Get email draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = EmailDraft.class)))})
-    @GetMapping(value = "/getDraft/{id}", produces = { "application/json" })
+    @GetMapping(value = "/getDraft/{id}", produces = {"application/json"})
     public ResponseEntity<EmailDraft> editDraft(@PathVariable long id) {
         EmailDraft draft = emailDraftService.getById(id);
         return ResponseEntity.ok(draft);
@@ -150,33 +167,33 @@ public class AdminRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete draft", description = "Delete draft by id", tags = { "Drafts" })
+            summary = "Delete draft", description = "Delete draft by id", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft deleted",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Deleting error")})
-    @GetMapping(value = "/deleteDraft/{id}", produces = { "application/json" })
+    @GetMapping(value = "/deleteDraft/{id}", produces = {"application/json"})
     public ResponseEntity<String> deleteDraft(@PathVariable long id) {
         try {
             emailDraftService.deleteDraft(id);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Save draft", description = "Save draft", tags = { "Drafts" })
+            summary = "Save draft", description = "Save draft", tags = {"Drafts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Draft saved",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Saving error")})
-    @PostMapping(value = "/saveDraft", produces = { "application/json" })
+    @PostMapping(value = "/saveDraft", produces = {"application/json"})
     public ResponseEntity<String> saveDraft(EmailDraft draft) {
         draft.setLastEditDate(LocalDateTime.now());
         try {
             emailDraftService.saveDraft(draft);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

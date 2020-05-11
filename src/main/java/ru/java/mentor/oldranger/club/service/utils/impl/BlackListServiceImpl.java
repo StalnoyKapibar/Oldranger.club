@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.service.utils.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.BlackListRepository;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -137,5 +139,18 @@ public class BlackListServiceImpl implements BlackListService {
             log.error(e.getMessage(), e);
         }
         return blackList;
+    }
+
+    @Override
+    public Page<BlackList> getAllBlockedUsers(Pageable pageable) {
+        log.debug("Getting page {} of user statistic", pageable.getPageNumber());
+        Page<BlackList> page = null;
+        try {
+            page = blackListRepository.findAll(pageable);
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
     }
 }

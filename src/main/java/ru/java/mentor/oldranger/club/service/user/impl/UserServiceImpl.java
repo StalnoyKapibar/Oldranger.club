@@ -56,10 +56,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Caching(put = {
-                    @CachePut(key = "#user.id", condition = "#user.id!=null"),
-                    @CachePut(key = "#user.nickName", condition = "#user.id!=null&&#user.nickName!=null"),
-                    @CachePut(key = "#user.email", condition = "#user.id!=null&&#user.email!=null"),
-                    @CachePut(key = "#user.invite", condition = "#user.id!=null&&#user.invite!=null")})
+            @CachePut(key = "#user.id", condition = "#user.id!=null"),
+            @CachePut(key = "#user.nickName", condition = "#user.id!=null&&#user.nickName!=null"),
+            @CachePut(key = "#user.email", condition = "#user.id!=null&&#user.email!=null"),
+            @CachePut(key = "#user.invite", condition = "#user.id!=null&&#user.invite!=null")})
     public User save(User user) {
         log.info("Saving user");
         User savedUser = null;
@@ -89,10 +89,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Caching(put = {
-                    @CachePut(key = "#user.id"),
-                    @CachePut(key = "#user.nickName"),
-                    @CachePut(key = "#user.email"),
-                    @CachePut(key = "#user.invite")})
+            @CachePut(key = "#user.id"),
+            @CachePut(key = "#user.nickName"),
+            @CachePut(key = "#user.email"),
+            @CachePut(key = "#user.invite")})
     public User updateUser(User user, UpdateProfileDto updateProfileDto) {
         log.info("Updating user {}", user);
         user.setNickName(updateProfileDto.getNickName());

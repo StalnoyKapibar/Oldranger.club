@@ -9,6 +9,9 @@ import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface UserStaticRepository extends JpaRepository<UserStatistic, Long> {
 
     @Query(value = "select  new ru.java.mentor.oldranger.club.dto.UserStatisticDto" +
@@ -22,5 +25,10 @@ public interface UserStaticRepository extends JpaRepository<UserStatistic, Long>
             "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVisit)  " +
             "from UserStatistic us join us.user u join u.role r where u.firstName=:q or u.email=:q or u.lastName=:q")
     Page<UserStatisticDto> findByQueryDto(Pageable pageable, @Param("q") String query);
+
+    @Query(value = "select  new ru.java.mentor.oldranger.club.dto.UserStatisticDto" +
+            "(us.id, u.nickName, u.email, u.regDate, r.role, us.lastComment, us.lastVisit)  " +
+            "from UserStatistic us join us.user u join u.role r where u.id=:i")
+    UserStatisticDto getOneById(@Param("i") Long id);
 }
 
