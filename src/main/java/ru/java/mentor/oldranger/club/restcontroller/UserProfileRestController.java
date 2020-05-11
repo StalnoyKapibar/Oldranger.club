@@ -107,12 +107,11 @@ public class UserProfileRestController {
                     content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
             @ApiResponse(responseCode = "204", description = "User is not logged in")})
     @PostMapping("/updateProfile")
-    public ResponseEntity<ErrorDto> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
+    public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-        userService.updateUser(currentUser, updateProfileDto);
 
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
         if (profile == null) {
@@ -120,8 +119,9 @@ public class UserProfileRestController {
             profile.setUser(currentUser);
         }
         userProfileService.updateUserProfile(profile, updateProfileDto);
+        User user = userService.updateUser(currentUser, updateProfileDto);
 
-        return ResponseEntity.ok(new ErrorDto("OK"));
+        return ResponseEntity.ok(user);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
