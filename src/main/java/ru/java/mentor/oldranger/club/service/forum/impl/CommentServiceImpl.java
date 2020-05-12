@@ -257,7 +257,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2, CommentCreateAndUpdateDto messageComments, Topic topic, User currentUser, User user) {
+    public boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
+                                              CommentCreateAndUpdateDto messageComments,
+                                              Topic topic, User currentUser, User user) {
+        log.debug("Checking user for editing comment");
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) < 0;
@@ -270,6 +273,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment setInfoIntoComment(Comment comment, CommentCreateAndUpdateDto messageComments) {
+        log.debug("Add info into comment");
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
         if (messageComments.getAnswerID() != null) {
@@ -283,6 +287,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
+        log.debug("Deleting photo from comment");
         if (!idDeletePhotos.isEmpty()) {
             for (Photo photo : photos) {
                 for (Long id : idDeletePhotos) {
@@ -307,7 +312,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updatePhotos(MultipartFile image1, MultipartFile image2, Comment comment, Topic topic, CommentDto commentDto, List<Photo> photos) {
+    public CommentDto updatePhotos(MultipartFile image1, MultipartFile image2, Comment comment, Topic topic,
+                                   CommentDto commentDto, List<Photo> photos) {
+        log.debug("Updating photo in comment");
         if (image1 != null) {
             PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
             Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
