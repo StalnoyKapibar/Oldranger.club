@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/registration")
@@ -34,7 +36,7 @@ public class RegistrationRestController {
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
-               summary = "Add user", tags = { "Registration user" })
+            summary = "Add user", tags = {"Registration user"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "request on invitation has been successfully saved",
                     content = @Content(schema = @Schema(implementation = String.class))),
@@ -58,7 +60,8 @@ public class RegistrationRestController {
             user.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
             user.setRegDate(LocalDateTime.now());
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
         userService.save(user);

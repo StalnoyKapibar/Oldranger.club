@@ -96,14 +96,14 @@ public class SectionsAndTopicsRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Topic created",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
-            @ApiResponse(responseCode = "400", description = "Failed to create topic")})
+            @ApiResponse(responseCode = "400", description = "Failed to create topic"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails,
                                                          @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
-
         if (user == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Topic topic = new Topic();
@@ -138,24 +138,22 @@ public class SectionsAndTopicsRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Topic edited",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
-            @ApiResponse(responseCode = "400", description = "Error editing topic")})
+            @ApiResponse(responseCode = "400", description = "Error editing topic"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/topic/edit", produces = {"application/json"})
     public ResponseEntity<Topic> editTopic(@RequestBody Map<String, Object> param) {
 
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null || !securityUtilsService.isAdmin()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         Integer id = (Integer) param.get("id");
         String name = (String) param.get("name");
         String startMessage = (String) param.get("startMessage");
         Boolean hideToAnon = (Boolean) param.get("hideToAnon");
         Boolean forbidComment = (Boolean) param.get("forbidComment");
 
-        User currentUser = securityUtilsService.getLoggedUser();
         Topic topic = topicService.findById(Long.valueOf(id));
-
-        //тест, если бросил 401, удалить условие
-        if (currentUser == null || !securityUtilsService.isAdmin()) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
         topic.setStartMessage(startMessage);
         topic.setSubsection(topic.getSubsection());
         topic.setName(name);
