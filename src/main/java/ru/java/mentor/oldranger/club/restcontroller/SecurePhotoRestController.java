@@ -11,9 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.model.media.Photo;
@@ -46,14 +44,15 @@ public class SecurePhotoRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Photo found",
                     content = @Content(schema = @Schema(implementation = Array.class))),
-            @ApiResponse(responseCode = "400", description = "Secure or id error")})
+            @ApiResponse(responseCode = "400", description = "Secure or id error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/photoFromAlbum/{photoId}")
-    public ResponseEntity<byte[]> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
-                                                @RequestParam(value = "type", required = false) String type) {
+    public ResponseEntity<?> getAlbumPhoto(@PathVariable(value = "photoId") Long photoId,
+                                           @RequestParam(value = "type", required = false) String type) {
         User currentUser = securityUtilsService.getLoggedUser();
 
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Photo photo = photoService.findById(photoId);
         if (photo != null) {
@@ -62,8 +61,8 @@ public class SecurePhotoRestController {
                 try {
                     return ResponseEntity.ok(photoService.getPhotoAsByteArray(photo, type));
                 } catch (NullPointerException | IOException e) {
-                    log.error("error in getting image");
                     log.error(e.getMessage());
+                    return ResponseEntity.badRequest().body(e.getMessage());
                 }
             }
         }
