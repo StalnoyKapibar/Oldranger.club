@@ -9,9 +9,6 @@ import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface UserStaticRepository extends JpaRepository<UserStatistic, Long> {
 
     @Query(value = "select  new ru.java.mentor.oldranger.club.dto.UserStatisticDto" +

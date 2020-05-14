@@ -21,6 +21,7 @@ public class BlackListServiceImpl implements BlackListService {
 
     private static BlackListRepository blackListRepository;
     private static UserService userService;
+    private static BlackListServiceImpl instance;
 
     @Autowired
     BlackListServiceImpl(BlackListRepository blackListRepository, UserService userService) {
@@ -28,9 +29,8 @@ public class BlackListServiceImpl implements BlackListService {
         this.userService = userService;
     }
 
-    private static BlackListServiceImpl instance;
-
-    private BlackListServiceImpl() {}
+    private BlackListServiceImpl() {
+    }
 
     public static BlackListServiceImpl getInstance() {
         if (instance == null) {
@@ -72,6 +72,7 @@ public class BlackListServiceImpl implements BlackListService {
         }
         return false;
     }
+
     //clear cache
     private boolean deleteUnlockBlock(List<BlackList> blackLists) {
         log.debug("Checking ban unlock time");

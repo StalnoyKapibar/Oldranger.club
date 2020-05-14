@@ -84,26 +84,12 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     }
 
     @Override
-    public List<UserStatisticDto> getUserStatisticDtoFromUserStatistic(List<UserStatistic> users) {
-        log.debug("Building user statistic dto");
-        List<UserStatisticDto> dtos = new ArrayList<>();
-        users.forEach(user -> dtos.add(new UserStatisticDto(user.getUser().getId(),
-                user.getUser().getNickName(),
-                user.getUser().getEmail(),
-                user.getUser().getRegDate(),
-                user.getUser().getRole().getAuthority(),
-                user.getLastComment(),
-                user.getLastVisit())));
-        return dtos;
-    }
-
-    @Override
-    public List<UserStatisticDto> getAllLockedUserByListId(Pageable pageable, List<Long> listId) {
-        log.debug("Getting page {} of user statistic", pageable.getPageNumber());
+    public List<UserStatisticDto> getAllLockedUserByListId(List<Long> listId) {
+        log.debug("Getting user statistic {} of user id");
         List<UserStatisticDto> page = null;
         try {
             List<UserStatisticDto> result = new ArrayList<>();
-            for (int i = 0; i < listId.size(); i++){
+            for (int i = 0; i < listId.size(); i++) {
                 result.add(userStaticRepository.getOneById(listId.get(i)));
             }
             page = result;

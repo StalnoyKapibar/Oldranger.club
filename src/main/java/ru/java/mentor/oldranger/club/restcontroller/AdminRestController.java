@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
@@ -34,10 +32,8 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -82,7 +78,31 @@ public class AdminRestController {
         List<UserStatisticDto> users;
         if (page == null) page = 0;
         Pageable pageable;
-        if (query != null && query.equals("name")) {
+        if (query != null && (query.contains("banned") && query.contains("name"))) {
+            pageable = PageRequest.of(page, 5, Sort.by("id"));
+            List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
+            List<Long> userIds = new ArrayList<>();
+            List<BlackList> collect = content.stream()
+                    .sorted(Comparator.comparing(a -> a.getUser().getNickName().toLowerCase()))
+                    .collect(Collectors.toList());
+            for (BlackList blackList : collect) {
+                userIds.add(blackList.getUser().getId());
+            }
+
+            users = userStatisticService.getAllLockedUserByListId(userIds);
+        } else if (query != null && (query.contains("banned") && query.contains("email"))) {
+            pageable = PageRequest.of(page, 5, Sort.by("id"));
+            List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
+            List<Long> userIds = new ArrayList<>();
+            List<BlackList> collect = content.stream()
+                    .sorted(Comparator.comparing(a -> a.getUser().getEmail().toLowerCase()))
+                    .collect(Collectors.toList());
+            for (BlackList blackList : collect) {
+                userIds.add(blackList.getUser().getId());
+            }
+
+            users = userStatisticService.getAllLockedUserByListId(userIds);
+        } else if (query != null && query.equals("name")) {
             pageable = PageRequest.of(page, 5, Sort.by("u.nickName"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();
         } else if (query != null && query.equals("email")) {
@@ -92,10 +112,11 @@ public class AdminRestController {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
             List<Long> userIds = new ArrayList<>();
-            for (int i = 0; i < content.size(); i++){
-                userIds.add(content.get(i).getUser().getId());
+            for (BlackList blackList : content) {
+                userIds.add(blackList.getUser().getId());
             }
-            users = userStatisticService.getAllLockedUserByListId(pageable, userIds);
+
+            users = userStatisticService.getAllLockedUserByListId(userIds);
         } else {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();

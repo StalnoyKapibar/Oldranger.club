@@ -20,7 +20,5 @@ public interface UserStatisticService {
 
     Page<UserStatisticDto> getUserStatisticsByQuery(Pageable pageable, String query);
 
-    List<UserStatisticDto> getUserStatisticDtoFromUserStatistic(List<UserStatistic> users);
-
-    List<UserStatisticDto> getAllLockedUserByListId(Pageable pageable, List<Long> listId);
+    List<UserStatisticDto> getAllLockedUserByListId(List<Long> listId);
 }
