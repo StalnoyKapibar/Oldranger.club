@@ -72,17 +72,13 @@ public class CommentAndTopicRestController {
                                                                            @RequestParam(value = "limit", required = false) Integer limit) {
 
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
             return ResponseEntity.noContent().build();
         }
 
-        if (topic.isHideToAnon() || topic.getSubsection().isHideToAnon()) {
-            return ResponseEntity.badRequest().build();
+        if (currentUser == null && (topic.isHideToAnon() || topic.getSubsection().isHideToAnon())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         if (limit == null) {
