@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -10,19 +11,26 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.StringUtils;
+import ru.java.mentor.oldranger.club.model.utils.BlackList;
+import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AuthHandler extends SimpleUrlAuthenticationSuccessHandler implements AuthenticationFailureHandler {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private RequestCache requestCache = new HttpSessionRequestCache();
+
+    @Autowired
+    private BlackListService blackListService;
 
     // метод - типа аналог имплементации такового у SavedRequestAwareAuthenticationSuccessHandler,
     // но с вырезанным к чертям редиректом. На текущем фронте (актуально для 11.01.2020) работает
@@ -50,12 +58,28 @@ public class AuthHandler extends SimpleUrlAuthenticationSuccessHandler implement
     // и timestamp - временной меткой неудачного входа
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        String username = httpServletRequest.getParameter("username");
         Map<String, Object> data = new HashMap<>();
         data.put("timestamp", Calendar.getInstance().getTime());
         data.put("exception", e.getMessage());
 
-        httpServletResponse.getOutputStream()
-                .println(objectMapper.writeValueAsString(data));
+        if (username == null) {
+            httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            httpServletResponse.getOutputStream()
+                    .println(objectMapper.writeValueAsString(data));
+        } else {
+            List<BlackList> user = blackListService.findByUserName(username);
+            if (user.size() == 0) {
+                httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+                httpServletResponse.getOutputStream()
+                        .println(objectMapper.writeValueAsString(data));
+            } else {
+                LocalDateTime unlockTime = user.get(0).getUnlockTime();
+                data.put("unlockTime", unlockTime);
+                httpServletResponse.getOutputStream()
+                        .println(objectMapper.writeValueAsString(data));
+            }
+        }
     }
 }
