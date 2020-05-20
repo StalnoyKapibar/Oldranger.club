@@ -19,10 +19,12 @@ import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +39,7 @@ public class CommentToArticleRestController {
     private final UserService userService;
     private final SecurityUtilsService securityUtilsService;
     private final FilterHtmlService filterHtmlService;
+    private WritingBanService writingBanService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -77,6 +80,9 @@ public class CommentToArticleRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment;
 
@@ -116,6 +122,9 @@ public class CommentToArticleRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
@@ -158,7 +167,9 @@ public class CommentToArticleRestController {
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
+        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (articleComment.getId() == null) {
             return ResponseEntity.noContent().build();
         }
