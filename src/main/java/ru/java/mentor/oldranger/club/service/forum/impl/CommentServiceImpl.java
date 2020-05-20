@@ -8,26 +8,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.CommentRepository;
-import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.CommentDtoAndCountMessages;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.media.Photo;
-import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.ImageCommnetService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
-import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
-import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
-import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
-import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -43,11 +35,6 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl implements CommentService {
 
-    private final SecurityUtilsService securityUtilsService;
-    private final CheckFileTypeService checkFileTypeService;
-    private final CommentService commentService;
-    private final FilterHtmlService filterHtmlService;
-    private final PhotoAlbumService photoAlbumService;
     private CommentRepository commentRepository;
     private UserStatisticService userStatisticService;
     private TopicService topicService;
@@ -254,80 +241,6 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> getChildComment(Comment comment) {
         log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
         return commentRepository.findAllByAnswerTo(comment);
-    }
-
-    @Override
-    public boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
-                                              CommentCreateAndUpdateDto messageComments,
-                                              Topic topic, User currentUser, User user) {
-        log.debug("Checking user for editing comment");
-        boolean admin = securityUtilsService.isAdmin();
-        boolean moderator = securityUtilsService.isModerator();
-        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) < 0;
-        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
-        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-        return messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null
-                || !currentUser.getId().equals(user.getId()) && !admin && !moderator
-                || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage;
-    }
-
-    @Override
-    public Comment setInfoIntoComment(Comment comment, CommentCreateAndUpdateDto messageComments) {
-        log.debug("Add info into comment");
-        comment.setTopic(topicService.findById(messageComments.getIdTopic()));
-        comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
-        if (messageComments.getAnswerID() != null) {
-            comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
-        } else {
-            comment.setAnswerTo(null);
-        }
-        comment.setDateTime(comment.getDateTime());
-        return comment;
-    }
-
-    @Override
-    public CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
-        log.debug("Deleting photo from comment");
-        if (!idDeletePhotos.isEmpty()) {
-            for (Photo photo : photos) {
-                for (Long id : idDeletePhotos) {
-                    if (!id.equals(photo.getId())) {
-                        photoService.deletePhoto(photo.getId());
-                    }
-                }
-            }
-            photos.clear();
-            for (Long id : idDeletePhotos) {
-                photos.add(photoService.findById(id));
-            }
-            commentDto.setPhotos(photos);
-        } else {
-            for (Photo photo : photos) {
-                photoService.deletePhoto(photo.getId());
-            }
-            photos.clear();
-            commentDto.setPhotos(photos);
-        }
-        return commentDto;
-    }
-
-    @Override
-    public CommentDto updatePhotos(MultipartFile image1, MultipartFile image2, Comment comment, Topic topic,
-                                   CommentDto commentDto, List<Photo> photos) {
-        log.debug("Updating photo in comment");
-        if (image1 != null) {
-            PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
-            Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
-            photos.add(newPhoto1);
-            commentDto.setPhotos(photos);
-        }
-        if (image2 != null) {
-            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by "
-                    + topic.getName()), image2, comment.getId().toString());
-            photos.add(newPhoto2);
-            commentDto.setPhotos(photos);
-        }
-        return commentDto;
     }
 
     public CommentDtoAndCountMessages assembleCommentDtoAndMessages(List<CommentDto> commentDto, Long countMessages) {

@@ -24,6 +24,7 @@ import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
@@ -239,12 +240,11 @@ public class CommentAndTopicRestController {
         Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = comment.getUser();
 
-        if (commentService.ifUserAllowedToEditComment(comment, image1, image2, messageComments,
-                topic, currentUser, user)) {
+        if (ifUserAllowedToEditComment(comment, image1, image2, messageComments, topic, currentUser, user)) {
             return ResponseEntity.badRequest().build();
         }
 
-        comment = commentService.setInfoIntoComment(comment, messageComments);
+        comment = setInfoIntoComment(comment, messageComments);
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         List<Photo> photos = commentDto.getPhotos();
 
@@ -265,9 +265,78 @@ public class CommentAndTopicRestController {
             }
         }
 
-        commentDto = commentService.deletePhotoFromDto(idDeletePhotos, photos, commentDto);
-        CommentDto updatedCommentDto = commentService.updatePhotos(image1, image2, comment, topic, commentDto, photos);
+        commentDto = deletePhotoFromDto(idDeletePhotos, photos, commentDto);
+        CommentDto updatedCommentDto = updatePhotos(image1, image2, comment, topic, commentDto, photos);
 
         return ResponseEntity.ok(updatedCommentDto);
     }
+
+    private boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
+                                               CommentCreateAndUpdateDto messageComments,
+                                               Topic topic, User currentUser, User user) {
+        boolean admin = securityUtilsService.isAdmin();
+        boolean moderator = securityUtilsService.isModerator();
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) < 0;
+        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
+        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
+        return messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null
+                || !currentUser.getId().equals(user.getId()) && !admin && !moderator
+                || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage;
+    }
+
+    private Comment setInfoIntoComment(Comment comment, CommentCreateAndUpdateDto messageComments) {
+        comment.setTopic(topicService.findById(messageComments.getIdTopic()));
+        comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
+        if (messageComments.getAnswerID() != null) {
+            comment.setAnswerTo(commentService.getCommentById(messageComments.getAnswerID()));
+        } else {
+            comment.setAnswerTo(null);
+        }
+        comment.setDateTime(comment.getDateTime());
+        return comment;
+    }
+
+    private CommentDto updatePhotos(MultipartFile image1, MultipartFile image2,
+                                    Comment comment, Topic topic,
+                                    CommentDto commentDto, List<Photo> photos) {
+        if (image1 != null) {
+            PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
+            Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
+            photos.add(newPhoto1);
+            commentDto.setPhotos(photos);
+        }
+        if (image2 != null) {
+            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by "
+                    + topic.getName()), image2, comment.getId().toString());
+            photos.add(newPhoto2);
+            commentDto.setPhotos(photos);
+        }
+        return commentDto;
+    }
+
+    private CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
+        if (!idDeletePhotos.isEmpty()) {
+            for (Photo photo : photos) {
+                for (Long id : idDeletePhotos) {
+                    if (!id.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                }
+            }
+            photos.clear();
+            for (Long id : idDeletePhotos) {
+                photos.add(photoService.findById(id));
+            }
+            commentDto.setPhotos(photos);
+        } else {
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+            photos.clear();
+            commentDto.setPhotos(photos);
+        }
+        return commentDto;
+    }
 }
+
+
