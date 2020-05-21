@@ -19,8 +19,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.EmailDraftDto;
 import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
@@ -119,6 +122,29 @@ public class AdminRestController {
         return ResponseEntity.ok(totalPages);
     }
 
+    /*@Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Send mail to all users", tags = {"Direct Mail"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Mail send",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Mail not send")})
+    @PostMapping(value = "/sendMail", produces = {"application/json"})
+    public ResponseEntity<String> sendMail(@RequestBody EmailDraft draft) {
+
+        List<User> users = userService.findAll();
+        List<String> mailList = new ArrayList<>();
+        users.forEach(user -> mailList.add(user.getEmail()));
+        //String[] emails = (String[]) mailList.toArray();
+        String[] emails = mailList.toArray(new String[0]);
+        try {
+            mailService.sendHtmlMessage(emails, draft);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }*/
+
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Send mail to all users", tags = {"Direct Mail"})
     @ApiResponses(value = {
@@ -126,13 +152,26 @@ public class AdminRestController {
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
     @PostMapping(value = "/sendMail", produces = {"application/json"})
-    public ResponseEntity<String> sendMail(EmailDraft draft) {
+    public ResponseEntity<String> sendMail(@RequestBody EmailDraftDto draft) {
+
+        String[] roles = draft.getRoles();
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
-        users.forEach(user -> mailList.add(user.getEmail()));
-        String[] emails = (String[]) mailList.toArray();
+        if (roles.length == 1 && roles[0].equals("All")){
+            users.forEach(user -> mailList.add(user.getEmail()));
+        }else {
+           for (int i = 0; i < users.size(); i++){
+               for (int j = 0; j < roles.length; j++){
+                   if (users.get(i).getRole().getAuthority().equals(roles[j])){
+                       mailList.add(users.get(i).getEmail());
+                       break;
+                   }
+               }
+           }
+        }
+        String[] emails = mailList.toArray(new String[0]);
         try {
-            mailService.sendHtmlMessage(emails, draft);
+            mailService.sendHtmlMessage(emails, draft.getEmailDraft());
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
