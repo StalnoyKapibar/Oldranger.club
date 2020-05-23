@@ -10,6 +10,7 @@ import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -54,5 +55,19 @@ public class WritingBanServiceImpl implements WritingBanService {
             }
         }
         return isForbidden;
+    }
+
+    @Override
+    public List<BanType> getByUser(User user) {
+        log.debug("Getting writing ban for user with id = {}", user.getId());
+        List<BanType> ban = null;
+        try {
+            ban = repository.findByUserId(user.getId());
+
+            log.debug("Writing ban returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return ban;
     }
 }

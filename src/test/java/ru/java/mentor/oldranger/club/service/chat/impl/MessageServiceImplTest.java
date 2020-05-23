@@ -80,8 +80,8 @@ class MessageServiceImplTest {
     @Test
     public void getOnlineUsers() {
         List<User> users = new ArrayList<>(Arrays.asList(
-                new User(1L, null, null, null, "user1", null, null, null, null, null, null),
-                new User(2L, null, null, null, "user2", null, null, null, null, null, null)));
+                new User(1L, null, null, null, "user1", null, null, null, null, null, null, null),
+                new User(2L, null, null, null, "user2", null, null, null, null, null, null, null)));
         chat.setUserList(users);
         Mockito.when(chatService.getChatById(Mockito.anyLong())).thenReturn(chat);
         Mockito.when(chat.getUserList()).thenReturn(users);

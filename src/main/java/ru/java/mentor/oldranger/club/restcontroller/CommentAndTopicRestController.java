@@ -137,9 +137,9 @@ public class CommentAndTopicRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
+        /*if (currentUser.getMute().size() != 0 && currentUser.getMute().contains("ON_COMMENTS")){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        }*/
 
         String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
         if (image1 == null & image2 == null & commentService.isEmptyComment(cleanedText)) {
@@ -195,9 +195,10 @@ public class CommentAndTopicRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
+
+        /*if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        }*/
 
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
@@ -242,10 +243,6 @@ public class CommentAndTopicRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         Comment comment = commentService.getCommentById(commentID);
