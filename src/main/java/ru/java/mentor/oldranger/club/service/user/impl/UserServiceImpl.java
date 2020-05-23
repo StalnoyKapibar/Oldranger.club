@@ -181,7 +181,8 @@ public class UserServiceImpl implements UserService {
                 user.getNickName(),
                 user.getRole().getRole(),
                 LocalDateTime.now(),
-                currentUser);
+                currentUser,
+                user.getMute());
     }
 
 
