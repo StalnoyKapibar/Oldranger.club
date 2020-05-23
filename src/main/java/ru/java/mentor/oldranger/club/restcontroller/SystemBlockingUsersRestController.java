@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -105,7 +106,8 @@ public class SystemBlockingUsersRestController {
             localDateTime = null;
         } else {
             String unblockTime = writingBanDto.getDateUnblock();
-            localDateTime = LocalDateTime.parse(unblockTime.subSequence(0, 22));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            localDateTime = LocalDateTime.parse(unblockTime, formatter);
         }
         if (oldWritingBan != null) {
             writingBan = new WritingBan(oldWritingBan.getId(), user, type, localDateTime);
