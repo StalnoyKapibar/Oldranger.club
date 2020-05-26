@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import javax.persistence.Tuple;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode, Long> {
@@ -62,25 +63,25 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
 
 
     @Query(nativeQuery = true,
-    value = "WITH RECURSIVE CTE AS   " +
-            "                   (   " +
-            "                       SELECT parent,   " +
-            "                              article_tags_tree.id   " +
-            "                       FROM article_tags_tree   " +
-            "                       WHERE parent = ?1   " +
-            "                       UNION ALL   " +
-            "                       SELECT c.parent,   " +
-            "                              c.id   " +
-            "                       FROM CTE AS sc   " +
-            "                                JOIN article_tags_tree AS c ON sc.id = c.parent   " +
-            "                   )   " +
-            "SELECT id   " +
-            "FROM CTE   " +
-            "union all   " +
-            "select ?1")
+            value = "WITH RECURSIVE CTE AS   " +
+                    "                   (   " +
+                    "                       SELECT parent,   " +
+                    "                              article_tags_tree.id   " +
+                    "                       FROM article_tags_tree   " +
+                    "                       WHERE parent = ?1   " +
+                    "                       UNION ALL   " +
+                    "                       SELECT c.parent,   " +
+                    "                              c.id   " +
+                    "                       FROM CTE AS sc   " +
+                    "                                JOIN article_tags_tree AS c ON sc.id = c.parent   " +
+                    "                   )   " +
+                    "SELECT id   " +
+                    "FROM CTE   " +
+                    "union all   " +
+                    "select ?1")
     List<Long> findDescendantsAndParentIdsByParentId(Long id);
 
     void deleteByIdIn(List<Long> ids);
 
-
+    Set<ArticleTagsNode> findByIdIn(List<Long> id);
 }
