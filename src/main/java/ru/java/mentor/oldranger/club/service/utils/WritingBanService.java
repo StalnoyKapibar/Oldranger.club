@@ -14,4 +14,6 @@ public interface WritingBanService {
     boolean isForbidden(User user, BanType type);
 
     List<BanType> getByUser(User user);
+
+    void deleteMute(User user);
 }

@@ -23,7 +23,6 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import ru.java.mentor.oldranger.club.service.utils.impl.SessionService;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -106,8 +105,7 @@ public class SystemBlockingUsersRestController {
             localDateTime = null;
         } else {
             String unblockTime = writingBanDto.getDateUnblock();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            localDateTime = LocalDateTime.parse(unblockTime, formatter);
+            localDateTime = LocalDateTime.parse(unblockTime.subSequence(0, 22));
         }
         if (oldWritingBan != null) {
             writingBan = new WritingBan(oldWritingBan.getId(), user, type, localDateTime);
@@ -127,5 +125,18 @@ public class SystemBlockingUsersRestController {
     public ResponseEntity<List<BlackList>> allBlockedUsers() {
         List<BlackList> blackList = blackListService.findAll();
         return ResponseEntity.ok(blackList);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Remove mute for user", tags = {"System muting users"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = WritingBanDto.class)))})
+    @PostMapping("/admin/unmute")
+    public WritingBanDto unblockUser(@RequestBody WritingBanDto writingBanDto) {
+
+        User user = userService.findById(writingBanDto.getId());
+        writingBanService.deleteMute(user);
+        return writingBanDto;
     }
 }

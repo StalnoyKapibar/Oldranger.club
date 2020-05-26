@@ -14,4 +14,6 @@ public interface WritingBanRepository extends JpaRepository<WritingBan, Long> {
 
     @Query(value = "select us.banType from WritingBan us join us.user u join u.role r where u.id=:i")
     List<BanType> findByUserId(@Param("i") Long id);
+
+    void deleteWritingBansByUser(User user);
 }
