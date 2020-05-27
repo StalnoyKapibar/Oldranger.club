@@ -64,7 +64,6 @@ public class WritingBanServiceImpl implements WritingBanService {
         List<BanType> ban = null;
         try {
             ban = repository.findByUserId(user.getId());
-
             log.debug("Writing ban returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

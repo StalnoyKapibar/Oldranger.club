@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.utils.BanType;
-import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
@@ -23,6 +21,7 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -114,17 +113,12 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     public User getLoggedUser() {
         log.debug("Getting logged user");
         User user = null;
-        List<BanType> banType;
-        List<String> banTypeName = new ArrayList<>();
         try {
             if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String) return null;
             String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
             user = userService.getUserByNickName(username);
-            banType = writingBanService.getByUser(user);
-            for (BanType type : banType) {
-                banTypeName.add(type.name());
-            }
-            user.setMute(banTypeName);
+            user.setMute(writingBanService.getByUser(user).stream()
+                    .map(Enum::name).collect(Collectors.toList()));
             log.debug("Returned user {}", user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

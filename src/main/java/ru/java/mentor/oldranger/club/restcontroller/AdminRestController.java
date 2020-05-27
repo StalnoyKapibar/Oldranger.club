@@ -30,12 +30,14 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -51,6 +53,7 @@ public class AdminRestController {
     private UserService userService;
     private SecurityUtilsService securityUtilsService;
     private RoleService roleService;
+    private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get UserStatisticDto list", tags = {"Admin"})
@@ -227,11 +230,12 @@ public class AdminRestController {
             @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping(value = "/getUser/{userId}", produces = {"application/json"})
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-        User user = userService.findById(userId);
-
         if (userId == null || !securityUtilsService.isAdmin()) {
             return ResponseEntity.noContent().build();
         }
+        User user = userService.findById(userId);
+        user.setMute(writingBanService.getByUser(user).stream()
+                .map(Enum::name).collect(Collectors.toList()));
         return ResponseEntity.ok(user);
     }
 }
