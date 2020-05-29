@@ -85,8 +85,9 @@ public class PrivateChatRestController {
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "204", description = "User not found")})
     @GetMapping(value = "/chats")
-    public ResponseEntity<List<Chat>> getAllChatsByUser(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<List<Chat>> getAllChatsByUser(@RequestParam(name = "name")String username) {
 
+        User currentUser = userService.getUserByNickName(username);
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
