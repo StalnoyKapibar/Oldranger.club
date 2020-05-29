@@ -78,6 +78,26 @@ public class PrivateChatRestController {
         }
     }
 
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get chat token", description = "Get all private chats for current user", tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chat token",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "User not found")})
+    @GetMapping(value = "/chats")
+    public ResponseEntity<List<Chat>> getAllChatsByUser(@AuthenticationPrincipal User currentUser) {
+
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
+        List<Chat> chats = chatService.getAllPrivateChats(currentUser);
+        if (chats.size() == 0){
+            return ResponseEntity.noContent().build();
+        }else {
+            return ResponseEntity.ok(chats);
+        }
+
+    }
 
     @Operation(summary = "Get last messages", description = "limit 20 messages", tags = {"Private chat"})
     @ApiResponses(value = {
