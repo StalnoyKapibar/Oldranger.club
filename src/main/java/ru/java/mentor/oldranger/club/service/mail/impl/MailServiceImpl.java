@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import ru.java.mentor.oldranger.club.dto.RequestRegistrationDto;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 
@@ -120,6 +121,33 @@ public class MailServiceImpl implements MailService {
             mailSender.send(mimeMessage);
         } catch (MailSendException | MessagingException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String sendMessageToAdmin(RequestRegistrationDto registrationUserDto) {
+        log.debug("Sending html email message to admin user");
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            Context context = new Context();
+            //context.setVariables(variables);
+            context.setVariable("firstName", registrationUserDto.getFirstName());
+            context.setVariable("lastName", registrationUserDto.getLastName());
+            context.setVariable("email", registrationUserDto.getEmail());
+            context.setVariable("about", registrationUserDto.getAbout());
+
+            String htmlContent = this.templateEngine.process("registerNewUser.html", context);
+
+            helper.setTo(username);
+            helper.setText(htmlContent, true);
+            helper.setFrom(registrationUserDto.getEmail());
+            mailSender.send(mimeMessage);
+            log.debug("Message send");
+            return "1";
+        } catch (MailSendException | MessagingException e) {
+            e.printStackTrace();
+            return "0";
         }
     }
 }
