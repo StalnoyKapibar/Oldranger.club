@@ -131,7 +131,6 @@ public class MailServiceImpl implements MailService {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
             Context context = new Context();
-            //context.setVariables(variables);
             context.setVariable("firstName", registrationUserDto.getFirstName());
             context.setVariable("lastName", registrationUserDto.getLastName());
             context.setVariable("email", registrationUserDto.getEmail());
