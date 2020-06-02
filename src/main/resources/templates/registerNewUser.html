@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration new user</title>
+</head>
+<body>
+<p th:text="${firstName}+' '+${lastName}+ ' отправил запрос для регистрации на форуме.'"></p>
+<p th:text="'Email пользователя: ' + ${email}"></p>
+<p th:text="'О себе пишет: ' + ${about}"></p>
+
+</body>
+</html>

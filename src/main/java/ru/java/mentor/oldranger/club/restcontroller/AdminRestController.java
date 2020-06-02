@@ -19,6 +19,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.EmailDraftDto;
 import ru.java.mentor.oldranger.club.dto.ListUserStatisticDTO;
 import ru.java.mentor.oldranger.club.dto.UserStatisticDto;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -35,6 +36,7 @@ import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @RestController
@@ -126,13 +128,24 @@ public class AdminRestController {
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Mail not send")})
     @PostMapping(value = "/sendMail", produces = {"application/json"})
-    public ResponseEntity<String> sendMail(EmailDraft draft) {
+    public ResponseEntity<String> sendMail(@RequestBody EmailDraftDto draft) {
+
+        String[] roles = draft.getRoles();
+        String[] emails;
         List<User> users = userService.findAll();
         List<String> mailList = new ArrayList<>();
-        users.forEach(user -> mailList.add(user.getEmail()));
-        String[] emails = (String[]) mailList.toArray();
+        if (roles.length == 1 && roles[0].equals("All")) {
+            users.forEach(user -> mailList.add(user.getEmail()));
+        } else {
+            for (User user : users) {
+                if (Arrays.stream(roles).anyMatch(role -> user.getRole().getAuthority().equals(role))) {
+                    mailList.add(user.getEmail());
+                }
+            }
+        }
+        emails = mailList.toArray(new String[0]);
         try {
-            mailService.sendHtmlMessage(emails, draft);
+            mailService.sendHtmlMessage(emails, draft.getEmailDraft());
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
