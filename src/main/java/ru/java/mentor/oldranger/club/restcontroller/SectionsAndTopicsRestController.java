@@ -105,9 +105,7 @@ public class SectionsAndTopicsRestController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(user, BanType.ON_FORUM_MESS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
         photoAlbum.setMedia(mediaService.findMediaByUser(user));
@@ -148,9 +146,6 @@ public class SectionsAndTopicsRestController {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null || !securityUtilsService.isAdmin()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_FORUM_MESS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Integer id = (Integer) param.get("id");
         String name = (String) param.get("name");

@@ -26,7 +26,6 @@ import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
@@ -137,10 +136,6 @@ public class CommentAndTopicRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        /*if (currentUser.getMute().size() != 0 && currentUser.getMute().contains("ON_COMMENTS")){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }*/
-
         String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
         if (image1 == null & image2 == null & commentService.isEmptyComment(cleanedText)) {
             return ResponseEntity.badRequest().build();
@@ -194,11 +189,6 @@ public class CommentAndTopicRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-
-        /*if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }*/
 
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();

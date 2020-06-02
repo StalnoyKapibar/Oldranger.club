@@ -16,7 +16,6 @@ import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -52,9 +51,7 @@ public class CommentToPhotoRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         Photo photo = photoService.findById(idPhoto);
         if (photo == null) {
             return ResponseEntity.badRequest().build();
@@ -86,9 +83,7 @@ public class CommentToPhotoRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         User user = photoComment.getUser();
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {
             return ResponseEntity.badRequest().build();
@@ -115,9 +110,7 @@ public class CommentToPhotoRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         User user = photoComment.getUser();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(photoComment.getDateTime().plusDays(7)) >= 0;
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin() && !securityUtilsService.isModerator()) {

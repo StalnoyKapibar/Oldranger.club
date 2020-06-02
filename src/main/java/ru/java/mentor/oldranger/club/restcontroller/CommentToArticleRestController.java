@@ -19,7 +19,6 @@ import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
@@ -80,9 +79,6 @@ public class CommentToArticleRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
         ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment;
 
@@ -123,9 +119,7 @@ public class CommentToArticleRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
         User user = articleComment.getUser();
@@ -167,9 +161,7 @@ public class CommentToArticleRestController {
         if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        if (writingBanService.isForbidden(currentUser, BanType.ON_COMMENTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+
         if (articleComment.getId() == null) {
             return ResponseEntity.noContent().build();
         }
