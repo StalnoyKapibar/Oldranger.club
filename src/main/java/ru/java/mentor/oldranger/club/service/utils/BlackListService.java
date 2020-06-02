@@ -22,4 +22,6 @@ public interface BlackListService {
     List<BlackList> findByUserId(Long id);
 
     BlackList findByUser(User user);
+
+    List<BlackList> findByUserName(String username);
 }

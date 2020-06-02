@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,5 +17,6 @@ public class UserAuthDTO {
     private String role;
     private LocalDateTime currentlyVisit;
     private boolean currentUser;
+    private List<String> mute;
 
 }

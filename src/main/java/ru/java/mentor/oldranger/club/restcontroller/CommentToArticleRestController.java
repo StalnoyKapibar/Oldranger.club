@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +38,7 @@ public class CommentToArticleRestController {
     private final UserService userService;
     private final SecurityUtilsService securityUtilsService;
     private final FilterHtmlService filterHtmlService;
+    private WritingBanService writingBanService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -117,6 +119,7 @@ public class CommentToArticleRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
         User user = articleComment.getUser();
