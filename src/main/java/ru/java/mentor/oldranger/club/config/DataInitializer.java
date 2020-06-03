@@ -231,11 +231,11 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         //Добавляем User в чёрный список
-        BlackList blackList = new BlackList(user, null);
+        BlackList blackList = new BlackList(user, LocalDateTime.of(2020, 11, 28, 19, 10, 0));
         blackListService.save(blackList);
 
         //Запрещаем пользователью отправлять личные сообщения
-        writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
+        writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2020, 11, 28, 19, 10, 0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleUser);
         andrew.setPassword(passwordEncoder.encode("developer"));

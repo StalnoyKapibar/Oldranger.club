@@ -16,10 +16,12 @@ import ru.java.mentor.oldranger.club.model.user.RoleType;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,6 +36,8 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
     private UserService userService;
     @NonNull
     private SessionRegistry sessionRegistry;
+    @NonNull
+    private WritingBanService writingBanService;
 
     @Override
     public List<Long> getUsersFromSessionRegistry() {
@@ -68,17 +72,17 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
                 userRole.setId(3L);
             }
             break;
-            case ROLE_MODERATOR:{
+            case ROLE_MODERATOR: {
                 userRole = new Role("ROLE_MODERATOR");
                 userRole.setId(2L);
                 break;
             }
-            case ROLE_ADMIN:{
+            case ROLE_ADMIN: {
                 userRole = new Role("ROLE_ADMIN");
                 userRole.setId(1L);
                 break;
             }
-            default:{
+            default: {
                 userRole = new Role("ROLE_PROSPECT");
                 userRole.setId(4L);
                 break;
@@ -113,6 +117,8 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
             if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String) return null;
             String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
             user = userService.getUserByNickName(username);
+            user.setMute(writingBanService.getByUser(user).stream()
+                    .map(Enum::name).collect(Collectors.toList()));
             log.debug("Returned user {}", user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

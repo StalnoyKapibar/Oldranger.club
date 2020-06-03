@@ -12,11 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.java.mentor.oldranger.club.dto.RequestRegistrationDto;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -33,6 +32,7 @@ public class RegistrationRestController {
     private InvitationService invitationService;
     private UserService userService;
     private RoleService roleService;
+    private MailService mailService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -68,5 +68,23 @@ public class RegistrationRestController {
         invitationService.getInvitationTokenByKey(dec.split(" ")[5]).setVisitor(user);
         invitationService.markAsUsed(dec.split(" ")[5]);
         return ResponseEntity.ok("Ok");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Registration request", tags = {"Registration user"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "request on registration has been successfully sent",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "these email is already used")})
+    @PostMapping(value = "/new", consumes = {"application/json"})
+    public ResponseEntity<String> sendRequestToAdmin(@RequestBody RequestRegistrationDto registrationUserDto) {
+        String email = registrationUserDto.getEmail();
+        if (userService.getUserByEmail(email) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } else {
+            String status = mailService.sendMessageToAdmin(registrationUserDto);
+            return ResponseEntity.ok(status);
+        }
     }
 }

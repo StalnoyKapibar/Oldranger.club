@@ -138,4 +138,17 @@ public class BlackListServiceImpl implements BlackListService {
         }
         return blackList;
     }
+
+    @Override
+    public List<BlackList> findByUserName(String username) {
+        log.debug("Getting blacklist for user with username = {}", username);
+        List<BlackList> blackList = new ArrayList<>();
+        try {
+            blackList = blackListRepository.findByUserId(userService.getUserByNickName(username).getId());
+            log.debug("Returned blacklist");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return blackList;
+    }
 }

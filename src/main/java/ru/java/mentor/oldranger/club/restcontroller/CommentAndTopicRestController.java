@@ -35,6 +35,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -56,6 +57,7 @@ public class CommentAndTopicRestController {
     private final PhotoAlbumService photoAlbumService;
     private final PhotoService photoService;
     private final FilterHtmlService filterHtmlService;
+    private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
@@ -232,6 +234,7 @@ public class CommentAndTopicRestController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         Comment comment = commentService.getCommentById(commentID);
         Comment answerComment = comment.getAnswerTo();
         if (answerComment != null) {
