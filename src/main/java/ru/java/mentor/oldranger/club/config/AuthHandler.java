@@ -66,13 +66,13 @@ public class AuthHandler extends SimpleUrlAuthenticationSuccessHandler implement
         data.put("exception", e.getMessage());
 
         if (username == null) {
-            httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpServletResponse.getOutputStream()
                     .println(objectMapper.writeValueAsString(data));
         } else {
             List<BlackList> user = blackListService.findByUserName(username);
             if (user.size() == 0) {
-                httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+                httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
                 httpServletResponse.getOutputStream()
                         .println(objectMapper.writeValueAsString(data));
             } else {
