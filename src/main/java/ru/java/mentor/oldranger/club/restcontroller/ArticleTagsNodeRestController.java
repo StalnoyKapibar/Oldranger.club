@@ -112,7 +112,9 @@ public class ArticleTagsNodeRestController {
             tag.setName(tagName);
             articleTagService.addTag(tag);
         }
+
         ArticleTagsNode tagsNode = new ArticleTagsNode(tagsNodeService.findById(parentId), position, tag);
+
         tagsNodeService.save(tagsNode);
         return ResponseEntity.ok(tagsNode);
     }
@@ -163,7 +165,7 @@ public class ArticleTagsNodeRestController {
     @DeleteMapping(value = "/delete")
     public ResponseEntity deleteNode(@RequestParam("id") Long id) {
 
-        if (id == null) {
+        if (id == null || tagsNodeService.findById(id) == null) {
             return ResponseEntity.badRequest().build();
         }
 
