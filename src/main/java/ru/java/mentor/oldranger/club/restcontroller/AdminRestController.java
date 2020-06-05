@@ -63,13 +63,15 @@ public class AdminRestController {
                     type = "Integer",
                     example = "http://localhost:8888/api/admin/users?page=1"))
     @Parameter(in = ParameterIn.QUERY, name = "query",
-            required = false, description = "значение для фильтрации  (необязательный параметр) только тех строк таблицы " +
-            "'users', в которых данное значение " +
-            "содержится хотя бы в одной из трех колонок: first_name, last_name или email",
+            required = false, description = "значение для фильтрации  (необязательный параметр. Если не указан какой-либо - " +
+            "вернёт список пользователей, отсортированный по id). Принимает следующие параметры:" +
+            "1. name - фильтр по nickName, 2. email - фильтр по email, 3. banned, name - вывести список забаненных пользователей, " +
+            "отсортировав по nickName, 4. banned, email ",
             allowEmptyValue = true, allowReserved = true,
             schema = @Schema(
                     type = "string",
-                    example = "http://localhost:8888/api/admin/users?query=moderator@javamentor.com  или http://localhost:8888/api/admin/users?query=Admin"))
+                    example = "http://localhost:8888/api/admin/users?query=banned,name&page=0 или " +
+                            "http://localhost:8888/api/admin/users?query=banned,name"))
 
     @GetMapping(value = "/users", produces = {"application/json"})
     public ResponseEntity<ListUserStatisticDTO> getAllUsers(@RequestParam(value = "page", required = false) Integer page,
