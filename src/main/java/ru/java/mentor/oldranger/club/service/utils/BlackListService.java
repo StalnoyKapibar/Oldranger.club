@@ -26,4 +26,6 @@ public interface BlackListService {
     BlackList findByUser(User user);
 
     Page<BlackList> getAllBlockedUsers(Pageable pageable);
+
+    Long getCount();
 }

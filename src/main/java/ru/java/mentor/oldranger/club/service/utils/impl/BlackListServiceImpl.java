@@ -154,4 +154,10 @@ public class BlackListServiceImpl implements BlackListService {
         }
         return page;
     }
+
+    @Override
+    public Long getCount() {
+        log.debug("Count users");
+        return blackListRepository.count();
+    }
 }

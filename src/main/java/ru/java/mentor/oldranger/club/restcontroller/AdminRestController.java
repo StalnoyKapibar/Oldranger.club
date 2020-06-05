@@ -80,6 +80,7 @@ public class AdminRestController {
         List<UserStatisticDto> users;
         if (page == null) page = 0;
         Pageable pageable;
+        ListUserStatisticDTO listUserStatisticDTO;
         if (query != null && (query.contains("banned") && query.contains("name"))) {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
@@ -92,6 +93,7 @@ public class AdminRestController {
             }
 
             users = userStatisticService.getAllLockedUserByListId(userIds);
+            listUserStatisticDTO = new ListUserStatisticDTO(users, blackListService.getCount());
         } else if (query != null && (query.contains("banned") && query.contains("email"))) {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
@@ -104,12 +106,15 @@ public class AdminRestController {
             }
 
             users = userStatisticService.getAllLockedUserByListId(userIds);
+            listUserStatisticDTO = new ListUserStatisticDTO(users, blackListService.getCount());
         } else if (query != null && query.equals("name")) {
             pageable = PageRequest.of(page, 5, Sort.by("u.nickName"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();
+            listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         } else if (query != null && query.equals("email")) {
             pageable = PageRequest.of(page, 5, Sort.by("u.email"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();
+            listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         } else if (query != null && query.equals("banned")) {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             List<BlackList> content = blackListService.getAllBlockedUsers(pageable).getContent();
@@ -117,14 +122,14 @@ public class AdminRestController {
             for (BlackList blackList : content) {
                 userIds.add(blackList.getUser().getId());
             }
-
             users = userStatisticService.getAllLockedUserByListId(userIds);
+            listUserStatisticDTO = new ListUserStatisticDTO(users, blackListService.getCount());
         } else {
             pageable = PageRequest.of(page, 5, Sort.by("id"));
             users = userStatisticService.getAllUserStatistic(pageable).getContent();
+            listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         }
 
-        ListUserStatisticDTO listUserStatisticDTO = new ListUserStatisticDTO(users, userService.getCount());
         return ResponseEntity.ok(listUserStatisticDTO);
     }
 
