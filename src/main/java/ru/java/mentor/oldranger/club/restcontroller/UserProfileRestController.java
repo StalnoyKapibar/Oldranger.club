@@ -9,10 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,20 +24,23 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
-import ru.java.mentor.oldranger.club.model.user.EmailChangeToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
-import ru.java.mentor.oldranger.club.service.mail.MailService;
-import ru.java.mentor.oldranger.club.service.user.*;
+import ru.java.mentor.oldranger.club.service.user.InvitationService;
+import ru.java.mentor.oldranger.club.service.user.UserProfileService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
-@RequiredArgsConstructor
+
+@Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api")
 @Tag(name = "User profile")
 public class UserProfileRestController {
@@ -95,14 +97,15 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ProfileDto.class))),
-            @ApiResponse(responseCode = "204", description = "User by id not found")})
+            @ApiResponse(responseCode = "404", description = "User by id not found")})
     @GetMapping(value = "/{id}", produces = {"application/json"})
-    public ResponseEntity<ProfileDto> getAnotherUserProfile(@PathVariable Long id) {
+    public ResponseEntity<?> getAnotherUserProfile(@PathVariable Long id) {
         User user;
         try {
             user = userService.findById(id);
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         UserProfile profile = userProfileService.getUserProfileByUser(user);
         UserStatistic stat = userStatisticService.getUserStaticByUser(user);
@@ -117,14 +120,13 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = UpdateProfileDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping("/updateProfile")
-    public ResponseEntity<ErrorDto> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
+    public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        userService.updateUser(currentUser, updateProfileDto);
 
         UserProfile profile = userProfileService.getUserProfileByUser(currentUser);
         if (profile == null) {
@@ -132,8 +134,9 @@ public class UserProfileRestController {
             profile.setUser(currentUser);
         }
         userProfileService.updateUserProfile(profile, updateProfileDto);
+        User user = userService.updateUser(currentUser, updateProfileDto);
 
-        return ResponseEntity.ok(new ErrorDto("OK"));
+        return ResponseEntity.ok(user);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -141,18 +144,18 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/comments", produces = {"application/json"})
     public ResponseEntity<List<CommentDto>> getComments(
             @RequestAttribute(value = "page", required = false) Integer page) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         if (page == null) {
             page = 0;
         }
         Pageable pageable = PageRequest.of(page, 10, Sort.by("dateTime").descending());
-        User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) {
-            return ResponseEntity.noContent().build();
-        }
         List<CommentDto> dtos = commentService.getPageableCommentDtoByUser(currentUser, pageable).getContent();
 
         return ResponseEntity.ok(dtos);
@@ -203,14 +206,14 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/subscriptions", produces = {"application/json"})
     public ResponseEntity<List<Topic>> getSubscriptions(
             @Parameter(description = "Page") @RequestParam(value = "page") Integer page,
             @PageableDefault(size = 10) @RequestParam(required = false) Pageable pageable) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         if (page == null) {
             page = 0;
@@ -229,12 +232,13 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = TopicVisitAndSubscription.class))),
-            @ApiResponse(responseCode = "204", description = "Error adding topic to subscription")})
+            @ApiResponse(responseCode = "204", description = "Error adding topic to subscription"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping(value = "/subscriptions", produces = {"application/json"})
     public ResponseEntity<TopicVisitAndSubscription> addTopicToSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
@@ -253,23 +257,24 @@ public class UserProfileRestController {
             summary = "Delete topic from subscription", description = "Delete topic from subscription", tags = {"User profile"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete successful"),
-            @ApiResponse(responseCode = "204", description = "Error delete topic from subscription")})
+            @ApiResponse(responseCode = "204", description = "Error delete topic from subscription"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @DeleteMapping("/subscriptions")
     public ResponseEntity deleteTopicFromSubscription(@RequestParam(value = "topicId", required = true) Long topicId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Topic topic = topicService.findById(topicId);
         if (topic == null) {
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         TopicVisitAndSubscription topicVisitAndSubscription = topicVisitAndSubscriptionService.getByUserAndTopic(user, topic);
         if (topicVisitAndSubscription == null) {
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         if (!topicVisitAndSubscription.isSubscribed()) {
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         topicVisitAndSubscriptionService.unsubscribe(topicVisitAndSubscription);
 
@@ -281,12 +286,12 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Topic.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/topics", produces = {"application/json"})
     public ResponseEntity<List<Topic>> getTopics(@RequestParam(value = "page", required = false) Integer page) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         if (page == null) {
             page = 0;
@@ -304,13 +309,13 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = InviteDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in or does not have enough rights")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in or does not have enough rights")})
     @GetMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<InviteDto> getInvitation() {
         User currentUser = securityUtilsService.getLoggedUser();
         boolean isUser = securityUtilsService.isLoggedUserIsUser();
         if (currentUser == null || !isUser) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String key = invitationService.getCurrentKey(currentUser);
         InviteDto dto = new InviteDto(currentUser, key);
@@ -323,15 +328,15 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ErrorDto.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @PostMapping(value = "/changePassword", produces = {"application/json"})
     public ResponseEntity<ErrorDto> changePassword(@RequestParam String oldPass,
                                                    @RequestParam String newPass,
                                                    @RequestParam String passConfirm) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-        return ResponseEntity.noContent().build();
-    }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         if (passwordEncoder.matches(oldPass, currentUser.getPassword())) {
             if (passConfirm.equals(newPass)) {
@@ -349,11 +354,11 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Long.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/getloggeduserid", produces = {"application/json"})
     public ResponseEntity<Long> getCurrentUserId() {
         User currentUser = securityUtilsService.getLoggedUser();
-        if (currentUser == null) return ResponseEntity.noContent().build();
+        if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         return ResponseEntity.ok(currentUser.getId());
     }

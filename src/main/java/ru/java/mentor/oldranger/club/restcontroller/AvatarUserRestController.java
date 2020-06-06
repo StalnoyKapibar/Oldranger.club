@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.user.UserAvatarService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/avatar")
@@ -28,15 +31,17 @@ public class AvatarUserRestController {
     private SecurityUtilsService securityUtilsService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Set Avatar ", description = "Set avatar to user ", tags = { "Avatar from user" })
+            summary = "Set Avatar ", description = "Set avatar to user ", tags = {"Avatar from user"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/set", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file){
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "User have not authority"),
+            @ApiResponse(responseCode = "404", description = "File not found")})
+    @PostMapping(value = "/set", produces = {"application/json"})
+    public ResponseEntity<String> setAvatarToUser(@RequestParam("file") MultipartFile file) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
@@ -45,22 +50,25 @@ public class AvatarUserRestController {
             } else {
                 userAvatarService.updateUserAvatar(user, file);
             }
-        } catch (Exception o) {
-            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         return ResponseEntity.ok("аватар загружен");
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Delete Avatar ", description = "Delete avatar", tags = { "Avatar from user" })
+            summary = "Delete Avatar ", description = "Delete avatar", tags = {"Avatar from user"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = String.class)))})
-    @PostMapping(value = "/delete", produces = { "application/json" })
-    public ResponseEntity<String> setAvatarToUser(){
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "User have not authority"),
+            @ApiResponse(responseCode = "404", description = "Error delete avatar")})
+    @PostMapping(value = "/delete", produces = {"application/json"})
+    public ResponseEntity<String> setAvatarToUser() {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
@@ -69,8 +77,9 @@ public class AvatarUserRestController {
             } else {
                 ResponseEntity.noContent().build();
             }
-        } catch (Exception o) {
-            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok("удален");
     }

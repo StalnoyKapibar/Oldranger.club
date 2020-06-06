@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -55,13 +57,16 @@ public class CommentAndTopicRestController {
     private final PhotoAlbumService photoAlbumService;
     private final PhotoService photoService;
     private final FilterHtmlService filterHtmlService;
+    private WritingBanService writingBanService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
-            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+            @ApiResponse(responseCode = "204", description = "invalid topic id"),
+            @ApiResponse(responseCode = "400", description = "topic is hide to anon"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/topic/{topicId}", produces = {"application/json"})
     public ResponseEntity<TopicAndCommentsDTO> getTopicAndPageableComments(@PathVariable(value = "topicId") Long topicId,
                                                                            @RequestParam(value = "page", required = false) Integer page,
@@ -75,7 +80,7 @@ public class CommentAndTopicRestController {
         }
 
         if (currentUser == null && (topic.isHideToAnon() || topic.getSubsection().isHideToAnon())) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         if (limit == null) {
@@ -119,14 +124,16 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Error adding comment")})
+                    description = "Error adding comment"),
+            @ApiResponse(responseCode = "401",
+                    description = "User have not authority")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageCommentEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
@@ -169,7 +176,8 @@ public class CommentAndTopicRestController {
             summary = "Delete comment from topic", description = "Delete comment by id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
-            @ApiResponse(responseCode = "404", description = "Error deleting comment")})
+            @ApiResponse(responseCode = "404", description = "Error deleting comment"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
     public ResponseEntity deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
@@ -177,6 +185,11 @@ public class CommentAndTopicRestController {
         boolean moderator = securityUtilsService.isModerator();
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
@@ -208,7 +221,8 @@ public class CommentAndTopicRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
-            @ApiResponse(responseCode = "400", description = "Error updating comment")})
+            @ApiResponse(responseCode = "400", description = "Error updating comment"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
@@ -216,13 +230,17 @@ public class CommentAndTopicRestController {
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         Comment comment = commentService.getCommentById(commentID);
         Comment answerComment = comment.getAnswerTo();
         if (answerComment != null) {
             messageComments.setAnswerID(comment.getAnswerTo().getId());
         }
         Topic topic = topicService.findById(messageComments.getIdTopic());
-        User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
 
         if (ifUserAllowedToEditComment(comment, image1, image2, messageComments, topic, currentUser, user)) {

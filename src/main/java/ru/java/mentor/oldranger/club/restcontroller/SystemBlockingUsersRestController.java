@@ -126,4 +126,17 @@ public class SystemBlockingUsersRestController {
         List<BlackList> blackList = blackListService.findAll();
         return ResponseEntity.ok(blackList);
     }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Remove mute for user", tags = {"System muting users"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = WritingBanDto.class)))})
+    @PostMapping("/admin/unmute")
+    public WritingBanDto unblockUser(@RequestBody WritingBanDto writingBanDto) {
+
+        User user = userService.findById(writingBanDto.getId());
+        writingBanService.deleteMute(user);
+        return writingBanDto;
+    }
 }

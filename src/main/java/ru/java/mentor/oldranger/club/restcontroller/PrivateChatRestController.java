@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -209,7 +210,8 @@ public class PrivateChatRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Message.class))),
-            @ApiResponse(responseCode = "400", description = "Error editing message")})
+            @ApiResponse(responseCode = "400", description = "Error editing message"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/message/edit/{chatToken}", produces = {"application/json"})
     public ResponseEntity<Message> editMessage(@PathVariable("chatToken") String chatToken,
                                                @RequestBody Message chatMessage,
@@ -219,6 +221,10 @@ public class PrivateChatRestController {
         User user = userService.getUserByNickName(message.getSender());
         User currentUser = securityUtilsService.getLoggedUser();
         long hours = message.getMessageDate().until(LocalDateTime.now(), ChronoUnit.HOURS);
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         message.setReplyTo(chatMessage.getReplyTo());
         message.setText(chatMessage.getText());
