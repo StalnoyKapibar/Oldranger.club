@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable
+    @Cacheable(value="user")
     public User getUserByEmailOrNickName(String login) {
         log.debug("Getting user with email or nickname = {}", login);
         Optional<User> result = userRepository.findUserByEmailOrNickName(login);

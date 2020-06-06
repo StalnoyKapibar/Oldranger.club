@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +37,7 @@ import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -53,6 +55,7 @@ public class UserProfileRestController {
     private CommentService commentService;
     private PasswordEncoder passwordEncoder;
     private SecurityUtilsService securityUtilsService;
+    private CacheManager cacheManager;
 
 
     @InitBinder
@@ -113,6 +116,7 @@ public class UserProfileRestController {
     @PostMapping("/updateProfile")
     public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
+        String currentNickName = currentUser.getNickName();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -125,6 +129,9 @@ public class UserProfileRestController {
         userProfileService.updateUserProfile(profile, updateProfileDto);
         User user = userService.updateUser(currentUser, updateProfileDto);
 
+        if(!currentNickName.equals(user.getNickName())) {
+            Objects.requireNonNull(cacheManager.getCache("user")).evict(currentNickName);
+        }
         return ResponseEntity.ok(user);
     }
 
