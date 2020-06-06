@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.user.EmailChangeToken;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserProfile;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
@@ -32,11 +35,15 @@ import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
+import ru.java.mentor.oldranger.club.service.user.*;
+import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -45,17 +52,19 @@ import java.util.List;
 @Tag(name = "User profile")
 public class UserProfileRestController {
 
-    @NonNull private UserProfileService userProfileService;
-    @NonNull private UserStatisticService userStatisticService;
-    @NonNull private UserService userService;
-    @NonNull private InvitationService invitationService;
-    @NonNull private TopicService topicService;
-    @NonNull private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
-    @NonNull  private CommentService commentService;
-    @NonNull private PasswordEncoder passwordEncoder;
-    @NonNull private SecurityUtilsService securityUtilsService;
-    @NonNull private MailService mailService;
-    @NonNull private EmailChangeService emailChangeService;
+    private UserProfileService userProfileService;
+    private UserStatisticService userStatisticService;
+    private UserService userService;
+    private InvitationService invitationService;
+    private TopicService topicService;
+    private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private CommentService commentService;
+    private PasswordEncoder passwordEncoder;
+    private SecurityUtilsService securityUtilsService;
+    private MailService mailService;
+    private EmailChangeService emailChangeService;
+    private CacheManager cacheManager;
+
 
     @Value("${server.protocol}")
     private String protocol;
@@ -124,6 +133,7 @@ public class UserProfileRestController {
     @PostMapping("/updateProfile")
     public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
         User currentUser = securityUtilsService.getLoggedUser();
+        String currentNickName = currentUser.getNickName();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -136,6 +146,9 @@ public class UserProfileRestController {
         userProfileService.updateUserProfile(profile, updateProfileDto);
         User user = userService.updateUser(currentUser, updateProfileDto);
 
+        if(!currentNickName.equals(user.getNickName())) {
+            Objects.requireNonNull(cacheManager.getCache("user")).evict(currentNickName);
+        }
         return ResponseEntity.ok(user);
     }
 
