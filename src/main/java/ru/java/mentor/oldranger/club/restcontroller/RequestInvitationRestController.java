@@ -61,7 +61,7 @@ public class RequestInvitationRestController {
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "send request invitation", tags = { "Request Invitation" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "request on invitation was senе successfully",
+            @ApiResponse(responseCode = "200", description = "request on invitation was sent successfully",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "423", description = "User already logged in")})
     @PostMapping(value = "/send", produces = { "application/json" })

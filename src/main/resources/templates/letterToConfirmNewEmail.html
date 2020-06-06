@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p th:text="'Поздравляем! Если вы получили это письмо ' + ${senderName} + ', значит вы отправили запрос на изменение Вашего E-mail адресса'"></p>
+<p th:text="'Чтобы подтвердить Ваш новый E-mail, пожалуйста, пройдите по ссылке ниже, нажав на неё или скопировать её в адресную строку браузера:'"></p><a th:href="${link}" th:text="${link}"></a>
+</body>
+</html>
