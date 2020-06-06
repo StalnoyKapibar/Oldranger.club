@@ -47,6 +47,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @AllArgsConstructor
 @RequestMapping("/api")
 @Tag(name = "User profile")
