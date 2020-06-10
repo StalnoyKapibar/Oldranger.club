@@ -17,18 +17,29 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.ArticleTitleAndTextDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.validation.Valid;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
@@ -40,6 +51,10 @@ public class ArticleRestController {
     private ArticleService articleService;
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
+    private PhotoService photoService;
+    private MediaService mediaService;
+    private PhotoAlbumService albumService;
+    private PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
@@ -111,10 +126,11 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Article.class))),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
-    @PostMapping(value = "/add", produces = {"application/json"})
-    public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
+    @PostMapping(value = "/add", produces = {"application/json"}, consumes = {"multipart/form-data"})
+    public ResponseEntity<Article> addNewArticle(@ModelAttribute @Valid ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isDraft") boolean isDraft) {
+                                                 @RequestParam("isDraft") boolean isDraft,
+                                                 @RequestParam List<MultipartFile> photos) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -124,6 +140,20 @@ public class ArticleRestController {
                 return ResponseEntity.noContent().build();
             }
             Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), true, isDraft);
+            if (photos.size() != 0){
+                List<Photo> savedPhotos = new ArrayList<>();
+                PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + titleAndTextDto.getTitle());
+                photoAlbum.addWriter(user);
+                photoAlbum.setAllowView(true);
+                photoAlbum.setMedia(mediaService.findMediaByUser(user));
+                albumService.assemblePhotoAlbumDto(albumService.save(photoAlbum));
+
+                Long albumId = photoAlbum.getId();
+                Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+                AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+                photos.forEach(a -> savedPhotos.add(photoService.save(photoAlbum, a, atom.incrementAndGet())));
+                article.setPhotoAlbum(photoAlbum);
+            }
             articleService.addArticle(article);
             return ResponseEntity.ok(article);
         }

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -23,14 +24,18 @@ import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @AllArgsConstructor
@@ -46,6 +51,7 @@ public class SectionsAndTopicsRestController {
     private PhotoService photoService;
     private MediaService mediaService;
     private PhotoAlbumService albumService;
+    private PhotoPositionService photoPositionService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
@@ -107,12 +113,19 @@ public class SectionsAndTopicsRestController {
         }
 
         Topic topic = new Topic();
-        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
-        photoAlbum.setMedia(mediaService.findMediaByUser(user));
-        albumService.save(photoAlbum);
+        if (photos.size() != 0){
+            PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
+            List<Photo> savedPhotos = new ArrayList<>();
+            photoAlbum.addWriter(user);
+            photoAlbum.setAllowView(true);
+            photoAlbum.setMedia(mediaService.findMediaByUser(user));
+            albumService.assemblePhotoAlbumDto(albumService.save(photoAlbum));
 
-        for (MultipartFile file : photos) {
-            photoService.save(photoAlbum, file, 0);
+            Long albumId = photoAlbum.getId();
+            Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+            AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+            photos.forEach(a -> savedPhotos.add(photoService.save(photoAlbum, a, atom.incrementAndGet())));
+            topic.setPhotoAlbum(photoAlbum);
         }
 
         topic.setName(topicDetails.getName());

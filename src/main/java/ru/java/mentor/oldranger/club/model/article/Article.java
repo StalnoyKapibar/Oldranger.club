@@ -8,6 +8,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -63,6 +64,17 @@ public class Article {
             joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private PhotoAlbum photoAlbum;
+
+    public PhotoAlbum getPhotoAlbum() {
+        return photoAlbum;
+    }
+
+    public void setPhotoAlbum(PhotoAlbum photoAlbum) {
+        this.photoAlbum = photoAlbum;
+    }
 
     public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon,  boolean draft) {
         this.title = title;
