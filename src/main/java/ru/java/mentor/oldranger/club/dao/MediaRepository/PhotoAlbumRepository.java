@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.dao.MediaRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
@@ -59,4 +60,5 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
                                 e.get("photos_count").toString()))).collect(Collectors.toList());
     }
 
+    PhotoAlbum findPhotoAlbumByTopic(Topic topic);
 }
