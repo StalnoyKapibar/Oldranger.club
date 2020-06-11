@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -243,5 +245,17 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
                 thumbImage == null ? null : thumbImage.getId(),
                 photosCount
         );
+    }
+
+    @Override
+    public PhotoAlbum findPhotoAlbumByTopic(Topic topic) {
+        log.info("Find Photo Album by topic {}", topic);
+        PhotoAlbum photoAlbum = null;
+        try {
+            photoAlbum = albumRepository.findPhotoAlbumByTopic(topic);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return photoAlbum;
     }
 }

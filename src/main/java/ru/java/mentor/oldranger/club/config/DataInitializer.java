@@ -260,31 +260,31 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
-        PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic.getName());
+        Topic topic1 = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false, new PhotoAlbum("title for 1"));
+        PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic1.getName(), topic1);
         photoAlbum1.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
-        PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName());
+        PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName(), topic2);
         photoAlbum2.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, true, false);
-        PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName());
+        PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName(), topic3);
         photoAlbum3.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true, false);
-        PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName());
+        PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName(), topic4);
         photoAlbum4.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, true, false);
-        PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName());
+        PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName(), topic5);
         photoAlbum5.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true, false);
-        PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName());
+        PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName(), topic6);
         photoAlbum6.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, true, true);
-        PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName());
+        PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName(), topic7);
         photoAlbum7.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true, false);
-        PhotoAlbum photoAlbum8 = new PhotoAlbum("PhotoAlbum by " + topic8.getName());
+        PhotoAlbum photoAlbum8 = new PhotoAlbum("PhotoAlbum by " + topic8.getName(), topic8);
         photoAlbum8.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        topicService.createTopic(topic);
+        topicService.createTopic(topic1);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
@@ -320,8 +320,8 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");
-        Comment comment2 = new Comment(topic, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
+        Comment comment1 = new Comment(topic1, admin, null, LocalDateTime.now(), "Всем привет!");
+        Comment comment2 = new Comment(topic1, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
         Comment comment3 = new Comment(topic2, user, null, LocalDateTime.now(), "Как жизнь?");
         Comment comment4 = new Comment(topic2, admin, comment3, LocalDateTime.now(), "Все гуд!");
         Comment comment5 = new Comment(topic3, user, null, LocalDateTime.now(), "Это тестовое сообщение");

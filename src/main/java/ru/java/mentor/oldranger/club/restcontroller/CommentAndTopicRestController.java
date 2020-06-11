@@ -158,13 +158,13 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, cleanedText);
         }
         commentService.createComment(comment);
-
+        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
         if (image1 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+            photoService.save(photoAlbum, image1
                     , comment.getId().toString());
         }
         if (image2 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
+            photoService.save(photoAlbum, image2
                     , comment.getId().toString());
         }
 
@@ -302,15 +302,14 @@ public class CommentAndTopicRestController {
     private CommentDto updatePhotos(MultipartFile image1, MultipartFile image2,
                                     Comment comment, Topic topic,
                                     CommentDto commentDto, List<Photo> photos) {
+        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
         if (image1 != null) {
-            PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName());
             Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
             photos.add(newPhoto1);
             commentDto.setPhotos(photos);
         }
         if (image2 != null) {
-            Photo newPhoto2 = photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by "
-                    + topic.getName()), image2, comment.getId().toString());
+            Photo newPhoto2 = photoService.save(photoAlbum, image2, comment.getId().toString());
             photos.add(newPhoto2);
             commentDto.setPhotos(photos);
         }
