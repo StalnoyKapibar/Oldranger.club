@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,6 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.user.*;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
-import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,22 +47,33 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@AllArgsConstructor
 @RequestMapping("/api")
 @Tag(name = "User profile")
 public class UserProfileRestController {
 
+    @NonNull
     private UserProfileService userProfileService;
+    @NonNull
     private UserStatisticService userStatisticService;
+    @NonNull
     private UserService userService;
+    @NonNull
     private InvitationService invitationService;
+    @NonNull
     private TopicService topicService;
+    @NonNull
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    @NonNull
     private CommentService commentService;
+    @NonNull
     private PasswordEncoder passwordEncoder;
+    @NonNull
     private SecurityUtilsService securityUtilsService;
+    @NonNull
     private MailService mailService;
+    @NonNull
     private EmailChangeService emailChangeService;
+    @NonNull
     private CacheManager cacheManager;
 
 
