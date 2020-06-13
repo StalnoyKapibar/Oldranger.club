@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +120,57 @@ public class PhotoServiceImpl implements PhotoService {
             log.error(e.getMessage(), e);
         }
         return photo;
+    }
+
+    @Override
+    public Photo saveExistPhoto(PhotoAlbum album, Photo photo, long position) {
+        log.info("Saving existing photo to album with id = {}", album.getId());
+        Photo newPhoto = null;
+        try {
+            char[] chars = photo.getOriginal().toCharArray();
+            StringBuffer extension = new StringBuffer();
+            for (int i = chars.length - 1; i > 0; i--) {
+                extension.append(chars[i]);
+                if (chars[i] == 46) break;
+            }
+            String reverse = String.valueOf(extension.reverse());
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            String pathToImg = userName + File.separator + "photo_albums" + File.separator + album.getId() + File.separator;
+            String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(reverse);
+            String resultFileName = pathToImg + fileName;
+
+            File uploadPath = new File(albumsDir + File.separator + resultFileName);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+            Path copyLocation = Paths.get(uploadPath + File.separator + fileName);
+
+            Files.copy(Paths.get(albumsDir + photo.getOriginal()), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+            Thumbnails.of(uploadPath + File.separator + fileName)
+                    .size(small, small)
+                    .toFile(uploadPath + File.separator + SIZE_PHOTO + fileName);
+
+            newPhoto = new Photo(resultFileName + File.separator + fileName,
+                    resultFileName + File.separator + SIZE_PHOTO + fileName);
+
+            newPhoto.setAlbum(album);
+
+            newPhoto.setPositionPhoto(position);
+
+            newPhoto.setUploadPhotoDate(LocalDateTime.now());
+
+            newPhoto = photoRepository.save(newPhoto);
+
+            if (album.getThumbImage() == null) {
+                album.setThumbImage(newPhoto);
+                photoAlbumRepository.save(album);
+            }
+
+            log.debug("Photo saved");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return newPhoto;
     }
 
     @Override

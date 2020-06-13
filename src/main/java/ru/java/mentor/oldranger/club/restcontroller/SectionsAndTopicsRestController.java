@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -106,28 +107,42 @@ public class SectionsAndTopicsRestController {
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping(value = "/topic/new", produces = {"application/json"}, consumes = {"multipart/form-data"})
     public ResponseEntity<Topic> getSectionsAndTopicsDto(@ModelAttribute @Valid Topic topicDetails,
-                                                         @RequestParam List<MultipartFile> photos) {
+                                                         @RequestParam List<MultipartFile> photos,
+                                                         @RequestParam(name = "checkedImagesId", required = false) String[] photosId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Topic topic = new Topic();
-        if (photos.size() != 0){
+
+        if (photos.size() != 0 || photosId.length != 0) {
             PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
-            List<Photo> savedPhotos = new ArrayList<>();
             photoAlbum.addWriter(user);
             photoAlbum.setAllowView(true);
             photoAlbum.setMedia(mediaService.findMediaByUser(user));
             albumService.assemblePhotoAlbumDto(albumService.save(photoAlbum));
 
             Long albumId = photoAlbum.getId();
-            Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
-            AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
-            photos.forEach(a -> savedPhotos.add(photoService.save(photoAlbum, a, atom.incrementAndGet())));
+            List<Photo> existPhotos = new ArrayList<>();
+            List<Photo> savedPhotos = new ArrayList<>();
+            if (photosId.length != 0){
+                if (photosId.length != 0) {
+                    for (String photoId : photosId) {
+                        existPhotos.add(photoService.findById(Long.valueOf(photoId)));
+                    }
+                }
+                Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+                AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+                savedPhotos = existPhotos.stream().map(ph -> photoService.saveExistPhoto(photoAlbum, ph, atom.incrementAndGet())).collect(Collectors.toList());
+            }
+            if (photos.size() != 0){
+                Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+                AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+                photos.stream().map(a -> photoService.save(photoAlbum, a, atom.incrementAndGet())).forEach(savedPhotos::add);
+            }
             topic.setPhotoAlbum(photoAlbum);
         }
-
         topic.setName(topicDetails.getName());
         topic.setTopicStarter(securityUtilsService.getLoggedUser());
         topic.setStartTime(LocalDateTime.now());
