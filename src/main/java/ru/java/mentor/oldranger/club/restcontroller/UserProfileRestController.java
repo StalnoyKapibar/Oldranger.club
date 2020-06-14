@@ -83,7 +83,7 @@ public class UserProfileRestController {
     @Value("${server.name}")
     private String host;
 
-    @Value("${server.port}")
+    @Value("${client.port}")
     private String port;
 
     @InitBinder
@@ -209,18 +209,18 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @PostMapping(value = "profile/editEmail", produces = {"application/json"})
     public ResponseEntity<String> editUserEmail(@RequestParam(value = "password") String password,
                                                 @RequestParam(value = "newEmail") String newEmail) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null || !passwordEncoder.matches(password, currentUser.getPassword())) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String key = emailChangeService.generateMD5Key(newEmail);
         EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
         emailChangeService.save(emailChangeToken);
-        String link = protocol + "://" + host + ":" + port + "api/editEmail?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "/api/editEmail?key=" + key;
         String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
         return ResponseEntity.ok(status);
     }
