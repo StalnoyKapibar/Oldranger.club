@@ -56,11 +56,10 @@ public interface ArticleTagsNodeRepository extends JpaRepository<ArticleTagsNode
                 .map(e -> new ArticleTagsNodeDto(
                         Long.valueOf(e.get("id").toString()),
                         e.get("parent") == null ? null : Long.valueOf(e.get("parent").toString()),
-                        Integer.valueOf(e.get("id").toString()),
+                        Integer.valueOf(e.get("position").toString()),
                         e.get("tag_name", String.class),
                         Arrays.stream(e.get("tags_hierarchy", String.class).split(",")).mapToInt(Integer::parseInt).toArray())).collect(Collectors.toList());
     }
-
 
     @Query(nativeQuery = true,
             value = "WITH RECURSIVE CTE AS   " +

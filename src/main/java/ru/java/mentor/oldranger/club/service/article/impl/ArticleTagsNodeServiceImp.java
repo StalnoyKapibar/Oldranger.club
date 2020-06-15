@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleTagsNodeRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
+import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -87,5 +90,20 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Set<ArticleTag> findArticleTagSetByListTagsNodeId(List<Long> tagsNodeId) {
+        log.info("Finding Set of ArticleTag by List of tagsNodeId");
+        Set<ArticleTag> articleTags = new HashSet<>();
+        try {
+            for (Long nodeId : tagsNodeId) {
+                ArticleTagsNode articleTagsNode = findById(nodeId);
+                articleTags.add(articleTagsNode.getTag());
+            }
+        } catch (Exception e) {
+            log.error((e.getMessage()));
+        }
+        return articleTags;
     }
 }

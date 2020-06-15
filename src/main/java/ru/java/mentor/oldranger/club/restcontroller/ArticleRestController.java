@@ -23,6 +23,7 @@ import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.Duration;
@@ -40,6 +41,7 @@ public class ArticleRestController {
     private ArticleService articleService;
     private SecurityUtilsService securityUtilsService;
     private ArticleTagService articleTagService;
+    private ArticleTagsNodeService articleTagsNodeService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get articles by tags", description = "Get articles by tags", tags = {"Article"})
@@ -113,20 +115,19 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@RequestBody ArticleTitleAndTextDto titleAndTextDto,
-                                                 @RequestParam("tagsId") List<Long> tagsId,
+                                                 @RequestParam("tagsId") List<Long> tagsNodeId,
                                                  @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } else {
-            Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
-            if (tagsArt.size() == 0) {
-                return ResponseEntity.noContent().build();
-            }
-            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), true, isDraft);
-            articleService.addArticle(article);
-            return ResponseEntity.ok(article);
         }
+        Set<ArticleTag> tags = articleTagsNodeService.findArticleTagSetByListTagsNodeId(tagsNodeId);
+        if (tags.size() == 0) {
+            return ResponseEntity.noContent().build();
+        }
+        Article article = new Article(titleAndTextDto.getTitle(), user, tags, LocalDateTime.now(), titleAndTextDto.getText(), true, isDraft);
+        articleService.addArticle(article);
+        return ResponseEntity.ok(article);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -138,7 +139,7 @@ public class ArticleRestController {
     @PutMapping(value = "/update/{id}", produces = {"application/json"})
     public ResponseEntity<Article> updateArticleById(@PathVariable long id,
                                                      @RequestBody ArticleTitleAndTextDto titleAndTextDto,
-                                                     @RequestParam(value = "tagsId") List<Long> tagsId,
+                                                     @RequestParam(value = "tagsId") List<Long> tagsNodeId,
                                                      @RequestParam("isDraft") boolean isDraft) {
 
         User user = securityUtilsService.getLoggedUser();
@@ -155,11 +156,11 @@ public class ArticleRestController {
             }
             article.setTitle(titleAndTextDto.getTitle());
             article.setText(titleAndTextDto.getText());
-            Set<ArticleTag> tagsArt = articleTagService.addTagsToSet(tagsId);
-            if (tagsArt.size() == 0) {
+            Set<ArticleTag> tags = articleTagsNodeService.findArticleTagSetByListTagsNodeId(tagsNodeId);
+            if (tags.size() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            article.setArticleTags(tagsArt);
+            article.setArticleTags(tags);
             article.setHideToAnon(true);
             article.setDraft(isDraft);
             articleService.addArticle(article);
