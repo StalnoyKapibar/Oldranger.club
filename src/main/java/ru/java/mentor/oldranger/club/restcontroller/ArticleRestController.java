@@ -126,11 +126,11 @@ public class ArticleRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Article.class))),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
-    @PostMapping(value = "/add", produces = {"application/json"}, consumes = {"multipart/form-data"})
+    @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<Article> addNewArticle(@ModelAttribute @Valid ArticleTitleAndTextDto titleAndTextDto,
+                                                 @RequestParam List<MultipartFile> photos,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isDraft") boolean isDraft,
-                                                 @RequestParam List<MultipartFile> photos) {
+                                                 @RequestParam("isDraft") boolean isDraft) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
