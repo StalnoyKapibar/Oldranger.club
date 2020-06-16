@@ -11,7 +11,9 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.StringUtils;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 
 import javax.servlet.ServletException;
@@ -32,6 +34,8 @@ public class AuthHandler extends SimpleUrlAuthenticationSuccessHandler implement
 
     @Autowired
     private BlackListService blackListService;
+    @Autowired
+    private MailService mailService;
 
     // метод - типа аналог имплементации такового у SavedRequestAwareAuthenticationSuccessHandler,
     // но с вырезанным к чертям редиректом. На текущем фронте (актуально для 11.01.2020) работает
@@ -77,10 +81,13 @@ public class AuthHandler extends SimpleUrlAuthenticationSuccessHandler implement
                         .println(objectMapper.writeValueAsString(data));
             } else {
                 LocalDateTime unlockTime = user.get(0).getUnlockTime();
+                String unLockTime = unlockTime.toString();
                 long milli = unlockTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
                 data.put("unlockTime", milli);
                 httpServletResponse.getOutputStream()
                         .println(objectMapper.writeValueAsString(data));
+                User lockedUser = user.get(0).getUser();
+                mailService.sendHtmlEmail(lockedUser.getEmail(), unLockTime, "letterAccountLockoutNotification.html", null);
             }
         }
     }
