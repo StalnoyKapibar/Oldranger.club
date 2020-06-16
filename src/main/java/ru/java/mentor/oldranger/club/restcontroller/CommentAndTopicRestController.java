@@ -257,21 +257,27 @@ public class CommentAndTopicRestController {
         if (idPhotosForDelete.equals("") & commentService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
             return ResponseEntity.badRequest().build();
         }
-
         commentService.updateComment(comment);
 
-        List<Long> idDeletePhotos = new ArrayList<>();
+        List<Long> idPhotosToKeep = new ArrayList<>();
         for (int i = 0; i <= photoIdList.length - 1; i++) {
             String id = photoIdList[i].replaceAll("[^0-9]", "");
             if (!id.equals("")) {
-                idDeletePhotos.add(Long.parseLong(id));
+                idPhotosToKeep.add(Long.parseLong(id));
             }
         }
 
-        commentDto = deletePhotoFromDto(idDeletePhotos, photos, commentDto);
-        CommentDto updatedCommentDto = updatePhotos(image1, image2, comment, topic, commentDto, photos);
+        List<Long> idPhotosToDelete = new ArrayList<>();
+        for (Photo photo : photos) {
+            if (!idPhotosToKeep.contains(photo.getId()))
+                idPhotosToDelete.add(photo.getId());
+        }
 
-        return ResponseEntity.ok(updatedCommentDto);
+        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
+        commentDto = deletePhotoFromDto(photoAlbum, image1, image2, idPhotosToKeep, idPhotosToDelete, photos, commentDto);
+        commentDto = updatePhotos(photoAlbum, image1, image2, comment, commentDto, photos);
+
+        return ResponseEntity.ok(commentDto);
     }
 
     private boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
@@ -299,44 +305,52 @@ public class CommentAndTopicRestController {
         return comment;
     }
 
-    private CommentDto updatePhotos(MultipartFile image1, MultipartFile image2,
-                                    Comment comment, Topic topic,
-                                    CommentDto commentDto, List<Photo> photos) {
-        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
+    private CommentDto updatePhotos(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                    Comment comment, CommentDto commentDto, List<Photo> photos) {
         if (image1 != null) {
             Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
             photos.add(newPhoto1);
-            commentDto.setPhotos(photos);
         }
         if (image2 != null) {
             Photo newPhoto2 = photoService.save(photoAlbum, image2, comment.getId().toString());
             photos.add(newPhoto2);
-            commentDto.setPhotos(photos);
         }
+        commentDto.setPhotos(photos);
         return commentDto;
     }
 
-    private CommentDto deletePhotoFromDto(List<Long> idDeletePhotos, List<Photo> photos, CommentDto commentDto) {
-        if (!idDeletePhotos.isEmpty()) {
+    private CommentDto deletePhotoFromDto(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                          List<Long> idPhotosToKeep, List<Long> idPhotosToDelete,
+                                          List<Photo> photos, CommentDto commentDto) {
+        Long thumbImageId = photoAlbum.getThumbImage().getId();
+        if ((idPhotosToDelete.contains(thumbImageId)) & (image1 != null || image2 != null)) {
+            if (idPhotosToDelete.size() == 1 & !idPhotosToKeep.contains(thumbImageId) & idPhotosToKeep.size() == 1) {
+                photoService.deletePhotoByEditingComment(idPhotosToDelete.get(0));
+                Photo photoToKeep = photoService.findById(idPhotosToKeep.get(0));
+                photoAlbum.setThumbImage(photoToKeep);
+                photoAlbumService.save(photoAlbum);
+            }
+            for (Long id : idPhotosToDelete) {
+                photoService.deletePhotoByEditingComment(id);
+            }
+        } else if (!idPhotosToKeep.isEmpty()) {
             for (Photo photo : photos) {
-                for (Long id : idDeletePhotos) {
+                for (Long id : idPhotosToKeep) {
                     if (!id.equals(photo.getId())) {
                         photoService.deletePhoto(photo.getId());
                     }
                 }
             }
-            photos.clear();
-            for (Long id : idDeletePhotos) {
-                photos.add(photoService.findById(id));
-            }
-            commentDto.setPhotos(photos);
         } else {
             for (Photo photo : photos) {
                 photoService.deletePhoto(photo.getId());
             }
-            photos.clear();
-            commentDto.setPhotos(photos);
         }
+        photos.clear();
+        for (Long id : idPhotosToKeep) {
+            photos.add(photoService.findById(id));
+        }
+        commentDto.setPhotos(photos);
         return commentDto;
     }
 }
