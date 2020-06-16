@@ -220,7 +220,7 @@ public class UserProfileRestController {
         String key = emailChangeService.generateMD5Key(newEmail);
         EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
         emailChangeService.save(emailChangeToken);
-        String link = protocol + "://" + host + ":" + port + "/api/editEmail?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "/editEmail?key=" + key;
         String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
         return ResponseEntity.ok(status);
     }
