@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.RequestRegistrationDto;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.InvitationService;
@@ -21,7 +22,9 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -83,7 +86,10 @@ public class RegistrationRestController {
         if (userService.getUserByEmail(email) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
-            String status = mailService.sendMessageToAdmin(registrationUserDto);
+            List<Role> roles = new ArrayList<>();
+            roles.add(roleService.getRoleByAuthority("ROLE_ADMIN"));
+            roles.add(roleService.getRoleByAuthority("ROLE_MODERATOR"));
+            String status = mailService.sendMessageByRoles(roles, registrationUserDto);
             return ResponseEntity.ok(status);
         }
     }
