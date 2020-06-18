@@ -17,6 +17,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
 import ru.java.mentor.oldranger.club.model.utils.BlackList;
 import ru.java.mentor.oldranger.club.model.utils.WritingBan;
+import ru.java.mentor.oldranger.club.service.mail.MailService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
@@ -35,6 +36,7 @@ public class SystemBlockingUsersRestController {
     private BlackListService blackListService;
     private WritingBanService writingBanService;
     private SessionService sessionService;
+    private MailService mailService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get all users", tags = {"System blocking users"})
@@ -70,8 +72,15 @@ public class SystemBlockingUsersRestController {
                 blackList = new BlackList(user, localDateTime);
             }
         }
+        String mail = blackList.getUser().getEmail();
+        LocalDateTime unLockTime = blackList.getUnlockTime();
+        String info = null;
+        if (unLockTime != null) {
+            info = "Ваш аккаунт останется заблокированным до " + unLockTime;
+        }
         blackListService.save(blackList);
         sessionService.expireUserSessions(user.getUsername());
+        mailService.sendHtmlEmail(mail, info, "notificationAboutBan.html", null);
         return blackListDto;
     }
 
