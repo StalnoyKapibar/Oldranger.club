@@ -291,6 +291,31 @@ public class PhotoServiceImpl implements PhotoService {
             @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'original'"),
             @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'"),
             @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager")})
+    public void deletePhotoByEditingComment(Long id) {
+        log.info("Deleting photo with id = {} by editing Comment", id);
+        try {
+            Photo photo = findById(id);
+            PhotoAlbum album = photo.getAlbum();
+            album.setThumbImage(null);
+            photoAlbumRepository.save(album);
+            log.debug("PhotoAlbum save");
+            File file = new File(albumsDir + File.separator + photo.getOriginal());
+            FileSystemUtils.deleteRecursively(file);
+            file = new File(albumsDir + File.separator + photo.getSmall());
+            FileSystemUtils.deleteRecursively(file);
+            photoRepository.delete(photo);
+            log.debug("Photo deleted");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict,
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'original'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager")})
     public void deletePhoto(Long id) {
         log.info("Deleting photo with id = {}", id);
         try {

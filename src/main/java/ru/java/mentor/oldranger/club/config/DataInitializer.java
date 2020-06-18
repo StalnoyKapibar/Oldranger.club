@@ -260,7 +260,7 @@ public class DataInitializer implements CommandLineRunner {
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-        Topic topic1 = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false, new PhotoAlbum("title for 1"));
+        Topic topic1 = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
         PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic1.getName(), topic1);
         photoAlbum1.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);

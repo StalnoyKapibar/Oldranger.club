@@ -47,4 +47,6 @@ public interface PhotoService {
     List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description);
 
     byte [] getPhotoAsByteArray(Photo photo, String type) throws IOException;
+
+    void deletePhotoByEditingComment(Long id);
 }

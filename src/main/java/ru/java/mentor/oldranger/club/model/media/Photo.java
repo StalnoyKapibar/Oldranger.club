@@ -27,6 +27,7 @@ public class Photo {
     private String small;
 
     @Column(name = "description")
+    @OrderColumn
     private String description;
 
     @Column(name = "position")
