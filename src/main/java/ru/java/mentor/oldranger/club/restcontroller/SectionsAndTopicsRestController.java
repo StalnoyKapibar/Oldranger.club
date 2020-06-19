@@ -126,19 +126,15 @@ public class SectionsAndTopicsRestController {
             Long albumId = photoAlbum.getId();
             List<Photo> existPhotos = new ArrayList<>();
             List<Photo> savedPhotos = new ArrayList<>();
-            if (photosId.length != 0){
-                if (photosId.length != 0) {
-                    for (String photoId : photosId) {
-                        existPhotos.add(photoService.findById(Long.valueOf(photoId)));
-                    }
+            Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
+            AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+            if (photosId.length != 0) {
+                for (String photoId : photosId) {
+                    existPhotos.add(photoService.findById(Long.valueOf(photoId)));
                 }
-                Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
-                AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
                 savedPhotos = existPhotos.stream().map(ph -> photoService.saveExistPhoto(photoAlbum, ph, atom.incrementAndGet())).collect(Collectors.toList());
             }
-            if (photos.size() != 0){
-                Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
-                AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
+            if (photos.size() != 0) {
                 photos.stream().map(a -> photoService.save(photoAlbum, a, atom.incrementAndGet())).forEach(savedPhotos::add);
             }
             topic.setPhotoAlbum(photoAlbum);

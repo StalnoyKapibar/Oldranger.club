@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -130,7 +131,8 @@ public class ArticleRestController {
     public ResponseEntity<Article> addNewArticle(@ModelAttribute @Valid ArticleTitleAndTextDto titleAndTextDto,
                                                  @RequestParam List<MultipartFile> photos,
                                                  @RequestParam("tagsId") List<Long> tagsId,
-                                                 @RequestParam("isDraft") boolean isDraft) {
+                                                 @RequestParam("isDraft") boolean isDraft,
+                                                 @RequestParam(name = "checkedImagesId", required = false) String[] photosId) {
         User user = securityUtilsService.getLoggedUser();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -139,19 +141,29 @@ public class ArticleRestController {
             if (tagsArt.size() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(), titleAndTextDto.getText(), true, isDraft);
-            if (photos.size() != 0){
-                List<Photo> savedPhotos = new ArrayList<>();
-                PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + titleAndTextDto.getTitle());
+            Article article = new Article(titleAndTextDto.getTitle(), user, tagsArt, LocalDateTime.now(),
+                    titleAndTextDto.getText(), true, isDraft);
+            if (photos.size() != 0 || photosId.length != 0) {
+                PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + article.getTitle());
                 photoAlbum.addWriter(user);
                 photoAlbum.setAllowView(true);
                 photoAlbum.setMedia(mediaService.findMediaByUser(user));
                 albumService.assemblePhotoAlbumDto(albumService.save(photoAlbum));
 
                 Long albumId = photoAlbum.getId();
+                List<Photo> existPhotos = new ArrayList<>();
+                List<Photo> savedPhotos = new ArrayList<>();
                 Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(albumId);
                 AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
-                photos.forEach(a -> savedPhotos.add(photoService.save(photoAlbum, a, atom.incrementAndGet())));
+                if (photosId.length != 0) {
+                    for (String photoId : photosId) {
+                        existPhotos.add(photoService.findById(Long.valueOf(photoId)));
+                    }
+                    savedPhotos = existPhotos.stream().map(ph -> photoService.saveExistPhoto(photoAlbum, ph, atom.incrementAndGet())).collect(Collectors.toList());
+                }
+                if (photos.size() != 0) {
+                    photos.stream().map(a -> photoService.save(photoAlbum, a, atom.incrementAndGet())).forEach(savedPhotos::add);
+                }
                 article.setPhotoAlbum(photoAlbum);
             }
             articleService.addArticle(article);
