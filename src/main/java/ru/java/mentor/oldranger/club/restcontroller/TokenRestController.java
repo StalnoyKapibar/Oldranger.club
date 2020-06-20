@@ -106,7 +106,7 @@ public class TokenRestController {
         newInviteUser.setEmail(mail);
         newInviteUser.setInvite(key);
         userService.save(newInviteUser);
-        String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
+        String link = protocol + "://" + host + "/invite?key=" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, user.getFirstName(), "letterToInvite.html", link);
         invitationService.markInviteOnMailAsUsed(mail);
@@ -138,7 +138,7 @@ public class TokenRestController {
         String key = Base64.getEncoder().encodeToString(registrationUserDto.toString().getBytes());
 
         String mail = registrationUserDto.getEmail();
-        String link = protocol + "://" + host + ":" + port + "/registration-accept?key=" + key;
+        String link = protocol + "://" + host + "/registration-accept?key=" + key;
 
         String status = mailService.sendHtmlEmail(mail, registrationUserDto.getNickName(), "letterToConfirm.html", link);
 
