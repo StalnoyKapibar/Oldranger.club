@@ -96,7 +96,7 @@ public class SecurityUtilsServiceImpl implements SecurityUtilsService {
 
     @Override
     public boolean isLoggedUserIsUser() {
-        return isAuthorityReachableForLoggedUser(new Role("ROLE_USER"));
+        return isAuthorityReachableForLoggedUser(RoleType.ROLE_USER);
     }
 
     @Override

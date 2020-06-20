@@ -71,6 +71,22 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
     }
 
     @Override
+    public void moveSectionsByIds(List<Long> sectionsId) {
+        log.info("Shift sections {} by one position", sectionsId);
+        try {
+            for (int i = 0; i < sectionsId.size(); i++) {
+                Section section = sectionRepository.getOne(sectionsId.get(i));
+                int position = section.getPosition();
+                section.setPosition(position + 1);
+                sectionRepository.save(section);
+                log.info("Sections shifted");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void swapSubsectons(Map<Long, List<String>> sectionsAndSubsectionsIds) {
         log.info("Swapping subsections");
         try {
@@ -89,6 +105,22 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
                 }
             }
             log.info("Subsections swapped");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void moveSubsectionsByIds(List<Long> subsectionsId) {
+        log.info("Shift subsections {} by one position", subsectionsId);
+        try {
+            for (int i = 0; i < subsectionsId.size(); i++) {
+                Subsection subsection = subsectionRepository.getOne(subsectionsId.get(i));
+                int position = subsection.getPosition();
+                subsection.setPosition(position + 1);
+                subsectionRepository.save(subsection);
+                log.info("Subsections shifted");
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

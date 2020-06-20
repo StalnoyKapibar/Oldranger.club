@@ -19,14 +19,16 @@ public class SectionServiceImpl implements SectionService {
     private SectionRepository sectionRepository;
 
     @Override
-    public void addSection(Section section) {
+    public Section addSection(Section section) {
+        Section savedSection = null;
         log.info("Saving section {}", section);
         try {
-            sectionRepository.save(section);
+            savedSection = sectionRepository.save(section);
             log.info("Section saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return savedSection;
     }
 
     @Override

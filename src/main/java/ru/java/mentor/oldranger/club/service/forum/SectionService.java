@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface SectionService {
 
-    void addSection(Section section);
+    Section addSection(Section section);
 
     Optional<Section> getById(long id);
 

@@ -14,7 +14,11 @@ public interface SectionsAndSubsectionsService {
 
     void swapSections(List<Long> sectionsId);
 
+    void moveSectionsByIds(List<Long> sectionsId);
+
     void swapSubsectons(Map<Long, List<String>> sectionsAndSubsectionsIds);
+
+    void moveSubsectionsByIds(List<Long> subsectionsId);
 
     Subsection getSubsectionById(Long id);
 }

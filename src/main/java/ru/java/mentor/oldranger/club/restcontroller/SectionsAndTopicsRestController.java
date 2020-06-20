@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndTopicsService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
@@ -46,6 +49,7 @@ public class SectionsAndTopicsRestController {
     private PhotoService photoService;
     private MediaService mediaService;
     private PhotoAlbumService albumService;
+    private CommentService commentService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get SectionsAndTopicsDto list", description = "limit 10", tags = {"Sections and topics"})
@@ -167,5 +171,37 @@ public class SectionsAndTopicsRestController {
 
         topicService.editTopicByName(topic);
         return ResponseEntity.ok(topic);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete topic", tags = {"Sections and topics"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Topic deleted",
+                    content = @Content(schema = @Schema(implementation = Topic.class))),
+            @ApiResponse(responseCode = "400", description = "Error by deleting topic"),
+            @ApiResponse(responseCode = "401", description = "User have no authority"),
+            @ApiResponse(responseCode = "404", description = "There is no topic with such id")})
+    @DeleteMapping(value = "/topic/delete", produces = {"application/json"})
+    public ResponseEntity<Topic> deleteTopic(@RequestParam Long id) {
+        User user = securityUtilsService.getLoggedUser();
+        if (topicService.findById(id) == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        User userStarter = topicService.findById(id).getTopicStarter();
+        if (securityUtilsService.isModerator() || userStarter.getId().equals(user.getId())) {
+            PhotoAlbum photoAlbum = albumService.findPhotoAlbumByTopic(topicService.findById(id));
+            List<Photo> photos = albumService.getAllPhotos(photoAlbum);
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+            List<Comment> commentsList = commentService.getAllCommentsByTopicId(id);
+            for (Comment comment : commentsList) {
+                commentService.deleteComment(comment.getId());
+            }
+            albumService.deleteAlbum(photoAlbum.getId());
+            topicService.deleteTopicById(id);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
