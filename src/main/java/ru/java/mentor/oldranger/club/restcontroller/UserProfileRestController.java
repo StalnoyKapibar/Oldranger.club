@@ -190,12 +190,17 @@ public class UserProfileRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The email was successfully changed",
                     content = @Content(schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "403", description = "The key does not exist")})
+            @ApiResponse(responseCode = "403", description = "The key does not exist"),
+            @ApiResponse(responseCode = "401", description = "User have no authority")})
     @GetMapping(value = "editEmail", produces = {"application/json"})
     public ResponseEntity<User> editUserEmailBy(@RequestParam String key) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         EmailChangeToken emailChangeToken = emailChangeService.getEmailChangeDtoByKey(key);
         if (emailChangeToken == null) {
-           return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         User user = userService.findById(emailChangeToken.getUser().getId());
         String newEmail = emailChangeToken.getNewEmail();
@@ -220,7 +225,7 @@ public class UserProfileRestController {
         String key = emailChangeService.generateMD5Key(newEmail);
         EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
         emailChangeService.save(emailChangeToken);
-        String link = protocol + "://" + host + ":" + port + "/editEmail?key=" + key;
+        String link = protocol + "://" + host + ":" + port + "/profile/editEmail?key=" + key;
         String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
         return ResponseEntity.ok(status);
     }
