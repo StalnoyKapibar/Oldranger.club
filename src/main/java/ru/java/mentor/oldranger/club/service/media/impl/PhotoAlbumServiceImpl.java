@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
-import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
@@ -24,6 +23,7 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -257,5 +257,20 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
             log.error(e.getMessage());
         }
         return photoAlbum;
+    }
+
+    @Override
+    public List<PhotoAlbumDto> findPhotoAlbumDtoByUsersList(List<User> users) {
+        log.info("Find list of photo albums dto by list of users");
+        List<PhotoAlbumDto> dto = new ArrayList<>();
+        try {
+            for(int i = 0; i < users.size(); i++) {
+                List<PhotoAlbumDto> photoAlbumDtos = albumRepository.findPhotoAlbumsDtoOwnedByUser(users.get(i));
+                dto.addAll(photoAlbumDtos);
+            }
+        } catch(Exception e) {
+            log.error((e.getMessage()));
+        }
+        return dto;
     }
 }

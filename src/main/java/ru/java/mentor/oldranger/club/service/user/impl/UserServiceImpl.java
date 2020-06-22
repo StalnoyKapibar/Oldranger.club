@@ -9,10 +9,7 @@ import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
 import ru.java.mentor.oldranger.club.model.media.Media;
-import ru.java.mentor.oldranger.club.model.user.User;
-import ru.java.mentor.oldranger.club.model.user.UserAvatar;
-import ru.java.mentor.oldranger.club.model.user.UserProfile;
-import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.model.user.*;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.user.UserProfileService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -190,6 +187,12 @@ public class UserServiceImpl implements UserService {
     public Long getCount() {
         log.debug("Count users");
         return userRepository.count();
+    }
+
+    @Override
+    public List<User> findUsersByRole(Role role) {
+        log.debug("Find set of users by role");
+        return userRepository.findUsersByRole(role);
     }
 
 }

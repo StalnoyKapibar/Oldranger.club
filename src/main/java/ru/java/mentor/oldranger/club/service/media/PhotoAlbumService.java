@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface PhotoAlbumService {
 
@@ -40,4 +41,6 @@ public interface PhotoAlbumService {
     PhotoAlbumDto assemblePhotoAlbumDto(PhotoAlbum album);
 
     PhotoAlbum findPhotoAlbumByTopic(Topic topic);
+
+    List<PhotoAlbumDto> findPhotoAlbumDtoByUsersList(List<User> users);
 }

@@ -16,9 +16,12 @@ import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.user.RoleService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.List;
@@ -32,6 +35,8 @@ public class PhotoAlbumRestController {
     private PhotoAlbumService albumService;
     private PhotoService photoService;
     private SecurityUtilsService securityUtilsService;
+    private UserService userService;
+    private RoleService roleService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -46,6 +51,21 @@ public class PhotoAlbumRestController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(albumService.findPhotoAlbumsDtoOwnedByUser(securityUtilsService.getLoggedUser()));
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all admin photo albums", tags = {"Photo album"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Login error")})
+    @GetMapping(value = "/all")
+    public ResponseEntity<List<PhotoAlbumDto>> getAdminPhotoAlbums() {
+        if (securityUtilsService.getLoggedUser() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Role role = roleService.getRoleByAuthority("ROLE_ADMIN");
+        return ResponseEntity.ok(albumService.findPhotoAlbumDtoByUsersList(userService.findUsersByRole(role)));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

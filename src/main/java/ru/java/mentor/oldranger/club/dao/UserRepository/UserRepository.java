@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * from users WHERE invite_key=:q LIMIT 1", nativeQuery = true)
     Optional<User> findUserByInviteKey(@Param("q") String key);
+
+    List<User> findUsersByRole(Role role);
 }
