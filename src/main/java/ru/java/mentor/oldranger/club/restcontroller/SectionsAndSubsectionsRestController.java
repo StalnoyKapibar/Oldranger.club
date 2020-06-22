@@ -24,7 +24,6 @@ import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -73,29 +72,18 @@ public class SectionsAndSubsectionsRestController {
         if (user == null || !securityUtilsService.isLoggedUserIsUser()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Section> sections = sectionService.getAllSections();
-        List<Section> sectionsWithEqualsName = sections.stream().filter(section -> section.getName()
-                .equals(name)).collect(Collectors.toList());
+        List<Section> sectionsWithEqualsName = sectionService.findSectionsByName(name);
         if (!sectionsWithEqualsName.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
         if (position == 0) {
-            Optional<Integer> maxPosition = sections.stream().map(Section::getPosition).max(Comparator.naturalOrder());
-            position = maxPosition.get() + 1;
-            Section section = sectionService.addSection(new Section(name, position, isHiddenToAnon));
-            SectionDto dto = new SectionDto(section.getId(), name, position);
+            int maxPosition = sectionService.findMaxPosition();
+            position = maxPosition + 1;
+            SectionDto dto = sectionService.addSection(new Section(name, position, isHiddenToAnon));
             return ResponseEntity.ok(dto);
         }
-        List<Long> sectionsIdWithEqualsPosition = new ArrayList<>();
-        int finalPosition = position;
-        sections.stream().filter(section -> section.getPosition() >= finalPosition)
-                .sorted(Comparator.comparing(Section::getPosition))
-                .forEach(section -> sectionsIdWithEqualsPosition.add(section.getId()));
-        if (!sectionsIdWithEqualsPosition.isEmpty()) {
-            sectionsAndSubsectionsService.moveSectionsByIds(sectionsIdWithEqualsPosition);
-        }
-        Section section = sectionService.addSection(new Section(name, finalPosition, isHiddenToAnon));
-        SectionDto dto = new SectionDto(section.getId(), name, finalPosition);
+        sectionService.updateSectionsPosition(position);
+        SectionDto dto = sectionService.addSection(new Section(name, position, isHiddenToAnon));
         return ResponseEntity.ok(dto);
     }
 
@@ -115,35 +103,19 @@ public class SectionsAndSubsectionsRestController {
         if (user == null || !securityUtilsService.isLoggedUserIsUser()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Subsection> subsectionWithEqualsName = new ArrayList<>();
-        subsectionService.getAllSubsections().stream()
-                .filter(subsection -> subsection.getName().equals(name)).forEach(subsectionWithEqualsName::add);
+        List<Subsection> subsectionWithEqualsName = subsectionService.findSubsectionsByName(name);
         if (!subsectionWithEqualsName.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
         Section section = sectionService.getById(sectionId).get();
         if (position == 0) {
-            List<Subsection> subsections = subsectionService.getAllSubsections();
-            Optional<Integer> maxPosition = subsections.stream()
-                    .filter(subsection -> subsection.getSection().getId().equals(sectionId))
-                    .map(Subsection::getPosition).max(Comparator.naturalOrder());
-            position = maxPosition.get() + 1;
-            subsectionService.createSubsection(new Subsection(name, position, section, isHiddenToAnon));
-            SubsectionDto dto = new SubsectionDto(section, name, position);
+            int maxPosition = subsectionService.findMaxPosition();
+            position = maxPosition + 1;
+            SubsectionDto dto = subsectionService.createSubsection(new Subsection(name, position, section, isHiddenToAnon));
             return ResponseEntity.ok(dto);
         }
-        List<Long> idList = new ArrayList<>();
-        int finalPosition = position;
-        subsectionService.getAllSubsections().stream().filter(subsection -> subsection.getPosition() >= finalPosition)
-                .filter(subsection -> subsection.getSection().equals(section))
-                .sorted(Comparator.comparing(Subsection::getPosition))
-                .forEach(subsection -> idList.add(subsection.getId()));
-        if (!idList.isEmpty()) {
-            sectionsAndSubsectionsService.moveSubsectionsByIds(idList);
-        }
-        Subsection subsection = new Subsection(name, finalPosition, section, isHiddenToAnon);
-        subsectionService.createSubsection(subsection);
-        SubsectionDto dto = new SubsectionDto(section, name, finalPosition);
+        subsectionService.updateSubsectionsPosition(position);
+        SubsectionDto dto = subsectionService.createSubsection(new Subsection(name, position, section, isHiddenToAnon));
         return ResponseEntity.ok(dto);
     }
 

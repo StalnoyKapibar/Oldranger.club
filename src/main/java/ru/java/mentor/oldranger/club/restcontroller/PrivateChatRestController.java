@@ -112,7 +112,7 @@ public class PrivateChatRestController {
             return ResponseEntity.noContent().build();
         }
         PhotoAlbum album = chat.getPhotoAlbum();
-        return ResponseEntity.ok(albumService.getAllPhotos(album));
+        return ResponseEntity.ok(albumService.getAllPhotosByAlbum(album));
     }
 
 

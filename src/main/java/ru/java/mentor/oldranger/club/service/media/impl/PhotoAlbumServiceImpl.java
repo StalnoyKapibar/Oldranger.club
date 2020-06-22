@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
-import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
+import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
+import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
@@ -40,6 +41,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private PhotoService photoService;
     @NonNull
     private MediaService mediaService;
+    @NonNull
+    private UserRepository userRepository;
+    @NonNull
+    private RoleRepository roleRepository;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -201,7 +206,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<Photo> getAllPhotos(PhotoAlbum album) {
+    public List<Photo> getAllPhotosByAlbum(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
         try {

@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class SectionDto {
 
-    private Long id;
+    private Long sectionId;
     private String name;
     private int position;
 

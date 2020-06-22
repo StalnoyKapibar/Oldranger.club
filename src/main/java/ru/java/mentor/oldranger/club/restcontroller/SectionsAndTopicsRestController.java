@@ -189,16 +189,6 @@ public class SectionsAndTopicsRestController {
         }
         User userStarter = topicService.findById(id).getTopicStarter();
         if (securityUtilsService.isModerator() || userStarter.getId().equals(user.getId())) {
-            PhotoAlbum photoAlbum = albumService.findPhotoAlbumByTopic(topicService.findById(id));
-            List<Photo> photos = albumService.getAllPhotos(photoAlbum);
-            for (Photo photo : photos) {
-                photoService.deletePhoto(photo.getId());
-            }
-            List<Comment> commentsList = commentService.getAllCommentsByTopicId(id);
-            for (Comment comment : commentsList) {
-                commentService.deleteComment(comment.getId());
-            }
-            albumService.deleteAlbum(photoAlbum.getId());
             topicService.deleteTopicById(id);
             return ResponseEntity.status(HttpStatus.OK).build();
         }
