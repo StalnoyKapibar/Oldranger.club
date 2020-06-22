@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class CommentServiceImpl implements CommentService {
 

@@ -12,14 +12,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.TopicRepository;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
@@ -38,6 +44,9 @@ public class TopicServiceImpl implements TopicService {
     private UserStatisticService userStatisticService;
     private SecurityUtilsService securityUtilsService;
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService;
+    private PhotoAlbumService albumService;
+    private PhotoService photoService;
+    private CommentService commentService;
 
     @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
@@ -76,6 +85,20 @@ public class TopicServiceImpl implements TopicService {
     public void deleteTopicById(Long id) {
         log.info("Deleting topic with id = {}", id);
         try {
+            PhotoAlbum photoAlbum = albumService.findPhotoAlbumByTopic(topicRepository.findById(id).get());
+            List<Photo> photos = albumService.getAllPhotosByAlbum(photoAlbum);
+            if (photos != null) {
+                for (Photo photo : photos) {
+                    photoService.deletePhoto(photo.getId());
+                }
+            }
+            List<Comment> commentsList = commentService.getAllCommentsByTopicId(id);
+            if (commentsList != null) {
+                for (Comment comment : commentsList) {
+                    commentService.deleteComment(comment.getId());
+                }
+            }
+            albumService.deleteAlbum(photoAlbum.getId());
             topicRepository.deleteById(id);
             log.info("Topic deleted");
         } catch (Exception e) {

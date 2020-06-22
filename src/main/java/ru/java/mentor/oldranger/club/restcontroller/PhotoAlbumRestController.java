@@ -174,7 +174,7 @@ public class PhotoAlbumRestController {
                 !securityUtilsService.isModerator() && album.getWriters().size() != 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<Photo> photoList = albumService.getAllPhotos(album);
+        List<Photo> photoList = albumService.getAllPhotosByAlbum(album);
         for (Photo photo : photoList) {
             photoService.deletePhoto(photo.getId());
         }

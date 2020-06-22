@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
+import ru.java.mentor.oldranger.club.dto.SectionDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 
@@ -19,14 +20,18 @@ public class SectionServiceImpl implements SectionService {
     private SectionRepository sectionRepository;
 
     @Override
-    public void addSection(Section section) {
+    public SectionDto addSection(Section section) {
+        SectionDto dto = null;
+        Section savedSection = null;
         log.info("Saving section {}", section);
         try {
-            sectionRepository.save(section);
+            savedSection = sectionRepository.save(section);
+            dto = new SectionDto(savedSection.getId(), savedSection.getName(), savedSection.getPosition());
             log.info("Section saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return dto;
     }
 
     @Override
@@ -59,5 +64,23 @@ public class SectionServiceImpl implements SectionService {
             log.error(e.getMessage(), e);
         }
         return sections;
+    }
+
+    @Override
+    public void updateSectionsPosition(int position) {
+        log.debug("Update section`s position by one");
+        sectionRepository.updateSectionsPosition(position);
+    }
+
+    @Override
+    public int findMaxPosition() {
+        log.debug("Find maximal position");
+        return sectionRepository.findMaxPosition();
+    }
+
+    @Override
+    public List<Section> findSectionsByName(String name) {
+        log.debug("Find list of sections by name");
+        return sectionRepository.findSectionsByName(name);
     }
 }

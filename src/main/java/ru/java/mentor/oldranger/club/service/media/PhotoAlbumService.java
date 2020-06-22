@@ -17,7 +17,7 @@ public interface PhotoAlbumService {
 
     List<PhotoWithAlbumDTO> getAllPhotoWithAlbumsDTO(PhotoAlbum album);
 
-    List<Photo> getAllPhotos(PhotoAlbum album);
+    List<Photo> getAllPhotosByAlbum(PhotoAlbum album);
 
     void deleteAllAlbums();
 

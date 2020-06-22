@@ -155,7 +155,7 @@ public class ChatRestController {
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         Chat chat = chatService.getGroupChat();
         PhotoAlbum album = chat.getPhotoAlbum();
-        return ResponseEntity.ok(albumService.getAllPhotos(album));
+        return ResponseEntity.ok(albumService.getAllPhotosByAlbum(album));
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

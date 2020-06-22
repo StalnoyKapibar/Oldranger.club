@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SubsectionRepository;
+import ru.java.mentor.oldranger.club.dto.SubsectionDto;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.service.forum.SubsectionService;
 
@@ -19,14 +20,17 @@ public class SubsectionServiceImpl implements SubsectionService {
 
 
     @Override
-    public void createSubsection(Subsection subSection) {
+    public SubsectionDto createSubsection(Subsection subSection) {
+        SubsectionDto dto = null;
         log.info("Saving subsection {}", subSection);
         try {
             subsectionRepository.save(subSection);
+            dto = new SubsectionDto(subSection.getSection(), subSection.getName(), subSection.getPosition());
             log.info("Subsection saved");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return dto;
     }
 
     @Override
@@ -46,5 +50,23 @@ public class SubsectionServiceImpl implements SubsectionService {
             log.error(e.getMessage(), e);
         }
         return subsections;
+    }
+
+    @Override
+    public void updateSubsectionsPosition(int position) {
+        log.debug("Update subsection`s position by one");
+        subsectionRepository.updateSubsectionsPosition(position);
+    }
+
+    @Override
+    public int findMaxPosition() {
+        log.debug("Find maximal position");
+        return subsectionRepository.findMaxPosition();
+    }
+
+    @Override
+    public List<Subsection> findSubsectionsByName(String name) {
+        log.debug("Find list of subsections by name");
+        return subsectionRepository.findSubsectionsByName(name);
     }
 }

@@ -17,7 +17,10 @@ import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
@@ -43,11 +46,21 @@ class TopicServiceImplTest {
     private TopicVisitAndSubscriptionService topicVisitAndSubscriptionService = Mockito.mock(TopicVisitAndSubscriptionService.class);
 
     @Mock
+    private PhotoAlbumService  albumService = Mockito.mock(PhotoAlbumService.class);
+
+    @Mock
+    private PhotoService photoService = Mockito.mock(PhotoService.class);
+
+    @Mock
+    private CommentService commentService = Mockito.mock(CommentService.class);
+
+    @Mock
     private Pageable pageable = Mockito.mock(Pageable.class);
 
     @BeforeEach
     void initAlgo() {
-        topicService = new TopicServiceImpl(topicRepository, userStatisticService, securityUtilsService, topicVisitAndSubscriptionService);
+        topicService = new TopicServiceImpl(topicRepository, userStatisticService, securityUtilsService,
+                topicVisitAndSubscriptionService, albumService, photoService, commentService);
     }
 
     @Test
