@@ -58,11 +58,11 @@ public class PhotoAlbumRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
-            @ApiResponse(responseCode = "400", description = "Login error")})
+            @ApiResponse(responseCode = "401", description = "User have no authority")})
     @GetMapping(value = "/all")
     public ResponseEntity<List<PhotoAlbumDto>> getAdminPhotoAlbums() {
         if (securityUtilsService.getLoggedUser() == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Role role = roleService.getRoleByAuthority("ROLE_ADMIN");
         return ResponseEntity.ok(albumService.findPhotoAlbumDtoByUsersList(userService.findUsersByRole(role)));
