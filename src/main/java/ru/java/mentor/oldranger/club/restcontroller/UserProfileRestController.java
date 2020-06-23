@@ -83,9 +83,6 @@ public class UserProfileRestController {
     @Value("${server.name}")
     private String host;
 
-    @Value("${client.port}")
-    private String port;
-
     @InitBinder
     // передаем пустые строки как null
     public void initBinder(WebDataBinder binder) {
@@ -225,7 +222,7 @@ public class UserProfileRestController {
         String key = emailChangeService.generateMD5Key(newEmail);
         EmailChangeToken emailChangeToken = new EmailChangeToken(key, currentUser, newEmail);
         emailChangeService.save(emailChangeToken);
-        String link = protocol + "://" + host + ":" + port + "/profile/editEmail?key=" + key;
+        String link = protocol + "://" + host + "/profile/editEmail?key=" + key;
         String status = mailService.sendHtmlEmail(newEmail, currentUser.getNickName(), "letterToConfirmNewEmail.html", link);
         return ResponseEntity.ok(status);
     }
