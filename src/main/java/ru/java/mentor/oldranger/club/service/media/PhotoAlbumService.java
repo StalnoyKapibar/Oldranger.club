@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.media;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
@@ -8,7 +10,6 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
-import java.util.Set;
 
 public interface PhotoAlbumService {
 
@@ -42,5 +43,9 @@ public interface PhotoAlbumService {
 
     PhotoAlbum findPhotoAlbumByTopic(Topic topic);
 
-    List<PhotoAlbumDto> findPhotoAlbumDtoByUsersList(List<User> users);
+    List<PhotoAlbumDto> findPhotoAlbumsDto(List<PhotoAlbum> photoAlbums, boolean dateSort);
+
+    Page<PhotoAlbum> findPhotoAlbumsByWritersIn(Pageable pageable, List<User> writers);
+
+    List<PhotoAlbumDto> findPhotoAlbumsDtoByQuery(List<PhotoAlbum> photoAlbums, String query, boolean dateSort);
 }

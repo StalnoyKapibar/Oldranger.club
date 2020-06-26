@@ -1,6 +1,8 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,6 +11,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +29,7 @@ import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -54,18 +60,50 @@ public class PhotoAlbumRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get all admin photo albums", tags = {"Photo album"})
+            summary = "Get all admin photo albums on first page", tags = {"Photo album"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
             @ApiResponse(responseCode = "401", description = "User have no authority")})
-    @GetMapping(value = "/all")
-    public ResponseEntity<List<PhotoAlbumDto>> getAdminPhotoAlbums() {
+    @Parameter(in = ParameterIn.QUERY, name = "page",
+            required = false, description = "номер страницы (необязательный параметр), по дефолтному значению равен - 0",
+            allowEmptyValue = true,
+            schema = @Schema(
+                    type = "Integer",
+                    example = "http://localhost:8888/api/albums/all?page=1"))
+    @Parameter(in = ParameterIn.QUERY, name = "query",
+            required = false, description = "значение для фильтрации наименования альбома(необязательный параметр) только для строки в таблице " +
+            "'photo_album', где данное значение содержится в колонке title",
+            allowEmptyValue = true, allowReserved = true,
+            schema = @Schema(
+                    type = "string",
+                    example = "http://localhost:8888/api/albums/all?query=Album10"))
+    @Parameter(in = ParameterIn.QUERY, name = "dateSort",
+            required = false, description = "порядок выведения альбомов по дате добавления(необязательный параметр), по дефолному значению(dateSort=false) " +
+            "фотоальбомы выводятся сначала новые к более старым. Если dateSort=true, то сначала выводятся альбомы более старые",
+            allowEmptyValue = true, allowReserved = true,
+            schema = @Schema(
+                    type = "boolean",
+                    example = "http://localhost:8888/api/albums/all?dateSort=true"))
+    @GetMapping(value = "/all", produces = {"application/json"})
+    public ResponseEntity<List<PhotoAlbumDto>> getAdminPhotoAlbums(@RequestParam(value = "page", required = false) Integer page,
+                                                                   @RequestParam(value = "query", required = false) String query,
+                                                                   @RequestParam(value = "dateSort", required = false) boolean dateSort) {
         if (securityUtilsService.getLoggedUser() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        List<PhotoAlbumDto> dto;
+        if (page == null) page = 0;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
         Role role = roleService.getRoleByAuthority("ROLE_ADMIN");
-        return ResponseEntity.ok(albumService.findPhotoAlbumDtoByUsersList(userService.findUsersByRole(role)));
+        List<PhotoAlbum> photoAlbums = albumService.findPhotoAlbumsByWritersIn(pageable, userService.findUsersByRole(role)).getContent();
+        if (query != null && !query.trim().isEmpty()) {
+            query = query.toLowerCase().trim();
+            dto = albumService.findPhotoAlbumsDtoByQuery(photoAlbums, query, dateSort);
+        } else {
+            dto = albumService.findPhotoAlbumsDto(photoAlbums, dateSort);
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -83,7 +121,6 @@ public class PhotoAlbumRestController {
         PhotoAlbum album = new PhotoAlbum(albumTitle);
         album.addWriter(currentUser);
         album.setAllowView(true);
-
         return ResponseEntity.ok(albumService.assemblePhotoAlbumDto(albumService.save(album)));
     }
 
