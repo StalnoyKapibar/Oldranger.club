@@ -64,6 +64,7 @@ public class PhotoAlbumRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoAlbumDto.class)))),
+            @ApiResponse(responseCode = "204", description = "No albums found"),
             @ApiResponse(responseCode = "401", description = "User have no authority")})
     @Parameter(in = ParameterIn.QUERY, name = "page",
             required = false, description = "номер страницы (необязательный параметр), по дефолтному значению равен - 0",
@@ -102,6 +103,9 @@ public class PhotoAlbumRestController {
             dto = albumService.findPhotoAlbumsDtoByQuery(photoAlbums, query, dateSort);
         } else {
             dto = albumService.findPhotoAlbumsDto(photoAlbums, dateSort);
+        }
+        if(photoAlbums == null || dto == null) {
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(dto);
     }

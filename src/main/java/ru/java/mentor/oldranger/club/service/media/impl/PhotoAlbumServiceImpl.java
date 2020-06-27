@@ -265,7 +265,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Override
     public List<PhotoAlbumDto> findPhotoAlbumsDto(List<PhotoAlbum> photoAlbums, boolean dateSort) {
         log.info("Finding list of PhotoAlbumDto by list of PhotoAlbums");
-        List<PhotoAlbumDto> dto = new ArrayList<>();
+        List<PhotoAlbumDto> dto = null;
         List<Long> albumsId = new ArrayList<>();
         try {
             photoAlbums.stream().forEach(photoAlbum -> albumsId.add(photoAlbum.getId()));
@@ -295,7 +295,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     @Override
     public List<PhotoAlbumDto> findPhotoAlbumsDtoByQuery(List<PhotoAlbum> photoAlbums, String query, boolean dateSort) {
         log.info("Finding list of PhotoAlbumDto by query");
-        List<PhotoAlbumDto> dto = new ArrayList<>();
+        List<PhotoAlbumDto> dto = null;
         List<Long> albumsId = new ArrayList<>();
         try {
             photoAlbums.stream().forEach(photoAlbum -> albumsId.add(photoAlbum.getId()));

@@ -12,7 +12,6 @@ import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.Tuple;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,13 +81,12 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
     List<Tuple> findPhotoAlbumsDtoByPhotoAlbumsId(@Param("ids") List<Long> ids);
 
     default List<PhotoAlbumDto> findPhotoAlbumsDto(List<Long> ids) {
-        List<PhotoAlbumDto> dto = new ArrayList<>();
-        findPhotoAlbumsDtoByPhotoAlbumsId(ids).stream().map(album -> new PhotoAlbumDto(
+        return findPhotoAlbumsDtoByPhotoAlbumsId(ids).stream().map(album -> new PhotoAlbumDto(
                 album.get("album_id") == null ? null : Long.valueOf(album.get("album_id").toString()),
                 album.get("album_title", String.class),
                 album.get("album_thumb") == null ? null : Long.valueOf(album.get("album_thumb").toString()),
-                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString()))).forEach(dto::add);
-        return dto;
+                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString())))
+                .collect(Collectors.toList());
     }
 
     @Query(nativeQuery = true, value = "SELECT a.id AS album_id, " +
@@ -104,12 +102,11 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
     List<Tuple> findPhotoAlbumsDtoByQueryAndAlbumsId(@Param("q") String query, @Param("ids") List<Long> ids);
 
     default List<PhotoAlbumDto> findPhotoAlbumsDtoByQuery(String query, List<Long> ids) {
-        List<PhotoAlbumDto> dto = new ArrayList<>();
-        findPhotoAlbumsDtoByQueryAndAlbumsId(query, ids).stream().map(album -> new PhotoAlbumDto(
+        return findPhotoAlbumsDtoByQueryAndAlbumsId(query, ids).stream().map(album -> new PhotoAlbumDto(
                 album.get("album_id") == null ? null : Long.valueOf(album.get("album_id").toString()),
                 album.get("album_title", String.class),
                 album.get("album_thumb") == null ? null : Long.valueOf(album.get("album_thumb").toString()),
-                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString()))).forEach(dto::add);
-        return dto;
+                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString())))
+                .collect(Collectors.toList());
     }
 }
