@@ -125,6 +125,7 @@ public class SectionsAndTopicsRestController {
         topic.setLastMessageTime(LocalDateTime.now());
         topic.setSubsection(topicDetails.getSubsection());
         topic.setStartMessage(topicDetails.getStartMessage());
+        topic.setPhotoAlbum(photoAlbum);
 
         topic.setHideToAnon(topicDetails.isHideToAnon() || topic.getSubsection().isHideToAnon());
         topic.setForbidComment(false);
