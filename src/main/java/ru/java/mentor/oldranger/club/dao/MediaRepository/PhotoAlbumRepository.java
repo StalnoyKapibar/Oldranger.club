@@ -1,7 +1,11 @@
 package ru.java.mentor.oldranger.club.dao.MediaRepository;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -16,6 +20,10 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
     List<PhotoAlbum> findPhotoAlbumByViewersContainsOrViewersIsNull(User user);
 
     PhotoAlbum findPhotoAlbumByTitle(String title);
+
+    PhotoAlbum findPhotoAlbumByTopic(Topic topic);
+
+    Page<PhotoAlbum> findPhotoAlbumsByWritersIn(Pageable pageable, List<User> writers);
 
     @Query(nativeQuery = true, value = "select  " +
             "  pa.id as album_id,  " +
@@ -60,5 +68,45 @@ public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Long> {
                                 e.get("photos_count").toString()))).collect(Collectors.toList());
     }
 
-    PhotoAlbum findPhotoAlbumByTopic(Topic topic);
+    @Query(nativeQuery = true, value = "SELECT a.id AS album_id, " +
+            "a.title AS album_title, " +
+            "a.thumb_image_id AS album_thumb," +
+            " COUNT(p.album_id) AS photos_count " +
+            "FROM photo_album a " +
+            "LEFT JOIN photos p " +
+            "ON p.album_id = a.id " +
+            "WHERE a.id IN (:ids) " +
+            "GROUP BY a.id " +
+            "ORDER BY a.id DESC")
+    List<Tuple> findPhotoAlbumsDtoByPhotoAlbumsId(@Param("ids") List<Long> ids);
+
+    default List<PhotoAlbumDto> findPhotoAlbumsDto(List<Long> ids) {
+        return findPhotoAlbumsDtoByPhotoAlbumsId(ids).stream().map(album -> new PhotoAlbumDto(
+                album.get("album_id") == null ? null : Long.valueOf(album.get("album_id").toString()),
+                album.get("album_title", String.class),
+                album.get("album_thumb") == null ? null : Long.valueOf(album.get("album_thumb").toString()),
+                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString())))
+                .collect(Collectors.toList());
+    }
+
+    @Query(nativeQuery = true, value = "SELECT a.id AS album_id, " +
+            "a.title AS album_title, " +
+            "a.thumb_image_id AS album_thumb," +
+            " COUNT(p.album_id) AS photos_count  " +
+            "FROM photo_album a " +
+            "LEFT JOIN photos p " +
+            "ON p.album_id = a.id " +
+            "WHERE a.id IN (:ids) AND a.title LIKE CONCAT('%', :q, '%') " +
+            "GROUP BY a.id " +
+            "ORDER BY a.id DESC")
+    List<Tuple> findPhotoAlbumsDtoByQueryAndAlbumsId(@Param("q") String query, @Param("ids") List<Long> ids);
+
+    default List<PhotoAlbumDto> findPhotoAlbumsDtoByQuery(String query, List<Long> ids) {
+        return findPhotoAlbumsDtoByQueryAndAlbumsId(query, ids).stream().map(album -> new PhotoAlbumDto(
+                album.get("album_id") == null ? null : Long.valueOf(album.get("album_id").toString()),
+                album.get("album_title", String.class),
+                album.get("album_thumb") == null ? null : Long.valueOf(album.get("album_thumb").toString()),
+                album.get("photos_count") == null ? 0 : Integer.parseInt(album.get("photos_count").toString())))
+                .collect(Collectors.toList());
+    }
 }
