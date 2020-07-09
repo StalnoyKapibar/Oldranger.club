@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,11 @@ public class CommentServiceImpl implements CommentService {
     private TopicService topicService;
     private PhotoService photoService;
     private ImageCommnetService imageCommnetService;
+
+    @Autowired
+    public CommentServiceImpl(CommentRepository commentRepository) {
+        this.commentRepository = commentRepository;
+    }
 
     @Override
     public void createComment(Comment comment) {
