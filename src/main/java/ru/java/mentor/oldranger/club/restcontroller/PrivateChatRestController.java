@@ -184,6 +184,32 @@ public class PrivateChatRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete private chat message",
+            description = "Delete private chat message",
+            tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "Wrong chat token")})
+    @DeleteMapping(value = "/message/{id}")
+    ResponseEntity<String> deleteMessage(@Parameter(description = "Message id", required = true)
+                                         @PathVariable Long id) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
+        boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
+        if (!isSender) {
+            if (!isModer) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        }
+        messageService.deleteMessage(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Upload image", tags = {"Private Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName",
@@ -235,5 +261,32 @@ public class PrivateChatRestController {
         }
         messageService.editMessage(message);
         return ResponseEntity.ok(message);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Read message", tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = Message.class))),
+            @ApiResponse(responseCode = "400", description = "Error reading message"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PutMapping(value = "/message/read/{id}", produces = {"application/json"})
+    ResponseEntity<String> readMessage(@Parameter(description = "Message id", required = true)
+                                         @PathVariable Long id) {
+
+        Message message;
+        try {
+            message = messageService.findMessage(id);
+        }
+        catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        message.setRead(true);
+        messageService.editMessage(message);
+        return ResponseEntity.ok().build();
     }
 }
