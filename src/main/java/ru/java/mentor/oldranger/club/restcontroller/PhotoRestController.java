@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,17 +20,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.model.chat.Chat;
+import ru.java.mentor.oldranger.club.model.media.FileInChat;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor
@@ -42,6 +44,8 @@ public class PhotoRestController {
     private final PhotoAlbumService albumService;
     private final SecurityUtilsService securityUtilsService;
     private final PhotoPositionService photoPositionService;
+    private final CheckFileTypeService checkFileTypeService;
+    private PhotoService photoService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
@@ -190,5 +194,29 @@ public class PhotoRestController {
             }
         }
         return ResponseEntity.ok("delete ok");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Upload image", tags = {"Photo download"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName, fileName:fileName, filePath:filePath",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "200", description = "Map fileName:fileName, filePath:filePath",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "401", description = "User is not logged in"),
+            @ApiResponse(responseCode = "413", description = "File size must not exceed 20Mb")})
+    @PostMapping(value = "/imageDownload", consumes = {"multipart/form-data"})
+    ResponseEntity<Map<String, String>> downloadImage(@Parameter(description = "Image file")
+                                                      @RequestParam("file") MultipartFile file) {
+        Map<String, String> result = new HashMap<>();
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+            PhotoAlbum album = albumService.findById(6l);
+            Photo photo = photoService.save(album, file, 0);
+            result.put("originalImg", photo.getOriginal());
+            result.put("thumbnailImg", photo.getSmall());
+        return ResponseEntity.ok(result);
     }
 }
