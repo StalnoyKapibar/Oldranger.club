@@ -200,10 +200,8 @@ public class PrivateChatRestController {
         }
         boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
-        if (!isSender) {
-            if (!isModer) {
+        if (!isSender || !isModer) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
         }
         messageService.deleteMessage(id);
         return ResponseEntity.ok().build();
@@ -278,7 +276,7 @@ public class PrivateChatRestController {
         try {
             message = messageService.findMessage(id);
         }
-        catch (Exception e){
+        catch (RuntimeException e){
             return ResponseEntity.notFound().build();
         }
         User currentUser = securityUtilsService.getLoggedUser();
