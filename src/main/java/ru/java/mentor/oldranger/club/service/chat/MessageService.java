@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MessageService {
@@ -29,4 +30,9 @@ public interface MessageService {
     Message findMessage(Long id);
 
     void deleteMessage(Long id);
+
+    List<Message> findAllByChat(Chat chat);
+
+    Message getLastMessage(Chat chat);
+
 }

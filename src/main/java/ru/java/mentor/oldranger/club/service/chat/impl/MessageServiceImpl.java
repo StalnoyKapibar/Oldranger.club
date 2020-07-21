@@ -287,4 +287,22 @@ public class MessageServiceImpl implements MessageService {
         log.debug("Getting message by id");
         return messageRepository.findById(id).orElseThrow(() -> new RuntimeException("Did not find message by id - " + id));
     }
+
+    @Override
+    public List<Message> findAllByChat(Chat chat) {
+        return messageRepository.findAllByChat(chat);
+    }
+
+    public Message getLastMessage(Chat chat){
+        List<Message> messages = messageRepository.findAllByChat(chat);
+        Message message = new Message();
+        if(messages.size()>0) {
+           message = messages.get(messages.size() - 1);
+            return message;
+        }
+        else {
+            message.setText("no messages");
+            return message;
+        }
+    }
 }

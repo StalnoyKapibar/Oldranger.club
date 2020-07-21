@@ -33,10 +33,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -286,5 +283,35 @@ public class PrivateChatRestController {
         message.setRead(true);
         messageService.editMessage(message);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all private chats", description = "Get all private chats", tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Private chat list",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "chat not found")})
+    @GetMapping(value = "/allchats")
+    public ResponseEntity<List<Chat>> getAllChatByLoggedUser(@AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
+        List<Chat> chats = chatService.getAllPrivateChats(currentUser);
+        List<Message> messages;
+        String lastMessage;
+        Collections.reverse(chats);
+        int unreadMessage=0;
+        for(Chat chat : chats){
+            messages=messageService.findAllByChat(chat);
+            for(Message message : messages){
+                if (!message.isRead()){
+                    unreadMessage++;
+                }
+            }
+           lastMessage = messageService.getLastMessage(chat).getText();
+            chat.setLastMessage(lastMessage);
+            chat.setUnreadMessge(unreadMessage);
+        }
+        return ResponseEntity.ok(chats);
     }
 }

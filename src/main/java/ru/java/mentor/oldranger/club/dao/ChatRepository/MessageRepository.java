@@ -20,4 +20,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByChat(Chat chat);
 
     Message findFirstByChatOrderByMessageDateAsc(Chat chat);
+
 }
