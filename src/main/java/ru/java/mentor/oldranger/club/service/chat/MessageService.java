@@ -35,4 +35,5 @@ public interface MessageService {
 
     Message getLastMessage(Chat chat);
 
+    List<Message> findAllByChatUnread(long chatId);
 }

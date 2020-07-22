@@ -27,12 +27,6 @@ public class Chat {
     @Column(name = "token")
     private String token;
 
-    @Column(name = "unreadMessgeCount")
-    private int unreadMessge = 0;
-
-    @Column(name = "lastMessage")
-    private String LastMessage;
-
     @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 

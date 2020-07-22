@@ -293,16 +293,14 @@ public class MessageServiceImpl implements MessageService {
         return messageRepository.findAllByChat(chat);
     }
 
-    public Message getLastMessage(Chat chat){
-        List<Message> messages = messageRepository.findAllByChat(chat);
-        Message message = new Message();
-        if(messages.size()>0) {
-           message = messages.get(messages.size() - 1);
-            return message;
-        }
-        else {
-            message.setText("no messages");
-            return message;
-        }
+    public Message getLastMessage(Chat chat) {
+        log.debug("Get last message by chat");
+        return messageRepository.findFirstByChatOrderByMessageDateDesc(chat);
+    }
+
+    @Override
+    public List<Message> findAllByChatUnread(long id) {
+        log.debug("Get all unread message");
+        return messageRepository.findAllByChatUnread(id);
     }
 }

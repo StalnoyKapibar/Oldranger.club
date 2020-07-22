@@ -21,4 +21,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     Message findFirstByChatOrderByMessageDateAsc(Chat chat);
 
+    @Query("select m from Message m where m.chat.id=:chatId and m.isRead=false")
+    List<Message> findAllByChatUnread(long chatId);
+
+    Message findFirstByChatOrderByMessageDateDesc(Chat chat);
 }

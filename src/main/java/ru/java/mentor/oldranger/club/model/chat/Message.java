@@ -34,7 +34,7 @@ public class Message {
     private String fileName;
 
     @Column(name = "is_Reading")
-    private boolean isRead = false;
+    private boolean isRead;
 
     @Column(name = "file_location")
     private String filePath;
