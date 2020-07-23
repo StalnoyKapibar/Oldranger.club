@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
 import java.util.Map;
@@ -36,4 +37,5 @@ public interface MessageService {
     Message getLastMessage(Chat chat);
 
     List<Message> findAllByChatUnread(long chatId);
+
 }

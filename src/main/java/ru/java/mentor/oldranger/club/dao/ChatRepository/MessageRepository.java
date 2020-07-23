@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,4 +26,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByChatUnread(long chatId);
 
     Message findFirstByChatOrderByMessageDateDesc(Chat chat);
+
 }

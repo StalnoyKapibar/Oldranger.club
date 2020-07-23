@@ -303,4 +303,5 @@ public class MessageServiceImpl implements MessageService {
         log.debug("Get all unread message");
         return messageRepository.findAllByChatUnread(id);
     }
+
 }
