@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -98,4 +99,5 @@ public class ChatServiceImpl implements ChatService {
         }
         return chats;
     }
+
 }

@@ -304,14 +304,16 @@ public class PrivateChatRestController {
         List<PrivateChatDto> dtos = new ArrayList<>();
         List<Chat> chats = chatService.getAllPrivateChats(currentUser);
         Collections.reverse(chats);
+        HashMap<Long, Message> chatAndLAstMessage = messageService.getAllChatsLastMessage(chats);
+        HashMap<Long, Integer> chatUnread = messageService.getAllChatsUnreadMessage(chats);
         for (Chat chat : chats) {
-            Message chatLastMessage = messageService.getLastMessage(chat);
+            Message chatLastMessage = chatAndLAstMessage.get(chat.getId());
             User anotherUser = chat.getUserList().stream().filter(u -> !u.equals(currentUser)).findFirst().get();
             String ava = anotherUser.getAvatar().getSmall();
             Long id = chat.getId();
             String lastMessage = chatLastMessage.getText();
             String firstName = anotherUser.getFirstName();
-            int unread = messageService.findAllByChatUnread(chat.getId()).size();
+            int unread = chatUnread.get(chat.getId());
             Long millis = chatLastMessage.getMessageDate().atZone(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();
             dtos.add(new PrivateChatDto(id, lastMessage, unread, firstName, ava, millis));
         }

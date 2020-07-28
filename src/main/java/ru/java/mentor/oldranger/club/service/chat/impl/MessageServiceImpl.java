@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -17,6 +18,7 @@ import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
+import javax.persistence.Tuple;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +27,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -304,4 +307,21 @@ public class MessageServiceImpl implements MessageService {
         return messageRepository.findAllByChatUnread(id);
     }
 
+    @Override
+    public HashMap<Long, Message> getAllChatsLastMessage(List<Chat> chats) {
+        HashMap<Long, Message> map = new HashMap<>();
+        for (Chat chat : chats) {
+            map.put(chat.getId(), messageRepository.findFirstByChatOrderByMessageDateDesc(chat));
+        }
+        return map;
+    }
+
+    @Override
+    public HashMap<Long, Integer> getAllChatsUnreadMessage(List<Chat> chats) {
+        HashMap<Long, Integer> map = new HashMap<>();
+        for (Chat chat : chats) {
+            map.put(chat.getId(), messageRepository.findAllByChatUnread(chat.getId()).size());
+        }
+        return map;
+    }
 }

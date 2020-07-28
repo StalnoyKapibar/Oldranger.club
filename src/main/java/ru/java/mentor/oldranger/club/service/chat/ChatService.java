@@ -3,6 +3,7 @@ package ru.java.mentor.oldranger.club.service.chat;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.user.User;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface ChatService {
