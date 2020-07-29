@@ -85,6 +85,23 @@ public class ArticleRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get articles", description = "Get articles", tags = {"Article"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Article.class)))),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @GetMapping(value = "/withoutTags", produces = {"application/json"})
+    public ResponseEntity<Page<Article>> getAllArticlesByTagId(@RequestParam(value = "page", required = false) Integer page) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Pageable pageRequest = PageRequest.of(page, 10, Sort.by("date").descending());
+        Page<Article> searchWithoutTag = articleService.getAllArticles(pageRequest);
+        return ResponseEntity.ok(searchWithoutTag);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get article drafts", description = "Get all article drafts for current user", tags = {"Article"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
