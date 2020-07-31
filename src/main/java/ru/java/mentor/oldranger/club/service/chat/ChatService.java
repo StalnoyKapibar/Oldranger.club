@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.chat;
 
 import ru.java.mentor.oldranger.club.model.chat.Chat;
+import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.Tuple;
@@ -23,5 +24,5 @@ public interface ChatService {
 
     String generateToken(User first, User second);
 
-    List<Tuple> getChatIdAndLastMessage();
+    HashMap<Long, Message> getChatIdAndLastMessage(List<Chat> chats);
 }

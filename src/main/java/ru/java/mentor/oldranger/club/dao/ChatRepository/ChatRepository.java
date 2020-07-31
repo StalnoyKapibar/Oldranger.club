@@ -8,6 +8,8 @@ import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.Tuple;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +35,18 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             "    from messages\n" +
             "    group by id_chat\n" +
             ") tm on t.id_chat = tm.id_chat and t.message_date = tm.MaxDate")
-    List<Tuple> getChatIdAndLastMessage();
+    List<Tuple> getChatIdAndLastMessageTuple();
 
+    default HashMap<Long, Message> getChatIdAndLastMessage(List<Chat> chats) {
+        HashMap<Long, Message> map = new HashMap<>();
+        List<Tuple> tuples = getChatIdAndLastMessageTuple();
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        for (Tuple tuple : tuples) {
+            map.put(Long.valueOf(String.valueOf(tuple.get("id_chat"))),
+                    (new Message(Long.parseLong(String.valueOf(tuple.get("id_chat"))),
+                            String.valueOf(tuple.get("msg_text")),
+                            LocalDateTime.parse(String.valueOf(tuple.get("message_date")), format))));
+        }
+        return map;
+    }
 }

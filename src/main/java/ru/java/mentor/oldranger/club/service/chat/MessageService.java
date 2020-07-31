@@ -44,6 +44,5 @@ public interface MessageService {
 
     HashMap<Long, Message> getAllChatsLastMessage(List<Chat> chats);
 
-    HashMap<Long, Integer> getChatIdAndUnreadMessage();
-
+    HashMap<Long, Integer> getChatIdAndUnreadMessage(List<Chat> chats);
 }

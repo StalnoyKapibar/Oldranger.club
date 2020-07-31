@@ -306,7 +306,7 @@ public class PrivateChatRestController {
         List<Chat> chats = chatService.getAllPrivateChats(currentUser);
         Collections.reverse(chats);
         HashMap<Long, Message> chatAndLAstMessage = messageService.getAllChatsLastMessage(chats);
-        HashMap<Long, Integer> chatUnread = messageService.getChatIdAndUnreadMessage();
+        HashMap<Long, Integer> chatUnread = messageService.getChatIdAndUnreadMessage(chats);
         for (Chat chat : chats) {
             Message chatLastMessage = chatAndLAstMessage.get(chat.getId());
             User anotherUser = chat.getUserList().stream().filter(u -> !u.equals(currentUser)).findFirst().get();
@@ -314,13 +314,7 @@ public class PrivateChatRestController {
             Long id = chat.getId();
             String lastMessage = chatLastMessage.getText();
             String firstName = anotherUser.getFirstName();
-            int unread = 0;
-            try {
-              unread = chatUnread.get(chat.getId());
-            }
-            catch (NullPointerException e){
-                System.out.println("no unread private message");
-            }
+            int unread = chatUnread.get(chat.getId());
             Long millis = chatLastMessage.getMessageDate().atZone(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();
             dtos.add(new PrivateChatDto(id, lastMessage, unread, firstName, ava, millis));
         }

@@ -310,26 +310,18 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public HashMap<Long, Message> getAllChatsLastMessage(List<Chat> chats) {
-        HashMap<Long, Message> map = new HashMap<>();
-        List<Tuple> tuples = chatService.getChatIdAndLastMessage();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        for (Tuple tuple : tuples) {
-            map.put(Long.valueOf(String.valueOf(tuple.get("id_chat"))),
-                    (new Message(Long.parseLong(String.valueOf(tuple.get("id_chat"))),
-                            String.valueOf(tuple.get("msg_text")),
-                            LocalDateTime.parse(String.valueOf(tuple.get("message_date")), format))));
-        }
-        return map;
+        log.debug("Getting chat id and last messages");
+        return chatService.getChatIdAndLastMessage(chats);
     }
 
-
     @Override
-    public HashMap<Long, Integer> getChatIdAndUnreadMessage() {
-        HashMap<Long, Integer> map = new HashMap<>();
-        List<Tuple> tuples = messageRepository.getChatIdAndUnreadMessage();
-        for (Tuple tuple : tuples) {
-            map.put(Long.parseLong(tuple.get("id_chat").toString()), Integer.parseInt(tuple.get("COUNT(is_reading)").toString()));
+    public HashMap<Long, Integer> getChatIdAndUnreadMessage(List<Chat> chats) {
+        log.debug("Getting chat id and unread messages count");
+        HashMap<Long, Integer> daoMap = messageRepository.getChatIdAndUnreadMessage(chats);
+        for (Chat chat : chats) {
+            if (!daoMap.containsKey(chat.getId()))  //нпе без этого
+                daoMap.put(chat.getId(), 0);
         }
-        return map;
+        return daoMap;
     }
 }
