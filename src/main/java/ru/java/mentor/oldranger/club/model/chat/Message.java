@@ -69,4 +69,10 @@ public class Message {
 
     @Column(name = "edit_message_date")
     private LocalDateTime editMessageDate;
+
+    public Message(long id, String text, LocalDateTime time){
+        this.id = id;
+        this.text = text;
+        this. messageDate = time;
+    }
 }

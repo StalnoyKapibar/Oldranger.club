@@ -32,4 +32,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     Message findFirstByChatOrderByMessageDateDesc(Chat chat);
 
+    @Query(nativeQuery = true,
+            value = " SELECT id_chat, COUNT(is_reading) FROM messages where is_reading=false\n" +
+                    "     GROUP BY id_chat")
+    List<Tuple> getChatIdAndUnreadMessage();
+
 }

@@ -7,6 +7,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 
+import javax.persistence.Tuple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -24,4 +25,14 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     Chat findChatByToken(String token);
 
     List<Chat> findAllByPrivacyTrueAndUserListContaining(User user);
+
+    @Query(nativeQuery = true, value = "select t.id_chat, t.msg_text, message_date\n" +
+            "from messages t\n" +
+            "inner join (\n" +
+            "    select id_chat, max(message_date) as MaxDate\n" +
+            "    from messages\n" +
+            "    group by id_chat\n" +
+            ") tm on t.id_chat = tm.id_chat and t.message_date = tm.MaxDate")
+    List<Tuple> getChatIdAndLastMessage();
+
 }

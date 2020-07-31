@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -310,17 +311,24 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public HashMap<Long, Message> getAllChatsLastMessage(List<Chat> chats) {
         HashMap<Long, Message> map = new HashMap<>();
-        for (Chat chat : chats) {
-            map.put(chat.getId(), messageRepository.findFirstByChatOrderByMessageDateDesc(chat));
+        List<Tuple> tuples = chatService.getChatIdAndLastMessage();
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        for (Tuple tuple : tuples) {
+            map.put(Long.valueOf(String.valueOf(tuple.get("id_chat"))),
+                    (new Message(Long.parseLong(String.valueOf(tuple.get("id_chat"))),
+                            String.valueOf(tuple.get("msg_text")),
+                            LocalDateTime.parse(String.valueOf(tuple.get("message_date")), format))));
         }
         return map;
     }
 
+
     @Override
-    public HashMap<Long, Integer> getAllChatsUnreadMessage(List<Chat> chats) {
+    public HashMap<Long, Integer> getChatIdAndUnreadMessage() {
         HashMap<Long, Integer> map = new HashMap<>();
-        for (Chat chat : chats) {
-            map.put(chat.getId(), messageRepository.findAllByChatUnread(chat.getId()).size());
+        List<Tuple> tuples = messageRepository.getChatIdAndUnreadMessage();
+        for (Tuple tuple : tuples) {
+            map.put(Long.parseLong(tuple.get("id_chat").toString()), Integer.parseInt(tuple.get("COUNT(is_reading)").toString()));
         }
         return map;
     }

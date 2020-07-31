@@ -35,6 +35,7 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.persistence.Tuple;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -305,7 +306,7 @@ public class PrivateChatRestController {
         List<Chat> chats = chatService.getAllPrivateChats(currentUser);
         Collections.reverse(chats);
         HashMap<Long, Message> chatAndLAstMessage = messageService.getAllChatsLastMessage(chats);
-        HashMap<Long, Integer> chatUnread = messageService.getAllChatsUnreadMessage(chats);
+        HashMap<Long, Integer> chatUnread = messageService.getChatIdAndUnreadMessage();
         for (Chat chat : chats) {
             Message chatLastMessage = chatAndLAstMessage.get(chat.getId());
             User anotherUser = chat.getUserList().stream().filter(u -> !u.equals(currentUser)).findFirst().get();

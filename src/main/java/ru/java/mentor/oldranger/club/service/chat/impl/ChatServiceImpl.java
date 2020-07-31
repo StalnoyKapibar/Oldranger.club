@@ -8,6 +8,7 @@ import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 
+import javax.persistence.Tuple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -100,4 +101,15 @@ public class ChatServiceImpl implements ChatService {
         return chats;
     }
 
+    @Override
+    public List<Tuple> getChatIdAndLastMessage() {
+        log.debug("Getting all private chats Id and Last Messages");
+        List<Tuple> tuples = null;
+        try {
+            tuples = chatRepository.getChatIdAndLastMessage();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return tuples;
+    }
 }
