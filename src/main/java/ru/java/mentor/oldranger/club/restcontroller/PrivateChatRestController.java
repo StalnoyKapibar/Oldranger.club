@@ -314,7 +314,13 @@ public class PrivateChatRestController {
             Long id = chat.getId();
             String lastMessage = chatLastMessage.getText();
             String firstName = anotherUser.getFirstName();
-            int unread = chatUnread.get(chat.getId());
+            int unread = 0;
+            try {
+              unread = chatUnread.get(chat.getId());
+            }
+            catch (NullPointerException e){
+                System.out.println("no unread private message");
+            }
             Long millis = chatLastMessage.getMessageDate().atZone(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();
             dtos.add(new PrivateChatDto(id, lastMessage, unread, firstName, ava, millis));
         }
