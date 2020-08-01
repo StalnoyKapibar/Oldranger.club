@@ -5,9 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ChatRepository.ChatRepository;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
+import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 
+import javax.persistence.Tuple;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,5 +100,18 @@ public class ChatServiceImpl implements ChatService {
             log.error(e.getMessage(), e);
         }
         return chats;
+    }
+
+    @Override
+    public HashMap<Long, Message> getChatIdAndLastMessage(List<Chat> chats) {
+        log.debug("Getting chat id and last message");
+        HashMap<Long, Message> map = null;
+        try {
+            map = chatRepository.getChatIdAndLastMessage(chats);
+            log.debug("Returned chat id and last message");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return map;
     }
 }

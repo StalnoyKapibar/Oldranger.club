@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,14 +17,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.PrivateChatDto;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
+import ru.java.mentor.oldranger.club.model.user.UserAvatar;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
@@ -31,12 +35,12 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import javax.persistence.Tuple;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -201,7 +205,7 @@ public class PrivateChatRestController {
         boolean isModer = securityUtilsService.isModerator() || securityUtilsService.isAdmin();
         boolean isSender = messageService.findMessage(id).getSender().equals(user.getNickName());
         if (!isSender || !isModer) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         messageService.deleteMessage(id);
         return ResponseEntity.ok().build();
@@ -270,13 +274,12 @@ public class PrivateChatRestController {
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/message/read/{id}", produces = {"application/json"})
     ResponseEntity<String> readMessage(@Parameter(description = "Message id", required = true)
-                                         @PathVariable Long id) {
+                                       @PathVariable Long id) {
 
         Message message;
         try {
             message = messageService.findMessage(id);
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
         User currentUser = securityUtilsService.getLoggedUser();
@@ -286,5 +289,35 @@ public class PrivateChatRestController {
         message.setRead(true);
         messageService.editMessage(message);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all private chats", description = "Get all private chats", tags = {"Private Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Private chat list",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "204", description = "chat not found")})
+    @GetMapping(value = "/allchats")
+    public ResponseEntity<List<PrivateChatDto>> getAllChatByLoggedUser(@AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) {
+            return ResponseEntity.noContent().build();
+        }
+        List<PrivateChatDto> dtos = new ArrayList<>();
+        List<Chat> chats = chatService.getAllPrivateChats(currentUser);
+        Collections.reverse(chats);
+        HashMap<Long, Message> chatAndLAstMessage = messageService.getAllChatsLastMessage(chats);
+        HashMap<Long, Integer> chatUnread = messageService.getChatIdAndUnreadMessage(chats);
+        for (Chat chat : chats) {
+            Message chatLastMessage = chatAndLAstMessage.get(chat.getId());
+            User anotherUser = chat.getUserList().stream().filter(u -> !u.equals(currentUser)).findFirst().get();
+            String ava = anotherUser.getAvatar().getSmall();
+            Long id = chat.getId();
+            String lastMessage = chatLastMessage.getText();
+            String firstName = anotherUser.getFirstName();
+            int unread = chatUnread.get(chat.getId());
+            Long millis = chatLastMessage.getMessageDate().atZone(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();
+            dtos.add(new PrivateChatDto(id, lastMessage, unread, firstName, ava, millis));
+        }
+        return ResponseEntity.ok(dtos);
     }
 }
