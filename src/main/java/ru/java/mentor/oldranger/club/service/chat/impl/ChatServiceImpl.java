@@ -10,6 +10,8 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 
 import javax.persistence.Tuple;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -108,6 +110,11 @@ public class ChatServiceImpl implements ChatService {
         HashMap<Long, Message> map = null;
         try {
             map = chatRepository.getChatIdAndLastMessage(chats);
+            for(Chat chat : chats){
+                if(map.get(chat.getId())==null){
+                    map.put(chat.getId(), new Message(0,"no messages",LocalDateTime.now()));
+                }
+            }
             log.debug("Returned chat id and last message");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
