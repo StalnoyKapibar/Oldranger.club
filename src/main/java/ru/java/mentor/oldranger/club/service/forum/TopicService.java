@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface TopicService {
 
+    Page<Topic> getAllTopicForUser(Pageable pageable);
+
     Topic createTopic(Topic topic);
 
     Topic editTopicByName(Topic topic);
@@ -61,4 +63,5 @@ public interface TopicService {
     List<IdAndNumberProjection> getNewMessagesCountForTopicsAndUser(List<Topic> topics, User user);
 
     List<TopicAndNewMessagesCountDto> getTopicsDto(List<Topic> topics);
+
 }

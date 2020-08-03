@@ -9,14 +9,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.dto.SubsectionDto;
+import ru.java.mentor.oldranger.club.dto.SubsectionPageDTO;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
@@ -137,17 +142,38 @@ public class SectionsAndSubsectionsRestController {
         return ResponseEntity.ok().build();
     }
 
+//    @Operation(security = @SecurityRequirement(name = "security"),
+//            summary = "Get a subsection by Id", tags = {"Sections and subsections"})
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    content = @Content(schema = @Schema(implementation = Subsection.class)))})
+//    @GetMapping(value = "/getsubsection/{subsectionId}", produces = {"application/json"})
+//    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
+//        Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
+//        if (subsection == null && subsection.getId() == null) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.ok(subsection);
+//    }
+
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get a subsection by Id", tags = {"Sections and subsections"})
+            summary = "Get a subsection by Id & get page", tags = {"Sections and subsections"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Subsection.class)))})
     @GetMapping(value = "/getsubsection/{subsectionId}", produces = {"application/json"})
-    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
+    public ResponseEntity<SubsectionPageDTO> getSubsectionPage(@PathVariable Long subsectionId,
+                                                                     @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
         Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
+        SubsectionPageDTO subsectionPageDTO = new SubsectionPageDTO();
         if (subsection == null && subsection.getId() == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(subsection);
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Subsection> articles = sectionsAndSubsectionsService.getAllSabsection(pageable);
+        subsectionPageDTO.setTopics(articles.getContent());
+        subsectionPageDTO.setTotalElements(articles.getTotalElements());
+
+        return ResponseEntity.ok(subsectionPageDTO);
     }
 }

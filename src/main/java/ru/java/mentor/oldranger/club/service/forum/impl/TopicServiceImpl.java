@@ -49,6 +49,19 @@ public class TopicServiceImpl implements TopicService {
     private CommentService commentService;
 
     @Override
+    public Page<Topic> getAllTopicForUser(Pageable pageable) {
+        log.debug("Getting page {} of topics", pageable.getPageNumber());
+        Page<Topic> page = null;
+        try {
+            page = topicRepository.findAll(pageable);
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
+    }
+
+    @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")
     public Topic createTopic(Topic topic) {
         log.info("Saving topic {}", topic);
@@ -348,4 +361,5 @@ public class TopicServiceImpl implements TopicService {
         }
         return dtos;
     }
+
 }

@@ -9,15 +9,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dto.PaginationTopicDTO;
 import ru.java.mentor.oldranger.club.dto.SectionsAndTopicsDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
-import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
-import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -81,6 +83,25 @@ public class SectionsAndTopicsRestController {
         } else {
             dtos = topicService.getTopicsDto(topicService.getActualTopicsLimit10());
         }
+        return ResponseEntity.ok(dtos);
+    }
+
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get PaginationTopicDTO list & TotalElements",
+            description = "Get actual topics pagination, limit topics in section: 10",
+            tags = {"Sections and topics"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndNewMessagesCountDto.class))))})
+    @GetMapping(value = "/actualTopicsPagination", produces = {"application/json"})
+    public ResponseEntity<PaginationTopicDTO> getMostPopularTopicsPagination(
+            @RequestParam(value = "page", required = false) Integer page) {
+        PaginationTopicDTO dtos = new PaginationTopicDTO();
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Topic> articles = topicService.getAllTopicForUser(pageable);
+        dtos.setTopics(articles.getContent());
+        dtos.setTotalElements(articles.getTotalElements());
         return ResponseEntity.ok(dtos);
     }
 

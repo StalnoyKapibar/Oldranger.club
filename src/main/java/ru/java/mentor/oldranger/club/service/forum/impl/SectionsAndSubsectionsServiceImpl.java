@@ -2,6 +2,8 @@ package ru.java.mentor.oldranger.club.service.forum.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ForumRepository.SectionRepository;
@@ -9,6 +11,7 @@ import ru.java.mentor.oldranger.club.dao.ForumRepository.SubsectionRepository;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
 
 import java.util.ArrayList;
@@ -98,6 +101,19 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
     public Subsection getSubsectionById(Long id) {
         Subsection subsection = subsectionRepository.findById(id).get();
         return subsection;
+    }
+
+    @Override
+    public Page<Subsection> getAllSabsection(Pageable pageable) {
+        log.debug("Getting page {} of Subsection", pageable.getPageNumber());
+        Page<Subsection> page = null;
+        try {
+            page = subsectionRepository.findAll(pageable);
+            log.debug("Page returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return page;
     }
 
     private List<SectionsAndSubsectionsDto> combineListOfSectionsAndSubsections(List<Section> sections, List<Subsection> subsections) {
