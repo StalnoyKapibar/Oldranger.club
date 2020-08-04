@@ -40,7 +40,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     default HashMap<Long, Message> getChatIdAndLastMessage(List<Chat> chats) {
         HashMap<Long, Message> map = new HashMap<>();
         List<Tuple> tuples = getChatIdAndLastMessageTuple();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         for (Tuple tuple : tuples) {
             map.put(Long.valueOf(String.valueOf(tuple.get("id_chat"))),
                     (new Message(Long.parseLong(String.valueOf(tuple.get("id_chat"))),
