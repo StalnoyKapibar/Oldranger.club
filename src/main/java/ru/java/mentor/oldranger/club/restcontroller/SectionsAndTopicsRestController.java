@@ -99,9 +99,9 @@ public class SectionsAndTopicsRestController {
             @RequestParam(value = "page", required = false) Integer page) {
         PaginationTopicDTO dtos = new PaginationTopicDTO();
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Topic> articles = topicService.getAllTopic(pageable);
-        dtos.setTopics(articles.getContent());
-        dtos.setTotalElements(articles.getTotalElements());
+        Page<Topic> topic = topicService.getAllTopic(pageable);
+        dtos.setTopics(topic.getContent());
+        dtos.setTotalElements(topic.getTotalElements());
         return ResponseEntity.ok(dtos);
     }
 
