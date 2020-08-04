@@ -20,5 +20,4 @@ public interface SectionsAndSubsectionsService {
 
     Subsection getSubsectionById(Long id);
 
-    Page<Subsection> getAllSabsection (Pageable pageable);
 }

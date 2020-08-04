@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,36 @@ public class SectionsAndSubsectionsRestController {
         }
 
         return ResponseEntity.ok(dtos);
+    }
+
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all SectionsAndSubsectionsDto Page", tags = {"Sections and subsections"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndSubsectionsDto.class))))})
+    @GetMapping(value = "/allsectionsandsubsectionsPage", produces = {"application/json"})
+    public ResponseEntity<SubsectionPageDTO> getSectionsAndSubsectionsDto(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
+        List<SectionsAndSubsectionsDto> dtos = null;
+        SubsectionPageDTO subsectionPageDTO = new SubsectionPageDTO();
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            dtos = sectionsAndSubsectionsService.getAllSectionsAndSubsectionsForAnon();
+        } else {
+            dtos = sectionsAndSubsectionsService.getAllSectionsAndSubsections();
+        }
+        Pageable(page, dtos, subsectionPageDTO);
+
+        return ResponseEntity.ok(subsectionPageDTO);
+    }
+
+    private void Pageable(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page, List<SectionsAndSubsectionsDto> dtos, SubsectionPageDTO subsectionPageDTO) {
+        Pageable pageable = PageRequest.of(page, 10);
+        long start = pageable.getOffset();
+        long end = (start + pageable.getPageSize()) > dtos.size() ? dtos.size() : (start + pageable.getPageSize());
+        Page<SectionsAndSubsectionsDto> pages = new PageImpl<>(dtos.subList((int) start, (int) end), pageable, dtos.size());
+        subsectionPageDTO.setTopics(pages.getContent());
+        subsectionPageDTO.setTotalElements(pages.getTotalElements());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -142,38 +173,17 @@ public class SectionsAndSubsectionsRestController {
         return ResponseEntity.ok().build();
     }
 
-//    @Operation(security = @SecurityRequirement(name = "security"),
-//            summary = "Get a subsection by Id", tags = {"Sections and subsections"})
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200",
-//                    content = @Content(schema = @Schema(implementation = Subsection.class)))})
-//    @GetMapping(value = "/getsubsection/{subsectionId}", produces = {"application/json"})
-//    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
-//        Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
-//        if (subsection == null && subsection.getId() == null) {
-//            return ResponseEntity.noContent().build();
-//        }
-//        return ResponseEntity.ok(subsection);
-//    }
-
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Get a subsection by Id & get page", tags = {"Sections and subsections"})
+            summary = "Get a subsection by Id", tags = {"Sections and subsections"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = Subsection.class)))})
     @GetMapping(value = "/getsubsection/{subsectionId}", produces = {"application/json"})
-    public ResponseEntity<SubsectionPageDTO> getSubsectionPage(@PathVariable Long subsectionId,
-                                                                     @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
+    public ResponseEntity<Subsection> getSubsectionById(@PathVariable Long subsectionId) {
         Subsection subsection = sectionsAndSubsectionsService.getSubsectionById(subsectionId);
-        SubsectionPageDTO subsectionPageDTO = new SubsectionPageDTO();
         if (subsection == null && subsection.getId() == null) {
             return ResponseEntity.noContent().build();
         }
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Subsection> articles = sectionsAndSubsectionsService.getAllSabsection(pageable);
-        subsectionPageDTO.setTopics(articles.getContent());
-        subsectionPageDTO.setTotalElements(articles.getTotalElements());
-
-        return ResponseEntity.ok(subsectionPageDTO);
+        return ResponseEntity.ok(subsection);
     }
 }

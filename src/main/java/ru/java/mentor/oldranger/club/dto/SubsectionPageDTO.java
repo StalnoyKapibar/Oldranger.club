@@ -11,6 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubsectionPageDTO {
-    private List<Subsection> topics;
+    private List<SectionsAndSubsectionsDto> topics;
     private Long totalElements;
 }

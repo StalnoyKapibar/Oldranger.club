@@ -49,7 +49,7 @@ public class TopicServiceImpl implements TopicService {
     private CommentService commentService;
 
     @Override
-    public Page<Topic> getAllTopicForUser(Pageable pageable) {
+    public Page<Topic> getAllTopic(Pageable pageable) {
         log.debug("Getting page {} of topics", pageable.getPageNumber());
         Page<Topic> page = null;
         try {

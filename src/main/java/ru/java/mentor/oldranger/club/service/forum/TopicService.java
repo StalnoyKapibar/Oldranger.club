@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface TopicService {
 
-    Page<Topic> getAllTopicForUser(Pageable pageable);
+    Page<Topic> getAllTopic(Pageable pageable);
 
     Topic createTopic(Topic topic);
 

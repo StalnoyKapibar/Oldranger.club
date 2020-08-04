@@ -103,19 +103,6 @@ public class SectionsAndSubsectionsServiceImpl implements SectionsAndSubsections
         return subsection;
     }
 
-    @Override
-    public Page<Subsection> getAllSabsection(Pageable pageable) {
-        log.debug("Getting page {} of Subsection", pageable.getPageNumber());
-        Page<Subsection> page = null;
-        try {
-            page = subsectionRepository.findAll(pageable);
-            log.debug("Page returned");
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return page;
-    }
-
     private List<SectionsAndSubsectionsDto> combineListOfSectionsAndSubsections(List<Section> sections, List<Subsection> subsections) {
         log.debug("Combining list of sections and subsections");
         List<SectionsAndSubsectionsDto> dtos = new ArrayList<>();
