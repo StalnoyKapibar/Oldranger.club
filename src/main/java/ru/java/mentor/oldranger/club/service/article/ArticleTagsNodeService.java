@@ -19,5 +19,7 @@ public interface ArticleTagsNodeService {
 
     void deleteById(Long id);
 
+    ArticleTagsNode saveAll(List<ArticleTagsNode> tagsNode);
+
     Set<ArticleTag> findArticleTagSetByListTagsNodeId(List<Long> tagsNodeId);
  }
