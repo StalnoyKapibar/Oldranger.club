@@ -82,7 +82,7 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
 
     @Override
     public ArticleTagsNode saveAll(List<ArticleTagsNode> tagsNode) {
-        for(ArticleTagsNode a : tagsNode) {
+        for (ArticleTagsNode a : tagsNode) {
             log.info("Saving node {} or editing node by id = {}", a, a.getId());
         }
         ArticleTagsNode savedTagsNode = null;

@@ -166,7 +166,7 @@ public class ArticleTagsNodeRestController {
             @ApiResponse(responseCode = "400", description = "Error editing node"),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/updateAll", produces = {"application/json"})
-    public ResponseEntity<List<ArticleTagsNode>> updateTreeAll(@RequestBody ArticleTagsNodeDto[] articleTagsNodeDtos) {
+    public ResponseEntity<List<ArticleTagsNode>> updateTreeAll(@RequestBody List<ArticleTagsNodeDto> articleTagsNodeDtos) {
 
         if (!securityUtilsService.isAdmin()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
