@@ -81,6 +81,21 @@ public class ArticleTagsNodeServiceImp implements ArticleTagsNodeService {
     }
 
     @Override
+    public ArticleTagsNode saveAll(List<ArticleTagsNode> tagsNode) {
+        for (ArticleTagsNode a : tagsNode) {
+            log.info("Saving node {} or editing node by id = {}", a, a.getId());
+        }
+        ArticleTagsNode savedTagsNode = null;
+        try {
+            savedTagsNode = (ArticleTagsNode) tagsNodeRepository.saveAll(tagsNode);
+            log.debug("Tree saved or updated");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return savedTagsNode;
+    }
+
+    @Override
     @CacheEvict
     public void deleteById(Long id) {
         log.info("Deleting node with id = {}", id);

@@ -19,6 +19,7 @@ import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -155,6 +156,42 @@ public class ArticleTagsNodeRestController {
         tagsNodeForUpdate.setTag(tag);
         tagsNodeService.save(tagsNodeForUpdate);
         return ResponseEntity.ok(tagsNodeForUpdate);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = " Save tree position", tags = {"Article TagsNode"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
+            @ApiResponse(responseCode = "400", description = "Error editing node"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PutMapping(value = "/updateAll", produces = {"application/json"})
+    public ResponseEntity<List<ArticleTagsNode>> updateTreeAll(@RequestBody List<ArticleTagsNodeDto> articleTagsNodeDtos) {
+
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<ArticleTagsNode> articleTagsNodesList = new ArrayList<>();
+        for (ArticleTagsNodeDto a : articleTagsNodeDtos) {
+
+            ArticleTagsNode tagsNodeForUpdate = tagsNodeService.findById(a.getId());
+            if (tagsNodeForUpdate == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (a.getId().equals(a.getParentId())) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (a.getParentId() != null) {
+                ArticleTagsNode parentTagsNode = tagsNodeService.findById(a.getParentId());
+                tagsNodeForUpdate.setParent(parentTagsNode);
+            }
+            tagsNodeForUpdate.setPosition(a.getPosition());
+            ArticleTag tag = tagsNodeForUpdate.getTag();
+            tagsNodeForUpdate.setTag(tag);
+            articleTagsNodesList.add(tagsNodeForUpdate);
+        }
+        tagsNodeService.saveAll(articleTagsNodesList);
+        return ResponseEntity.ok(articleTagsNodesList);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
