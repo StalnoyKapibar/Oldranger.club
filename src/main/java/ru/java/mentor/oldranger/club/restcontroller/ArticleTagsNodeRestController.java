@@ -184,6 +184,8 @@ public class ArticleTagsNodeRestController {
             if (a.getParentId() != null) {
                 ArticleTagsNode parentTagsNode = tagsNodeService.findById(a.getParentId());
                 tagsNodeForUpdate.setParent(parentTagsNode);
+            } else {
+                tagsNodeForUpdate.setParent(null);
             }
             tagsNodeForUpdate.setPosition(a.getPosition());
             ArticleTag tag = tagsNodeForUpdate.getTag();
