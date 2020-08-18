@@ -41,10 +41,10 @@ class CommentServiceImplTest {
     @Mock
     private PhotoService photoService = Mockito.mock(PhotoService.class);
 
-    @BeforeEach
-    void initSomeCase() {
-        commentServiceImpl = new CommentServiceImpl(commentRepository, userStatisticService, topicService, photoService, imageCommentService);
-    }
+//    @BeforeEach
+//    void initSomeCase() {
+//        commentServiceImpl = new CommentServiceImpl(commentRepository, userStatisticService, topicService, photoService, imageCommentService);
+//    }
 
     @Test
     public void createComment() {
