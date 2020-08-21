@@ -122,7 +122,7 @@ public class SectionsAndTopicsRestController {
         albumService.save(photoAlbumForTopic);
 
         for (MultipartFile file : photos) {
-            photoService.save(photoAlbum, file, 0);
+            photoService.save(photoAlbumForTopic, file, 0);
         }
 
         topic.setName(topicDetails.getName());
