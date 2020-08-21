@@ -113,8 +113,13 @@ public class SectionsAndTopicsRestController {
         Topic topic = new Topic();
         PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topicDetails.getName());
         photoAlbum.setMedia(mediaService.findMediaByUser(user));
-        photoAlbum.setAllowView(true);
+        photoAlbum.setAllowView(false);
         albumService.save(photoAlbum);
+
+        PhotoAlbum photoAlbumForTopic = new PhotoAlbum("PhotoAlbumForTopic by " + topicDetails.getName());
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(false);
+        albumService.save(photoAlbumForTopic);
 
         for (MultipartFile file : photos) {
             photoService.save(photoAlbum, file, 0);
@@ -126,7 +131,7 @@ public class SectionsAndTopicsRestController {
         topic.setLastMessageTime(LocalDateTime.now());
         topic.setSubsection(topicDetails.getSubsection());
         topic.setStartMessage(topicDetails.getStartMessage());
-        topic.setPhotoAlbum(photoAlbum);
+        topic.setPhotoAlbumForTopic(photoAlbumForTopic);
 
         topic.setHideToAnon(topicDetails.isHideToAnon() || topic.getSubsection().isHideToAnon());
         topic.setForbidComment(false);
