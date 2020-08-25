@@ -70,7 +70,7 @@ public class DataInitializer implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataInitializer(RoleService roleService,
+    public DataInitializer(@Lazy RoleService roleService,
                            UserService userService,
                            SectionService sectionService,
                            SubsectionService subsectionService,

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.hibernate.id.IncrementGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
@@ -41,6 +43,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @AllArgsConstructor
@@ -57,7 +60,9 @@ public class CommentAndTopicRestController {
     private final PhotoAlbumService photoAlbumService;
     private final PhotoService photoService;
     private final FilterHtmlService filterHtmlService;
+    private MediaService mediaService;
     private WritingBanService writingBanService;
+    private PhotoAlbumService albumService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
@@ -158,7 +163,12 @@ public class CommentAndTopicRestController {
             comment = new Comment(topic, user, null, localDateTime, cleanedText);
         }
         commentService.createComment(comment);
-        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
+
+        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topic.getName());
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(false);
+        albumService.save(photoAlbum);
+
         if (image1 != null) {
             photoService.save(photoAlbum, image1
                     , comment.getId().toString());

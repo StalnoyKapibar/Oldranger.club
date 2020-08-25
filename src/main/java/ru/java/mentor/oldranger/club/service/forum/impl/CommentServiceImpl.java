@@ -1,10 +1,10 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,8 +33,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Service
 public class CommentServiceImpl implements CommentService {
 
@@ -44,9 +42,15 @@ public class CommentServiceImpl implements CommentService {
     private PhotoService photoService;
     private ImageCommnetService imageCommnetService;
 
+
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository) {
+    @Lazy
+    public CommentServiceImpl( CommentRepository commentRepository, UserStatisticService userStatisticService, TopicService topicService, PhotoService photoService, ImageCommnetService imageCommnetService) {
         this.commentRepository = commentRepository;
+        this.userStatisticService = userStatisticService;
+        this.topicService = topicService;
+        this.photoService = photoService;
+        this.imageCommnetService = imageCommnetService;
     }
 
     @Override

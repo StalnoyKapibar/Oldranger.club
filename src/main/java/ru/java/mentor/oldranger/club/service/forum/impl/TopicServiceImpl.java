@@ -1,11 +1,12 @@
 package ru.java.mentor.oldranger.club.service.forum.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 @CacheConfig(cacheNames = {"topic"}, cacheManager = "generalCacheManager")
 public class TopicServiceImpl implements TopicService {
 
@@ -47,6 +47,18 @@ public class TopicServiceImpl implements TopicService {
     private PhotoAlbumService albumService;
     private PhotoService photoService;
     private CommentService commentService;
+
+    @Autowired
+    @Lazy
+    public TopicServiceImpl(TopicRepository topicRepository, UserStatisticService userStatisticService, SecurityUtilsService securityUtilsService, TopicVisitAndSubscriptionService topicVisitAndSubscriptionService, PhotoAlbumService albumService, PhotoService photoService, CommentService commentService) {
+        this.topicRepository = topicRepository;
+        this.userStatisticService = userStatisticService;
+        this.securityUtilsService = securityUtilsService;
+        this.topicVisitAndSubscriptionService = topicVisitAndSubscriptionService;
+        this.albumService = albumService;
+        this.photoService = photoService;
+        this.commentService = commentService;
+    }
 
     @Override
     @CachePut(key = "#topic.id", condition = "#topic.id!=null")

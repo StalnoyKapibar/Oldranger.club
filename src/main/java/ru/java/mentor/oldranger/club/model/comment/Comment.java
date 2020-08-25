@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment extends BaseComment{
+public class Comment extends BaseComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")

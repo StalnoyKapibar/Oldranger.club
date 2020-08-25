@@ -57,6 +57,17 @@ public class Topic {
     @OneToOne(fetch = FetchType.LAZY)
     private PhotoAlbum photoAlbum;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private PhotoAlbum photoAlbumForTopic;
+
+    public PhotoAlbum getPhotoAlbumForTopic() {
+        return photoAlbumForTopic;
+    }
+
+    public void setPhotoAlbumForTopic(PhotoAlbum photoAlbumForTopic) {
+        this.photoAlbumForTopic = photoAlbumForTopic;
+    }
+
     public PhotoAlbum getPhotoAlbum() {
         return photoAlbum;
     }
@@ -115,6 +126,21 @@ public class Topic {
         this.startMessage = startMessage;
         this.isForbidComment = isForbidComment;
         this.photoAlbum = photoAlbum;
+    }
+
+    public Topic(String name, User topicStarter, LocalDateTime startTime, String startMessage
+            , LocalDateTime lastMessageTime, Subsection subsection, boolean isHideToAnon
+            , boolean isForbidComment, PhotoAlbum photoAlbum, PhotoAlbum photoAlbumForTopic) {
+        this.name = name;
+        this.topicStarter = topicStarter;
+        this.startTime = startTime;
+        this.lastMessageTime = lastMessageTime;
+        this.subsection = subsection;
+        this.isHideToAnon = isHideToAnon;
+        this.startMessage = startMessage;
+        this.isForbidComment = isForbidComment;
+        this.photoAlbum = photoAlbum;
+        this.photoAlbumForTopic = photoAlbumForTopic;
     }
 
     public Section getSection() {
