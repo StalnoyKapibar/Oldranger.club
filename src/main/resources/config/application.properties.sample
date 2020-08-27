@@ -3,7 +3,7 @@
 
 # Если вы делаете изменения в конфигурации для проекта то добавляйте их в sample
 server.protocol=http
-server.name=localhost
+server.name=oldranger.club
 server.port=8888
 client.port=3000
 server.tomcat.remote-ip-header=X-Forwarded-For
