@@ -63,7 +63,7 @@ public class Message {
     @JoinColumn(name = "id_chat")
     private Chat chat;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "message_date")
     private LocalDateTime messageDate;
 
