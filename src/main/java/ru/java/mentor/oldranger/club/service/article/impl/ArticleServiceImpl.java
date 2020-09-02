@@ -2,20 +2,19 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
+import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
+import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
@@ -38,15 +37,18 @@ public class ArticleServiceImpl implements ArticleService {
     private UserStatisticService userStatisticService;
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
     }
 
     @Override
-    @Cacheable(cacheNames = {"allArticle"}, keyGenerator = "customKeyGenerator")
     public Page<Article> getAllByTag(Set<ArticleTag> tagId, Pageable pageable) {
         return articleRepository.findDistinctByDraftIsFalseAndArticleTagsIn(tagId, pageable);
+    }
+
+    @Override
+    public Page<Article> getAllByTitle(String title, Pageable pageable) {
+        return articleRepository.findAllByTitle(title, pageable);
     }
 
     @Override
@@ -66,12 +68,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "alllArticle", allEntries = true)})
-    public void addArticle(Article article) {
-        articleRepository.save(article);
+    @CachePut(key = "#article.id", condition = "#article.id!=null")
+    public Article addArticle(Article article) {
+        return articleRepository.save(article);
     }
 
     @Override
+    @CacheEvict(key = "#articleComment.article.id")
     public void addCommentToArticle(ArticleComment articleComment) {
         Article article = articleComment.getArticle();
         long comments = article.getCommentCount();
@@ -79,8 +82,6 @@ public class ArticleServiceImpl implements ArticleService {
         article.setCommentCount(comments);
         articleCommentRepository.save(articleComment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(articleComment.getUser());
-        comments = userStatistic.getMessageCount();
-        userStatistic.setMessageCount(++comments);
         userStatistic.setLastComment(articleComment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
     }
@@ -92,47 +93,65 @@ public class ArticleServiceImpl implements ArticleService {
         LocalDateTime replyTime = null;
         String replyNick = null;
         String replyText = null;
+        Long parentId = -1L;
         if (articleComment.getAnswerTo() != null) {
             replyTime = articleComment.getAnswerTo().getDateTime();
             replyNick = articleComment.getAnswerTo().getUser().getNickName();
             replyText = articleComment.getAnswerTo().getCommentText();
+            parentId = articleComment.getAnswerTo().getId();
         }
 
         articleCommentDto = new ArticleCommentDto(
                 articleComment.getPosition(),
+                articleComment.getId(),
                 articleComment.getArticle().getId(),
                 articleComment.getUser(),
                 articleComment.getDateTime(),
-                userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount(),
-                replyTime, replyNick, replyText,
-                articleComment.getCommentText());
-
+                replyTime, parentId, replyNick, replyText,
+                articleComment.getCommentText(),
+                articleComment.isDeleted());
         return articleCommentDto;
     }
 
     @Override
+    public ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticles) {
+        ArticleListAndCountArticlesDto articleListDto = new ArticleListAndCountArticlesDto(articles, countArticles);
+        return articleListDto;
+    }
+
+    @Override
+    @Cacheable(value = "articleComment")
     public ArticleComment getCommentById(Long id) {
         Optional<ArticleComment> comment = articleCommentRepository.findById(id);
         return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
     }
 
     @Override
-    public void updateArticleComment(ArticleComment articleComment) {
-        articleCommentRepository.save(articleComment);
+    @CachePut(value = "articleComment", key = "#articleComment.id")
+    public ArticleComment updateArticleComment(ArticleComment articleComment) {
+        return articleCommentRepository.save(articleComment);
     }
 
     @Override
+    @CacheEvict(value = "articleComment")
     public void deleteComment(Long id) {
         articleCommentRepository.deleteById(id);
     }
 
     @Override
-    public Page<ArticleCommentDto> getAllByArticle(Article article, Pageable pageable) {
-        log.debug("Getting page {} of comment dtos for article with id = {}", pageable.getPageNumber(), article.getId());
-        Page<ArticleCommentDto> articleCommentDto = null;
+    public List<ArticleCommentDto> getAllByArticle(Article article) {
+        log.debug("Getting list of comment dtos for article with id = {}", article.getId());
+        List<ArticleCommentDto> articleCommentDto = null;
         List<ArticleComment> articleComments = new ArrayList<>();
         try {
-            articleCommentRepository.findByArticle(article, pageable).map(articleComments::add);
+            articleComments = articleCommentRepository.findByArticle(article);
+            for (ArticleComment comment : articleComments) {
+                if (comment.isDeleted()
+                        && comment.getCommentText().equals("Комментарий был удален")
+                        && getChildComment(comment).isEmpty()) {
+                    deleteComment(comment.getId());
+                }
+            }
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
@@ -140,7 +159,7 @@ public class ArticleServiceImpl implements ArticleService {
             } else {
                 list = Collections.emptyList();
             }
-            articleCommentDto = new PageImpl<>(list, pageable, list.size());
+            articleCommentDto = list;
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -149,16 +168,21 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "article", allEntries = true), @CacheEvict(value = "allArticle", allEntries = true)})
+    @CacheEvict(allEntries = true)
     public void deleteArticles(List<Long> ids) {
         articleRepository.deleteAllByIdIn(ids);
     }
 
+    @Override
+    public List<ArticleComment> getChildComment(ArticleComment comment) {
+        log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
+        List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
+        return childComment;
+    }
 }

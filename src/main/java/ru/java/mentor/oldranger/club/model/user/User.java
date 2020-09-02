@@ -6,13 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.java.mentor.oldranger.club.model.utils.BanType;
+import ru.java.mentor.oldranger.club.model.utils.WritingBan;
 import ru.java.mentor.oldranger.club.service.utils.impl.BlackListServiceImpl;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -60,6 +60,8 @@ public class User implements UserDetails{
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private PasswordRecoveryToken passwordRecoveryToken;
 
+    @ElementCollection
+    private List<String> mute = new ArrayList<>();
 
     public User(String firstName, String lastName, String email, String nickName, Role role) {
         this.firstName = firstName;

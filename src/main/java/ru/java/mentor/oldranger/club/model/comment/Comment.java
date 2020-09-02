@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment extends BaseComment{
+public class Comment extends BaseComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")
@@ -26,8 +26,14 @@ public class Comment extends BaseComment{
     @JoinColumn(name = "id_comment")
     private Comment answerTo;
 
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @Transient
     private boolean pozition;
+
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
 
     public Comment(Topic topic, User user, Comment answerTo, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);
@@ -43,8 +49,10 @@ public class Comment extends BaseComment{
                 ", user=" + getUser() +
                 ", answerTo=" + ((answerTo == null) ? "NULL" : answerTo) +
                 ", dateTime=" + this.getDateTime() +
+                ", updateTime=" + this.getUpdateTime() +
                 ", commentText='" + this.getCommentText() + '\'' +
                 ", pozition=" + pozition +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 }

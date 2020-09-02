@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,12 +30,12 @@ public class UserAuthCurrentRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = UserAuthDTO.class))),
-            @ApiResponse(responseCode = "204", description = "User is not logged in")})
+            @ApiResponse(responseCode = "401", description = "User is not logged in")})
     @GetMapping(value = "/currentUser", produces = {"application/json"})
     public ResponseEntity<UserAuthDTO> getCurrentUser() {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         UserAuthDTO dto = userService.buildUserDtoByUser(currentUser, securityUtilsService.isLoggedUserIsUser());
         return ResponseEntity.ok(dto);

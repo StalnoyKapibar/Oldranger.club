@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
 import java.util.Base64;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/token")
@@ -34,12 +36,18 @@ import java.util.Base64;
 public class TokenRestController {
 
 
-    @NonNull private InvitationService invitationService;
-    @NonNull private UserService userService;
-    @NonNull private MailService mailService;
-    @NonNull private SecurityUtilsService securityUtilsService;
-    @NonNull private PasswordEncoder passwordEncoder;
-    @NonNull private PasswordsService passwordsService;
+    @NonNull
+    private InvitationService invitationService;
+    @NonNull
+    private UserService userService;
+    @NonNull
+    private MailService mailService;
+    @NonNull
+    private SecurityUtilsService securityUtilsService;
+    @NonNull
+    private PasswordEncoder passwordEncoder;
+    @NonNull
+    private PasswordsService passwordsService;
 
     @Value("${server.protocol}")
     private String protocol;
@@ -51,7 +59,6 @@ public class TokenRestController {
     private String port;
 
 
-
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save invitation token", tags = {"Registration token"})
     @ApiResponses(value = {
@@ -61,13 +68,12 @@ public class TokenRestController {
     @PostMapping(value = "/invite", produces = {"application/json"})
     public ResponseEntity<String> saveInvitationToken() {
         User user = securityUtilsService.getLoggedUser();
-        User newInviteUser = new User();
-        newInviteUser.setEmail("null");
-        newInviteUser.setNickName("null");
-
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+        User newInviteUser = new User();
+        newInviteUser.setEmail("null");
+        newInviteUser.setNickName("null");
 
         String key = invitationService.getCurrentKey(user);
         if (key == null) {
@@ -100,7 +106,7 @@ public class TokenRestController {
         newInviteUser.setEmail(mail);
         newInviteUser.setInvite(key);
         userService.save(newInviteUser);
-        String link = protocol + "://" + host + ":" + port + "/invite?key=" + key;
+        String link = protocol + "://" + host + "/invite?key=" + key;
         InvitationToken invitationToken = new InvitationToken(key, user, mail);
         String status = mailService.sendHtmlEmail(mail, user.getFirstName(), "letterToInvite.html", link);
         invitationService.markInviteOnMailAsUsed(mail);
@@ -125,13 +131,14 @@ public class TokenRestController {
         try {
             passwordsService.checkStrength(registrationUserDto.getPassword());
         } catch (PasswordException e) {
-            return ResponseEntity.badRequest().build();
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         registrationUserDto.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         String key = Base64.getEncoder().encodeToString(registrationUserDto.toString().getBytes());
 
         String mail = registrationUserDto.getEmail();
-        String link = protocol + "://" + host + ":" + port + "/registration-accept?key=" + key;
+        String link = protocol + "://" + host + "/registration-accept?key=" + key;
 
         String status = mailService.sendHtmlEmail(mail, registrationUserDto.getNickName(), "letterToConfirm.html", link);
 

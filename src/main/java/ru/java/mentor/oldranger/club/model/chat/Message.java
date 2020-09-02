@@ -30,6 +30,15 @@ public class Message {
     @Column(name = "img_thumbnail")
     private String thumbnailImg;
 
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "is_Reading")
+    private boolean isRead;
+
+    @Column(name = "file_location")
+    private String filePath;
+
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private MessageType type;
@@ -54,10 +63,16 @@ public class Message {
     @JoinColumn(name = "id_chat")
     private Chat chat;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd MMMM HH:mm", locale = "RU")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "message_date")
     private LocalDateTime messageDate;
 
     @Column(name = "edit_message_date")
     private LocalDateTime editMessageDate;
+
+    public Message(long id, String text, LocalDateTime time){
+        this.id = id;
+        this.text = text;
+        this. messageDate = time;
+    }
 }

@@ -12,15 +12,21 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import ru.java.mentor.oldranger.club.dto.RequestRegistrationDto;
+import ru.java.mentor.oldranger.club.model.user.Role;
+import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.EmailDraft;
 import ru.java.mentor.oldranger.club.service.mail.MailService;
+import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -35,6 +41,8 @@ public class MailServiceImpl implements MailService {
 
     @Value("${spring.mail.username}")
     private String username;
+    @NonNull
+    private UserService userService;
 
     @Override
     public void send(String to, String subject, String message) {
@@ -120,6 +128,39 @@ public class MailServiceImpl implements MailService {
             mailSender.send(mimeMessage);
         } catch (MailSendException | MessagingException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String sendMessageByRoles(List<Role> roles, RequestRegistrationDto registrationUserDto) {
+        log.debug("Sending html email message to users with different roles");
+        List<User> users = userService.findAll();
+        List<String> mailList = new ArrayList<>();
+        for (Role role : roles) {
+            users.stream().filter(user -> user.getRole().equals(role)).forEach(user -> mailList.add(user.getEmail()));
+        }
+        try {
+            for (String mail : mailList) {
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+                Context context = new Context();
+                context.setVariable("firstName", registrationUserDto.getFirstName());
+                context.setVariable("lastName", registrationUserDto.getLastName());
+                context.setVariable("email", registrationUserDto.getEmail());
+                context.setVariable("about", registrationUserDto.getAbout());
+
+                String htmlContent = this.templateEngine.process("registerNewUser.html", context);
+
+                helper.setTo(mail);
+                helper.setText(htmlContent, true);
+                helper.setFrom(registrationUserDto.getEmail());
+                mailSender.send(mimeMessage);
+            }
+            log.debug("Messages sent");
+            return "1";
+        } catch (MailSendException | MessagingException e) {
+            e.printStackTrace();
+            return "0";
         }
     }
 }

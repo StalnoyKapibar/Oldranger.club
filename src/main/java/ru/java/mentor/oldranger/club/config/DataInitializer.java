@@ -19,6 +19,7 @@ import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
 import ru.java.mentor.oldranger.club.model.mail.Direction;
 import ru.java.mentor.oldranger.club.model.mail.DirectionType;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
+import ru.java.mentor.oldranger.club.model.user.InvitationToken;
 import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.utils.BanType;
@@ -31,6 +32,7 @@ import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.forum.*;
 import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.user.InvitationService;
 import ru.java.mentor.oldranger.club.service.user.RoleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.BlackListService;
@@ -61,13 +63,14 @@ public class DataInitializer implements CommandLineRunner {
     private ArticleService articleService;
     private MediaService mediaService;
     private PhotoAlbumService albumService;
+    private InvitationService invitationService;
 
     @Autowired
     @Lazy
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataInitializer(RoleService roleService,
+    public DataInitializer(@Lazy RoleService roleService,
                            UserService userService,
                            SectionService sectionService,
                            SubsectionService subsectionService,
@@ -82,7 +85,8 @@ public class DataInitializer implements CommandLineRunner {
                            ArticleTagsNodeService articleTagsNodeService,
                            ArticleService articleService,
                            MediaService mediaService,
-                           PhotoAlbumService albumService) {
+                           PhotoAlbumService albumService,
+                           InvitationService invitationService) {
         this.roleService = roleService;
         this.userService = userService;
         this.sectionService = sectionService;
@@ -99,6 +103,7 @@ public class DataInitializer implements CommandLineRunner {
         this.articleService = articleService;
         this.mediaService = mediaService;
         this.albumService = albumService;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -135,6 +140,76 @@ public class DataInitializer implements CommandLineRunner {
         userService.save(user);
         userService.save(unverified);
 
+        // Создаем пользователей, которые зарегистрировались по приглашениям
+        //1.Создаём ползователя, который раздает приглашения
+        User invitingUser = new User("invitingUser", "invitingUser", "invitingUser@javamentor.com", "invitingUser", roleUser);
+        invitingUser.setRegDate(LocalDateTime.of(2020, 2, 20, 11, 10, 35));
+        invitingUser.setPassword(passwordEncoder.encode("invitingUser"));
+        userService.save(invitingUser);
+        //2. Создаем токен приглашения
+        String keyOne = invitationService.generateKey();
+        InvitationToken invitationToken = new InvitationToken(keyOne, invitingUser);
+
+        //3. Создаём приглашённого пользователя по токену
+        //3.1 Создаём 1-го приглашенного юзера
+        User newInviteUserOne = new User();
+        newInviteUserOne.setEmail("inviteOne@javamentor.com");
+        newInviteUserOne.setNickName("inviteOne");
+        newInviteUserOne.setFirstName("inviteOneF");
+        newInviteUserOne.setLastName("inviteOneL");
+        newInviteUserOne.setPassword(passwordEncoder.encode("One"));
+        newInviteUserOne.setRegDate(LocalDateTime.now());
+        newInviteUserOne.setInvite(keyOne);
+        newInviteUserOne.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(newInviteUserOne);
+
+        invitationToken.setVisitor(newInviteUserOne);
+        invitationToken.setMail(newInviteUserOne.getEmail());
+        invitationToken.setUsed(true);
+        invitationService.save(invitationToken);
+
+        //3.2 Создаём 2-го приглашенного юзера
+        String keyTwo = invitationService.generateKey();
+        InvitationToken invitationTokenTwo = new InvitationToken(keyTwo, invitingUser);
+
+        User newInviteUserTwo = new User();
+        newInviteUserTwo.setEmail("inviteTwo@javamentor.com");
+        newInviteUserTwo.setNickName("inviteTwo");
+        newInviteUserTwo.setFirstName("inviteTwoF");
+        newInviteUserTwo.setLastName("inviteTwoL");
+        newInviteUserTwo.setPassword(passwordEncoder.encode("Two"));
+        newInviteUserTwo.setRegDate(LocalDateTime.now());
+        newInviteUserTwo.setInvite(keyTwo);
+        newInviteUserTwo.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(newInviteUserTwo);
+
+        invitationTokenTwo.setVisitor(newInviteUserTwo);
+        invitationTokenTwo.setMail(newInviteUserTwo.getEmail());
+        invitationTokenTwo.setUsed(true);
+        invitationService.save(invitationTokenTwo);
+
+        //4. Создаём приглашённого пользователя по email
+        //4.1. Создаём 1-го приглашённого пользователя по email
+        String emailThree = "inviteOneByEmail@javamentor.com";
+        User inviteUserThreeByEmail = new User();
+        String keyEmailOne = invitationService.generateMD5Key(emailThree);
+        InvitationToken invitationTokenByEmail = new InvitationToken(keyEmailOne, invitingUser, emailThree);
+
+        inviteUserThreeByEmail.setNickName("inviteThreeByEmail");
+        inviteUserThreeByEmail.setEmail(emailThree);
+        inviteUserThreeByEmail.setFirstName("inviteThreeByEmailF");
+        inviteUserThreeByEmail.setLastName("inviteThreeByEmailL");
+        inviteUserThreeByEmail.setPassword(passwordEncoder.encode("ThreeEmail"));
+        inviteUserThreeByEmail.setRegDate(LocalDateTime.now());
+        inviteUserThreeByEmail.setInvite(keyEmailOne);
+        inviteUserThreeByEmail.setRole(roleService.getRoleByAuthority("ROLE_PROSPECT"));
+        userService.save(inviteUserThreeByEmail);
+
+        invitationTokenByEmail.setVisitor(inviteUserThreeByEmail);
+        invitationTokenByEmail.setMail(inviteUserThreeByEmail.getEmail());
+        invitationTokenByEmail.setUsed(true);
+        invitationService.save(invitationTokenByEmail);
+
         // Общий чат
         Chat chat = new Chat();
         PhotoAlbum photoAlbum = new PhotoAlbum("Альбом общего чата");
@@ -156,11 +231,11 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         //Добавляем User в чёрный список
-        BlackList blackList = new BlackList(user, null);
+        BlackList blackList = new BlackList(user, LocalDateTime.of(2020, 11, 28, 19, 10, 0));
         blackListService.save(blackList);
 
         //Запрещаем пользователью отправлять личные сообщения
-        writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2019, 11, 28, 19, 10, 0)));
+        writingBanService.save(new WritingBan(user, BanType.ON_CHAT, LocalDateTime.of(2020, 11, 28, 19, 10, 0)));
 
         User andrew = new User("Andrew", "Ko", "kurgunu@gmail.com", "Andrew", roleUser);
         andrew.setPassword(passwordEncoder.encode("developer"));
@@ -178,38 +253,38 @@ public class DataInitializer implements CommandLineRunner {
         // Создание подсекций
         Subsection subsection = new Subsection("Общая подсекция в секции для всех", 1, sectionForUnverified, false);
         Subsection subsection2 = new Subsection("Подсекция для пользователей в секции для всех", 2, sectionForUnverified, true);
-        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, false);
+        Subsection subsection3 = new Subsection("Общая подсекция в секции для пользователей", 1, sectionForUsers, true);
         Subsection subsection4 = new Subsection("Подсекция для пользователей в секции для пользователей", 2, sectionForUsers, true);
         subsectionService.createSubsection(subsection);
         subsectionService.createSubsection(subsection2);
         subsectionService.createSubsection(subsection3);
         subsectionService.createSubsection(subsection4);
 
-        Topic topic = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
-        PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic.getName());
+        Topic topic1 = new Topic("Первый топик для всех в общей секции", admin, startTime, lastMessage, subsection, false, false);
+        PhotoAlbum photoAlbum1 = new PhotoAlbum("PhotoAlbum by " + topic1.getName(), topic1);
         photoAlbum1.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic2 = new Topic("Второй топик для зарегистрированных пользователей в общей секции", user, startTime, lastMessage, subsection, true, false);
-        PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName());
+        PhotoAlbum photoAlbum2 = new PhotoAlbum("PhotoAlbum by " + topic2.getName(), topic2);
         photoAlbum2.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, false, false);
-        PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName());
+        Topic topic3 = new Topic("Третий топик в секции для юзеров", moderator, startTime, lastMessage, subsection2, true, false);
+        PhotoAlbum photoAlbum3 = new PhotoAlbum("PhotoAlbum by " + topic3.getName(), topic3);
         photoAlbum3.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic4 = new Topic("Четвертый топик в секции для юзеров", user, startTime, lastMessage, subsection2, true, false);
-        PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName());
+        PhotoAlbum photoAlbum4 = new PhotoAlbum("PhotoAlbum by " + topic4.getName(), topic4);
         photoAlbum4.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, false, false);
-        PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName());
+        Topic topic5 = new Topic("Пятый топик", admin, startTime, lastMessage, subsection3, true, false);
+        PhotoAlbum photoAlbum5 = new PhotoAlbum("PhotoAlbum by " + topic5.getName(), topic5);
         photoAlbum5.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic6 = new Topic("Шестой топик", user, startTime, lastMessage, subsection3, true, false);
-        PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName());
+        PhotoAlbum photoAlbum6 = new PhotoAlbum("PhotoAlbum by " + topic6.getName(), topic6);
         photoAlbum6.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, false, true);
-        PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName());
+        Topic topic7 = new Topic("Седьмой топик", moderator, startTime, lastMessage, subsection4, true, true);
+        PhotoAlbum photoAlbum7 = new PhotoAlbum("PhotoAlbum by " + topic7.getName(), topic7);
         photoAlbum7.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
         Topic topic8 = new Topic("Восьмой топик", user, startTime, lastMessage, subsection4, true, false);
-        PhotoAlbum photoAlbum8 = new PhotoAlbum("PhotoAlbum by " + topic8.getName());
+        PhotoAlbum photoAlbum8 = new PhotoAlbum("PhotoAlbum by " + topic8.getName(), topic8);
         photoAlbum8.setMedia(mediaService.findMediaByUser(userService.getUserByNickName("Admin")));
-        topicService.createTopic(topic);
+        topicService.createTopic(topic1);
         topicService.createTopic(topic2);
         topicService.createTopic(topic3);
         topicService.createTopic(topic4);
@@ -230,7 +305,7 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 0; i < 2; i++) {
             b = !b;
             Random random = new Random();
-            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, b, false);
+            Topic topicX = new Topic("scrollable topics test " + i, admin, startTime.minusDays(i), lastMessage.minusMinutes(random.nextInt(60)), subsection, false, false);
             topicService.createTopic(topicX);
             for (int j = 0; j < 10; j++) {
                 Comment commentX = new Comment(topicX, admin, null, LocalDateTime.now(), "Всем привет! #" + j);
@@ -245,8 +320,8 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        Comment comment1 = new Comment(topic, admin, null, LocalDateTime.now(), "Всем привет!");
-        Comment comment2 = new Comment(topic, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
+        Comment comment1 = new Comment(topic1, admin, null, LocalDateTime.now(), "Всем привет!");
+        Comment comment2 = new Comment(topic1, moderator, comment1, LocalDateTime.now(), "И тебе привет!");
         Comment comment3 = new Comment(topic2, user, null, LocalDateTime.now(), "Как жизнь?");
         Comment comment4 = new Comment(topic2, admin, comment3, LocalDateTime.now(), "Все гуд!");
         Comment comment5 = new Comment(topic3, user, null, LocalDateTime.now(), "Это тестовое сообщение");
@@ -290,8 +365,9 @@ public class DataInitializer implements CommandLineRunner {
 
             Set<ArticleTag> tags = new HashSet<>();
             tags.add(newsTags[i % 3]);
-            articleService.addArticle(new Article("news", admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
-                    "Text news!", false));
+            String title = "news " + i;
+            articleService.addArticle(new Article(title, admin, tags, LocalDateTime.of(2019, 11, 1, 21, 33 + i, 35),
+                    "Text news!", true, false));
         }
 
         ArticleTagsNode articleTagsNode1 = new ArticleTagsNode(1L, null, 2, newsTag2);

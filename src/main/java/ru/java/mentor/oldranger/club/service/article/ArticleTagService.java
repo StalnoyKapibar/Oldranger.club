@@ -18,4 +18,6 @@ public interface ArticleTagService {
     void deleteArticleTag(ArticleTag articleTag);
 
     Set<ArticleTag> addTagsToSet (List<Long> tags);
+
+    ArticleTag getTagByTagName(String tagName);
 }

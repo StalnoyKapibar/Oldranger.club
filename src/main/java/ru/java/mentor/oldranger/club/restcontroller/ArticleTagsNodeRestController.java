@@ -9,14 +9,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.article.ArticleTagsNode;
+import ru.java.mentor.oldranger.club.service.article.ArticleTagService;
 import ru.java.mentor.oldranger.club.service.article.ArticleTagsNodeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,17 +30,22 @@ public class ArticleTagsNodeRestController {
 
     private ArticleTagsNodeService tagsNodeService;
     private SecurityUtilsService securityUtilsService;
+    private ArticleTagService articleTagService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get all nodes of tags", description = "Get full tree with child", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
-            @ApiResponse(responseCode = "204", description = "Nodes not found")})
+            @ApiResponse(responseCode = "204", description = "Nodes not found"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/get", produces = {"application/json"})
     public ResponseEntity<List<ArticleTagsNode>> getFullTree() {
         List<ArticleTagsNode> tagsNodes = tagsNodeService.findAll();
-        if (tagsNodes.isEmpty() || !securityUtilsService.isAdmin()) {
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (tagsNodes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(tagsNodes);
@@ -48,11 +56,15 @@ public class ArticleTagsNodeRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNodeDto.class)))),
-            @ApiResponse(responseCode = "204", description = "Nodes not found")})
+            @ApiResponse(responseCode = "204", description = "Nodes not found"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/tree", produces = {"application/json"})
     public ResponseEntity<List<ArticleTagsNodeDto>> getAllTagsNodesTree() {
         List<ArticleTagsNodeDto> tagsNodeDto = tagsNodeService.findHierarchyTreeOfAllTagsNodes();
-        if (securityUtilsService.getLoggedUser() == null || tagsNodeDto.isEmpty()) {
+        if (securityUtilsService.getLoggedUser() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (tagsNodeDto.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(tagsNodeDto);
@@ -63,72 +75,143 @@ public class ArticleTagsNodeRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTagsNode.class)))),
-            @ApiResponse(responseCode = "204", description = "Node not found")})
+            @ApiResponse(responseCode = "204", description = "Node not found"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/{id}", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> getNodeById(@PathVariable("id") Long id) {
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (id == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         ArticleTagsNode tagsNode = tagsNodeService.findById(id);
-        if (id == null || tagsNode == null || !securityUtilsService.isAdmin()) {
+        if (tagsNode == null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(tagsNode);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Create new node", tags = {"Article TagsNode"})
+            summary = "Create new node by parentId, position, tagName(if tag == null, then create new tag)", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
-            @ApiResponse(responseCode = "400", description = "Admin role required")})
+            @ApiResponse(responseCode = "401", description = "Admin role required")})
     @PostMapping(value = "/add", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> createNode(@RequestParam("parentId") Long parentId,
                                                       @RequestParam("position") Integer position,
-                                                      @RequestBody ArticleTag tag) {
-
+                                                      @RequestParam("tagName") String tagName) {
         if (!securityUtilsService.isAdmin()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        ArticleTag tag = articleTagService.getTagByTagName(tagName);
+        if (tag == null) {
+            tag = new ArticleTag();
+            tag.setName(tagName);
+            articleTagService.addTag(tag);
+        }
+
         ArticleTagsNode tagsNode = new ArticleTagsNode(tagsNodeService.findById(parentId), position, tag);
+
         tagsNodeService.save(tagsNode);
         return ResponseEntity.ok(tagsNode);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
-            summary = "Edit node", tags = {"Article TagsNode"})
+            summary = "Edit node by id, change params parentId, tagName, position, if tag == null, then create new tag", tags = {"Article TagsNode"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
-            @ApiResponse(responseCode = "400", description = "Error editing node")})
+            @ApiResponse(responseCode = "400", description = "Error editing node"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/update", produces = {"application/json"})
     public ResponseEntity<ArticleTagsNode> updateNode(@RequestParam("id") Long id,
                                                       @RequestParam("parentId") Long parentId,
-                                                      @RequestParam("tag") ArticleTag tag,
+                                                      @RequestParam("tagName") String tagName,
                                                       @RequestParam("position") Integer pos) {
 
-        ArticleTagsNode tagsNode = tagsNodeService.findById(id);
-        if (tagsNode == null || !securityUtilsService.isAdmin()) {
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ArticleTagsNode tagsNodeForUpdate = tagsNodeService.findById(id);
+        if (tagsNodeForUpdate == null) {
             return ResponseEntity.badRequest().build();
         }
-        ArticleTagsNode articleTagsNode = tagsNodeService.findById(parentId);
-        tagsNode.setParent(articleTagsNode);
-        tagsNode.setPosition(pos);
-        tagsNode.setTag(tag);
-        tagsNodeService.save(tagsNode);
-        return ResponseEntity.ok(tagsNode);
+        if (id.equals(parentId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        ArticleTagsNode parentTagsNode = tagsNodeService.findById(parentId);
+        tagsNodeForUpdate.setParent(parentTagsNode);
+        tagsNodeForUpdate.setPosition(pos);
+        ArticleTag tag = articleTagService.getTagByTagName(tagName);
+        if (tag == null) {
+            tag = new ArticleTag();
+            tag.setName(tagName);
+            articleTagService.addTag(tag);
+        }
+        tagsNodeForUpdate.setTag(tag);
+        tagsNodeService.save(tagsNodeForUpdate);
+        return ResponseEntity.ok(tagsNodeForUpdate);
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = " Save tree position", tags = {"Article TagsNode"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = ArticleTagsNode.class))),
+            @ApiResponse(responseCode = "400", description = "Error editing node"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PutMapping(value = "/updateAll", produces = {"application/json"})
+    public ResponseEntity<List<ArticleTagsNode>> updateTreeAll(@RequestBody List<ArticleTagsNodeDto> articleTagsNodeDtos) {
+
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<ArticleTagsNode> articleTagsNodesList = new ArrayList<>();
+        for (ArticleTagsNodeDto a : articleTagsNodeDtos) {
+
+            ArticleTagsNode tagsNodeForUpdate = tagsNodeService.findById(a.getId());
+            if (tagsNodeForUpdate == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (a.getId().equals(a.getParentId())) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (a.getParentId() != null) {
+                ArticleTagsNode parentTagsNode = tagsNodeService.findById(a.getParentId());
+                tagsNodeForUpdate.setParent(parentTagsNode);
+            } else {
+                tagsNodeForUpdate.setParent(null);
+            }
+            tagsNodeForUpdate.setPosition(a.getPosition());
+            ArticleTag tag = tagsNodeForUpdate.getTag();
+            tagsNodeForUpdate.setTag(tag);
+            articleTagsNodesList.add(tagsNodeForUpdate);
+        }
+        tagsNodeService.saveAll(articleTagsNodesList);
+        return ResponseEntity.ok(articleTagsNodesList);
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete node", description = "Delete node with all child", tags = {"Article TagsNode"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Error deleting node")})
+            @ApiResponse(responseCode = "400", description = "Error deleting node"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @DeleteMapping(value = "/delete")
     public ResponseEntity deleteNode(@RequestParam("id") Long id) {
 
-        if (id == null || !securityUtilsService.isAdmin()) {
+        if (id == null || tagsNodeService.findById(id) == null) {
             return ResponseEntity.badRequest().build();
+        }
+
+        if (!securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         tagsNodeService.deleteById(id);
         return ResponseEntity.ok().build();
     }
-
-
 }

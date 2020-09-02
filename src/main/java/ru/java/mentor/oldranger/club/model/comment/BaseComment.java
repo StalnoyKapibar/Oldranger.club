@@ -28,6 +28,9 @@ public abstract class BaseComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long position;
 
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @Field
     @Type(type = "materialized_clob")
     @Column(name = "text_comment")
@@ -80,5 +83,13 @@ public abstract class BaseComment {
 
     public Long getPosition() {
         return position;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

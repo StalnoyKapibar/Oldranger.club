@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -13,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Indexed
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -24,6 +28,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Field
     @Column(name = "title")
     private String title;
 
@@ -43,8 +48,11 @@ public class Article {
     @Column(name = "comment_count")
     private long commentCount;
 
-    @Column(name = "article_text")
+    @Column(name = "article_text", columnDefinition="MEDIUMTEXT")
     private String text;
+
+    @Column(name = "isHideToAnon", columnDefinition = "TINYINT")
+    private boolean isHideToAnon;
 
     @Column(name = "draft", columnDefinition = "TINYINT")
     private boolean draft;
@@ -56,12 +64,13 @@ public class Article {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
-    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean draft) {
+    public Article(String title, User user, Set<ArticleTag> articleTags, LocalDateTime date, String text, boolean isHideToAnon,  boolean draft) {
         this.title = title;
         this.user = user;
         this.articleTags = articleTags;
         this.date = date;
         this.text = text;
+        this.isHideToAnon = isHideToAnon;
         this.draft = draft;
     }
 

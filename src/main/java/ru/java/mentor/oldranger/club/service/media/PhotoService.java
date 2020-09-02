@@ -9,6 +9,8 @@ import ru.java.mentor.oldranger.club.model.comment.PhotoComment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 public interface PhotoService {
@@ -20,7 +22,7 @@ public interface PhotoService {
 
     void deletePhoto(Long id);
 
-    void deletePhotoByName(String name);
+    Photo deletePhotoByName(String name);
 
     Photo update(MultipartFile newPhoto, Photo photo);
 
@@ -32,15 +34,19 @@ public interface PhotoService {
 
     PhotoComment getCommentById(Long id);
 
-    void deleteComment(long id);
+    PhotoComment deleteComment(long id);
 
-    void addCommentToPhoto(PhotoComment photoComment);
+    PhotoComment addCommentToPhoto(PhotoComment photoComment);
 
-    void updatePhotoComment(PhotoComment photoComment);
+    PhotoComment updatePhotoComment(PhotoComment photoComment);
 
     Page<PhotoCommentDto> getPageableCommentDtoByPhoto(Photo photo, Pageable pageable, int position);
 
     PhotoCommentDto assembleCommentDto(PhotoComment comment);
 
     List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description);
+
+    byte [] getPhotoAsByteArray(Photo photo, String type) throws IOException;
+
+    void deletePhotoByEditingComment(Long id);
 }

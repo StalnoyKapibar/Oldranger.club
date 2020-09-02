@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.user;
 
 import ru.java.mentor.oldranger.club.dto.UpdateProfileDto;
 import ru.java.mentor.oldranger.club.dto.UserAuthDTO;
+import ru.java.mentor.oldranger.club.model.user.Role;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import java.util.List;
@@ -12,9 +13,9 @@ public interface UserService {
 
     User findById(Long theId);
 
-    void save(User user);
+    User save(User user);
 
-    void updateUser(User user, UpdateProfileDto updateProfileDto);
+    User updateUser(User user, UpdateProfileDto updateProfileDto);
 
     void deleteById(Long theId);
 
@@ -29,4 +30,6 @@ public interface UserService {
     UserAuthDTO buildUserDtoByUser(User user, boolean currentUser);
 
     Long getCount();
+
+    List<User> findUsersByRole(Role role);
 }

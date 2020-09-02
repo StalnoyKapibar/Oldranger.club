@@ -4,13 +4,18 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
+import ru.java.mentor.oldranger.club.dao.UserRepository.RoleRepository;
+import ru.java.mentor.oldranger.club.dao.UserRepository.UserRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoAlbumDto;
 import ru.java.mentor.oldranger.club.dto.PhotoDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoWithAlbumDTO;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Media;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
@@ -22,6 +27,8 @@ import ru.java.mentor.oldranger.club.service.user.UserService;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +45,10 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
     private PhotoService photoService;
     @NonNull
     private MediaService mediaService;
+    @NonNull
+    private UserRepository userRepository;
+    @NonNull
+    private RoleRepository roleRepository;
 
     @Value("${photoalbums.location}")
     private String albumsdDir;
@@ -199,7 +210,7 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
 
     @Override
     //add cache
-    public List<Photo> getAllPhotos(PhotoAlbum album) {
+    public List<Photo> getAllPhotosByAlbum(PhotoAlbum album) {
         log.debug("Getting all photos of album {}", album);
         List<Photo> photos = null;
         try {
@@ -240,9 +251,68 @@ public class PhotoAlbumServiceImpl implements PhotoAlbumService {
         return new PhotoAlbumDto(
                 album.getId(),
                 album.getTitle(),
-                thumbImage != null ? thumbImage.getOriginal() : "thumb_image_placeholder",
-                thumbImage != null ? thumbImage.getSmall() : "thumb_image_placeholder",
+                thumbImage == null ? null : thumbImage.getId(),
                 photosCount
         );
+    }
+
+    @Override
+    public PhotoAlbum findPhotoAlbumByTopic(Topic topic) {
+        log.info("Find Photo Album by topic {}", topic);
+        PhotoAlbum photoAlbum = null;
+        try {
+            photoAlbum = albumRepository.findPhotoAlbumByTopic(topic);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return photoAlbum;
+    }
+
+    @Override
+    public List<PhotoAlbumDto> findPhotoAlbumsDto(List<PhotoAlbum> photoAlbums, boolean dateSort) {
+        log.info("Finding list of PhotoAlbumDto by list of PhotoAlbums");
+        List<PhotoAlbumDto> dto = null;
+        List<Long> albumsId = new ArrayList<>();
+        try {
+            photoAlbums.stream().forEach(photoAlbum -> albumsId.add(photoAlbum.getId()));
+            dto = albumRepository.findPhotoAlbumsDto(albumsId);
+            if (dateSort) {
+                dto = dto.stream().sorted(Comparator.comparing(PhotoAlbumDto::getPhotoAlbumId))
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return dto;
+    }
+
+    @Override
+    public Page<PhotoAlbum> findPhotoAlbumsByWritersIn(Pageable pageable, List<User> writers) {
+        log.info("Getting Page of photo albums by Pageable and list of users");
+        Page<PhotoAlbum> page = null;
+        try {
+            page = albumRepository.findPhotoAlbumsByWritersIn(pageable, writers);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return page;
+    }
+
+    @Override
+    public List<PhotoAlbumDto> findPhotoAlbumsDtoByQuery(List<PhotoAlbum> photoAlbums, String query, boolean dateSort) {
+        log.info("Finding list of PhotoAlbumDto by query");
+        List<PhotoAlbumDto> dto = null;
+        List<Long> albumsId = new ArrayList<>();
+        try {
+            photoAlbums.stream().forEach(photoAlbum -> albumsId.add(photoAlbum.getId()));
+            dto = albumRepository.findPhotoAlbumsDtoByQuery(query, albumsId);
+            if (dateSort) {
+                dto = dto.stream().sorted(Comparator.comparing(PhotoAlbumDto::getPhotoAlbumId))
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return dto;
     }
 }

@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.restcontroller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,24 +14,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.PhotoAndCommentsDTO;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
+import ru.java.mentor.oldranger.club.model.chat.Chat;
+import ru.java.mentor.oldranger.club.model.media.FileInChat;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoPositionService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
+import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 @AllArgsConstructor
 @RestController
@@ -42,28 +44,34 @@ public class PhotoRestController {
     private final PhotoAlbumService albumService;
     private final SecurityUtilsService securityUtilsService;
     private final PhotoPositionService photoPositionService;
+    private final CheckFileTypeService checkFileTypeService;
+    private PhotoService photoService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Save photo in album", tags = {"Photo"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
-            @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "/{albumId}", method = RequestMethod.POST)
+            @ApiResponse(responseCode = "400", description = "Rights error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PostMapping(value = "/{albumId}")
     public ResponseEntity<List<Photo>> savePhoto(@RequestBody List<MultipartFile> photos, @PathVariable("albumId") String albumId) {
         User currentUser = securityUtilsService.getLoggedUser();
         PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(albumId));
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         List<Photo> savedPhotos = new ArrayList<>();
+
         Optional<Long> maxPosition = photoPositionService.getMaxPositionOfPhotoOnAlbumWithIdAlbum(Long.parseLong(albumId));
         AtomicInteger atom = new AtomicInteger(Math.toIntExact(maxPosition.orElse(0L)));
         photos.forEach(a -> savedPhotos.add(service.save(photoAlbum, a, atom.incrementAndGet())));
+
         return ResponseEntity.ok(savedPhotos);
     }
 
@@ -72,8 +80,9 @@ public class PhotoRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PhotoCommentDto.class)))),
-            @ApiResponse(responseCode = "400", description = "Error id or rights error")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+            @ApiResponse(responseCode = "400", description = "Error id or rights error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @GetMapping(value = "/{id}")
     public ResponseEntity<PhotoAndCommentsDTO> getPhoto(@PathVariable("id") String id,
                                                         @RequestParam(value = "page", required = false) Integer page,
                                                         @RequestParam(value = "pos", required = false) Integer position,
@@ -84,11 +93,12 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
+
         if (!photoAlbum.getViewers().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getViewers().size() != 0) {
+                !securityUtilsService.isModerator() && !photoAlbum.getViewers().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         if (limit == null) {
@@ -109,8 +119,9 @@ public class PhotoRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Photo.class)))),
-            @ApiResponse(responseCode = "400", description = "Rights error")})
-    @RequestMapping(value = "/{photoId}", method = RequestMethod.PUT)
+            @ApiResponse(responseCode = "400", description = "Update error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @PutMapping(value = "/{photoId}")
     public ResponseEntity<Photo> updatePhoto(@RequestBody MultipartFile newPhoto, @PathVariable("photoId") String photoId) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.valueOf(photoId));
@@ -118,11 +129,13 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
+
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(service.update(newPhoto, photo));
@@ -132,8 +145,9 @@ public class PhotoRestController {
             summary = "Delete photo", tags = {"Photo"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", description = "Error id or rights error")})
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+            @ApiResponse(responseCode = "400", description = "Error id or rights error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity deletePhoto(@PathVariable("id") String id) {
         User currentUser = securityUtilsService.getLoggedUser();
         Photo photo = service.findById(Long.parseLong(id));
@@ -141,14 +155,68 @@ public class PhotoRestController {
             return ResponseEntity.badRequest().build();
         }
         if (currentUser == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         PhotoAlbum photoAlbum = photo.getAlbum();
+
         if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
-                !securityUtilsService.isModerator() && photoAlbum.getWriters().size() != 0) {
+                !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
             return ResponseEntity.badRequest().build();
         }
         service.deletePhoto(Long.parseLong(id));
         return ResponseEntity.ok("delete ok");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Delete multiple photos", tags = {"Photos"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "Delete error"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
+    @DeleteMapping(value = "/deleteMultiplePhoto")
+    public ResponseEntity deleteMultiplePhoto(@RequestBody String[] photoList) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (photoList.length != 0) {
+            for (String idPhoto : photoList) {
+                PhotoAlbum photoAlbum = albumService.findById(Long.parseLong(idPhoto));
+
+                if (!photoAlbum.getWriters().contains(currentUser) && !securityUtilsService.isAdmin() &&
+                        !securityUtilsService.isModerator() && !photoAlbum.getWriters().isEmpty()) {
+
+                    return ResponseEntity.badRequest().build();
+                }
+                service.deletePhoto(Long.parseLong(idPhoto));
+            }
+        }
+        return ResponseEntity.ok("delete ok");
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Upload image", tags = {"Photo download"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Map originalImg:fileName, thumbnailImg:fileName, fileName:fileName, filePath:filePath",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "200", description = "Map fileName:fileName, filePath:filePath",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "401", description = "User is not logged in"),
+            @ApiResponse(responseCode = "413", description = "File size must not exceed 20Mb")})
+    @PostMapping(value = "/imageDownload", consumes = {"multipart/form-data"})
+    ResponseEntity<Map<String, String>> downloadImage(@Parameter(description = "Image file")
+                                                      @RequestParam("file") MultipartFile file) {
+        Map<String, String> result = new HashMap<>();
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+            PhotoAlbum album = albumService.findById(6l);
+            Photo photo = photoService.save(album, file, 0);
+            result.put("originalImg", photo.getOriginal());
+            result.put("thumbnailImg", photo.getSmall());
+        return ResponseEntity.ok(result);
     }
 }

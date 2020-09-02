@@ -15,6 +15,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findDistinctByDraftIsFalseAndArticleTagsIn(Set<ArticleTag> tags, Pageable pageable);
 
+    Page<Article> findAllByTitle(String title, Pageable pageable);
+
     Page<Article> findAllByDraftIsFalse(Pageable pageable);
 
     Page<Article> findAllByDraftIsTrueAndUser(User user, Pageable pageable);
@@ -22,7 +24,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     void deleteAllByIdIn(List<Long> ids);
 
     @Query(nativeQuery = true,
-            value = "select * from articles a where a.article_hide = false")
+            value = "select * from articles a where a.is_hide_to_anon = false")
     Page<Article> getArticlesForAnon(Pageable pageable);
 
 }

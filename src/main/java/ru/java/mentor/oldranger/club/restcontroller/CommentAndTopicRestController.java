@@ -9,10 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.hibernate.id.IncrementGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,23 +22,28 @@ import ru.java.mentor.oldranger.club.dto.CommentCreateAndUpdateDto;
 import ru.java.mentor.oldranger.club.dto.CommentDto;
 import ru.java.mentor.oldranger.club.dto.TopicAndCommentsDTO;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
-import ru.java.mentor.oldranger.club.model.forum.ImageComment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
+import ru.java.mentor.oldranger.club.model.forum.TopicVisitAndSubscription;
+import ru.java.mentor.oldranger.club.model.media.Photo;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.CommentService;
 import ru.java.mentor.oldranger.club.service.forum.TopicService;
 import ru.java.mentor.oldranger.club.service.forum.TopicVisitAndSubscriptionService;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
 import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.CheckFileTypeService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @AllArgsConstructor
@@ -53,13 +60,18 @@ public class CommentAndTopicRestController {
     private final PhotoAlbumService photoAlbumService;
     private final PhotoService photoService;
     private final FilterHtmlService filterHtmlService;
+    private MediaService mediaService;
+    private WritingBanService writingBanService;
+    private PhotoAlbumService albumService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a topic and a list of comments DTO", description = "Get a topic and a list of comments for this topic by topic id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TopicAndCommentsDTO.class)))),
-            @ApiResponse(responseCode = "204", description = "invalid topic id")})
+            @ApiResponse(responseCode = "204", description = "invalid topic id"),
+            @ApiResponse(responseCode = "400", description = "topic is hide to anon"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @GetMapping(value = "/topic/{topicId}", produces = {"application/json"})
     public ResponseEntity<TopicAndCommentsDTO> getTopicAndPageableComments(@PathVariable(value = "topicId") Long topicId,
                                                                            @RequestParam(value = "page", required = false) Integer page,
@@ -73,7 +85,7 @@ public class CommentAndTopicRestController {
         }
 
         if (currentUser == null && (topic.isHideToAnon() || topic.getSubsection().isHideToAnon())) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         if (limit == null) {
@@ -86,9 +98,11 @@ public class CommentAndTopicRestController {
         if (position == null) {
             position = 0;
         }
+        List<TopicVisitAndSubscription> topicVisitAndSubscriptions = topicVisitAndSubscriptionService.getTopicVisitAndSubscriptionForTopic(topic);
+        boolean isSubscribed = topicVisitAndSubscriptions.stream().filter(t -> t.getTopic().getId().equals(topic.getId())).anyMatch(TopicVisitAndSubscription::isSubscribed);
 
         Page<CommentDto> dtos = commentService.getPageableCommentDtoByTopic(topic, pageable, position, currentUser);
-        TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, dtos);
+        TopicAndCommentsDTO topicAndCommentsDTO = new TopicAndCommentsDTO(topic, isSubscribed, dtos);
         topicVisitAndSubscriptionService.updateVisitTime(currentUser, topic);
 
         return ResponseEntity.ok(topicAndCommentsDTO);
@@ -115,40 +129,55 @@ public class CommentAndTopicRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Error adding comment")})
+                    description = "Error adding comment"),
+            @ApiResponse(responseCode = "401",
+                    description = "User have not authority")})
     @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
-    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComentsEntity,
+    public ResponseEntity<CommentDto> addMessageOnTopic(@ModelAttribute @Valid CommentCreateAndUpdateDto messageCommentEntity,
                                                         @RequestPart(required = false) MultipartFile image1,
                                                         @RequestPart(required = false) MultipartFile image2) {
-        Comment comment;
         User currentUser = securityUtilsService.getLoggedUser();
-        Topic topic = topicService.findById(messageComentsEntity.getIdTopic());
-        User user = userService.findById(messageComentsEntity.getIdUser());
-        LocalDateTime localDateTime = LocalDateTime.now();
-        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
-        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
-        if (messageComentsEntity.getAnswerID() != null) {
-            Comment answer = commentService.getCommentById(messageComentsEntity.getAnswerID());
-            comment = new Comment(topic, user, answer, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
-        } else {
-            comment = new Comment(topic, user, null, localDateTime, filterHtmlService.filterHtml(messageComentsEntity.getText()));
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        String cleanedText = filterHtmlService.filterHtml(messageCommentEntity.getText());
+        if (image1 == null & image2 == null & commentService.isEmptyComment(cleanedText)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Topic topic = topicService.findById(messageCommentEntity.getIdTopic());
+        User user = userService.findById(messageCommentEntity.getIdUser());
+        boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
+        boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
         if (topic.isForbidComment() || user.getId() == null && !currentUser.getId().equals(user.getId()) || !checkFirstImage || !checkSecondImage) {
             return ResponseEntity.badRequest().build();
         }
 
+        Comment comment;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (messageCommentEntity.getAnswerID() != null) {
+            Comment answer = commentService.getCommentById(messageCommentEntity.getAnswerID());
+            comment = new Comment(topic, user, answer, localDateTime, cleanedText);
+        } else {
+            comment = new Comment(topic, user, null, localDateTime, cleanedText);
+        }
         commentService.createComment(comment);
 
+        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + topic.getName());
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(false);
+        albumService.save(photoAlbum);
+
         if (image1 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
+            photoService.save(photoAlbum, image1
+                    , comment.getId().toString());
+        }
+        if (image2 != null) {
+            photoService.save(photoAlbum, image2
                     , comment.getId().toString());
         }
 
-        if (image2 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image2
-                    , comment.getId().toString());
-        }
         CommentDto commentDto = commentService.assembleCommentDto(comment, user);
         return ResponseEntity.ok(commentDto);
     }
@@ -157,7 +186,8 @@ public class CommentAndTopicRestController {
             summary = "Delete comment from topic", description = "Delete comment by id", tags = {"Topic and comments"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
-            @ApiResponse(responseCode = "404", description = "Error deleting comment")})
+            @ApiResponse(responseCode = "404", description = "Error deleting comment"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @DeleteMapping(value = "/comment/delete/{commentId}", produces = {"application/json"})
     public ResponseEntity deleteComment(@PathVariable(value = "commentId") Long id) {
         Comment comment = commentService.getCommentById(id);
@@ -165,13 +195,34 @@ public class CommentAndTopicRestController {
         boolean moderator = securityUtilsService.isModerator();
         User currentUser = securityUtilsService.getLoggedUser();
         User user = comment.getUser();
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         if (comment.getId() == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator) {
             return ResponseEntity.notFound().build();
         }
-        comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1 );
-        topicService.editTopicByName(comment.getTopic());
-        commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
-        commentService.deleteComment(id);
+
+        CommentDto commentDto = commentService.assembleCommentDto(comment, currentUser);
+        List<Photo> photos = commentDto.getPhotos();
+        if (!photos.isEmpty()) {
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+        }
+
+        List<Comment> listChildComments = commentService.getChildComment(comment);
+        if (!listChildComments.isEmpty()) {
+            comment.setDeleted(true);
+            comment.setCommentText("<<Комментарий был удален>>");
+            commentService.updateComment(comment);
+        } else {
+            comment.getTopic().setMessageCount(comment.getTopic().getMessageCount() - 1);
+            topicService.editTopicByName(comment.getTopic());
+            commentService.updatePostion(comment.getTopic().getId(), comment.getPosition());
+            commentService.deleteComment(id);
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -180,24 +231,79 @@ public class CommentAndTopicRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))),
-            @ApiResponse(responseCode = "400", description = "Error updating comment")})
+            @ApiResponse(responseCode = "400", description = "Error updating comment"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<CommentDto> updateComment(@ModelAttribute @Valid CommentCreateAndUpdateDto messageComments,
                                                     @RequestParam(value = "commentID") Long commentID,
+                                                    @RequestParam String[] photoIdList,
                                                     @RequestPart(required = false) MultipartFile image1,
                                                     @RequestPart(required = false) MultipartFile image2) {
 
-        Comment comment = commentService.getCommentById(commentID);
-        Topic topic = topicService.findById(messageComments.getIdTopic());
         User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Comment comment = commentService.getCommentById(commentID);
+        Comment answerComment = comment.getAnswerTo();
+        if (answerComment != null) {
+            messageComments.setAnswerID(comment.getAnswerTo().getId());
+        }
+        Topic topic = topicService.findById(messageComments.getIdTopic());
         User user = comment.getUser();
-        List<ImageComment> images = new ArrayList<>();
+
+        if (ifUserAllowedToEditComment(comment, image1, image2, messageComments, topic, currentUser, user)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        comment = setInfoIntoComment(comment, messageComments);
+        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
+        List<Photo> photos = commentDto.getPhotos();
+
+        String idPhotosForDelete = photoIdList[0].replaceAll("[^0-9]", "");
+
+        String cleanedText = filterHtmlService.filterHtml(messageComments.getText());
+        if (idPhotosForDelete.equals("") & commentService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        commentService.updateComment(comment);
+
+        List<Long> idPhotosToKeep = new ArrayList<>();
+        for (int i = 0; i <= photoIdList.length - 1; i++) {
+            String id = photoIdList[i].replaceAll("[^0-9]", "");
+            if (!id.equals("")) {
+                idPhotosToKeep.add(Long.parseLong(id));
+            }
+        }
+
+        List<Long> idPhotosToDelete = new ArrayList<>();
+        for (Photo photo : photos) {
+            if (!idPhotosToKeep.contains(photo.getId()))
+                idPhotosToDelete.add(photo.getId());
+        }
+
+        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTopic(topic);
+        commentDto = deletePhotoFromDto(photoAlbum, image1, image2, idPhotosToKeep, idPhotosToDelete, photos, commentDto);
+        commentDto = updatePhotos(photoAlbum, image1, image2, comment, commentDto, photos);
+
+        return ResponseEntity.ok(commentDto);
+    }
+
+    private boolean ifUserAllowedToEditComment(Comment comment, MultipartFile image1, MultipartFile image2,
+                                               CommentCreateAndUpdateDto messageComments,
+                                               Topic topic, User currentUser, User user) {
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
-        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) >= 0;
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(comment.getDateTime().plusDays(7)) < 0;
         boolean checkFirstImage = checkFileTypeService.isValidImageFile(image1);
         boolean checkSecondImage = checkFileTypeService.isValidImageFile(image2);
+        return messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null
+                || !currentUser.getId().equals(user.getId()) && !admin && !moderator
+                || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage;
+    }
 
+    private Comment setInfoIntoComment(Comment comment, CommentCreateAndUpdateDto messageComments) {
         comment.setTopic(topicService.findById(messageComments.getIdTopic()));
         comment.setCommentText(filterHtmlService.filterHtml(messageComments.getText()));
         if (messageComments.getAnswerID() != null) {
@@ -206,23 +312,57 @@ public class CommentAndTopicRestController {
             comment.setAnswerTo(null);
         }
         comment.setDateTime(comment.getDateTime());
+        return comment;
+    }
 
-
-        if (messageComments.getIdUser() == null || topic.isForbidComment() || currentUser == null || !currentUser.getId().equals(user.getId()) && !admin && !moderator || !admin && !moderator && !allowedEditingTime || !checkFirstImage || !checkSecondImage) {
-            return ResponseEntity.badRequest().build();
-        }
-        commentService.updateComment(comment);
-
+    private CommentDto updatePhotos(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                    Comment comment, CommentDto commentDto, List<Photo> photos) {
         if (image1 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
-                    , comment.getId().toString());
+            Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
+            photos.add(newPhoto1);
         }
-
         if (image2 != null) {
-            photoService.save(photoAlbumService.findPhotoAlbumByTitle("PhotoAlbum by " + topic.getName()), image1
-                    , comment.getId().toString());
+            Photo newPhoto2 = photoService.save(photoAlbum, image2, comment.getId().toString());
+            photos.add(newPhoto2);
         }
-        CommentDto commentDto = commentService.assembleCommentDto(comment, user);
-        return ResponseEntity.ok(commentDto);
+        commentDto.setPhotos(photos);
+        return commentDto;
+    }
+
+    private CommentDto deletePhotoFromDto(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                          List<Long> idPhotosToKeep, List<Long> idPhotosToDelete,
+                                          List<Photo> photos, CommentDto commentDto) {
+        Long thumbImageId = photoAlbum.getThumbImage().getId();
+        if ((idPhotosToDelete.contains(thumbImageId)) & (image1 != null || image2 != null)) {
+            if (idPhotosToDelete.size() == 1 & !idPhotosToKeep.contains(thumbImageId) & idPhotosToKeep.size() == 1) {
+                photoService.deletePhotoByEditingComment(idPhotosToDelete.get(0));
+                Photo photoToKeep = photoService.findById(idPhotosToKeep.get(0));
+                photoAlbum.setThumbImage(photoToKeep);
+                photoAlbumService.save(photoAlbum);
+            }
+            for (Long id : idPhotosToDelete) {
+                photoService.deletePhotoByEditingComment(id);
+            }
+        } else if (!idPhotosToKeep.isEmpty()) {
+            for (Photo photo : photos) {
+                for (Long id : idPhotosToKeep) {
+                    if (!id.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                }
+            }
+        } else {
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+        }
+        photos.clear();
+        for (Long id : idPhotosToKeep) {
+            photos.add(photoService.findById(id));
+        }
+        commentDto.setPhotos(photos);
+        return commentDto;
     }
 }
+
+

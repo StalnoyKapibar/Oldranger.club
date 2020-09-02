@@ -50,13 +50,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public RoleHierarchy roleHierarchy() {
-        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MODERATOR > ROLE_VETERAN > ROLE_OLD_TIMER > ROLE_USER > ROLE_PROSPECT");
-        return roleHierarchy;
-    }
-
-    @Bean
     public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
         return new AuthHandler();
     }
@@ -91,7 +84,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable() //наверное, временно?
                 .authorizeRequests()
-                .antMatchers("/test/**", "/img/**", "/css/**", "/js/**", "/image/**").permitAll()
+                .antMatchers("/test/**", "/css/**", "/js/**", "/image/**").permitAll()
+                .antMatchers("/img/**").authenticated() //секьюрный endpoint для загрузки аватарок по имени файла
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/", "/api/**").permitAll()
                 .antMatchers("/admin", "/admin/*").hasAnyRole("ADMIN", "USER")
@@ -118,8 +112,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new SessionRegistryImpl();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(@Value("${project.password.encoder.strength}") int strength) {
-        return new BCryptPasswordEncoder(strength);
-    }
+
 }

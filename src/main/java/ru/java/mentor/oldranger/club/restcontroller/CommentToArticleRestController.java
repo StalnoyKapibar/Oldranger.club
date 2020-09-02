@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
@@ -26,8 +23,10 @@ import ru.java.mentor.oldranger.club.service.article.ArticleService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
+import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -39,6 +38,7 @@ public class CommentToArticleRestController {
     private final UserService userService;
     private final SecurityUtilsService securityUtilsService;
     private final FilterHtmlService filterHtmlService;
+    private WritingBanService writingBanService;
 
 
     @Operation(security = @SecurityRequirement(name = "security"),
@@ -48,20 +48,14 @@ public class CommentToArticleRestController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleAndCommentsDto.class)))),
             @ApiResponse(responseCode = "204", description = "Article not found")})
     @GetMapping(value = "/comments", produces = {"application/json"})
-    public ResponseEntity<ArticleAndCommentsDto> getArticleComments(@RequestParam("id") Long id,
-                                                                    @RequestParam(value = "page", required = false) Integer page) {
+    public ResponseEntity<ArticleAndCommentsDto> getArticleComments(@RequestParam("id") Long id) {
 
         Article article = articleService.getArticleById(id);
         if (article == null) {
             return ResponseEntity.noContent().build();
         }
 
-        if (page == null) {
-            page = 0;
-        }
-
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
-        Page<ArticleCommentDto> articleComments = articleService.getAllByArticle(article, pageable);
+        List<ArticleCommentDto> articleComments = articleService.getAllByArticle(article);
         ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComments);
         return ResponseEntity.ok(articleAndCommentsDto);
     }
@@ -72,16 +66,22 @@ public class CommentToArticleRestController {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleCommentDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Error adding comment")})
+                    description = "Error adding comment"),
+            @ApiResponse(responseCode = "401",
+                    description = "User have not authority")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
                                                                  @RequestParam("idUser") Long idUser,
                                                                  @RequestParam(value = "answerId", required = false) Long answerId,
                                                                  @RequestBody String commentText) {
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment;
 
-        User currentUser = securityUtilsService.getLoggedUser();
         Article article = articleService.getArticleById(receivedCommentDto.getIdArticle());
         User user = userService.findById(receivedCommentDto.getIdUser());
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -106,7 +106,8 @@ public class CommentToArticleRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = ArticleCommentDto.class))),
-            @ApiResponse(responseCode = "400", description = "Error updating comment")})
+            @ApiResponse(responseCode = "400", description = "Error updating comment"),
+            @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/comment/update", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestParam("commentID") Long commentID,
                                                                   @RequestParam("idArticle") Long idArticle,
@@ -114,9 +115,13 @@ public class CommentToArticleRestController {
                                                                   @RequestParam(value = "answerId", required = false) Long answerId,
                                                                   @RequestBody String commentText) {
 
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
-        User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
 
         boolean admin = securityUtilsService.isAdmin();
@@ -146,21 +151,29 @@ public class CommentToArticleRestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment deleted"),
             @ApiResponse(responseCode = "204", description = "Comment not found"),
-            @ApiResponse(responseCode = "403", description = "User is not logged")})
+            @ApiResponse(responseCode = "401", description = "User is not logged")})
     @DeleteMapping(value = "/comment/delete/{id}", produces = {"application/json"})
     public ResponseEntity<ArticleCommentDto> deleteArticleComment(@PathVariable(value = "id") Long id) {
         ArticleComment articleComment = articleService.getCommentById(id);
         User currentUser = securityUtilsService.getLoggedUser();
         User user = articleComment.getUser();
 
+        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         if (articleComment.getId() == null) {
             return ResponseEntity.noContent().build();
         }
 
-        if (!currentUser.getId().equals(user.getId()) && !securityUtilsService.isAdmin()) {
-            return ResponseEntity.status(403).build();
+        List<ArticleComment> listChildComments = articleService.getChildComment(articleComment);
+        if (!listChildComments.isEmpty()) {
+            articleComment.setDeleted(true);
+            articleComment.setCommentText("Комментарий был удален");
+            articleService.updateArticleComment(articleComment);
+        } else {
+            articleService.deleteComment(id);
         }
-        articleService.deleteComment(id);
         return ResponseEntity.ok().build();
     }
 }

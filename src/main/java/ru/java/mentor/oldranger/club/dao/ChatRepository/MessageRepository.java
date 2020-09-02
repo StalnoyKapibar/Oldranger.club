@@ -4,11 +4,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.java.mentor.oldranger.club.dto.ArticleTagsNodeDto;
 import ru.java.mentor.oldranger.club.model.chat.Chat;
 import ru.java.mentor.oldranger.club.model.chat.Message;
+import ru.java.mentor.oldranger.club.model.user.User;
 
+import javax.persistence.Tuple;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
@@ -20,4 +27,25 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByChat(Chat chat);
 
     Message findFirstByChatOrderByMessageDateAsc(Chat chat);
+
+    @Query("select m from Message m where m.chat.id=:chatId and m.isRead=false")
+    List<Message> findAllByChatUnread(long chatId);
+
+    Message findFirstByChatOrderByMessageDateDesc(Chat chat);
+
+    @Query(nativeQuery = true,
+            value = " SELECT id_chat, COUNT(is_reading) FROM messages where is_reading=false\n" +
+                    "     GROUP BY id_chat")
+    List<Tuple> getAllByChatIn(List<Chat> chats);
+
+    //метод возвращает айди чата и колличество непрочитанных в нем сообщений
+    default HashMap<Long, Integer> getChatIdAndUnreadMessage(List<Chat> chats) {
+        HashMap<Long, Integer> map = new HashMap<>();
+        List<Tuple> tuples = getAllByChatIn(chats);
+        for (Tuple tuple : tuples) {
+            map.put(Long.parseLong(tuple.get("id_chat").toString()),
+                    Integer.parseInt(String.valueOf(tuple.get("COUNT(is_reading)"))));
+        }
+        return map;
+    }
 }

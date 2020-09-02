@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.SearchRepository.SearchRepository;
+import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.service.utils.SearchService;
@@ -35,7 +36,18 @@ public class SearchServiceImpl implements SearchService {
          * А также добавить в параметр fetchingField, вместо null
          */
         List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
-        return pageable(comments, page, limit);
+        if (comments.size() == 0) {
+            return comments;
+        } else {
+            return pageable(comments, page, limit);
+        }
+    }
+
+    public List searchAllCommentByText(String queryString) {
+        log.debug("Searching in comments {}", queryString);
+        String[] targetFields = {"commentText"};
+        List comments = searchRepository.searchObjectsByName(queryString, null, targetFields, Comment.class);
+       return comments;
     }
 
 
@@ -77,11 +89,12 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private List pageable(List list, Integer page, Integer limit) {
-        if (list == null) {
+        // логика для нумерации страниц с единицы
+        if (list.size() == 0) {
             return null;
         }
 
-        if (page == null || page == 0) {
+        if (page == null) {
             page = 1;
         }
         if (limit == null || limit == 0) {
@@ -91,20 +104,35 @@ public class SearchServiceImpl implements SearchService {
 
         int count = list.size();
         int countLastPage = count % limit == 0 ? limit : count % limit;
-        int pages = (count / limit) == 0 ? 1 : count / limit;
-
-        int startIndex = pages > page ? page * limit - 1 : (pages * limit) - limit;
-
-        if (pages <= page) {
-            objects = new Object[countLastPage];
-            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
-            return Arrays.stream(objects).collect(Collectors.toList());
-        } else if (pages > page) {
-            objects = new Object[limit];
-            System.arraycopy(list.toArray(), startIndex, objects, 0, limit);
-            return Arrays.stream(objects).collect(Collectors.toList());
+        int pages;
+        if (countLastPage == 10) {
+            pages = count / limit;
+        } else {
+            pages = count / limit == 0 ? 1 : count / limit + 1;
         }
 
-        return null;
+        int startIndex = page == 1 ? 0 :(page -1 ) * limit;
+
+        if (page == pages) {
+            objects = new Object[countLastPage];
+            System.arraycopy(list.toArray(), startIndex, objects, 0, countLastPage);
+        } else {
+            objects = new Object[limit];
+            System.arraycopy(list.toArray(), startIndex, objects, 0, limit);
+        }
+        return Arrays.stream(objects).collect(Collectors.toList());
+    }
+
+    public List searchByArticleNameLimitPage(String queryString, Integer page, Integer limit) {
+        log.debug("Searching by article name {}", queryString);
+        String[] targetFields = {"title"};
+        List list = searchRepository.searchObjectsByName(queryString, null, targetFields, Article.class);
+        return pageable(list, page, limit);
+    }
+
+    public List searchByArticleName(String queryString) {
+        log.debug("Searching by article name {}", queryString);
+        String[] targetFields = {"title"};
+        return searchRepository.searchObjectsByName(queryString, null, targetFields, Article.class);
     }
 }

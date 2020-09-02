@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,8 +15,10 @@ import ru.java.mentor.oldranger.club.model.chat.Message;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.chat.ChatService;
 import ru.java.mentor.oldranger.club.service.chat.MessageService;
+import ru.java.mentor.oldranger.club.service.media.FileInChatService;
 import ru.java.mentor.oldranger.club.service.media.PhotoService;
 
+import javax.persistence.Tuple;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +26,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,11 +39,13 @@ public class MessageServiceImpl implements MessageService {
     private PhotoService photoService;
     private String uploadDir;
     private String olderThan;
+    private FileInChatService fileInChatService;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService) {
+    public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService, FileInChatService fileInChatService) {
         this.messageRepository = messageRepository;
         this.chatService = chatService;
         this.photoService = photoService;
+        this.fileInChatService = fileInChatService;
         uploadDir = "./media";
         olderThan = "week";
     }
@@ -244,10 +251,22 @@ public class MessageServiceImpl implements MessageService {
             }
         }
         List<String> images = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
         Objects.requireNonNull(messages).forEach(msg -> {
-            images.add(msg.getOriginalImg());
+            if (msg.getOriginalImg() != null) {
+                images.add(msg.getOriginalImg());
+            }
+            if (msg.getFileName() != null) {
+                fileNames.add(msg.getFileName());
+            }
         });
-        deleteChatImages(images);
+        if (!images.isEmpty()) {
+            deleteChatImages(images);
+        }
+        if (!fileNames.isEmpty()) {
+            messages.forEach(msg -> fileInChatService.deleteByFileName(msg.getFileName()));
+        }
+
         messages.forEach(msg -> removeMessageById(msg.getId()));
         log.debug("All messages successfully deleted");
     }
@@ -257,8 +276,13 @@ public class MessageServiceImpl implements MessageService {
         log.debug("Getting message by id for delete");
         Message message = findMessage(id);
         List<String> images = new ArrayList<>();
-        images.add(message.getOriginalImg());
-        deleteChatImages(images);
+        if (message.getOriginalImg() != null) {
+            images.add(message.getOriginalImg());
+            deleteChatImages(images);
+        }
+        if (message.getFileName() != null) {
+            fileInChatService.deleteByFileName(message.getFileName());
+        }
         removeMessageById(id);
     }
 
@@ -266,5 +290,38 @@ public class MessageServiceImpl implements MessageService {
     public Message findMessage(Long id) {
         log.debug("Getting message by id");
         return messageRepository.findById(id).orElseThrow(() -> new RuntimeException("Did not find message by id - " + id));
+    }
+
+    @Override
+    public List<Message> findAllByChat(Chat chat) {
+        return messageRepository.findAllByChat(chat);
+    }
+
+    public Message getLastMessage(Chat chat) {
+        log.debug("Get last message by chat");
+        return messageRepository.findFirstByChatOrderByMessageDateDesc(chat);
+    }
+
+    @Override
+    public List<Message> findAllByChatUnread(long id) {
+        log.debug("Get all unread message");
+        return messageRepository.findAllByChatUnread(id);
+    }
+
+    @Override
+    public HashMap<Long, Message> getAllChatsLastMessage(List<Chat> chats) {
+        log.debug("Getting chat id and last messages");
+        return chatService.getChatIdAndLastMessage(chats);
+    }
+
+    @Override
+    public HashMap<Long, Integer> getChatIdAndUnreadMessage(List<Chat> chats) {
+        log.debug("Getting chat id and unread messages count");
+        HashMap<Long, Integer> daoMap = messageRepository.getChatIdAndUnreadMessage(chats);
+        for (Chat chat : chats) {
+            if (!daoMap.containsKey(chat.getId()))  //нпе без этого
+                daoMap.put(chat.getId(), 0);
+        }
+        return daoMap;
     }
 }

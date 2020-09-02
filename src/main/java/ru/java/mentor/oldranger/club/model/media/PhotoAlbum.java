@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 
 import javax.persistence.*;
@@ -44,12 +45,35 @@ public class PhotoAlbum {
     @ManyToOne(fetch = FetchType.LAZY)
     private Media media;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "photo_album_topic",
+            joinColumns = @JoinColumn(name="photo_album_id"),
+            inverseJoinColumns = @JoinColumn(name="topic_id"))
+    private Topic topic;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "photo_albumFor_topic",
+            joinColumns = @JoinColumn(name="photo_album_for_topic_id"),
+            inverseJoinColumns = @JoinColumn(name="topic_id"))
+    private Topic forTopic;
+
     @OneToOne
     private Photo thumbImage;
 
     public PhotoAlbum(String title) {
         allowView = false;
         this.title = title;
+    }
+
+    public PhotoAlbum(String title, Topic topic, Topic forTopic) {
+        this.title = title;
+        this.topic = topic;
+        this.forTopic = forTopic;
+    }
+
+    public PhotoAlbum(String title, Topic topic) {
+        this.title = title;
+        this.topic = topic;
     }
 
     public void addWriter(User user) {
@@ -75,8 +99,9 @@ public class PhotoAlbum {
                 ", viewers=" + viewers +
                 ", allowView=" + allowView +
                 ", media=" + media +
+                ", topic=" + topic +
+                ", forTopic=" + forTopic +
                 ", thumbImage=" + (thumbImage == null ? thumbImage : thumbImage.getId()) +
                 '}';
     }
-
 }

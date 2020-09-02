@@ -4,7 +4,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoAlbumRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoCommentRepository;
 import ru.java.mentor.oldranger.club.dao.MediaRepository.PhotoRepository;
 import ru.java.mentor.oldranger.club.dto.PhotoCommentDto;
@@ -26,18 +29,25 @@ import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = {"photo"}, cacheManager = "generalCacheManager")
 public class PhotoServiceImpl implements PhotoService {
-
+    @NonNull
+    private PhotoAlbumRepository photoAlbumRepository;
     @NonNull
     private PhotoRepository photoRepository;
     @NonNull
@@ -46,23 +56,28 @@ public class PhotoServiceImpl implements PhotoService {
     private UserStatisticService userStatisticService;
 
     @Value("${photoalbums.location}")
-    private String albumsdDir;
-
+    private String albumsDir;
     @Value("${media.medium}")
     private int medium;
-
     @Value("${media.small}")
     private int small;
+
+    private static final String SIZE_PHOTO = "small_";
 
     @Override
     public Photo save(PhotoAlbum album, MultipartFile file, String description) {
         Photo photo = save(album, file, 0);
         photo.setDescription(description);
+
+        if (album.getThumbImage() == null) {
+            album.setThumbImage(photo);
+            photoAlbumRepository.save(album);
+        }
+
         return photoRepository.save(photo);
     }
 
     @Override
-    //clear cache
     public Photo save(PhotoAlbum album, MultipartFile file, long position) {
         log.info("Saving photo to album with id = {}", album.getId());
         Photo photo = null;
@@ -72,7 +87,7 @@ public class PhotoServiceImpl implements PhotoService {
             String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(file.getOriginalFilename());
             String resultFileName = pathToImg + fileName;
 
-            File uploadPath = new File(albumsdDir + File.separator + resultFileName);
+            File uploadPath = new File(albumsDir + File.separator + resultFileName);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
@@ -80,13 +95,12 @@ public class PhotoServiceImpl implements PhotoService {
 
             Files.copy(file.getInputStream(), copyLocation);
 
-
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + SIZE_PHOTO + fileName);
 
             photo = new Photo(resultFileName + File.separator + fileName,
-                    resultFileName + File.separator + "small_" + fileName);
+                    resultFileName + File.separator + SIZE_PHOTO + fileName);
             photo.setAlbum(album);
 
             photo.setPositionPhoto(position);
@@ -94,6 +108,11 @@ public class PhotoServiceImpl implements PhotoService {
             photo.setUploadPhotoDate(LocalDateTime.now());
 
             photo = photoRepository.save(photo);
+
+            if (album.getThumbImage() == null) {
+                album.setThumbImage(photo);
+                photoAlbumRepository.save(album);
+            }
 
             log.debug("Photo saved");
         } catch (Exception e) {
@@ -103,13 +122,14 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    //add caching
+    @Cacheable
     public Photo findById(Long id) {
         log.debug("Getting photo with id = {}", id);
         Photo photo = null;
         try {
-            photo = photoRepository.findById(id).get();
-            log.debug("Album returned");
+            photo = photoRepository.findById(id).orElseThrow(
+                    () -> new RuntimeException("Not found photo with id = " + id));
+            log.debug("Photo returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -117,7 +137,6 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    //add caching
     public List<PhotoDTO> findPhotoDTOByAlbum(PhotoAlbum album) {
         log.debug("Getting photos of album {}", album);
         List<PhotoDTO> photos = null;
@@ -131,7 +150,6 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    //add caching
     public List<Photo> findPhotoByAlbum(PhotoAlbum album) {
         log.debug("Getting photos of album {}", album);
         List<Photo> photos = null;
@@ -145,18 +163,39 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    @Cacheable(value = "photoComment")
     public PhotoComment getCommentById(Long id) {
-        Optional<PhotoComment> comment = photoCommentRepository.findById(id);
-        return comment.orElseThrow(() -> new RuntimeException("Not found comment by id: " + id));
+        log.debug("Getting comment to photo with id = {}", id);
+        PhotoComment comment = null;
+        try {
+            comment = photoCommentRepository.findById(id).orElseThrow(
+                    () -> new RuntimeException("Not found comment by id: " + id));
+            log.debug("Comment returned");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return comment;
     }
 
+    //TODO Когда удаляется комментарий, позиции других комментариев должны изменяться?
     @Override
-    public void deleteComment(long id) {
+    @Caching(evict = {
+            @CacheEvict(key = "#result.photo.id"),
+            @CacheEvict(value = "photoComment")})
+    public PhotoComment deleteComment(long id) {
+        log.info("Deleting comment to photo with id: {}", id);
+        PhotoComment comment = getCommentById(id);
+        Photo photo = comment.getPhoto();
+        photo.setCommentCount(photo.getCommentCount() - 1);
+        photoRepository.save(photo);
         photoCommentRepository.deleteById(id);
+        log.info("Comment deleted");
+        return comment;
     }
 
     @Override
-    public void addCommentToPhoto(PhotoComment photoComment) {
+    @CacheEvict(key = "#result.photo.id")
+    public PhotoComment addCommentToPhoto(PhotoComment photoComment) {
         Photo photo = photoComment.getPhoto();
         Long comments = photo.getCommentCount();
         if (comments == null) {
@@ -164,17 +203,20 @@ public class PhotoServiceImpl implements PhotoService {
         }
         photoComment.setPosition(++comments);
         photo.setCommentCount(comments);
-        photoCommentRepository.save(photoComment);
+        photoRepository.save(photo);
+        PhotoComment savedComment = photoCommentRepository.save(photoComment);
         UserStatistic userStatistic = userStatisticService.getUserStaticByUser(photoComment.getUser());
         comments = userStatistic.getMessageCount();
         userStatistic.setMessageCount(++comments);
         userStatistic.setLastComment(photoComment.getDateTime());
         userStatisticService.saveUserStatic(userStatistic);
+        return savedComment;
     }
 
     @Override
-    public void updatePhotoComment(PhotoComment photoComment) {
-        photoCommentRepository.save(photoComment);
+    @CachePut(value = "photoComment", key = "#photoComment.id")
+    public PhotoComment updatePhotoComment(PhotoComment photoComment) {
+        return photoCommentRepository.save(photoComment);
     }
 
     @Override
@@ -187,7 +229,7 @@ public class PhotoServiceImpl implements PhotoService {
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + position, pageable.getSort()))
                     .map(list::add);
             List<PhotoCommentDto> dtoList = null;
-            if (list.size() != 0) {
+            if (!list.isEmpty()) {
                 dtoList = list.subList(
                         Math.min(position, list.size() - 1),
                         Math.min(position + pageable.getPageSize(), list.size()))
@@ -195,13 +237,12 @@ public class PhotoServiceImpl implements PhotoService {
             } else {
                 dtoList = Collections.emptyList();
             }
-            page = new PageImpl<PhotoCommentDto>(dtoList, pageable, dtoList.size());
+            page = new PageImpl<>(dtoList, pageable, dtoList.size());
             log.debug("Page returned");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return page;
-
     }
 
     @Override
@@ -228,49 +269,105 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    //clear cache
-    public void deletePhotoByName(String name) {
+    @Caching(evict = {
+            @CacheEvict(key = "#result.id"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#result.id+'original'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#result.id+'small'")})
+    public Photo deletePhotoByName(String name) {
+        Photo photo = null;
         try {
             log.debug("Getting photo by name {} to delete", name);
-            Photo photo = photoRepository.findByOriginal(name);
+            photo = photoRepository.findByOriginal(name);
             deletePhoto(photo.getId());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+        return photo;
     }
 
     @Override
-    //clear cache
-    public void deletePhoto(Long id) {
-        log.info("Deleting photo with id = {}", id);
+    @Caching(evict = {
+            @CacheEvict,
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'original'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager")})
+    public void deletePhotoByEditingComment(Long id) {
+        log.info("Deleting photo with id = {} by editing Comment", id);
         try {
             Photo photo = findById(id);
-            File file = new File(albumsdDir + File.separator + photo.getOriginal());
+            PhotoAlbum album = photo.getAlbum();
+            album.setThumbImage(null);
+            photoAlbumRepository.save(album);
+            log.debug("PhotoAlbum save");
+            File file = new File(albumsDir + File.separator + photo.getOriginal());
             FileSystemUtils.deleteRecursively(file);
-
-            file = new File(albumsdDir + File.separator + photo.getSmall());
+            file = new File(albumsDir + File.separator + photo.getSmall());
             FileSystemUtils.deleteRecursively(file);
-
             photoRepository.delete(photo);
             log.debug("Photo deleted");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     @Override
-    //clear cache
+    @Caching(evict = {
+            @CacheEvict,
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'original'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#id+'small'"),
+            @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager")})
+    public void deletePhoto(Long id) {
+        log.info("Deleting photo with id = {}", id);
+        try {
+            Photo photo = findById(id);
+            PhotoAlbum photoAlbum = photo.getAlbum();
+            List<Photo> photoList = photoRepository.findAllByAlbum(photoAlbum);
+            if (photoAlbum.getThumbImage() != null && id.equals(photoAlbum.getThumbImage().getId())) {
+                for (Photo photo1 : photoList) {
+                    if (!photo1.getId().equals(id)) {
+                        photoAlbum.setThumbImage(photo1);
+                        break;
+                    }
+                }
+                if (photoAlbum.getThumbImage().getId().equals(id)) {
+                    photoAlbum.setThumbImage(null);
+                }
+            }
+            photoAlbumRepository.save(photoAlbum);
+            log.debug("PhotoAlbum save");
+
+            File file = new File(albumsDir + File.separator + photo.getOriginal());
+            FileSystemUtils.deleteRecursively(file);
+
+            file = new File(albumsDir + File.separator + photo.getSmall());
+            FileSystemUtils.deleteRecursively(file);
+
+            photoRepository.delete(photo);
+
+            log.debug("Photo deleted");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Caching(
+            put = {
+                    @CachePut(key = "#photo.id")
+            },
+            evict = {
+                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+'original'"),
+                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+'small'"),
+                    @CacheEvict(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id")})
     public Photo update(MultipartFile newPhoto, Photo photo) {
         log.info("Updating photo with id = {}", photo.getId());
-        Photo updatedPhoto = null;
         try {
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
             String pathToImg = userName + File.separator + "photo_albums" + File.separator + photo.getAlbum().getId() + File.separator;
             String fileName = UUID.randomUUID().toString() + StringUtils.cleanPath(newPhoto.getOriginalFilename());
             String resultFileName = pathToImg + fileName;
 
-            File uploadPath = new File(albumsdDir + File.separator + resultFileName);
+            File uploadPath = new File(albumsDir + File.separator + resultFileName);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
@@ -281,21 +378,34 @@ public class PhotoServiceImpl implements PhotoService {
 
             Thumbnails.of(uploadPath + File.separator + fileName)
                     .size(small, small)
-                    .toFile(uploadPath + File.separator + "small_" + fileName);
+                    .toFile(uploadPath + File.separator + SIZE_PHOTO + fileName);
 
             photo.setOriginal(resultFileName + File.separator + fileName);
             photo.setSmall(resultFileName + File.separator + fileName);
             photo.setUploadPhotoDate(LocalDateTime.now());
-            photo = photoRepository.save(photo);
+            photoRepository.save(photo);
+
             log.debug("Photo updated");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return updatedPhoto;
+        return photo;
     }
 
     @Override
     public List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description) {
         return photoRepository.findByAlbumTitleAndDescription(albumTitle, description);
     }
+
+    @Override
+    @Caching(cacheable = {
+            @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id+#type", condition = "#type!=null"),
+            @Cacheable(value = "photoFile", cacheManager = "mediaFileCacheManager", key = "#photo.id", condition = "#type==null")})
+    public byte[] getPhotoAsByteArray(Photo photo, String type) throws IOException {
+        log.info("Before method.getPhotoAsByteArray(Photo photo, String type) in PhotoServiceImp");
+        return IOUtils.toByteArray(new FileInputStream(
+                new File(albumsDir + File.separator +
+                        (type == null || type.equals("original") ? photo.getOriginal() : photo.getSmall()))));
+    }
+
 }

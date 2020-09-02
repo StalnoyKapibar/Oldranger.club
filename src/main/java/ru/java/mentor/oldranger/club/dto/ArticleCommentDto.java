@@ -13,14 +13,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ArticleCommentDto {
 
-    private Long positionInArticle;
+    private Long position;
+    private Long id;
     private Long articleId;
     private User author;
     private LocalDateTime commentDateTime;
-    private Long messageCount;
     private LocalDateTime replyDateTime;
+    private Long parentId;
     private String replyNick;
     private String replyText;
     private String commentText;
+    private boolean isDeleted;
 
 }

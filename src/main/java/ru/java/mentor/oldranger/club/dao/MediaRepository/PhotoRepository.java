@@ -25,9 +25,12 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     Photo findByOriginal(String original);
 
-    @Query(nativeQuery = true, value = "select * from photos where album_id in (" +
-            "select id from photo_album where title = ?1" +
-            ") and description = ?2")
+
+    @Query(nativeQuery = true, value = "SELECT p.* FROM photos p " +
+            "JOIN photo_album a " +
+            "ON a.id = p.album_id " +
+            "WHERE " +
+            "a.title = ?1 AND p.description = ?2 ORDER BY p.id")
     List<Photo> findByAlbumTitleAndDescription(String albumTitle, String description);
 
     List<Photo> getAllByAlbumId(long albumId);
