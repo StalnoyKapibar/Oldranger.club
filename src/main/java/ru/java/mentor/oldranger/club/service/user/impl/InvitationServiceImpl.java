@@ -145,6 +145,7 @@ public class InvitationServiceImpl implements InvitationService {
             List<InvitationToken> tokens = repository.findAllByMailAndUsed(mail, false);
             if (tokens.size() != 0) {
                 tokens.get(0).setUsed(true);
+                save(tokens.get(0));
             }
             log.info("Invite marked as used");
         } catch (Exception e) {
