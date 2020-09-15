@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -38,7 +37,7 @@ public class MessageServiceImpl implements MessageService {
     private ChatService chatService;
     private PhotoService photoService;
     private String uploadDir;
-    private String olderThan;
+    private Long olderThan;
     private FileInChatService fileInChatService;
 
     public MessageServiceImpl(MessageRepository messageRepository, ChatService chatService, PhotoService photoService, FileInChatService fileInChatService) {
@@ -47,10 +46,10 @@ public class MessageServiceImpl implements MessageService {
         this.photoService = photoService;
         this.fileInChatService = fileInChatService;
         uploadDir = "./media";
-        olderThan = "week";
+        olderThan = 7L;
     }
 
-    public void setOlderThan(String olderThan) {
+    public void setOlderThan(Long olderThan) {
         this.olderThan = olderThan;
     }
 
@@ -200,29 +199,16 @@ public class MessageServiceImpl implements MessageService {
         if (isPrivate) {
             date = LocalDateTime.now().minusMonths(1L);
         } else {
-            switch (olderThan) {
-                case "week":
-                    date = LocalDateTime.now().minusWeeks(1L);
-                    break;
-                case "two-weeks":
-                    date = LocalDateTime.now().minusWeeks(2L);
-                    break;
-                case "month":
-                    date = LocalDateTime.now().minusMonths(1L);
-                    break;
-                default:
-                    date = LocalDateTime.now().minusWeeks(1L);
-            }
+            date = LocalDateTime.now().minusDays(olderThan);
         }
         return messageRepository.findAllByChatAndDate(chat.getId(), date);
     }
 
-    @Scheduled(cron = "0 0 0 * * 0")
+
+    @Scheduled(cron = "0 0 0 * * *")
     private void cleanMessages() {
-        if (!olderThan.equals("never")) {
-            log.info("Starting scheduled task of deleting messages in group chat");
-            deleteMessages(false, false, "-");
-        }
+        log.info("Starting scheduled task of deleting messages in group chat");
+        deleteMessages(false, false, "-");
     }
 
     // Метод удаляет сообщеня и связанные с ними изображения. Для приватного чата - если параметр deleteAll = true,

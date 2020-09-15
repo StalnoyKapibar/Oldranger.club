@@ -73,7 +73,7 @@ public class TestAdminController {
 
     //ToDo DELETE ПОДУМАТЬ удалить ли этот метод НО  в REST точного аналога не нашел хотя похожие есть http://localhost:8888/api/chat/image ( место текущего:  http://localhost:8888/admin/chat?cleanChat=1  )
     @PostMapping("/chat")
-    public String setChatSettings(@RequestParam String cleanChat) {
+    public String setChatSettings(@RequestParam Long cleanChat) {
         messageService.setOlderThan(cleanChat);
         return "redirect:/admin/chatSettings";
     }
