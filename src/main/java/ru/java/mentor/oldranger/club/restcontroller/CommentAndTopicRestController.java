@@ -332,7 +332,11 @@ public class CommentAndTopicRestController {
     private CommentDto deletePhotoFromDto(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
                                           List<Long> idPhotosToKeep, List<Long> idPhotosToDelete,
                                           List<Photo> photos, CommentDto commentDto) {
-        Long thumbImageId = photoAlbum.getThumbImage().getId();
+        Long thumbImageId = null;
+        if (photoAlbum.getThumbImage() != null) {
+            thumbImageId = photoAlbum.getThumbImage().getId();
+        }
+
         if ((idPhotosToDelete.contains(thumbImageId)) & (image1 != null || image2 != null)) {
             if (idPhotosToDelete.size() == 1 & !idPhotosToKeep.contains(thumbImageId) & idPhotosToKeep.size() == 1) {
                 photoService.deletePhotoByEditingComment(idPhotosToDelete.get(0));
