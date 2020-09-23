@@ -3,7 +3,7 @@
 
 # Если вы делаете изменения в конфигурации для проекта то добавляйте их в sample
 server.protocol=http
-server.name=oldranger.club
+server.name=localhost
 server.port=8888
 client.port=3000
 server.tomcat.remote-ip-header=X-Forwarded-For
@@ -71,5 +71,136 @@ logging.level.org.springframework=WARN
 logging.level.org.hibernate=ERROR
 logging.level.ru.java.mentor.oldranger.club=DEBUG
 
-#change config profile (Когда появится jar файл в проекте, можно удалить эту переменную и запускать с ней чез командную строку)
-spring.profiles.active=dev
+# --------------Datasource Properties-----------------------------------
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/jm_oldc?verifyServerCertificate=false&sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=Europe/Moscow
+#  ?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+spring.datasource.username=test
+spring.datasource.password=test
+
+#-------------------JPA Properties---------------------------------------
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.show_sql=false
+spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true
+spring.jpa.properties.hibernate.format_sql=false
+spring.jpa.properties.hibernate.use_sql_comments=true
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.generate-ddl=true
+
+#---------------------Data For Change Role Properties------------------------
+spring.jpa.properties.hibernate.search.default.directory__provider=filesystem
+spring.jpa.properties.hibernate.search.default.indexBase=./data/index/default
+spring.jpa.properties.hibernate.search.analyzer=org.apache.lucene.analysis.ru.RussianAnalyzer
+
+numberMessageForVeteran=2000
+numberTimeForOld_timeInYears=2
+minNumberMessageForOld_time=700
+maxNumberMessageForOld_time=1999
+scheduler.timeForChangeRole.cron=0 0 4 * * *
+
+#----------------------------Mail Properties------------------------------------
+# MailSender
+spring.mail.host=smtp.gmail.com
+spring.mail.port=465
+spring.mail.username=oldrangerclub@gmail.com
+spring.mail.password=rangeR]h.8j
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.connectiontimeout=5000
+spring.mail.properties.mail.smtp.timeout=5000
+spring.mail.properties.mail.smtp.writetimeout=5000
+spring.mail.properties.mail.smtp.socketFactory.port=465
+spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+
+#---------------------------Cache Properties------------------------------
+
+# /Caffeine cache используется взамен стандартному кэш менеджеру spring/
+# подключается зависимостями в Maven
+# ______________________________________
+# <dependency>
+#     <groupId>org.springframework.boot</groupId>
+#     <artifactId>spring-boot-starter-cache</artifactId>
+# </dependency>
+#
+# <dependency>
+#     <groupId>com.github.ben-manes.caffeine</groupId>
+#     <artifactId>caffeine</artifactId>
+#     <version>2.7.0</version>
+# </dependency>
+# _______________________________________
+# Java Configure
+# _______________________________________
+# @Configuration
+# @EnableCaching
+# public class CaffeineCacheConfig {
+#     public CacheManager cacheManager() {
+#         CaffeineCacheManager cacheManager = new CaffeineCacheManager("users", "user1");
+#         cacheManager.setCaffeine(caffeineCacheBuilder());
+#         return cacheManager;
+#     }
+#
+#     Caffeine<Object, Object> caffeineCacheBuilder() {
+#         return Caffeine.newBuilder()
+#                 .initialCapacity(100)
+#                 .maximumSize(500)
+#                 .expireAfterAccess(10, TimeUnit.MINUTES)
+#                 .weakKeys()
+#                 .recordStats();
+#     }
+#     public class CustomKeyGenerator implements KeyGenerator {
+#
+#         public Object generate(Object target, Method method, Object... params) {
+#             return target.getClass().getSimpleName() + "_"
+#                     + method.getName() + "_"
+#                     + StringUtils.arrayToDelimitedString(params, "_");
+#         }
+#     }
+#     @Bean("customKeyGenerator")
+#     public KeyGenerator keyGenerator() {
+#         return new CustomKeyGenerator();
+#     }
+# }
+# //keyGenerator нужен для использования одного кэша в методах с разными возвращаемыми значениями
+# и параметрами
+# ______________________________________________________
+# Основные настройки
+# ______________________________________________________
+# initialCapacity=[integer]: Минимальный общий размер для хэш таблиц
+# maximumSize=[long]: максимальное число записей кэша, не использовать
+# expireAfterAccess=[duration]: через сколько запись будет удалена из кэша
+# expireAfterWrite=[duration]: через сколько запись будет удалена из кэша, после создания или обновления
+# refreshAfterWrite=[duration]: через сколько запись в кэше будет автоматически обновлена
+# weakKeys() позволяет сборщику мусора, управлять кешем (ключами)
+# recordStats - позволяет записывать статистику использования кэша
+# _____________________________________________________
+# Настройка сервисного слоя
+# _____________________________________________________
+#
+# @CacheConfig(cacheNames = {"имякэша"}) - Включение кэширование на уровне класса позволяет не указывать
+# имя кэша в аннотации метода
+# @Cachable - включение кэширования метода, также можно указать имя кэша, ключ  и условия кеширования
+# 	@Cacheable(cacheNames={"book"}, condition="#name.length() < 32")
+# 		public Book findBook(String name)
+#
+#
+# @CacheEvict: отчистка кэша
+# 	@CacheEvict(cacheNames={"book"}, allEntries=true)
+# 		public void loadBooks(InputStream batch)
+#
+# @CachePut: Обновление кэша, не мешая выполнению метода
+#
+# @Caching: группировка операций кэша
+# 	@Caching(evict = { @CacheEvict("primary"), @CacheEvict(cacheNames="secondary", key="#p0") })
+# 		public Book importBooks(String deposit, Date date)
+#DOCS
+# https://docs.spring.io/spring/docs/current/spring-framework-reference/integration.html#cache
+# https://habr.com/ru/post/465667/ немного на русском
+# https://www.javadevjournal.com/spring-boot/spring-boot-with-caffeine-cache/
+#_______________________________________
+#В методах где стоит //add cache - нужно добавить новую страницу кэша в конфиге для этого класса, по позможности использовать keyGenerator для избежания ошибок
+#в методах где стоит //clear cache - нужно отчистить кэш страницу для этого класса, можно так-же использовать разные страницы для разных типов данных.
+#смотреть пример реализации кэширования в классах userService, topicService, articleService
+
+INIT_CAPACITY=100
+MAX_SIZE=500
+LIVE_TIME=10

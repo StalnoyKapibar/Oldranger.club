@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @EnableScheduling
-@PropertySource("classpath:config/dataForChangeRole.properties")
 @Component("scheduler")
 public class SchedulerImpl {
     @Autowired

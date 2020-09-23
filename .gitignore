@@ -42,7 +42,6 @@ filesInChat/*
 
 ## Credential and Environment  depended properties
 /src/main/resources/config/application.properties
-/src/main/resources/config/application-dev.properties
 /src/main/resources/config/application-prod.properties
 /src/main/resources/config/jpa.properties
 /src/main/resources/config/mail.properties
