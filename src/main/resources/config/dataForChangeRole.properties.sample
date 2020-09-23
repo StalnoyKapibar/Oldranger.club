@@ -1,5 +1,0 @@
-numberMessageForVeteran=2000
-numberTimeForOld_timeInYears=2
-minNumberMessageForOld_time=700
-maxNumberMessageForOld_time=1999
-scheduler.timeForChangeRole.cron=0 0 4 * * * 

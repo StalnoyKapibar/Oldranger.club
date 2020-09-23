@@ -1,0 +1,16 @@
+
+server.name=${HOSTNAME}
+
+# JWT secret word
+project.jwt.secret-word=${SECRET_WORD}
+
+#---------------------Data Source Properties------------------
+
+spring.datasource.driver-class-name=${DRIVER_CLASS_NAME}
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+#----------------------Mail Properties-----------------------
+
+spring.mail.password=${MAIL_PASSWORD}
