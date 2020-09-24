@@ -13,13 +13,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.media.MediaService;
+import ru.java.mentor.oldranger.club.service.media.PhotoAlbumService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserService;
 import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
@@ -39,7 +44,10 @@ public class CommentToArticleRestController {
     private final SecurityUtilsService securityUtilsService;
     private final FilterHtmlService filterHtmlService;
     private WritingBanService writingBanService;
-
+    private MediaService mediaService;
+    private PhotoAlbumService albumService;
+    private final PhotoAlbumService photoAlbumService;
+    private final PhotoService photoService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a article and a list of comments DTO", description = "Get a article and a list of comments for this article by article id", tags = {"Article comment"})
@@ -73,7 +81,9 @@ public class CommentToArticleRestController {
     public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
                                                                  @RequestParam("idUser") Long idUser,
                                                                  @RequestParam(value = "answerId", required = false) Long answerId,
-                                                                 @RequestBody String commentText) {
+                                                                 @RequestBody String commentText,
+                                                                 @RequestPart(required = false) MultipartFile image1,
+                                                                 @RequestPart(required = false) MultipartFile image2) {
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -95,9 +105,21 @@ public class CommentToArticleRestController {
         if (user == null || !currentUser.getId().equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
-
         articleService.addCommentToArticle(articleComment);
+        PhotoAlbum photoAlbum = new PhotoAlbum("PhotoAlbum by " + article.getTitle());
+        photoAlbum.setMedia(mediaService.findMediaByUser(user));
+        photoAlbum.setAllowView(false);
+        albumService.save(photoAlbum);
+        if (image1 != null) {
+            photoService.save(photoAlbum, image1
+                    , article.getId().toString());
+        }
+        if (image2 != null) {
+            photoService.save(photoAlbum, image2
+                    , article.getId().toString());
+        }
         ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment);
+
         return ResponseEntity.ok(commentDto);
     }
 
