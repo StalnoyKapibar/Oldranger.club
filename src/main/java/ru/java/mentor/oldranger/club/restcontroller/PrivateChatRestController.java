@@ -168,20 +168,22 @@ public class PrivateChatRestController {
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete chat messages",
-            description = "Delete all chat messages if param all=true, or else delete messages older than month",
-            tags = {"Private Chat"})
+            description = "Delete all chat messages if param all=true, or else delete messages \n" +
+                    "given number of days", tags = {"Private Chat"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "204", description = "Wrong chat token")})
     @DeleteMapping(value = "/messages/{chatToken}")
     ResponseEntity<String> deleteMessages(@PathVariable String chatToken,
-                                          @Parameter(description = "Delete all messages or messages that older than month", required = true)
-                                          @RequestParam(value = "all") Boolean all) {
+                                          @Parameter(description = "Delete all messages or messages given number of days", required = true)
+                                          @RequestParam(value = "all") Boolean all,
+                                          @RequestParam (value = "days") Long days) {
         Chat chat = chatService.getChatByToken(chatToken);
         if (chat == null) {
             return ResponseEntity.noContent().build();
         }
+        messageService.setOlderThan(days);
         messageService.deleteMessages(true, all, chatToken);
         albumService.deleteAlbumPhotos(all, chatService.getChatByToken(chatToken).getPhotoAlbum());
         return ResponseEntity.ok().build();

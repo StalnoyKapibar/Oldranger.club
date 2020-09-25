@@ -177,6 +177,25 @@ public class ChatRestController {
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Change period for automatic deletion messages ",
+            tags = {"Group Chat"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "User is not logged in"),
+    })
+    @GetMapping(value = "/messages/{days}")
+    ResponseEntity<String> changeDeletionTime(@Parameter(description = "Changes the automatic message deletion period", required = true)
+                                              @PathVariable Long days) {
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        messageService.setOlderThan(days);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Delete chat message",
             tags = {"Group Chat"})
     @ApiResponses(value = {
