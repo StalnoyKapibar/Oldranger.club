@@ -26,7 +26,7 @@ public interface MessageService {
 
     Map<String, Long> getOnlineUsers();
 
-    void setOlderThan(String olderThan);
+    void setOlderThan(Long olderThan);
 
     Message findFirstMessageByChat(Chat chat);
 
