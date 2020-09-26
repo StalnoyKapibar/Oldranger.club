@@ -15,6 +15,7 @@ import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import java.time.LocalDateTime;
@@ -35,9 +36,11 @@ class ArticleServiceImplTest {
     @Mock
     private Pageable pageable = Mockito.mock(Pageable.class);
 
+    @Mock
+    private PhotoService photoService = Mockito.mock(PhotoService.class);
     @BeforeEach
     void initSomeCase() {
-        articleService = new ArticleServiceImpl(articleRepository, articleCommentRepository, userStatisticService);
+        articleService = new ArticleServiceImpl(articleRepository, articleCommentRepository, userStatisticService, photoService);
     }
 
     @Test

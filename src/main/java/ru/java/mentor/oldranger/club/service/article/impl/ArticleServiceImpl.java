@@ -11,6 +11,7 @@ import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
 import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
+import ru.java.mentor.oldranger.club.dto.ArticlePhotosDTO;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
@@ -18,6 +19,7 @@ import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import javax.transaction.Transactional;
@@ -35,7 +37,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
-
+    private  PhotoService photoService;
     @Override
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
@@ -117,6 +119,14 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticles) {
         ArticleListAndCountArticlesDto articleListDto = new ArticleListAndCountArticlesDto(articles, countArticles);
         return articleListDto;
+    }
+
+    @Override
+    public ArticlePhotosDTO getPhotos(ArticleComment articleComment) {
+        ArticlePhotosDTO photosDTO = new ArticlePhotosDTO();
+        photosDTO.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        return photosDTO;
     }
 
     @Override
