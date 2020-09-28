@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.article;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
@@ -49,4 +50,5 @@ public interface ArticleService {
 
     ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticle);
 
+    boolean isEmptyComment(String comment);
 }

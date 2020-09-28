@@ -2,6 +2,7 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,7 +149,7 @@ public class ArticleServiceImpl implements ArticleService {
     public List<ArticleCommentDto> getAllByArticle(Article article) {
         log.debug("Getting list of comment dtos for article with id = {}", article.getId());
         List<ArticleCommentDto> articleCommentDto = null;
-        List<ArticleComment> articleComments = new ArrayList<>();
+        List<ArticleComment> articleComments;
         try {
             articleComments = articleCommentRepository.findByArticle(article);
             for (ArticleComment comment : articleComments) {
@@ -190,5 +191,10 @@ public class ArticleServiceImpl implements ArticleService {
         log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
         List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
         return childComment;
+    }
+
+    @Override
+    public boolean isEmptyComment(String comment) {
+        return StringUtils.isBlank(comment.replaceAll("<.+?>", ""));
     }
 }

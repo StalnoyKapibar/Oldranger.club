@@ -91,7 +91,7 @@ public class CommentToArticleRestController {
 
         String cleanedText = filterHtmlService.filterHtml(receivedCommentDto.getCommentText());
 
-        if (image1 == null & image2 == null) {
+        if (image1 == null & image2 == null & articleService.isEmptyComment(cleanedText)) {
             return ResponseEntity.badRequest().build();
         }
         ArticleComment articleComment;
@@ -166,11 +166,22 @@ public class CommentToArticleRestController {
         if (receivedCommentArticleDto.getIdUser() == null || !currentUser.getId().equals(user.getId()) && (!admin || !moderator) || (!admin || !moderator) && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
+
         //Логика по фото
-        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
-        articleCommentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
-                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        ArticleCommentDto articleCommentDto;
+
+        articleCommentDto = articleService.assembleCommentToDto(articleComment);
+
         List<Photo> photos = articleCommentDto.getPhotos();
+
+        String cleanedText = filterHtmlService.filterHtml(receivedCommentArticleDto.getCommentText());
+        String idPhotosForDelete = photoIdList[0].replaceAll("[^0-9]", "");
+
+        if (idPhotosForDelete.equals("") & articleService.isEmptyComment(cleanedText) & image1 == null & image2 == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        articleService.updateArticleComment(articleComment);
 
         List<Long> idPhotosToKeep = new ArrayList<>();
         for (int i = 0; i <= photoIdList.length - 1; i++) {
@@ -190,8 +201,6 @@ public class CommentToArticleRestController {
         articleCommentDto = deletePhotoFromDto(photoAlbum, image1, image2, idPhotosToKeep, idPhotosToDelete, photos, articleCommentDto);
         articleCommentDto = updatePhotos(photoAlbum, image1, image2, articleComment, articleCommentDto, photos);
 
-        articleService.updateArticleComment(articleComment);
-        articleCommentDto = articleService.assembleCommentToDto(articleComment);
         return ResponseEntity.ok(articleCommentDto);
     }
 
@@ -215,9 +224,8 @@ public class CommentToArticleRestController {
             return ResponseEntity.noContent().build();
         }
 
-        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
-        articleCommentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
-                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        ArticleCommentDto articleCommentDto;
+        articleCommentDto = articleService.assembleCommentToDto(articleComment);
         List<Photo> photos = articleCommentDto.getPhotos();
         if (!photos.isEmpty()) {
             for (Photo photo : photos) {
