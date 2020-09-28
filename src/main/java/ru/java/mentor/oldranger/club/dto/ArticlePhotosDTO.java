@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticlePhotosDTO extends ArticleCommentDto {
+public class ArticlePhotosDTO  {
     private List<Photo> photos;
 }
 

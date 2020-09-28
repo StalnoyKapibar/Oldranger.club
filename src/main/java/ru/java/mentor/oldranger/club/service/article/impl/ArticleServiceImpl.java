@@ -90,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleCommentDto assembleCommentToDto(ArticleComment articleComment) {
-        ArticleCommentDto articleCommentDto;
+        ArticleCommentDto articleCommentDto = null;
 
         LocalDateTime replyTime = null;
         String replyNick = null;
@@ -111,7 +111,8 @@ public class ArticleServiceImpl implements ArticleService {
                 articleComment.getDateTime(),
                 replyTime, parentId, replyNick, replyText,
                 articleComment.getCommentText(),
-                articleComment.isDeleted());
+                articleComment.isDeleted(),
+                articleCommentDto.getPhotos());
         return articleCommentDto;
     }
 
@@ -121,13 +122,13 @@ public class ArticleServiceImpl implements ArticleService {
         return articleListDto;
     }
 
-    @Override
-    public ArticlePhotosDTO getPhotos(ArticleComment articleComment) {
-        ArticlePhotosDTO photosDTO = new ArticlePhotosDTO();
-        photosDTO.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
-                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
-        return photosDTO;
-    }
+//    @Override
+//    public ArticlePhotosDTO getPhotos(ArticleComment articleComment) {
+//        ArticlePhotosDTO photosDTO = new ArticlePhotosDTO();
+//        photosDTO.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+//                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+//        return photosDTO;
+//    }
 
     @Override
     @Cacheable(value = "articleComment")

@@ -14,12 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
-import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
-import ru.java.mentor.oldranger.club.dto.ArticlePhotosDTO;
-import ru.java.mentor.oldranger.club.dto.ReceivedCommentArticleDto;
+import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -32,8 +30,11 @@ import ru.java.mentor.oldranger.club.service.utils.FilterHtmlService;
 import ru.java.mentor.oldranger.club.service.utils.SecurityUtilsService;
 import ru.java.mentor.oldranger.club.service.utils.WritingBanService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -80,10 +81,7 @@ public class CommentToArticleRestController {
             @ApiResponse(responseCode = "401",
                     description = "User have not authority")})
     @PostMapping(value = "/comment/add", produces = {"application/json"})
-    public ResponseEntity<ArticleCommentDto> addCommentToArticle(@RequestParam("idArticle") Long idArticle,
-                                                                 @RequestParam("idUser") Long idUser,
-                                                                 @RequestParam(value = "answerId", required = false) Long answerId,
-                                                                 @RequestBody String commentText,
+    public ResponseEntity<ArticleCommentDto> addCommentToArticle(@ModelAttribute @Valid ReceivedCommentArticleDto receivedCommentDto,
                                                                  @RequestPart(required = false) MultipartFile image1,
                                                                  @RequestPart(required = false) MultipartFile image2) {
         User currentUser = securityUtilsService.getLoggedUser();
@@ -91,7 +89,11 @@ public class CommentToArticleRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        ReceivedCommentArticleDto receivedCommentDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
+        String cleanedText = filterHtmlService.filterHtml(receivedCommentDto.getCommentText());
+
+        if (image1 == null & image2 == null) {
+            return ResponseEntity.badRequest().build();
+        }
         ArticleComment articleComment;
 
         Article article = articleService.getArticleById(receivedCommentDto.getIdArticle());
@@ -123,6 +125,8 @@ public class CommentToArticleRestController {
                     , article.getId().toString());
         }
         ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment);
+        commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
         return ResponseEntity.ok(commentDto);
     }
 
@@ -134,18 +138,16 @@ public class CommentToArticleRestController {
             @ApiResponse(responseCode = "400", description = "Error updating comment"),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
     @PutMapping(value = "/comment/update", produces = {"application/json"})
-    public ResponseEntity<ArticleCommentDto> updateArticleComment(@RequestParam("commentID") Long commentID,
-                                                                  @RequestParam("idArticle") Long idArticle,
-                                                                  @RequestParam("idUser") Long idUser,
-                                                                  @RequestParam(value = "answerId", required = false) Long answerId,
-                                                                  @RequestBody String commentText) {
+    public ResponseEntity<ArticleCommentDto> updateArticleComment(@ModelAttribute @Valid ReceivedCommentArticleDto receivedCommentArticleDto,
+                                                                  @RequestParam("commentID") Long commentID,
+                                                                  @RequestParam String[] photoIdList,
+                                                                  @RequestPart(required = false) MultipartFile image1,
+                                                                  @RequestPart(required = false) MultipartFile image2) {
 
         User currentUser = securityUtilsService.getLoggedUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        ReceivedCommentArticleDto commentArticleDto = new ReceivedCommentArticleDto(idArticle, idUser, filterHtmlService.filterHtml(commentText), answerId);
         ArticleComment articleComment = articleService.getCommentById(commentID);
         User user = articleComment.getUser();
 
@@ -153,21 +155,44 @@ public class CommentToArticleRestController {
         boolean moderator = securityUtilsService.isModerator();
         boolean allowedEditingTime = LocalDateTime.now().compareTo(articleComment.getDateTime().plusDays(7)) >= 0;
 
-        articleComment.setArticle(articleService.getArticleById(commentArticleDto.getIdArticle()));
-        articleComment.setCommentText(commentArticleDto.getCommentText());
+        articleComment.setArticle(articleService.getArticleById(receivedCommentArticleDto.getIdArticle()));
+        articleComment.setCommentText(receivedCommentArticleDto.getCommentText());
         articleComment.setDateTime(articleComment.getDateTime());
-        if (commentArticleDto.getAnswerId() != null) {
-            articleComment.setAnswerTo(articleService.getCommentById(commentArticleDto.getAnswerId()));
+        if (receivedCommentArticleDto.getAnswerId() != null) {
+            articleComment.setAnswerTo(articleService.getCommentById(receivedCommentArticleDto.getAnswerId()));
         } else {
             articleComment.setAnswerTo(null);
         }
 
-        if (commentArticleDto.getIdUser() == null || !currentUser.getId().equals(user.getId()) && (!admin || !moderator) || (!admin || !moderator) && !allowedEditingTime) {
+        if (receivedCommentArticleDto.getIdUser() == null || !currentUser.getId().equals(user.getId()) && (!admin || !moderator) || (!admin || !moderator) && !allowedEditingTime) {
             return ResponseEntity.badRequest().build();
         }
+        //Логика по фото
+        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
+        articleCommentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        List<Photo> photos = articleCommentDto.getPhotos();
+
+        List<Long> idPhotosToKeep = new ArrayList<>();
+        for (int i = 0; i <= photoIdList.length - 1; i++) {
+            String id = photoIdList[i].replaceAll("[^0-9]", "");
+            if (!id.equals("")) {
+                idPhotosToKeep.add(Long.parseLong(id));
+            }
+        }
+
+        List<Long> idPhotosToDelete = new ArrayList<>();
+        for (Photo photo : photos) {
+            if (!idPhotosToKeep.contains(photo.getId()))
+                idPhotosToDelete.add(photo.getId());
+        }
+        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle(articleComment.getId().toString());
+
+        articleCommentDto = deletePhotoFromDto(photoAlbum, image1, image2, idPhotosToKeep, idPhotosToDelete, photos, articleCommentDto);
+        articleCommentDto = updatePhotos(photoAlbum, image1, image2, articleComment, articleCommentDto, photos);
 
         articleService.updateArticleComment(articleComment);
-        ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
+        articleCommentDto = articleService.assembleCommentToDto(articleComment);
         return ResponseEntity.ok(articleCommentDto);
     }
 
@@ -191,8 +216,10 @@ public class CommentToArticleRestController {
             return ResponseEntity.noContent().build();
         }
 
-        ArticlePhotosDTO photosDTO = (ArticlePhotosDTO) articleService.getPhotos(articleComment);
-        List<Photo> photos = photosDTO.getPhotos();
+        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
+        articleCommentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
+                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        List<Photo> photos = articleCommentDto.getPhotos();
         if (!photos.isEmpty()) {
             for (Photo photo : photos) {
                 photoService.deletePhoto(photo.getId());
@@ -208,6 +235,58 @@ public class CommentToArticleRestController {
             articleService.deleteComment(id);
         }
         return ResponseEntity.ok().build();
+    }
+
+    private ArticleCommentDto updatePhotos(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                           ArticleComment comment, ArticleCommentDto articleCommentDto, List<Photo> photos) {
+        if (image1 != null) {
+            Photo newPhoto1 = photoService.save(photoAlbum, image1, comment.getId().toString());
+            photos.add(newPhoto1);
+        }
+        if (image2 != null) {
+            Photo newPhoto2 = photoService.save(photoAlbum, image2, comment.getId().toString());
+            photos.add(newPhoto2);
+        }
+        articleCommentDto.setPhotos(photos);
+        return articleCommentDto;
+    }
+
+    private ArticleCommentDto deletePhotoFromDto(PhotoAlbum photoAlbum, MultipartFile image1, MultipartFile image2,
+                                                 List<Long> idPhotosToKeep, List<Long> idPhotosToDelete,
+                                                 List<Photo> photos, ArticleCommentDto articleCommentDto) {
+
+        Optional<Photo> thumbImageId = Optional.ofNullable(photoAlbum.getThumbImage());
+        thumbImageId.ifPresent(v -> photoAlbum.getThumbImage().getId());
+
+        if ((idPhotosToDelete.contains(thumbImageId)) & (image1 != null || image2 != null)) {
+            if (idPhotosToDelete.size() == 1 & !idPhotosToKeep.contains(thumbImageId) & idPhotosToKeep.size() == 1) {
+                photoService.deletePhotoByEditingComment(idPhotosToDelete.get(0));
+                Photo photoToKeep = photoService.findById(idPhotosToKeep.get(0));
+                photoAlbum.setThumbImage(photoToKeep);
+                photoAlbumService.save(photoAlbum);
+            }
+            for (Long id : idPhotosToDelete) {
+                photoService.deletePhotoByEditingComment(id);
+            }
+        } else if (!idPhotosToKeep.isEmpty()) {
+            for (Photo photo : photos) {
+                for (Long id : idPhotosToKeep) {
+                    if (!id.equals(photo.getId())) {
+                        photoService.deletePhoto(photo.getId());
+                    }
+                }
+            }
+        } else {
+            for (Photo photo : photos) {
+                photoService.deletePhoto(photo.getId());
+            }
+        }
+        photos.clear();
+        for (Long id : idPhotosToKeep) {
+            photos.add(photoService.findById(id));
+        }
+        articleCommentDto.setPhotos(photos);
+        return articleCommentDto;
     }
 }
 
