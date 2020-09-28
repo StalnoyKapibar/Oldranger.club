@@ -49,5 +49,4 @@ public interface ArticleService {
 
     ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticle);
 
-//    ArticleCommentDto getPhotos(ArticleComment articleComment);
 }

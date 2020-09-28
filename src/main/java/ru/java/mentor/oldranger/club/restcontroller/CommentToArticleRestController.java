@@ -47,10 +47,10 @@ public class CommentToArticleRestController {
     private final SecurityUtilsService securityUtilsService;
     private final FilterHtmlService filterHtmlService;
     private WritingBanService writingBanService;
-    private PhotoAlbumService albumService;
+    private final PhotoAlbumService albumService;
     private final PhotoService photoService;
     private final PhotoAlbumService photoAlbumService;
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
     @Operation(security = @SecurityRequirement(name = "security"),
             summary = "Get a article and a list of comments DTO", description = "Get a article and a list of comments for this article by article id", tags = {"Article comment"})
@@ -125,8 +125,7 @@ public class CommentToArticleRestController {
                     , article.getId().toString());
         }
         ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment);
-        commentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " +
-                articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+
         return ResponseEntity.ok(commentDto);
     }
 
