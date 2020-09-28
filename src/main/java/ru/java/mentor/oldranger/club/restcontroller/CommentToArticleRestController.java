@@ -80,7 +80,7 @@ public class CommentToArticleRestController {
                     description = "Error adding comment"),
             @ApiResponse(responseCode = "401",
                     description = "User have not authority")})
-    @PostMapping(value = "/comment/add", produces = {"application/json"})
+    @PostMapping(value = "/comment/add", consumes = {"multipart/form-data"})
     public ResponseEntity<ArticleCommentDto> addCommentToArticle(@ModelAttribute @Valid ReceivedCommentArticleDto receivedCommentDto,
                                                                  @RequestPart(required = false) MultipartFile image1,
                                                                  @RequestPart(required = false) MultipartFile image2) {
@@ -136,7 +136,7 @@ public class CommentToArticleRestController {
                     content = @Content(schema = @Schema(implementation = ArticleCommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Error updating comment"),
             @ApiResponse(responseCode = "401", description = "User have not authority")})
-    @PutMapping(value = "/comment/update", produces = {"application/json"})
+    @PutMapping(value = "/comment/update", consumes = {"multipart/form-data"})
     public ResponseEntity<ArticleCommentDto> updateArticleComment(@ModelAttribute @Valid ReceivedCommentArticleDto receivedCommentArticleDto,
                                                                   @RequestParam("commentID") Long commentID,
                                                                   @RequestParam String[] photoIdList,
