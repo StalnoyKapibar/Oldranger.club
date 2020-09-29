@@ -33,6 +33,9 @@ public class ArticleComment extends BaseComment {
     @Column(name = "isDeleted")
     private boolean isDeleted;
 
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
+
     public ArticleComment(Article article, User user, ArticleComment answerTo, LocalDateTime dateTime, String commentText) {
         super(user, dateTime, commentText);
         this.article = article;

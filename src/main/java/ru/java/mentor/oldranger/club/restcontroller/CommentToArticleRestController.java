@@ -60,13 +60,16 @@ public class CommentToArticleRestController {
             @ApiResponse(responseCode = "204", description = "Article not found")})
     @GetMapping(value = "/comments", produces = {"application/json"})
     public ResponseEntity<ArticleAndCommentsDto> getArticleComments(@RequestParam("id") Long id) {
-
+        User currentUser = securityUtilsService.getLoggedUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Article article = articleService.getArticleById(id);
         if (article == null) {
             return ResponseEntity.noContent().build();
         }
 
-        List<ArticleCommentDto> articleComments = articleService.getAllByArticle(article);
+        List<ArticleCommentDto> articleComments = articleService.getAllByArticle(article, currentUser);
         ArticleAndCommentsDto articleAndCommentsDto = new ArticleAndCommentsDto(article, articleComments);
         return ResponseEntity.ok(articleAndCommentsDto);
     }
@@ -124,7 +127,7 @@ public class CommentToArticleRestController {
             photoService.save(photoAlbum, image2
                     , article.getId().toString());
         }
-        ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment);
+        ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment, user);
 
         return ResponseEntity.ok(commentDto);
     }
@@ -167,10 +170,10 @@ public class CommentToArticleRestController {
             return ResponseEntity.badRequest().build();
         }
 
-        //Логика по фото
+
         ArticleCommentDto articleCommentDto;
 
-        articleCommentDto = articleService.assembleCommentToDto(articleComment);
+        articleCommentDto = articleService.assembleCommentToDto(articleComment, user);
 
         List<Photo> photos = articleCommentDto.getPhotos();
 
@@ -225,7 +228,7 @@ public class CommentToArticleRestController {
         }
 
         ArticleCommentDto articleCommentDto;
-        articleCommentDto = articleService.assembleCommentToDto(articleComment);
+        articleCommentDto = articleService.assembleCommentToDto(articleComment, user);
         List<Photo> photos = articleCommentDto.getPhotos();
         if (!photos.isEmpty()) {
             for (Photo photo : photos) {

@@ -34,7 +34,7 @@ public interface ArticleService {
 
     void addCommentToArticle(ArticleComment articleComment);
 
-    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment);
+    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment, User user);
 
     ArticleComment getCommentById(Long id);
 
@@ -42,7 +42,7 @@ public interface ArticleService {
 
     void deleteComment(Long id);
 
-    List<ArticleCommentDto> getAllByArticle(Article article);
+    List<ArticleCommentDto> getAllByArticle(Article article, User user);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
   

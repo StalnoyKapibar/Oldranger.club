@@ -13,32 +13,22 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleCommentDto extends ArticlePhotosDTO{
+public class ArticleCommentDto {
 
-    private Long position;
     private Long id;
+    private Long position;
     private Long articleId;
+    private String articleName;
     private User author;
     private LocalDateTime commentDateTime;
+    private LocalDateTime commentUpdateTime;
+    private Long messageCount;
     private LocalDateTime replyDateTime;
     private Long parentId;
     private String replyNick;
     private String replyText;
     private String commentText;
+    private List<Photo> photos;
+    private boolean updatable;
     private boolean isDeleted;
-
-    public ArticleCommentDto(Long position, Long id, Long articleId, User author, LocalDateTime commentDateTime, LocalDateTime replyDateTime, Long parentId, String replyNick, String replyText, String commentText, boolean isDeleted, List<Photo> photos) {
-        this.position = position;
-        this.id = id;
-        this.articleId = articleId;
-        this.author = author;
-        this.commentDateTime = commentDateTime;
-        this.replyDateTime = replyDateTime;
-        this.parentId = parentId;
-        this.replyNick = replyNick;
-        this.replyText = replyText;
-        this.commentText = commentText;
-        this.isDeleted = isDeleted;
-        setPhotos(photos);
-    }
 }

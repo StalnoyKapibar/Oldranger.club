@@ -70,7 +70,7 @@ class ArticleServiceImplTest {
         articleComment.setPosition(3L);
         article.setId(3L);
         Mockito.when(userStatisticService.getUserStaticById(articleComment.getUser().getId())).thenReturn(userStatistic);
-        ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment);
+        ArticleCommentDto articleCommentDto = articleService.assembleCommentToDto(articleComment, user);
         Assert.assertEquals(articleComment.getUser().getNickName(), articleCommentDto.getReplyNick());
         Assert.assertEquals(articleComment.getCommentText(), articleCommentDto.getReplyText());
         Assert.assertEquals(articleComment.getDateTime(), articleCommentDto.getCommentDateTime());
@@ -80,12 +80,14 @@ class ArticleServiceImplTest {
 
     @Test
     public void getAllByArticle() {
-        Article article = new Article("String title", null, null, LocalDateTime.now(), "String text", true, true);
+        User user = new User();
+        user.setNickName("NickName");
+        Article article = new Article("String title", user, null, LocalDateTime.now(), "String text", true, true);
         article.setId(1L);
         ArticleCommentDto articleCommentDto = new ArticleCommentDto();
         articleCommentDto.setArticleId(article.getId());
         Mockito.when(pageable.getPageNumber()).thenReturn(1);
-        articleService.getAllByArticle(article);
+        articleService.getAllByArticle(article, article.getUser());
         Mockito.verify(articleCommentRepository, Mockito.times(1))
                 .findByArticle(article);
     }
