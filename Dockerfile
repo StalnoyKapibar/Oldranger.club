@@ -11,5 +11,5 @@ COPY uploads/ uploads/
 COPY media/ media/
 COPY filesInChat/ filesInChat/
 EXPOSE 8888
-ENTRYPOINT ["java", "-jar", "target/oldranger.club-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "target/oldranger.club-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
 
