@@ -104,9 +104,9 @@ public class CommentToArticleRestController {
         LocalDateTime localDateTime = LocalDateTime.now();
         if (receivedCommentDto.getAnswerId() != null) {
             ArticleComment answer = articleService.getCommentById(receivedCommentDto.getAnswerId());
-            articleComment = new ArticleComment(article, user, answer, localDateTime, receivedCommentDto.getCommentText());
+            articleComment = new ArticleComment(article, user, answer, localDateTime, cleanedText);
         } else {
-            articleComment = new ArticleComment(article, user, null, localDateTime, receivedCommentDto.getCommentText());
+            articleComment = new ArticleComment(article, user, null, localDateTime, cleanedText);
         }
 
         if (user == null || !currentUser.getId().equals(user.getId())) {
@@ -121,11 +121,11 @@ public class CommentToArticleRestController {
 
         if (image1 != null) {
             photoService.save(photoAlbum, image1
-                    , article.getId().toString());
+                    , articleComment.getId().toString());
         }
         if (image2 != null) {
             photoService.save(photoAlbum, image2
-                    , article.getId().toString());
+                    , articleComment.getId().toString());
         }
         ArticleCommentDto commentDto = articleService.assembleCommentToDto(articleComment, user);
 
