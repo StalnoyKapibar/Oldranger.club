@@ -102,7 +102,7 @@ public class ArticleServiceImpl implements ArticleService {
             parentId = articleComment.getAnswerTo().getId();
         }
 
-        articleCommentDto.setArticleId(articleComment.getId());
+        articleCommentDto.setId(articleComment.getId());
         articleCommentDto.setPosition(articleComment.getPosition());
         articleCommentDto.setArticleId(articleComment.getArticle().getId());
         articleCommentDto.setArticleName(articleComment.getArticle().getTitle());
