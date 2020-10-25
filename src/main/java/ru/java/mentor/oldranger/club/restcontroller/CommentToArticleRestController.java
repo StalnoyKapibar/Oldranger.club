@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.java.mentor.oldranger.club.dto.*;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
+import ru.java.mentor.oldranger.club.model.comment.Comment;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.media.Photo;
 import ru.java.mentor.oldranger.club.model.media.PhotoAlbum;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -150,7 +152,14 @@ public class CommentToArticleRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         ArticleComment articleComment = articleService.getCommentById(commentID);
+        ArticleComment answerComment = articleComment.getAnswerTo();
+        if (answerComment != null) {
+            receivedCommentArticleDto.setAnswerId(articleComment.getAnswerTo().getId());
+        }
+        Article article = articleService.getArticleById(receivedCommentArticleDto.getIdArticle());
         User user = articleComment.getUser();
+
+        articleComment = setInfoIntoComment(articleComment, receivedCommentArticleDto);
 
         boolean admin = securityUtilsService.isAdmin();
         boolean moderator = securityUtilsService.isModerator();
@@ -198,7 +207,7 @@ public class CommentToArticleRestController {
             if (!idPhotosToKeep.contains(photo.getId()))
                 idPhotosToDelete.add(photo.getId());
         }
-        PhotoAlbum photoAlbum = photoAlbumService.findPhotoAlbumByTitle(articleComment.getId().toString());
+        PhotoAlbum photoAlbum = photoAlbumService.findById(article.getId());
 
         articleCommentDto = deletePhotoFromDto(photoAlbum, image1, image2, idPhotosToKeep, idPhotosToDelete, photos, articleCommentDto);
         articleCommentDto = updatePhotos(photoAlbum, image1, image2, articleComment, articleCommentDto, photos);
@@ -296,6 +305,18 @@ public class CommentToArticleRestController {
         }
         articleCommentDto.setPhotos(photos);
         return articleCommentDto;
+    }
+
+    private ArticleComment setInfoIntoComment(ArticleComment articleComment, ReceivedCommentArticleDto messageComments) {
+        articleComment.setArticle(articleService.getArticleById(messageComments.getIdArticle()));
+        articleComment.setCommentText(filterHtmlService.filterHtml(messageComments.getCommentText()));
+        if (messageComments.getAnswerId() != null) {
+            articleComment.setAnswerTo(articleService.getCommentById(messageComments.getAnswerId()));
+        } else {
+            articleComment.setAnswerTo(null);
+        }
+        articleComment.setDateTime(articleComment.getDateTime());
+        return articleComment;
     }
 }
 
