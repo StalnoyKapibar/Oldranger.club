@@ -2,22 +2,22 @@ package ru.java.mentor.oldranger.club.service.article.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleCommentRepository;
 import ru.java.mentor.oldranger.club.dao.ArticleRepository.ArticleRepository;
-import ru.java.mentor.oldranger.club.dto.ArticleAndCommentsDto;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
 import ru.java.mentor.oldranger.club.dto.ArticleListAndCountArticlesDto;
 import ru.java.mentor.oldranger.club.model.article.Article;
 import ru.java.mentor.oldranger.club.model.article.ArticleTag;
 import ru.java.mentor.oldranger.club.model.comment.ArticleComment;
-import ru.java.mentor.oldranger.club.model.comment.Comment;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.model.user.UserStatistic;
 import ru.java.mentor.oldranger.club.service.article.ArticleService;
+import ru.java.mentor.oldranger.club.service.media.PhotoService;
 import ru.java.mentor.oldranger.club.service.user.UserStatisticService;
 
 import javax.transaction.Transactional;
@@ -35,7 +35,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleCommentRepository articleCommentRepository;
     private UserStatisticService userStatisticService;
-
+    private  PhotoService photoService;
     @Override
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAllByDraftIsFalse(pageable);
@@ -59,7 +59,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Cacheable
     public Article getArticleById(Long id) {
-        return articleRepository.findById(id).get();
+        log.debug("Getting article by id = {}", id);
+        return articleRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -87,9 +88,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleCommentDto assembleCommentToDto(ArticleComment articleComment) {
-        ArticleCommentDto articleCommentDto;
-
+    public ArticleCommentDto assembleCommentToDto(ArticleComment articleComment, User user) {
+        ArticleCommentDto articleCommentDto = new ArticleCommentDto();
+        try {
         LocalDateTime replyTime = null;
         String replyNick = null;
         String replyText = null;
@@ -101,23 +102,44 @@ public class ArticleServiceImpl implements ArticleService {
             parentId = articleComment.getAnswerTo().getId();
         }
 
-        articleCommentDto = new ArticleCommentDto(
-                articleComment.getPosition(),
-                articleComment.getId(),
-                articleComment.getArticle().getId(),
-                articleComment.getUser(),
-                articleComment.getDateTime(),
-                replyTime, parentId, replyNick, replyText,
-                articleComment.getCommentText(),
-                articleComment.isDeleted());
+        articleCommentDto.setId(articleComment.getId());
+        articleCommentDto.setPosition(articleComment.getPosition());
+        articleCommentDto.setArticleId(articleComment.getArticle().getId());
+        articleCommentDto.setArticleName(articleComment.getArticle().getTitle());
+        articleCommentDto.setAuthor(articleComment.getUser());
+        articleCommentDto.setCommentDateTime(articleComment.getDateTime());
+        articleCommentDto.setCommentUpdateTime(articleComment.getUpdateTime());
+        articleCommentDto.setMessageCount(userStatisticService.getUserStaticById(articleComment.getUser().getId()).getMessageCount());
+        articleCommentDto.setReplyDateTime(replyTime);
+        articleCommentDto.setParentId(parentId);
+        articleCommentDto.setReplyNick(replyNick);
+        articleCommentDto.setReplyText(replyText);
+        articleCommentDto.setCommentText(articleComment.getCommentText());
+        articleCommentDto.setPhotos(photoService.findByAlbumTitleAndDescription("PhotoAlbum by " + articleComment.getArticle().getTitle(), articleComment.getId().toString()));
+        articleCommentDto.setDeleted(articleComment.isDeleted());
+
+        boolean allowedEditingTime = LocalDateTime.now().compareTo(articleComment.getDateTime().plusDays(7)) >= 0;
+        if (user == null) {
+            articleCommentDto.setUpdatable(false);
+        } else if (user.getId().equals(articleComment.getUser().getId()) && !allowedEditingTime) {
+            articleCommentDto.setUpdatable(true);
+        } else {
+            articleCommentDto.setUpdatable(false);
+        }
+        log.debug("Comment dto assembled");
+    } catch (Exception e) {
+        log.error(e.getMessage(), e);
+    }
         return articleCommentDto;
     }
+
 
     @Override
     public ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticles) {
         ArticleListAndCountArticlesDto articleListDto = new ArticleListAndCountArticlesDto(articles, countArticles);
         return articleListDto;
     }
+
 
     @Override
     @Cacheable(value = "articleComment")
@@ -139,10 +161,10 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleCommentDto> getAllByArticle(Article article) {
+    public List<ArticleCommentDto> getAllByArticle(Article article, User user) {
         log.debug("Getting list of comment dtos for article with id = {}", article.getId());
         List<ArticleCommentDto> articleCommentDto = null;
-        List<ArticleComment> articleComments = new ArrayList<>();
+        List<ArticleComment> articleComments;
         try {
             articleComments = articleCommentRepository.findByArticle(article);
             for (ArticleComment comment : articleComments) {
@@ -155,7 +177,7 @@ public class ArticleServiceImpl implements ArticleService {
             List<ArticleCommentDto> list;
             if (articleComments.size() != 0) {
                 list = articleComments.subList(0, articleComments.size()).
-                        stream().map(this::assembleCommentToDto).collect(Collectors.toList());
+                        stream().map((ArticleComment articleComment) -> assembleCommentToDto(articleComment, user)).collect(Collectors.toList());
             } else {
                 list = Collections.emptyList();
             }
@@ -184,5 +206,10 @@ public class ArticleServiceImpl implements ArticleService {
         log.debug("Getting list childComment with idAnswerTo = {}", comment.getId());
         List<ArticleComment> childComment = articleCommentRepository.findAllByAnswerTo(comment);
         return childComment;
+    }
+
+    @Override
+    public boolean isEmptyComment(String comment) {
+        return StringUtils.isBlank(comment.replaceAll("<.+?>", ""));
     }
 }

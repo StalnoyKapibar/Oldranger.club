@@ -1,6 +1,7 @@
 package ru.java.mentor.oldranger.club.service.article;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.ArticleCommentDto;
@@ -33,7 +34,7 @@ public interface ArticleService {
 
     void addCommentToArticle(ArticleComment articleComment);
 
-    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment);
+    ArticleCommentDto assembleCommentToDto(ArticleComment articleComment, User user);
 
     ArticleComment getCommentById(Long id);
 
@@ -41,7 +42,7 @@ public interface ArticleService {
 
     void deleteComment(Long id);
 
-    List<ArticleCommentDto> getAllByArticle(Article article);
+    List<ArticleCommentDto> getAllByArticle(Article article, User user);
 
     Page<Article> getArticlesForAnon(Pageable pageable);
   
@@ -49,4 +50,5 @@ public interface ArticleService {
 
     ArticleListAndCountArticlesDto assembleArticleListAndCountArticleDto(List<Article> articles, long countArticle);
 
+    boolean isEmptyComment(String comment);
 }
