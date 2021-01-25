@@ -9,14 +9,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.java.mentor.oldranger.club.dto.SectionDto;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.dto.SubsectionDto;
+import ru.java.mentor.oldranger.club.dto.SubsectionPageDTO;
 import ru.java.mentor.oldranger.club.model.forum.Section;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
+import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
 import ru.java.mentor.oldranger.club.service.forum.SectionService;
 import ru.java.mentor.oldranger.club.service.forum.SectionsAndSubsectionsService;
@@ -55,6 +61,36 @@ public class SectionsAndSubsectionsRestController {
         }
 
         return ResponseEntity.ok(dtos);
+    }
+
+
+    @Operation(security = @SecurityRequirement(name = "security"),
+            summary = "Get all SectionsAndSubsectionsDto Page", tags = {"Sections and subsections"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SectionsAndSubsectionsDto.class))))})
+    @GetMapping(value = "/allsectionsandsubsectionsPage", produces = {"application/json"})
+    public ResponseEntity<SubsectionPageDTO> getSectionsAndSubsectionsDto(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
+        List<SectionsAndSubsectionsDto> dtos = null;
+        SubsectionPageDTO subsectionPageDTO = new SubsectionPageDTO();
+        User user = securityUtilsService.getLoggedUser();
+        if (user == null) {
+            dtos = sectionsAndSubsectionsService.getAllSectionsAndSubsectionsForAnon();
+        } else {
+            dtos = sectionsAndSubsectionsService.getAllSectionsAndSubsections();
+        }
+        Pageable(page, dtos, subsectionPageDTO);
+
+        return ResponseEntity.ok(subsectionPageDTO);
+    }
+
+    private void Pageable(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page, List<SectionsAndSubsectionsDto> dtos, SubsectionPageDTO subsectionPageDTO) {
+        Pageable pageable = PageRequest.of(page, 10);
+        long start = pageable.getOffset();
+        long end = (start + pageable.getPageSize()) > dtos.size() ? dtos.size() : (start + pageable.getPageSize());
+        Page<SectionsAndSubsectionsDto> pages = new PageImpl<>(dtos.subList((int) start, (int) end), pageable, dtos.size());
+        subsectionPageDTO.setTopics(pages.getContent());
+        subsectionPageDTO.setTotalElements(pages.getTotalElements());
     }
 
     @Operation(security = @SecurityRequirement(name = "security"),

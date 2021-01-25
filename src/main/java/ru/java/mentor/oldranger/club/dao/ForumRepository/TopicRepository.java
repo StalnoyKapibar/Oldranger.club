@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.java.mentor.oldranger.club.dto.TopicAndNewMessagesCountDto;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 import ru.java.mentor.oldranger.club.model.forum.Topic;
 import ru.java.mentor.oldranger.club.model.user.User;
@@ -12,37 +13,38 @@ import ru.java.mentor.oldranger.club.projection.IdAndNumberProjection;
 import java.util.List;
 
 public interface TopicRepository extends JpaRepository<Topic, Long> {
-
     Page<Topic> findAllBytopicStarter(User user, Pageable pageable);
+
     /*
      * Выборка по N первых актуальных (соритировка по дате) Topic (из topics) для каждой Section.
      * */
+
     @Query(nativeQuery = true,
 //            value = "select * " +
 //                    "from (select *, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics) t where i <= ?1")
             value = "select * from (select topics.*, subsections.id_section, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics left join subsections on topics.subsection_id = subsections.id) t where i <= ?1")
     List<Topic> getActualTopicsLimitAnyBySection(Integer limitTopicsBySection);
-
     /*
      * Выборка по N первых актуальных (соритировка по дате) Topic (из topics) для каждой Section.
      * Topic выбираются с условием isHideToAnon = false (значение isHideToAnon в Section не учитывается)
      * */
+
     @Query(nativeQuery = true,
 //            value = "select * from (select *, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics where is_hide = false) t where i <= ?1")
             value = "select * from (select topics.*, subsections.id_section, row_number() over (partition by id_section order by date_last_message desc, id asc) i from topics left join subsections on topics.subsection_id = subsections.id where topics.is_hide = false) t where i <= ?1")
     List<Topic> getActualTopicsLimitAnyBySectionForAnon(Integer limitTopicsBySection);
-
     /*
      * Выборка по N первых актуальных (соритировка по дате последнего сообщения) Topic (из topics).
      * */
+
     @Query(nativeQuery = true,
             value = "select * from topics order by date_last_message desc limit ?1")
     List<Topic> getActualTopicsLimit(Integer limitTopics);
-
     /*
      * Выборка по N первых актуальных (соритировка по дате последнего сообщения) Topic (из topics).
      * Topic выбираются с условием isHideToAnon = false (значение isHideToAnon в Section не учитывается)
      * */
+
     @Query(nativeQuery = true,
             value = "select * from topics t where t.is_hide = false order by date_last_message desc limit ?1")
     List<Topic> getActualTopicsLimitForAnon(Integer limitTopics);

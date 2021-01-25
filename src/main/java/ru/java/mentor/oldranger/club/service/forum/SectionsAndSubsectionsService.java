@@ -1,5 +1,7 @@
 package ru.java.mentor.oldranger.club.service.forum;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.java.mentor.oldranger.club.dto.SectionsAndSubsectionsDto;
 import ru.java.mentor.oldranger.club.model.forum.Subsection;
 
@@ -17,4 +19,5 @@ public interface SectionsAndSubsectionsService {
     void swapSubsectons(Map<Long, List<String>> sectionsAndSubsectionsIds);
 
     Subsection getSubsectionById(Long id);
+
 }
