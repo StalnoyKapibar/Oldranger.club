@@ -28,7 +28,7 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="STASH"/>
     </root>
-    <logger name="ru.java.mentor.oldranger.club" level="debug" additivity="false">
+    <logger name="ru.oldranger.club" level="debug" additivity="false">
         <appender-ref ref="Async-STASH"/>
     </logger>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>

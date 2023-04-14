@@ -201,7 +201,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>ru.java.mentor.oldranger.club.Application</mainClass>
+					<mainClass>ru.oldranger.club.Application</mainClass>
 				</configuration>
 				<executions>
 					<execution>
